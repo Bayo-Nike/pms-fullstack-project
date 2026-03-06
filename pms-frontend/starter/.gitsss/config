@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = https://172.16.0.203/gadisa/hcm-client.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "nurhusen"]
+	remote = origin
+	merge = refs/heads/nurhusen
+	vscode-merge-base = origin/nurhusen
