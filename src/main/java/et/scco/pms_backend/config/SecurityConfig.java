@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/profile").authenticated()
+                        .requestMatchers("/api/admin/contractors/download/**").permitAll() // allow file download
                         .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 );

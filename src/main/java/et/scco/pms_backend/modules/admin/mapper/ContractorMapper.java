@@ -16,6 +16,7 @@ public class ContractorMapper {
         dto.setContractorName(contractor.getContractorName());
         dto.setStatus(contractor.getStatus());
         dto.setCreatedDate(contractor.getCreatedDate());
+        dto.setDocument(contractor.getDocument());
 
         return dto;
     }

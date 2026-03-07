@@ -29,9 +29,14 @@ public class ContractorServiceImpl implements ContractorService{
         
         // MultipartFile file = contractorRequestDTO.getDocument();
 
-        String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
+        // String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
 
-        contractor.setDocument(fileName);
+        if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {
+            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
+            contractor.setDocument(fileName);
+        }
+    
+        // contractor.setDocument(fileName);
         
 
         Contractor savedContractor = contractorRepository.save(contractor);
@@ -47,21 +52,22 @@ public class ContractorServiceImpl implements ContractorService{
     }
 
     @Override
-    public ContractorResponseDTO updateContractor(Long contractorId, ContractorRequestDTO contractorRequestDTO) throws Exception{
+    public ContractorResponseDTO updateContractor(Long contractorId, ContractorRequestDTO contractorRequestDTO) throws Exception {
 
         Contractor contractor = contractorRepository.findById(contractorId)
-        .orElseThrow(() ->
-                new ResourceNotFoundException("Contractor is not Exist with given id:" + contractorId));
+            .orElseThrow(() ->
+                new ResourceNotFoundException("Contractor does not exist with given id: " + contractorId));
 
-
-        // MultipartFile file = contractorRequestDTO.getDocument();
-
-        // Update fields
-        String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
-    
-        contractor.setDocument(fileName);
+        // Update contractorName and status
         contractor.setContractorName(contractorRequestDTO.getContractorName());
         contractor.setStatus(contractorRequestDTO.getStatus());
+
+        // Only update file if a new one is uploaded
+        if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {
+            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
+            contractor.setDocument(fileName);
+        }
+        // else: keep the existing file
 
         Contractor updatedContractor = contractorRepository.save(contractor);
         return ContractorMapper.mapToContractorResponseDTO(updatedContractor);
