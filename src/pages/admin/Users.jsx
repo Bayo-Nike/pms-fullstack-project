@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Edit, Delete, Search, Add, Shield, Lock, HelpOutline } from '@mui/icons-material';
+import {
+    Edit, Delete, Search, Add, Shield, Lock,
+    HelpOutline, ChevronLeft, ChevronRight, InfoOutlined,
+    CheckCircle, Cancel
+} from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 
@@ -10,20 +14,21 @@ export default function Users() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // UI states
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [deleteConfig, setDeleteConfig] = useState({ show: false, userId: null, userName: '' });
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    useEffect(() => { fetchUsers(); }, []);
+    useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
     const fetchUsers = async () => {
         try {
             const res = await adminApi.GET_USERS();
             setUsers(res.data || res);
         } catch (err) {
-            console.error("Error fetching users", err);
+            showAlert('error', 'Failed to synchronize user registry.');
         } finally {
             setLoading(false);
         }
@@ -35,100 +40,77 @@ export default function Users() {
     };
 
     const handleDeleteClick = (user) => {
-        setDeleteConfig({ show: true, userId: user.id, userName: `${user.firstName} ${user.lastName}` });
+        setDeleteConfig({ show: true, userId: user.id, userName: user.fullName });
     };
 
     const executeDelete = async () => {
-        const id = deleteConfig.userId;
-        const name = deleteConfig.userName;
+        const { userId, userName } = deleteConfig;
         setDeleteConfig({ show: false, userId: null, userName: '' });
-
         try {
-            await adminApi.DELETE_USER(id);
-            showAlert('success', `User "${name}" has been removed from the system.`);
+            await adminApi.DELETE_USER(userId);
+            showAlert('success', `Access revoked for ${userName}.`);
             fetchUsers();
         } catch (err) {
-            showAlert('error', err.response?.data?.message || "Failed to delete user.");
+            showAlert('error', "Revocation failed: User might have active dependencies.");
         }
     };
 
-    // Filter users based on search
     const filteredUsers = useMemo(() => {
         return users.filter(user =>
-            (user.firstName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (user.lastName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (user.username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (user.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
             (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [users, searchTerm]);
 
+    const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
     return (
         <div className="w-full space-y-4 animate-fadeIn px-2 pb-10 relative">
-
-            {/* Delete Confirmation Modal */}
             {deleteConfig.show && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-100">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
-                                <HelpOutline style={{ fontSize: 32 }} />
-                            </div>
-                            <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Remove User</h3>
-                            <p className="text-sm text-slate-500 mt-2">
-                                Are you sure you want to delete <b>{deleteConfig.userName}</b>? This user will lose all system access.
-                            </p>
-                        </div>
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center border border-slate-100">
+                        <HelpOutline className="text-red-500 mb-4 mx-auto" style={{ fontSize: 40 }} />
+                        <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Confirm Revocation</h3>
+                        <p className="text-sm text-slate-500 mt-2">Delete user account for <b>{deleteConfig.userName}</b>?</p>
                         <div className="flex gap-3 mt-8">
-                            <button onClick={() => setDeleteConfig({ show: false, userId: null, userName: '' })} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest">Cancel</button>
-                            <button onClick={executeDelete} className="flex-1 px-4 py-2.5 rounded-xl bg-red-500 text-white font-bold text-xs uppercase tracking-widest shadow-lg hover:bg-red-600 transition-colors">Delete</button>
+                            <button onClick={() => setDeleteConfig({ show: false })} className="flex-1 px-4 py-2 text-xs font-bold border rounded-xl uppercase hover:bg-slate-50 transition-all">Cancel</button>
+                            <button onClick={executeDelete} className="flex-1 px-4 py-2 text-xs font-bold bg-red-500 text-white rounded-xl uppercase shadow-lg transition-all">Delete</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            <AlertMessage
-                show={alert.show}
-                type={alert.type}
-                message={alert.message}
-                onClose={() => setAlert(prev => ({ ...prev, show: false }))}
-            />
+            <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert(prev => ({ ...prev, show: false }))} />
 
-            {/* Header Bar */}
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
-                    <h1 className="text-base font-bold text-slate-900 leading-none">System Users</h1>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Account & Access Management</p>
+                    <h1 className="text-base font-bold text-slate-900 leading-none">User Accounts</h1>
+                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Authentication Registry</p>
                 </div>
-                <button
-                    onClick={() => navigate('/admin/users/create')}
-                    className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest"
-                >
+                <button onClick={() => navigate('/admin/users/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                     <Add style={{ fontSize: 18 }} /> Create User
                 </button>
             </div>
 
-            {/* Search Bar */}
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center">
+            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
                 <div className="relative max-w-sm w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
-                    <input
-                        type="text"
-                        placeholder="Search users..."
-                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <input type="text" placeholder="Search by name or email..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                </div>
+                <div className="flex items-center gap-2 px-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Show:</span>
+                    <select value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))} className="bg-slate-50 border border-slate-200 text-[10px] font-bold rounded px-2 py-1 outline-none">
+                        {[5, 10, 20].map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
                 </div>
             </div>
 
-            {/* Table */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
-                            <th className="px-6 py-3">First Name</th>
-                            <th className="px-6 py-3">Last Name</th>
-                            <th className="px-6 py-3">User Name</th>
+                            <th className="px-6 py-3">Full Name</th>
                             <th className="px-6 py-3">Email</th>
                             <th className="px-6 py-3">Assigned Roles</th>
                             <th className="px-6 py-3 text-right">Operations</th>
@@ -136,31 +118,28 @@ export default function Users() {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {loading ? (
-                            <tr><td colSpan="6" className="px-6 py-10 text-center text-slate-400 text-xs italic">Loading...</td></tr>
-                        ) : filteredUsers.length > 0 ? (
-                            filteredUsers.map((user) => {
-                                // Check if user has SUPER_ADMIN role
+                            <tr><td colSpan="5" className="px-6 py-10 text-center text-slate-400 text-xs italic">Syncing identities...</td></tr>
+                        ) : paginatedUsers.length > 0 ? (
+                            paginatedUsers.map((user) => {
                                 const isSuperAdmin = user.roles?.some(r => r.roleName === 'SUPER_ADMIN');
-
                                 return (
                                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-3.5">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 bg-sky-50 text-[#0284C7] rounded-lg flex items-center justify-center group-hover:bg-[#0284C7] group-hover:text-white transition-all">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSuperAdmin ? 'bg-amber-50 text-amber-600' : 'bg-sky-50 text-[#0284C7]'}`}>
                                                     <Shield style={{ fontSize: 16 }} />
                                                 </div>
-                                                <span className="text-sm font-semibold text-slate-700">{user.firstName}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-sm font-semibold text-slate-700">{user.fullName}</span>
+                                                    {user.remark && <span className="text-[9px] text-slate-400 italic">Note: {user.remark}</span>}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-3.5"><span className="text-sm font-medium text-slate-600">{user.lastName}</span></td>
-                                        <td className="px-6 py-3.5"><span className="text-sm text-slate-600 font-mono">{user.username}</span></td>
-                                        <td className="px-6 py-3.5"><span className="text-sm text-slate-600">{user.email}</span></td>
+                                        <td className="px-6 py-3.5 text-sm text-slate-600">{user.email}</td>
                                         <td className="px-6 py-3.5">
                                             <div className="flex flex-wrap gap-1">
-                                                {user.roles?.map((r, idx) => (
-                                                    <span key={idx} className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${r.roleName === 'SUPER_ADMIN' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-sky-50 text-sky-700 border-sky-100'}`}>
-                                                        {r.roleName}
-                                                    </span>
+                                                {user.roles?.map((r, i) => (
+                                                    <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 rounded border border-sky-100 bg-sky-50 text-sky-700 uppercase">{r.roleName}</span>
                                                 ))}
                                             </div>
                                         </td>
@@ -173,30 +152,27 @@ export default function Users() {
                                                     </div>
                                                 ) : (
                                                     <>
-                                                        <button
-                                                            onClick={() => navigate(`/admin/users/edit/${user.id}`)}
-                                                            className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"
-                                                        >
-                                                            <Edit style={{ fontSize: 18 }} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteClick(user)}
-                                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
-                                                        >
-                                                            <Delete style={{ fontSize: 18 }} />
-                                                        </button>
+                                                        <button onClick={() => navigate(`/admin/users/edit/${user.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                        <button onClick={() => handleDeleteClick(user)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
                                                     </>
                                                 )}
                                             </div>
                                         </td>
                                     </tr>
-                                )
+                                );
                             })
                         ) : (
-                            <tr><td colSpan="6" className="px-6 py-10 text-center text-slate-400 text-xs italic">No matching users found</td></tr>
+                            <tr><td colSpan="5" className="px-6 py-20 text-center text-slate-400 text-xs italic">No users found.</td></tr>
                         )}
                     </tbody>
                 </table>
+                <div className="px-6 py-4 bg-slate-50/20 border-t border-slate-100 flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page {currentPage} of {totalPages || 1}</span>
+                    <div className="flex items-center gap-2">
+                        <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30"><ChevronLeft fontSize="small" /></button>
+                        <button disabled={currentPage === totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p + 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30"><ChevronRight fontSize="small" /></button>
+                    </div>
+                </div>
             </div>
         </div>
     );

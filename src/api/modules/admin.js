@@ -14,7 +14,7 @@ const adminApi = {
     GET_PERMISSIONS: () => api.get("/admin/permissions"),
 
     //city
-    GET_CITY: () => api.get("/admin/cities"),
+    GET_CITY: () => api.get("/admin/cities/city"),
     GET_SUB_CITIES: () => api.get('/admin/cities/sub'),
     GET_SUB_CITY: (id) => api.get(`/admin/cities/sub/${id}`),
     CREATE_SUB_CITY: (data) => api.post("/admin/cities/sub", data),

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,283 +20,100 @@ import Positions from './pages/admin/Positions';
 import CreatePosition from './pages/admin/CreatePosition';
 import Contractors from './pages/admin/Contractors';
 import CreateContractor from './pages/admin/CreateContractor';
+import Employees from './pages/admin/Employees';
+import CreateEmployee from './pages/admin/CreateEmployee';
 
 export default function AppRoutes() {
+
+  // Helper to wrap components in a PermissionRoute
+  const protect = (comp, perm) => (
+    <PermissionRoute permission={perm}>{comp}</PermissionRoute>
+  );
+
+  // Helper for placeholders
+  const placeholder = (title, perm) => (
+    <PermissionRoute permission={perm}><Placeholder title={title} /></PermissionRoute>
+  );
+
   return (
     <Routes>
-      {/* --- PUBLIC ROUTE --- */}
       <Route path="/login" element={<Login />} />
 
-      {/* --- PROTECTED & LAYOUT WRAPPED ROUTES --- */}
-      <Route path="/" element={
-        <ProtectedRoute>
-          <Layout />
-        </ProtectedRoute>
-      }>
-        {/* Initial Redirect */}
+      <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route index element={<Navigate to="/dashboard" replace />} />
 
-        {/* 1. DASHBOARD MODULE */}
-        <Route path="dashboard" element={
-          <PermissionRoute permission="CAN_VIEW_DASHBOARD">
-            <Dashboard />
-          </PermissionRoute>
-        } />
-        <Route path="dashboard/gis" element={
-          <PermissionRoute permission="CAN_VIEW_GIS_MAP">
-            <Placeholder title="GIS Map View" />
-          </PermissionRoute>
-        } />
-        <Route path="dashboard/alerts" element={
-          <PermissionRoute permission="CAN_MANAGE_ALERTS">
-            <Placeholder title="Critical Alerts & Issues" />
-          </PermissionRoute>
-        } />
+        {/* 1. Dashboard */}
+        <Route path="dashboard" element={protect(<Dashboard />, "CAN_VIEW_DASHBOARD")} />
+        <Route path="dashboard/gis" element={placeholder("GIS Map View", "CAN_VIEW_GIS_MAP")} />
+        <Route path="dashboard/alerts" element={placeholder("Alerts & Issues", "CAN_MANAGE_ALERTS")} />
 
-        {/* 2. PROJECTS MODULE */}
-        <Route path="projects" element={
-          <PermissionRoute permission="CAN_VIEW_PROJECTS">
-            <Projects />
-          </PermissionRoute>
-        } />
-        <Route path="projects/:id" element={
-          <PermissionRoute permission="CAN_VIEW_PROJECTS">
-            <ProjectDetails />
-          </PermissionRoute>
-        } />
-        <Route path="projects/progress" element={
-          <PermissionRoute permission="CAN_VIEW_PROJECTS">
-            <Placeholder title="Physical Progress Tracking" />
-          </PermissionRoute>
-        } />
-        <Route path="projects/milestones" element={
-          <PermissionRoute permission="CAN_VIEW_PROJECTS">
-            <Placeholder title="Milestone Management" />
-          </PermissionRoute>
-        } />
-        <Route path="projects/gantt" element={
-          <PermissionRoute permission="CAN_MANAGE_GANTT">
-            <Placeholder title="Gantt Schedule Management" />
-          </PermissionRoute>
-        } />
+        {/* 2. Projects */}
+        <Route path="projects" element={protect(<Projects />, "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/:id" element={protect(<ProjectDetails />, "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/progress" element={placeholder("Physical Progress", "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/milestones" element={placeholder("Milestones", "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
 
-        {/* 3. CONTRACTS MODULE */}
-        <Route path="admin/contractors" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <Contractors />
-          </PermissionRoute>
-        } />
+        {/* 3. Contracts & Contractors */}
+        <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
+        <Route path="admin/contractors/create" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
 
-        <Route path="admin/contractors/create" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreateContractor />
-          </PermissionRoute>
-        } />
-        {/* <Route path="contracts/overview" element={
-          <PermissionRoute permission="CAN_VIEW_CONTRACTS">
-            <Placeholder title="Contract Overview" />
-          </PermissionRoute>
-        } />
-        <Route path="contracts/vo" element={
-          <PermissionRoute permission="CAN_MANAGE_VO">
-            <Placeholder title="Variation Orders (VO)" />
-          </PermissionRoute>
-        } />
-        <Route path="contracts/performance" element={
-          <PermissionRoute permission="CAN_RATE_CONTRACTORS">
-            <Placeholder title="Contractor Performance Rating" />
-          </PermissionRoute>
-        } />
-        <Route path="contracts/retention" element={
-          <PermissionRoute permission="CAN_MANAGE_RETENTION">
-            <Placeholder title="Retention & Liquidated Damages" />
-          </PermissionRoute>
-        } />
-        <Route path="contracts/repository" element={
-          <PermissionRoute permission="CAN_ACCESS_REPOSITORY">
-            <Placeholder title="Contract Document Repository" />
-          </PermissionRoute>
-        } /> */}
+        {/* 4. Finance */}
+        <Route path="finance/ipc" element={placeholder("IPC Management", "CAN_VIEW_FINANCE")} />
+        <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
+        <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
+        <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
 
-        {/* 4. FINANCE MODULE */}
-        <Route path="finance/ipc" element={
-          <PermissionRoute permission="CAN_VIEW_FINANCE">
-            <Placeholder title="IPC Management" />
-          </PermissionRoute>
-        } />
-        <Route path="finance/advance" element={
-          <PermissionRoute permission="CAN_TRACK_ADVANCE">
-            <Placeholder title="Advance Payment Tracking" />
-          </PermissionRoute>
-        } />
-        <Route path="finance/escalation" element={
-          <PermissionRoute permission="CAN_MANAGE_ESCALATION">
-            <Placeholder title="Price Adjustment (Escalation)" />
-          </PermissionRoute>
-        } />
-        <Route path="finance/history" element={
-          <PermissionRoute permission="CAN_VIEW_FINANCE">
-            <Placeholder title="Payment History" />
-          </PermissionRoute>
-        } />
+        {/* 5. Field Operations */}
+        <Route path="field/diary" element={placeholder("Daily Site Diary", "CAN_WRITE_DIARY")} />
+        <Route path="field/photos" element={placeholder("Geo-Tagged Photos", "CAN_UPLOAD_PHOTOS")} />
+        <Route path="field/sync" element={placeholder("Offline Sync", "CAN_FORCE_SYNC")} />
 
-        {/* 5. FIELD OPERATIONS MODULE */}
-        <Route path="field/diary" element={
-          <PermissionRoute permission="CAN_WRITE_DIARY">
-            <Placeholder title="Daily Site Diary" />
-          </PermissionRoute>
-        } />
-        <Route path="field/photos" element={
-          <PermissionRoute permission="CAN_UPLOAD_PHOTOS">
-            <Placeholder title="Geo-Tagged Progress Photos" />
-          </PermissionRoute>
-        } />
-        <Route path="field/sync" element={
-          <PermissionRoute permission="CAN_FORCE_SYNC">
-            <Placeholder title="Offline Data Sync Status" />
-          </PermissionRoute>
-        } />
+        {/* 6. Documents */}
+        <Route path="docs/drawings" element={placeholder("Drawings", "CAN_MANAGE_DRAWINGS")} />
+        <Route path="docs/letters" element={placeholder("Letters", "CAN_MANAGE_LETTERS")} />
+        <Route path="docs/archive" element={placeholder("Archive", "CAN_ARCHIVE_DOCS")} />
 
-        {/* 6. DOCUMENTS MODULE */}
-        <Route path="docs/drawings" element={
-          <PermissionRoute permission="CAN_MANAGE_DRAWINGS">
-            <Placeholder title="Drawing Management" />
-          </PermissionRoute>
-        } />
-        <Route path="docs/letters" element={
-          <PermissionRoute permission="CAN_MANAGE_LETTERS">
-            <Placeholder title="Correspondence Log" />
-          </PermissionRoute>
-        } />
-        <Route path="docs/archive" element={
-          <PermissionRoute permission="CAN_ARCHIVE_DOCS">
-            <Placeholder title="Document Archival" />
-          </PermissionRoute>
-        } />
+        {/* 7. Resources */}
+        <Route path="resources/equipment" element={placeholder("Equipment", "CAN_MANAGE_EQUIPMENT")} />
+        <Route path="resources/materials" element={placeholder("Inventory", "CAN_MANAGE_INVENTORY")} />
 
-        {/* 7. RESOURCES MODULE */}
-        <Route path="resources/equipment" element={
-          <PermissionRoute permission="CAN_MANAGE_EQUIPMENT">
-            <Placeholder title="Equipment Utilization" />
-          </PermissionRoute>
-        } />
-        <Route path="resources/materials" element={
-          <PermissionRoute permission="CAN_MANAGE_INVENTORY">
-            <Placeholder title="Material Inventory" />
-          </PermissionRoute>
-        } />
+        {/* 8. Sys Admin */}
+        <Route path="admin/sub-cities" element={protect(<SubCities />, "CAN_VIEW_USERS")} />
+        <Route path="admin/sub-cities/create" element={protect(<CreateSubCity />, "CAN_VIEW_USERS")} />
+        <Route path="admin/sub-cities/edit/:id" element={protect(<CreateSubCity />, "CAN_VIEW_USERS")} />
 
-        {/* 8. SYS ADMIN MODULE */}
+        <Route path="admin/divisions" element={protect(<Divisions />, "CAN_VIEW_USERS")} />
+        <Route path="admin/divisions/create" element={protect(<CreateDivision />, "CAN_VIEW_USERS")} />
+        <Route path="admin/divisions/edit/:id" element={protect(<CreateDivision />, "CAN_VIEW_USERS")} />
 
-        <Route path="admin/sub-cities" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <SubCities />
-          </PermissionRoute>
-        } />
+        <Route path="admin/positions" element={protect(<Positions />, "CAN_VIEW_USERS")} />
+        <Route path="admin/positions/create" element={protect(<CreatePosition />, "CAN_VIEW_USERS")} />
+        <Route path="admin/positions/edit/:id" element={protect(<CreatePosition />, "CAN_VIEW_USERS")} />
 
-        <Route path="admin/sub-cities/create" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreateSubCity />
-          </PermissionRoute>
-        } />
+        <Route path="admin/users" element={protect(<Users />, "CAN_VIEW_USERS")} />
+        <Route path="admin/users/create" element={protect(<CreateUser />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/users/edit/:id" element={protect(<CreateUser />, "CAN_MANAGE_USERS")} />
 
-        <Route path="admin/sub-cities/edit/:id" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreateSubCity />
-          </PermissionRoute>
-        } />
+        <Route path="admin/employees" element={protect(<Employees />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/employees/create" element={protect(<CreateEmployee />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/employees/edit/:id" element={protect(<CreateEmployee />, "CAN_MANAGE_USERS")} />
 
-        <Route path="admin/divisions" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <Divisions />
-          </PermissionRoute>
-        } />
+        <Route path="admin/roles" element={protect(<Roles />, "CAN_MANAGE_ROLES")} />
+        <Route path="admin/roles/create" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
+        <Route path="admin/roles/edit/:id" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
+        <Route path="admin/logs" element={placeholder("Audit Logs", "CAN_VIEW_LOGS")} />
 
-        <Route path="admin/divisions/create" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreateDivision />
-          </PermissionRoute>
-        } />
-
-        <Route path="admin/divisions/edit/:id" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreateDivision />
-          </PermissionRoute>
-        } />
-        <Route path="admin/positions" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <Positions />
-          </PermissionRoute>
-        } />
-
-        <Route path="admin/positions/create" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreatePosition />
-          </PermissionRoute>
-        } />
-        <Route path="admin/positions/edit/:id" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <CreatePosition />
-          </PermissionRoute>
-        } />
-
-        
-
-
-        <Route path="admin/users" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
-            <Users />
-          </PermissionRoute>
-        } />
-        <Route path="admin/users/create" element={
-          <PermissionRoute permission="CAN_MANAGE_USERS">
-            <CreateUser />
-          </PermissionRoute>
-        } />
-        <Route path="admin/users/edit/:id" element={
-          <PermissionRoute permission="CAN_MANAGE_USERS">
-            <CreateUser />
-          </PermissionRoute>
-        } />
-
-        <Route path="admin/roles" element={
-          <PermissionRoute permission="CAN_MANAGE_ROLES">
-            <Roles />
-          </PermissionRoute>
-        } />
-        <Route path="admin/roles/create" element={
-          <PermissionRoute permission="CAN_MANAGE_ROLES">
-            <CreateRole />
-          </PermissionRoute>
-        } />
-        <Route path="admin/roles/edit/:id" element={
-          <PermissionRoute permission="CAN_MANAGE_ROLES">
-            <CreateRole />
-          </PermissionRoute>
-        } />
-        <Route path="admin/logs" element={
-          <PermissionRoute permission="CAN_VIEW_LOGS">
-            <Placeholder title="System Audit Logs" />
-          </PermissionRoute>
-        } />
-
-        {/* 404 CATCH-ALL */}
         <Route path="*" element={<Placeholder title="Page Not Found" />} />
       </Route>
     </Routes>
   );
 }
 
-// Reusable Placeholder for modules under development
 const Placeholder = ({ title }) => (
   <div className="p-10 bg-white rounded-[32px] border border-slate-100 shadow-sm animate-fadeIn">
-    <div className="max-w-2xl">
-      <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
-      <div className="h-1 w-20 bg-[#FBAF1E] mt-2 mb-4 rounded-full"></div>
-      <p className="text-slate-400 leading-relaxed">
-        The <b>{title}</b> module is currently being synchronized with the SCCO PMS cloud infrastructure.
-        Access levels and functional components will appear here once the configuration is finalized.
-      </p>
-    </div>
+    <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
+    <div className="h-1 w-20 bg-[#FBAF1E] mt-2 mb-4 rounded-full"></div>
+    <p className="text-slate-400">Under development for SCCO PMS.</p>
   </div>
 );

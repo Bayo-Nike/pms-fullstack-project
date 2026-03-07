@@ -103,6 +103,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_MANAGE_ROLES' },
+        { path: '/admin/employees', name: 'Employees', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_VIEW_USERS' },
         { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_MANAGE_MODULES' },
