@@ -20,7 +20,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
     setOpenMenu(openMenu === menuName ? '' : menuName);
   };
 
-  // 1. THE FULL MENU STRUCTURE
+  // 1. FULL MENU DEFINITION WITH PERMISSIONS
   const fullMenuGroups = [
     {
       id: 'dashboard',
