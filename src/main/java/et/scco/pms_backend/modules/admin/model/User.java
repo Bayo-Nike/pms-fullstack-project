@@ -1,14 +1,17 @@
 package et.scco.pms_backend.modules.admin.model;
 
+import et.scco.pms_backend.enums.EmployeeStatus;
 import et.scco.pms_backend.enums.UserType;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "users")
 public class User {
 
@@ -25,9 +28,6 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(name = "is_active")
-    private Boolean isActive = true;
 
     // SYSTEM or EMPLOYEE
     @Enumerated(EnumType.STRING)
@@ -46,4 +46,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Roles> roles = new ArrayList<>();
+
+    public EmployeeStatus getStatus() {
+        return employee != null ? employee.getStatus() : null;
+    }
 }

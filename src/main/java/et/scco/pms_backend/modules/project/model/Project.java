@@ -1,20 +1,13 @@
 package et.scco.pms_backend.modules.project.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.task.model.Task;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -30,10 +23,8 @@ public class Project {
      private LocalDateTime createdAt;
 
     // Many projects belong to one user
-    @ManyToOne
-    @JoinColumn(name = "employee_id")
-    private Employee employee;
-
+    @ManyToMany(mappedBy = "assignedProjects")
+    private List<Employee> employees = new ArrayList<>();
 
     // One project can have multiple tasks
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)

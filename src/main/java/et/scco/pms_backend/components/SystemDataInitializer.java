@@ -36,17 +36,11 @@ public class SystemDataInitializer implements ApplicationRunner {
     public void run(@NonNull ApplicationArguments args) {
 
         initCity();
-        System.out.println("City created");
         initSubCities();
-        System.out.println("Sub Cities created");
         initDivisions();
-        System.out.println("Divisions created");
         initPositions();
-        System.out.println("Positions created");
         initModulesAndPermissions();
-        System.out.println("Modules and Permissions created");
         initSuperAdmin();
-        System.out.println("Super Admin created");
     }
 
     private void initCity() {
@@ -277,7 +271,6 @@ public class SystemDataInitializer implements ApplicationRunner {
                     u.setEmail(superAdminProperties.getUserEmail());
                     u.setRoles(List.of(role));
                     u.setUserType(UserType.SYSTEM);
-                    u.setIsActive(true);
                     u.setEmployee(null);
 
                     return userRepository.save(u);

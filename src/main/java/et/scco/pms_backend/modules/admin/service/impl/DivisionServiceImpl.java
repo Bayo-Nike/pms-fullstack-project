@@ -5,6 +5,7 @@ import et.scco.pms_backend.modules.admin.dto.request.DivisionRequestDto;
 import et.scco.pms_backend.modules.admin.dto.response.DivisionResponseDto;
 import et.scco.pms_backend.modules.admin.mapper.DivisionMapper;
 import et.scco.pms_backend.modules.admin.model.Division;
+import et.scco.pms_backend.modules.admin.model.Position;
 import et.scco.pms_backend.modules.admin.repository.DivisionRepository;
 import et.scco.pms_backend.modules.admin.service.DivisionService;
 import lombok.AllArgsConstructor;

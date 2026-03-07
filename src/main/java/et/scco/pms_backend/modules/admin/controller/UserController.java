@@ -2,7 +2,9 @@ package et.scco.pms_backend.modules.admin.controller;
 
 import java.util.List;
 
+import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.modules.admin.dto.request.UserCreateRequest;
+import et.scco.pms_backend.utility.ResponseUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import et.scco.pms_backend.modules.admin.dto.request.UserRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.UserResponseDTO;
 import et.scco.pms_backend.modules.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +49,8 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<UserResponseDTO>updateUser(@PathVariable("id") Long userId,@RequestBody UserCreateRequest userRequestDTO){
-         
-        UserResponseDTO userResponseDTO=userService.updateUser(userId,userRequestDTO);
-        return ResponseEntity.ok(userResponseDTO);
-
+    public ApiResponse<UserResponseDTO> updateUser(@PathVariable("id") Long userId, @RequestBody UserCreateRequest userRequestDTO){
+        return ResponseUtil.success("Employee updated", userService.updateUser(userId,userRequestDTO));
     }
 
     @DeleteMapping("{id}")

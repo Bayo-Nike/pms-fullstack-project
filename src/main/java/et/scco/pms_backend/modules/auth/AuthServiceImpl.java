@@ -1,5 +1,7 @@
 package et.scco.pms_backend.modules.auth;
 
+import et.scco.pms_backend.enums.EmployeeStatus;
+import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.mapper.UserMapper;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
@@ -50,6 +52,11 @@ public class AuthServiceImpl implements AuthService {
                         request.getUsernameOrEmail()
                 )
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        //check if the user is active
+        if (user.getUserType().equals(UserType.EMPLOYEE) && user.getStatus() != EmployeeStatus.ACTIVE) {
+            throw new UsernameNotFoundException("User is not active");
+        }
 
         return new AuthResponseDto(token, UserMapper.toResponseDto(user));
     }

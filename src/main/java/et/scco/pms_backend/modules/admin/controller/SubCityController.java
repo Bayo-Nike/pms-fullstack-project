@@ -2,7 +2,6 @@ package et.scco.pms_backend.modules.admin.controller;
 
 import et.scco.pms_backend.modules.admin.dto.request.CreateSubCityRequestDto;
 import et.scco.pms_backend.modules.admin.dto.response.SubCityResponseDto;
-import et.scco.pms_backend.modules.admin.model.City;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,8 +16,8 @@ public class SubCityController {
     private final SubCityServiceImpl subCityService;
 
     @GetMapping("/city")
-    public City getCity(){
-        return subCityService.getCity();
+    public String getCity(){
+        return subCityService.getCity().getName();
     }
 
     @GetMapping("/sub")

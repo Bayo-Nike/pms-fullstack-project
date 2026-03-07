@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -75,6 +76,11 @@ public class PositionServiceImpl implements PositionService {
                 .stream()
                 .map(PositionMapper::responseDto)
                 .toList();
+    }
+
+    @Override
+    public Optional<Position> findByIdAndDivisionId(Long positionId, Long divisionId) {
+        return positionRepository.findByIdAndDivisionId(positionId, divisionId);
     }
 
     @Override

@@ -18,6 +18,11 @@ public class UserMapper {
         if (user == null) return null;
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
+        if (user.getUserType().equals(UserType.EMPLOYEE)){
+            dto.setFullName(user.getEmployee().getFullName());
+        }else{
+            dto.setFullName(UserType.SYSTEM.name());
+        }
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         if (user.getRoles() != null) {
@@ -25,7 +30,7 @@ public class UserMapper {
                 .map(RoleMapper::mapToRoleDTO)
                 .collect(Collectors.toList()));
         }
-        dto.setIsActive(user.getIsActive());
+
         return dto;
     }
 
@@ -35,7 +40,6 @@ public class UserMapper {
         user.setEmployee(employee);
         user.setEmail(dto.getEmail());
         user.setUsername(dto.getUsername());
-        user.setPassword(dto.getPassword());
         user.setUserType(UserType.EMPLOYEE);
         return user;
     }

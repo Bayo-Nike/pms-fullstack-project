@@ -4,15 +4,14 @@ import et.scco.pms_backend.enums.EmployeeStatus;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.task.model.Task;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Employee {
@@ -23,6 +22,9 @@ public class Employee {
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
+
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "division_id", nullable = false)
@@ -50,8 +52,11 @@ public class Employee {
             joinColumns = @JoinColumn(name = "employee_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id")
     )
-    private List<Project> assignedProjects;
+    private List<Project> assignedProjects = new ArrayList<>();
 
     @ManyToMany(mappedBy = "teamMembers")
     private List<Task> tasks = new ArrayList<>();
+
+    @OneToOne(mappedBy = "employee")
+    private User user;
 }

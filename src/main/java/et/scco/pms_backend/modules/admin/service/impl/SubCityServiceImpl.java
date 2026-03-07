@@ -44,7 +44,7 @@ public class SubCityServiceImpl implements SubCityService {
     public SubCityResponseDto createSubCity(CreateSubCityRequestDto dto)
     {
         if(subCityRepository.existsBySubCityNameIgnoreCase(dto.getName())){
-            return null;
+            throw new RuntimeException("SubCity already exists");
         }
         SubCity subCity = new SubCity();
         subCity.setSubCityName(dto.getName());
@@ -66,5 +66,11 @@ public class SubCityServiceImpl implements SubCityService {
     public void deleteSubCity(Long id) {
         //TODO - check employees, projects, task any other
         subCityRepository.deleteById(id);
+    }
+
+    @Override
+    public SubCity getSubCityEntity(Long subCityId) {
+        return subCityRepository.findById(subCityId)
+                .orElseThrow(() -> new RuntimeException("SubCity not found with id: " + subCityId));
     }
 }

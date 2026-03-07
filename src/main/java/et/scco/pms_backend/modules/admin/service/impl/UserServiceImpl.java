@@ -3,6 +3,7 @@ package et.scco.pms_backend.modules.admin.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import et.scco.pms_backend.enums.EmployeeStatus;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.dto.request.UserCreateRequest;
 import et.scco.pms_backend.modules.admin.model.Employee;
@@ -36,9 +37,8 @@ public class UserServiceImpl  implements UserService{
         User user = UserMapper.mapToUser(userRequestDTO, employee);
 
         // Encode password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
 
-        System.out.println(user);
         // Assign roles
         if (userRequestDTO.getRoleIds() != null) {
             List<Roles> roles = roleRepository.findAllById(userRequestDTO.getRoleIds());
@@ -73,7 +73,10 @@ public class UserServiceImpl  implements UserService{
 
         // Update fields
         user.setUsername(userRequestDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        if (userRequestDTO.getPassword() != null && !userRequestDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+        }
+
         user.setRoles(roleRepository.findAllById(userRequestDTO.getRoleIds()));
         User updateduUser = userRepository.save(user);
         return UserMapper.mapToUserDTO(updateduUser);
