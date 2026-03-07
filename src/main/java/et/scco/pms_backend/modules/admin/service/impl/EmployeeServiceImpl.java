@@ -23,6 +23,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final SubCityServiceImpl subCityService;
     private final DivisionServiceImpl divisionService;
     private final PositionServiceImpl positionService;
+    private final AuditLogServiceImpl auditLogService;
 
     @Override
     public Employee findEmployee(Long id) {
@@ -40,18 +41,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (employeeRepository.existsByEmail(dto.getEmail())){
             throw new RuntimeException("Employee already exists");
         }
-        Employee employee = new Employee();
-        return update(employee, dto);
+        return update(false, 0L, dto);
     }
 
     @Override
     public EmployeeResponseDto updateEmployee(Long id, CreateEmployeeRequestDto dto) {
-        Employee employee = findEmployee(id);
-        return update(employee, dto);
+        return update(true,id,  dto);
     }
 
-    private EmployeeResponseDto update(Employee employee, CreateEmployeeRequestDto dto){
+    private EmployeeResponseDto update(boolean type,Long id, CreateEmployeeRequestDto dto){
 
+        Employee employee;
+        if (type){
+            employee = findEmployee(id);
+        }else{
+            employee = new Employee();
+        }
         Division division = divisionService.getDivision(dto.getDivisionId());
 
         Position position = positionService
@@ -67,8 +72,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCity(subCityService.getCity());
         employee.setSubCity(subCityService.getSubCityEntity(dto.getSubCityId()));
         employee.setStatus(employeeStatus);
+        Employee updated = employeeRepository.save(employee);
 
-        return EmployeeMapper.responseDto(employeeRepository.save(employee));
+        if (type){
+            auditLogService.auditLog("Updated", updated.getFullName(), "Employee has been updated");
+        }else{
+            auditLogService.auditLog("Created", updated.getFullName(), "Employee has been updated");
+        }
+
+        return EmployeeMapper.responseDto(updated);
     }
 
     @Override
