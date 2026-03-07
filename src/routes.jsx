@@ -21,6 +21,7 @@ import Positions from './pages/admin/Positions';
 import CreatePosition from './pages/admin/CreatePosition';
 import Contractors from './pages/admin/Contractors';
 import CreateContractor from './pages/admin/CreateContractor';
+import EditContractor from './pages/admin/EditContractor';
 
 export default function AppRoutes() {
   return (
@@ -83,14 +84,19 @@ export default function AppRoutes() {
 
         {/* 3. CONTRACTS MODULE */}
         <Route path="admin/contractors" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
+          <PermissionRoute permission="CAN_VIEW_CONTRACTS">
             <Contractors />
           </PermissionRoute>
         } />
 
         <Route path="admin/contractors/create" element={
-          <PermissionRoute permission="CAN_VIEW_USERS">
+          <PermissionRoute permission="CAN_VIEW_CONTRACTS">
             <CreateContractor />
+          </PermissionRoute>
+        } />
+        <Route path="admin/contractors/edit/:id" element={
+          <PermissionRoute permission="CAN_VIEW_CONTRACTS">
+            <EditContractor />
           </PermissionRoute>
         } />
         {/* <Route path="contracts/overview" element={

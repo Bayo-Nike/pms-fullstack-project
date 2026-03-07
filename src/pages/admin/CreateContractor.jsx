@@ -1,114 +1,177 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, Save, CorporateFare, AccountTree, HelpOutline, InfoOutlined } from '@mui/icons-material';
+import { ArrowBack, Save, UploadFile, HelpOutline } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 
-export default function CreateDivision() {
+export default function CreateContractor() {
+
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id);
 
-    // Form States
-    const [name, setName] = useState('');
-    const [parentId, setParentId] = useState(''); // Stores the ID of the parent division
+    const [contractorName, setContractorName] = useState('');
+    const [status, setStatus] = useState('');
+    const [document, setDocument] = useState(null);
+    const [existingFile, setExistingFile] = useState('');
 
-    // UI & Data States
-    const [availableDivisions, setAvailableDivisions] = useState([]);
-    const [currentDivisionData, setCurrentDivisionData] = useState(null); // Full response data if editing
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
-    const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+
+    const [alert, setAlert] = useState({
+        show: false,
+        type: 'info',
+        message: ''
+    });
 
     const showAlert = (type, message) => {
         setAlert({ show: true, type, message });
-        if (type === 'success') setTimeout(() => setAlert(prev => ({ ...prev, show: false })), 4000);
+        if (type === 'success') {
+            setTimeout(() => setAlert(prev => ({ ...prev, show: false })), 4000);
+        }
     };
 
     useEffect(() => {
-        const initData = async () => {
+
+        const loadData = async () => {
+
+            if (!isEdit) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                // 1. Fetch all divisions to populate the "Parent" dropdown
-                const listRes = await adminApi.GET_DIVISIONS();
-                const list = listRes.data || listRes;
 
-                // Filter out the current division from the parent list if editing 
-                // (a division cannot be its own parent)
-                const filteredList = isEdit ? list.filter(d => d.id.toString() !== id) : list;
-                setAvailableDivisions(filteredList);
+                const res = await adminApi.GET_CONTRACTOR(id);
+                const data = res.data || res;
 
-                // 2. Fetch specific division details if editing
-                if (isEdit) {
-                    const detailRes = await adminApi.GET_DIVISION(id);
-                    const data = detailRes.data || detailRes;
-                    setCurrentDivisionData(data);
-                    setName(data.name || '');
-                    setParentId(data.parentId || '');
-                }
+                setContractorName(data.contractorName || '');
+                setStatus(data.status || '');
+                setExistingFile(data.document || '');
+
             } catch (err) {
-                console.error(err);
-                showAlert('error', 'Critical: Failed to synchronize organizational structure.');
+                showAlert('error', 'Failed to load contractor');
             } finally {
                 setLoading(false);
             }
         };
-        initData();
+
+        loadData();
+
     }, [id, isEdit]);
 
     const handleSaveTrigger = () => {
-        if (!name.trim()) {
-            showAlert('error', 'Validation Error: Division name is mandatory.');
+
+        if (!contractorName.trim()) {
+            showAlert('error', 'Contractor name is required');
             return;
         }
+
+        if (!status.trim()) {
+            showAlert('error', 'Status is required');
+            return;
+        }
+
         setShowConfirm(true);
     };
 
     const executeSave = async () => {
+
         setShowConfirm(false);
         setSaving(true);
+
         try {
-            // Payload matches DivisionRequestDto
-            const payload = {
-                name: name.trim(),
-                parentId: parentId === '' ? null : parentId
-            };
+
+            const formData = new FormData();
+
+            formData.append("contractorName", contractorName);
+            formData.append("status", status);
+
+            if (document) {
+                formData.append("document", document);
+            }
+            console.log(formData);
 
             if (isEdit) {
-                await adminApi.UPDATE_DIVISION(id, payload);
-                showAlert('success', 'Organizational unit updated successfully.');
+
+                await adminApi.UPDATE_CONTRACTOR(id, formData);
+                showAlert('success', 'Contractor updated successfully');
+
             } else {
-                await adminApi.CREATE_DIVISION(payload);
-                showAlert('success', 'New division established successfully.');
+
+                await adminApi.CREATE_CONTRACTOR(formData);
+                showAlert('success', 'Contractor created successfully');
+
             }
 
-            setTimeout(() => navigate('/admin/divisions'), 1500);
+            setTimeout(() => navigate('/admin/contractors'), 1500);
+
         } catch (err) {
-            showAlert('error', err.response?.data?.message || 'Transaction failed: Dependency or duplicate name issue.');
+            console.error(err);
+        
+            showAlert(
+                'error',
+                err.response?.data?.message ||
+                err.response?.data ||
+                err.message ||
+                'Failed to save contractor'
+            );
         } finally {
             setSaving(false);
         }
     };
 
-    if (loading) return <div className="p-10 text-center text-slate-400 italic animate-pulse">Building Hierarchy Map...</div>;
+    if (loading) {
+        return (
+            <div className="p-10 text-center text-slate-400 italic animate-pulse">
+                Loading contractor data...
+            </div>
+        );
+    }
 
     return (
         <div className="w-full space-y-4 pb-10 px-2 relative animate-fadeIn">
 
             {/* Confirmation Dialog */}
             {showConfirm && (
-                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-100 text-center">
-                        <HelpOutline className="text-[#0284C7] mb-4" style={{ fontSize: 48 }} />
-                        <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Confirm Save</h3>
+                <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center">
+
+                        <HelpOutline
+                            className="text-[#0284C7] mb-4"
+                            style={{ fontSize: 48 }}
+                        />
+
+                        <h3 className="text-lg font-bold text-slate-800 uppercase">
+                            Confirm Save
+                        </h3>
+
                         <p className="text-sm text-slate-500 mt-2">
-                            Are you sure you want to save <b>{name}</b> {parentId ? 'under the selected parent' : 'as a root unit'}?
+                            Save contractor <b>{contractorName}</b> ?
                         </p>
+
                         <div className="flex gap-3 mt-8">
-                            <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors">Cancel</button>
-                            <button onClick={executeSave} className="flex-1 px-4 py-2.5 rounded-xl bg-[#0284C7] text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-sky-100 transition-all">Confirm</button>
+
+                            <button
+                                onClick={() => setShowConfirm(false)}
+                                className="flex-1 px-4 py-2 border rounded-xl"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={executeSave}
+                                className="flex-1 px-4 py-2 bg-[#0284C7] text-white rounded-xl"
+                            >
+                                Confirm
+                            </button>
+
                         </div>
+
                     </div>
+
                 </div>
             )}
 
@@ -119,89 +182,114 @@ export default function CreateDivision() {
                 onClose={() => setAlert(prev => ({ ...prev, show: false }))}
             />
 
-            {/* Header / Action Bar */}
-            <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+            {/* Header */}
+            <div className="flex items-center justify-between bg-white p-4 rounded-xl border shadow-sm">
+
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/admin/divisions')} className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors">
+
+                    <button
+                        onClick={() => navigate('/admin/contractors')}
+                        className="p-2 bg-slate-100 rounded-lg"
+                    >
                         <ArrowBack fontSize="small" />
                     </button>
+
                     <div>
-                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Edit Division' : 'Create Unit'}</h1>
-                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Organizational Matrix</p>
+                        <h1 className="text-base font-bold">
+                            {isEdit ? 'Edit Contractor' : 'Create Contractor'}
+                        </h1>
+                        <p className="text-xs text-slate-400">
+                            Contractor Management
+                        </p>
                     </div>
+
                 </div>
+
                 <button
                     onClick={handleSaveTrigger}
                     disabled={saving}
-                    className="bg-[#0284C7] text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50"
+                    className="bg-[#0284C7] text-white px-6 py-2 rounded-lg flex items-center gap-2"
                 >
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'PROCESSSING...' : isEdit ? 'UPDATE UNIT' : 'SAVE DIVISION'}
+                    <Save style={{ fontSize: 16 }} />
+                    {saving ? 'PROCESSING...' : 'SAVE'}
                 </button>
+
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Left Card: General Info */}
-                <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
-                        <CorporateFare className="text-slate-400" fontSize="small" />
-                        <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">General Identification</span>
-                    </div>
+            {/* Form */}
+            <div className="bg-white rounded-xl border shadow-sm p-6 space-y-5">
 
-                    <div className="p-6 space-y-4">
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Division Name</label>
-                            <input
-                                className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white transition-all"
-                                placeholder="e.g. Roads & Infrastructure Department"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
+                {/* Contractor Name */}
+                <div>
 
-                        {isEdit && currentDivisionData?.children?.length > 0 && (
-                            <div className="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <InfoOutlined className="text-amber-600" fontSize="small" />
-                                    <span className="text-[10px] font-bold text-amber-700 uppercase">Warning</span>
-                                </div>
-                                <p className="text-[10px] text-amber-600 leading-relaxed">
-                                    This division currently manages <b>{currentDivisionData.children.length} sub-units</b>.
-                                    Changing its name or parent will affect the entire downward hierarchy.
-                                </p>
-                            </div>
-                        )}
-                    </div>
+                    <label className="text-xs font-bold text-slate-500">
+                        Contractor Name
+                    </label>
+
+                    <input
+                        type="text"
+                        value={contractorName}
+                        onChange={(e) => setContractorName(e.target.value)}
+                        className="w-full mt-1 px-4 py-3 border rounded-xl"
+                        placeholder="Enter contractor name"
+                    />
+
                 </div>
 
-                {/* Right Card: Hierarchy Context */}
-                <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
-                        <AccountTree className="text-slate-400" fontSize="small" />
-                        <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Parent Hierarchy</span>
-                    </div>
+                {/* Status */}
+                <div>
 
-                    <div className="p-6 space-y-4">
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Parent Unit (Optional)</label>
-                            <select
-                                value={parentId}
-                                onChange={(e) => setParentId(e.target.value)}
-                                className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white transition-all appearance-none cursor-pointer"
-                            >
-                                <option value="">None (Top Level / Root Division)</option>
-                                {availableDivisions.map(d => (
-                                    <option key={d.id} value={d.id}>
-                                        {d.name} {d.parentName ? `(Under ${d.parentName})` : ''}
-                                    </option>
-                                ))}
-                            </select>
-                            <p className="text-[10px] text-slate-400 italic ml-1 mt-2">
-                                Leave as "None" if this is a primary department reporting directly to the CEO/Admin.
-                            </p>
-                        </div>
-                    </div>
+                    <label className="text-xs font-bold text-slate-500">
+                        Status
+                    </label>
+
+                    <select
+                        value={status}
+                        onChange={(e) => setStatus(e.target.value)}
+                        className="w-full mt-1 px-4 py-3 border rounded-xl"
+                    >
+
+                        <option value="">Select Status</option>
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="SUSPENDED">SUSPENDED</option>
+                        
+
+                    </select>
+
                 </div>
+
+                {/* File Upload */}
+                <div>
+
+                    <label className="text-xs font-bold text-slate-500 flex items-center gap-2">
+                        <UploadFile fontSize="small" />
+                        Upload Document
+                    </label>
+
+                    <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                        onChange={(e) => setDocument(e.target.files[0])}
+                        className="mt-2"
+                    />
+
+                    {document && (
+                        <p className="text-xs text-green-600 mt-2">
+                            Selected: {document.name}
+                        </p>
+                    )}
+
+                    {!document && existingFile && (
+                        <p className="text-xs text-slate-500 mt-2">
+                            Current File: {existingFile}
+                        </p>
+                    )}
+
+                </div>
+
             </div>
+
         </div>
     );
 }
