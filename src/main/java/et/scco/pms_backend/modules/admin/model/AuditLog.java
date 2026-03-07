@@ -21,7 +21,6 @@ public class AuditLog {
     private Long id;
     private String action; //create, updated and deleted
     private String performedBy;
-    private String object;
     private LocalDateTime timestamp;
     private String details;
 

@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 @AllArgsConstructor
-public class AutUtility {
+public class AuthUtility {
 
     public static String getUserName()
     {
