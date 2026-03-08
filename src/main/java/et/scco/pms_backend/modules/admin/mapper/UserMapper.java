@@ -60,8 +60,8 @@ public class UserMapper {
 
         return new UserResponseLoginDto(
                 user.getId(),
-                user.getUserType().equals(UserType.EMPLOYEE) ? user.getEmployee().getFullName(): UserType.SYSTEM.name(),
                 user.getUsername(),
+                user.getUserType().equals(UserType.EMPLOYEE) ? user.getEmployee().getFullName(): UserType.SYSTEM.name(),
                 user.getEmail(),
                 roles,
                 permissions

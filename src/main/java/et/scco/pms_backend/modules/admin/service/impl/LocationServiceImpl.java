@@ -8,6 +8,8 @@ import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.service.LocationService;
+import et.scco.pms_backend.modules.auth.AuthUtility;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,7 @@ public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
     private final SubCityRepository subCityRepository;
+    private final AuditLogServiceImpl auditLogService;
 
     @Override
     public List<LocationResponseDTO> getLocations() {
@@ -36,6 +39,7 @@ public class LocationServiceImpl implements LocationService {
         return mapToDTO(location);
     }
 
+    @Transactional
     @Override
     public LocationResponseDTO createLocation(LocationRequestDTO dto) {
 
@@ -52,9 +56,12 @@ public class LocationServiceImpl implements LocationService {
         location.setLng(dto.getLng());
         location.setSubCity(subCity);
 
+        auditLogService.auditLog("Created", dto.getName()+" Location has been created", AuthUtility.getUserName());
+
         return mapToDTO(locationRepository.save(location));
     }
 
+    @Transactional
     @Override
     public LocationResponseDTO updateLocation(Long id, LocationRequestDTO dto) {
 
@@ -76,6 +83,11 @@ public class LocationServiceImpl implements LocationService {
         location.setLng(dto.getLng());
         location.setSubCity(subCity);
 
+        auditLogService.auditLog("Updated",
+                dto.getName()+" Location has been update",
+                "Location has been update by "+AuthUtility.getUserName()
+                );
+
         return mapToDTO(locationRepository.save(location));
     }
 
@@ -84,6 +96,11 @@ public class LocationServiceImpl implements LocationService {
 
         Location location = locationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        auditLogService.auditLog("Deleted",
+                location.getName()+" Location has been deleted",
+                "Location has been delete by "+AuthUtility.getUserName()
+        );
 
         locationRepository.delete(location);
     }

@@ -9,8 +9,8 @@ import java.util.List;
 @AllArgsConstructor
 public class UserResponseLoginDto {
     private Long id;
-    private String fullName;
     private String username;
+    private String fullName;
     private String email;
     private List<String> roles;
     private List<String>permissions;
