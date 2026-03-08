@@ -21,6 +21,9 @@ import CreatePosition from './pages/admin/CreatePosition';
 import Contractors from './pages/admin/Contractors';
 import CreateContractor from './pages/admin/CreateContractor';
 import EditContractor from './pages/admin/EditContractor';
+import Employees from './pages/admin/Employees';
+import CreateEmployee from './pages/admin/CreateEmployee';
+
 
 export default function AppRoutes() {
 
