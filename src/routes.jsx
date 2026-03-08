@@ -20,8 +20,7 @@ import Positions from './pages/admin/Positions';
 import CreatePosition from './pages/admin/CreatePosition';
 import Contractors from './pages/admin/Contractors';
 import CreateContractor from './pages/admin/CreateContractor';
-import Employees from './pages/admin/Employees';
-import CreateEmployee from './pages/admin/CreateEmployee';
+import EditContractor from './pages/admin/EditContractor';
 
 export default function AppRoutes() {
 
@@ -57,12 +56,18 @@ export default function AppRoutes() {
         {/* 3. Contracts & Contractors */}
         <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
         <Route path="admin/contractors/create" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
+        <Route path="admin/contractors/edit/:id" element={protect(<EditContractor />, "CAN_VIEW_USERS")} />
+        <Route path="admin/contractors/details/:id" element={protect(<EditContractor />, "CAN_VIEW_USERS")} />
 
         {/* 4. Finance */}
         <Route path="finance/ipc" element={placeholder("IPC Management", "CAN_VIEW_FINANCE")} />
         <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
         <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
         <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
+        {/* 3. CONTRACTS MODULE */}
+        <Route path="admin/contracts" element={placeholder("Contracts Management", "CAN_VIEW_CONTRACTS")} />
+        <Route path="admin/contracts/create" element={placeholder("Create Contract", "CAN_VIEW_CONTRACTS")} />
+        <Route path="admin/contracts/edit/:id" element={placeholder("Edit Contract", "CAN_VIEW_CONTRACTS")} />
 
         {/* 5. Field Operations */}
         <Route path="field/diary" element={placeholder("Daily Site Diary", "CAN_WRITE_DIARY")} />

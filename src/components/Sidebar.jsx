@@ -48,7 +48,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Contracts',
       icon: <Handshake />,
       children: [
-        { path: '/contracts/overview', name: 'Contract Overview', permission: 'CAN_VIEW_CONTRACTS' },
+        { path: '/admin/contractors', name: 'Contractor List', permission: 'CAN_VIEW_CONTRACTS' },
         { path: '/contracts/vo', name: 'Variation Orders (VO)', permission: 'CAN_MANAGE_VO' },
         { path: '/contracts/performance', name: 'Contractor Performance', permission: 'CAN_RATE_CONTRACTORS' },
         { path: '/contracts/retention', name: 'Retention & Damages', permission: 'CAN_MANAGE_RETENTION' },

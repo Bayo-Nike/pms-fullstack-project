@@ -45,8 +45,19 @@ const adminApi = {
     //Contractor
     GET_CONTRACTORS: () => api.get("/admin/contractors"),
     GET_CONTRACTOR: (id) => api.get(`/admin/contractors/${id}`),
-    CREATE_CONTRACTOR: (data) => api.post("/admin/contractors", data),
-    UPDATE_CONTRACTOR: (id, data) => api.put(`/admin/contractors/${id}`, data),
+    CREATE_CONTRACTOR: (data) =>
+        api.post("/admin/contractors", data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+
+    UPDATE_CONTRACTOR: (id, data) =>
+        api.put(`/admin/contractors/${id}`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
     DELETE_CONTRACTOR: (id) => api.delete(`/admin/contractors/${id}`),
 };
 
