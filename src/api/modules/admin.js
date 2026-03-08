@@ -66,6 +66,8 @@ const adminApi = {
     CREATE_LOCATION: (data) => api.post("/admin/locations", data),
     UPDATE_LOCATION: (id, data) => api.put(`/admin/locations/${id}`, data),
     DELETE_LOCATION: (id) => api.delete(`/admin/locations/${id}`),
+
+    GET_AUDIT_LOGS: () => api.get("/admin/logs"),
 };
 
 export default adminApi;

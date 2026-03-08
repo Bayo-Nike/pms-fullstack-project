@@ -108,7 +108,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_VIEW_USERS' },
         { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_MANAGE_MODULES' },
-        { path: '/admin/settings', name: 'General Settings', permission: 'CAN_MANAGE_MODULES' },
+        { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_MANAGE_ROLES' },
       ]
     }
   ];

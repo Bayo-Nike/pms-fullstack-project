@@ -25,6 +25,7 @@ import Employees from './pages/admin/Employees';
 import CreateEmployee from './pages/admin/CreateEmployee';
 import Locations from './pages/admin/Locations';
 import CreateLocation from './pages/admin/CreateLocation';
+import AuditLog from './pages/admin/AuditLog';
 
 
 export default function AppRoutes() {
@@ -118,6 +119,8 @@ export default function AppRoutes() {
         <Route path="admin/locations" element={protect(<Locations />, "CAN_VIEW_USERS")} />
         <Route path="admin/locations/create" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
         <Route path="admin/locations/edit/:id" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
+
+        <Route path="admin/audit-log" element={protect(<AuditLog />, "CAN_VIEW_LOGS")} />
 
         <Route path="*" element={<Placeholder title="Page Not Found" />} />
       </Route>

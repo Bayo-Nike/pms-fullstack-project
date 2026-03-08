@@ -1,112 +1,3 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Notifications, Menu as BurgerMenu, Logout, Person, KeyboardArrowDown } from "@mui/icons-material";
-// import { useAuth } from '../context/AuthContext';
-
-// export default function Navbar({ onMenuClick }) {
-//   const { user, logout } = useAuth();
-//   const navigate = useNavigate();
-//   const [showDropdown, setShowDropdown] = useState(false);
-//   const dropdownRef = useRef(null);
-
-//   // Close dropdown when clicking outside
-//   useEffect(() => {
-//     const handleClickOutside = (event) => {
-//       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-//         setShowDropdown(false);
-//       }
-//     };
-//     document.addEventListener("mousedown", handleClickOutside);
-//     return () => document.removeEventListener("mousedown", handleClickOutside);
-//   }, []);
-
-//   const handleLogout = () => {
-//     logout();
-//     navigate("/login");
-//   };
-
-//   // Helper to get initials from username (e.g., Elias D -> ED)
-//   const getInitials = (name) => {
-//     if (!name) return "??";
-//     return name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2);
-//   };
-
-//   return (
-//     <header className="bg-[#0284C7] text-white h-20 w-full flex items-center justify-between px-4 md:px-8 fixed top-0 left-0 right-0 z-50 shadow-lg">
-//       {/* Left Section: Branding */}
-//       <div className="flex items-center gap-4">
-//         <button onClick={onMenuClick} className="p-2 hover:bg-white/10 rounded-lg md:hidden transition-all">
-//           <BurgerMenu />
-//         </button>
-//         <div className="flex flex-col">
-//           <span className="text-xl md:text-2xl font-black tracking-tighter leading-none">
-//             SCCO <span className="text-[#FBAF1E]">PMS</span>
-//           </span>
-//           <span className="text-[10px] font-bold text-blue-100 uppercase tracking-widest mt-1 hidden md:block">
-//             Project Management System
-//           </span>
-//         </div>
-//       </div>
-
-//       {/* Right Section: Actions & Profile */}
-//       <div className="flex items-center gap-4 md:gap-6">
-//         {/* Notifications */}
-//         <button className="p-2 relative hover:bg-white/10 rounded-full transition-colors">
-//           <Notifications />
-//           <span className="absolute top-1 right-1 bg-[#FBAF1E] border-2 border-[#0284C7] text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
-//             3
-//           </span>
-//         </button>
-
-//         {/* Profile Dropdown Container */}
-//         <div className="relative" ref={dropdownRef}>
-//           <button
-//             onClick={() => setShowDropdown(!showDropdown)}
-//             className="flex items-center gap-3 bg-white/10 pl-1 pr-3 py-1 rounded-full cursor-pointer hover:bg-white/20 transition-all border border-transparent active:scale-95"
-//           >
-//             <div className="w-8 h-8 rounded-full bg-[#FBAF1E] flex items-center justify-center font-bold text-white text-xs uppercase shadow-sm">
-//               {getInitials(user?.username)}
-//             </div>
-//             <div className="flex items-center gap-1">
-//               <span className="text-sm font-semibold hidden sm:inline-block">
-//                 {user?.username || "Guest User"}
-//               </span>
-//               <KeyboardArrowDown className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} style={{ fontSize: 18 }} />
-//             </div>
-//           </button>
-
-//           {/* Actual Dropdown Menu */}
-//           {showDropdown && (
-//             <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-fadeIn py-2">
-//               <div className="px-4 py-3 border-b border-slate-50 mb-1">
-//                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Signed in as</p>
-//                 <p className="text-sm font-bold text-slate-700 truncate">{user?.email}</p>
-//               </div>
-
-//               <button
-//                 className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-600 hover:bg-slate-50 transition-colors text-sm font-medium"
-//                 onClick={() => { /* Navigate to Profile if exists */ setShowDropdown(false); }}
-//               >
-//                 <Person style={{ fontSize: 18, color: '#94a3b8' }} /> My Profile
-//               </button>
-
-//               <div className="border-t border-slate-50 mt-1 pt-1">
-//                 <button
-//                   onClick={handleLogout}
-//                   className="w-full flex items-center gap-3 px-4 py-2.5 text-red-500 hover:bg-red-50 transition-colors text-sm font-bold"
-//                 >
-//                   <Logout style={{ fontSize: 18 }} /> Sign Out
-//                 </button>
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </header>
-//   );
-// }
-
-
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -189,11 +80,11 @@ export default function Navbar({ onMenuClick }) {
             className="flex items-center gap-3 bg-white/10 pl-1 pr-3 py-1 rounded-full cursor-pointer hover:bg-white/20 transition-all border border-transparent active:scale-95"
           >
             <div className="w-8 h-8 rounded-full bg-[#FBAF1E] flex items-center justify-center font-bold text-white text-xs uppercase shadow-sm">
-              {getInitials(user?.username)}
+              {getInitials(user?.fullName || user?.username)}
             </div>
             <div className="flex items-center gap-1">
               <span className="text-sm font-semibold hidden sm:inline-block">
-                {user?.username || "Loading..."}
+                {user?.fullName || user?.username || "Loading..."}
               </span>
               <KeyboardArrowDown
                 className={`transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`}
