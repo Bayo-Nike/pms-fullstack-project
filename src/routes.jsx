@@ -23,6 +23,8 @@ import CreateContractor from './pages/admin/CreateContractor';
 import EditContractor from './pages/admin/EditContractor';
 import Employees from './pages/admin/Employees';
 import CreateEmployee from './pages/admin/CreateEmployee';
+import Locations from './pages/admin/Locations';
+import CreateLocation from './pages/admin/CreateLocation';
 
 
 export default function AppRoutes() {
@@ -111,6 +113,11 @@ export default function AppRoutes() {
         <Route path="admin/roles/create" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
         <Route path="admin/roles/edit/:id" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
         <Route path="admin/logs" element={placeholder("Audit Logs", "CAN_VIEW_LOGS")} />
+
+
+        <Route path="admin/locations" element={protect(<Locations />, "CAN_VIEW_USERS")} />
+        <Route path="admin/locations/create" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
+        <Route path="admin/locations/edit/:id" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
 
         <Route path="*" element={<Placeholder title="Page Not Found" />} />
       </Route>
