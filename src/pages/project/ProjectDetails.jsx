@@ -1,129 +1,135 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowBack, Search, NavigateBefore, NavigateNext, MoreVert } from '@mui/icons-material';
-
-// Expanded Mock Task Data
-const generateTasks = () => Array.from({ length: 15 }, (_, i) => ({
-    id: i + 1,
-    name: i === 0 ? 'Foundation Excavation' : i === 1 ? 'Material Mobilization' : `Site Work Phase ${i + 1}`,
-    status: ['In Progress', 'Completed', 'Pending'][i % 3],
-    priority: ['High', 'Medium', 'Low'][i % 3],
-    weight: [5, 10, 15, 20][i % 4],
-    deadline: '2024-10-12'
-}));
+import {
+    ArrowBack, Edit, Payments, CalendarMonth, LocationOn,
+    Work, Badge, TrendingUp, Engineering, History, PriorityHigh
+} from '@mui/icons-material';
+import projectApi from '../../api/modules/project';
+import AlertMessage from '../../components/Reusable/AlertMessage';
 
 export default function ProjectDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const tasks = useMemo(() => generateTasks(), []);
+    const [project, setProject] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
 
-    // Filter States
-    const [taskSearch, setTaskSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All');
+    useEffect(() => {
+        const fetchDetail = async () => {
+            try {
+                const res = await projectApi.GET_PROJECT(id);
+                setProject(res.data.data);
+            } catch (err) {
+                setAlert({ show: true, type: 'error', message: 'Project record not found.' });
+            } finally { setLoading(false); }
+        };
+        fetchDetail();
+    }, [id]);
 
-    // Pagination State
-    const [currentPage, setCurrentPage] = useState(1);
-    const tasksPerPage = 5;
+    if (loading) return <div className="p-20 text-center text-slate-400 animate-pulse">Retrieving project dossier...</div>;
+    if (!project) return <div className="p-20 text-center">Record Unavailable.</div>;
 
-    // Filter Logic
-    const filteredTasks = useMemo(() => {
-        return tasks.filter(t => {
-            const matchesSearch = t.name.toLowerCase().includes(taskSearch.toLowerCase());
-            const matchesStatus = statusFilter === 'All' || t.status === statusFilter;
-            return matchesSearch && matchesStatus;
-        });
-    }, [taskSearch, statusFilter, tasks]);
-
-    // Paginate Logic
-    const totalPages = Math.ceil(filteredTasks.length / tasksPerPage);
-    const currentTasks = filteredTasks.slice(
-        (currentPage - 1) * tasksPerPage,
-        currentPage * tasksPerPage
-    );
+    const budgetPercent = (project.budgetUsed / project.budget) * 100;
 
     return (
-        <div className="space-y-6 animate-fadeIn pb-10">
-            {/* Header (Same as before) */}
-            <div className="flex items-center gap-4">
-                <button onClick={() => navigate('/projects')} className="p-2 bg-white border border-slate-200 rounded-xl hover:bg-slate-50"><ArrowBack /></button>
-                <h1 className="text-2xl font-bold text-slate-900">Project Detail #{id}</h1>
+        <div className="w-full space-y-6 pb-20 px-2 animate-fadeIn">
+            {/* Header / Summary stats */}
+            <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-wrap items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => navigate('/projects')} className="p-2 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors"><ArrowBack /></button>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-[#0284C7] bg-sky-50 px-2 py-1 rounded-lg border border-sky-100 uppercase">{project.projectCode}</span>
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{project.title}</h1>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-widest flex items-center gap-1">
+                            <LocationOn style={{ fontSize: 14 }} /> {project.cityName} &bull; {project.subCityName} &bull; {project.locationName}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex gap-4">
+                    <div className="text-right">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</p>
+                        <span className="text-xs font-black text-[#0284C7] uppercase">{project.status}</span>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Priority</p>
+                        <span className="text-xs font-black text-amber-500 uppercase">{project.priority}</span>
+                    </div>
+                </div>
             </div>
 
-            {/* Task Table Card */}
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <h2 className="text-lg font-bold text-slate-800">Task Breakdown</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                    <div className="flex gap-2 w-full md:w-auto">
-                        <div className="relative flex-1 md:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 scale-75" />
-                            <input
-                                type="text"
-                                placeholder="Find task..."
-                                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-100 rounded-xl text-xs outline-none focus:border-[#0284C7]"
-                                value={taskSearch}
-                                onChange={(e) => { setTaskSearch(e.target.value); setCurrentPage(1); }}
-                            />
+                {/* Column 1: Core Info & Budget */}
+                <div className="lg:col-span-8 space-y-6">
+
+                    {/* Finance Card */}
+                    <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm space-y-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2"><Payments className="text-[#FBAF1E]" /><span className="text-sm font-bold text-slate-800 uppercase tracking-widest">Financial Health</span></div>
+                            <span className="text-xs font-bold text-slate-400">Utilization: {budgetPercent.toFixed(1)}%</span>
                         </div>
-                        <select
-                            className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-xs text-slate-600 outline-none"
-                            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                        >
-                            <option value="All">All Status</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Pending">Pending</option>
-                        </select>
+
+                        <div className="grid grid-cols-2 gap-8">
+                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Allocated Budget</p>
+                                <p className="text-2xl font-black text-slate-900">{project.currencyType} {project.budget.toLocaleString()}</p>
+                            </div>
+                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Spent to Date</p>
+                                <p className="text-2xl font-black text-[#0284C7]">{project.currencyType} {project.budgetUsed.toLocaleString()}</p>
+                            </div>
+                        </div>
+
+                        <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                            <div className={`h-full transition-all duration-1000 ${budgetPercent > 90 ? 'bg-red-500' : 'bg-[#FBAF1E]'}`} style={{ width: `${Math.min(budgetPercent, 100)}%` }}></div>
+                        </div>
+                    </div>
+
+                    {/* Timeline & Progress */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-4">
+                            <CalendarMonth className="text-sky-500" fontSize="large" />
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase">Duration</p>
+                                <p className="text-sm font-bold text-slate-700">{new Date(project.startDate).toLocaleDateString()} — {new Date(project.endDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center gap-4">
+                            <TrendingUp className="text-green-500" fontSize="large" />
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase">Physical Progress</p>
+                                <p className="text-sm font-bold text-slate-700">Under Synchronization</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto no-scrollbar">
-                    <table className="w-full text-left min-w-[800px]">
-                        <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                            <tr>
-                                <th className="px-8 py-4">Task</th>
-                                <th className="px-8 py-4">Status</th>
-                                <th className="px-8 py-4">Weight</th>
-                                <th className="px-8 py-4">Deadline</th>
-                                <th className="px-8 py-4"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50 text-sm">
-                            {currentTasks.map((task) => (
-                                <tr key={task.id} className="hover:bg-slate-50/50">
-                                    <td className="px-8 py-4 font-bold text-slate-700">{task.name}</td>
-                                    <td className="px-8 py-4">
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${task.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-                                            {task.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-4 font-black text-[#0284C7]">{task.weight}%</td>
-                                    <td className="px-8 py-4 text-slate-400">{task.deadline}</td>
-                                    <td className="px-8 py-4 text-right"><MoreVert className="text-slate-200" /></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                {/* Column 2: Stakeholders & Team */}
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-6">
+                        <div className="flex items-center gap-2"><Engineering className="text-slate-400" /><span className="text-sm font-bold text-slate-800 uppercase tracking-widest">Key Assignments</span></div>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-sky-500 shadow-sm"><Badge /></div>
+                                <div>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Project Manager</p>
+                                    <p className="text-sm font-bold text-slate-700">{project.projectManagerName || 'Unassigned'}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-amber-500 shadow-sm"><Work /></div>
+                                <div>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Lead Contractor</p>
+                                    <p className="text-sm font-bold text-slate-700">{project.contractorName || 'TBD'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Footer Pagination inside Table Card */}
-                <div className="p-4 border-t border-slate-50 flex justify-center items-center gap-4">
-                    <button
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(p => p - 1)}
-                        className="p-1 rounded-full hover:bg-slate-50 disabled:opacity-20"
-                    >
-                        <NavigateBefore />
-                    </button>
-                    <span className="text-xs font-bold text-slate-500">Page {currentPage} of {totalPages}</span>
-                    <button
-                        disabled={currentPage === totalPages}
-                        onClick={() => setCurrentPage(p => p + 1)}
-                        className="p-1 rounded-full hover:bg-slate-50 disabled:opacity-20"
-                    >
-                        <NavigateNext />
-                    </button>
-                </div>
             </div>
         </div>
     );
