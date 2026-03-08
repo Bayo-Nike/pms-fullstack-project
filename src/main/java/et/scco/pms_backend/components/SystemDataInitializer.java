@@ -14,6 +14,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Transactional
@@ -269,7 +270,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                     u.setUsername(superAdminProperties.getUsername());
                     u.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
                     u.setEmail(superAdminProperties.getUserEmail());
-                    u.setRoles(List.of(role));
+                    u.setRoles(new HashSet<>(List.of(role)));
                     u.setUserType(UserType.SYSTEM);
                     u.setEmployee(null);
 

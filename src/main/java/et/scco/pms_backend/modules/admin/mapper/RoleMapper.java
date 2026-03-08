@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.admin.mapper;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,7 +31,7 @@ public class RoleMapper {
         role.setId(dto.getId());
         role.setRoleName(dto.getRoleName());
         role.setDescription(dto.getDescription());
-        role.setPermissions(permissions);
+        role.setPermissions(new HashSet<>(permissions));
         return role;
     }
 }

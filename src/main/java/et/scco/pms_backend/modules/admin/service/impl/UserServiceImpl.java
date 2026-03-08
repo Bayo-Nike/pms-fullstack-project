@@ -1,9 +1,9 @@
 package et.scco.pms_backend.modules.admin.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import et.scco.pms_backend.enums.EmployeeStatus;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.dto.request.UserCreateRequest;
 import et.scco.pms_backend.modules.admin.model.Employee;
@@ -42,7 +42,7 @@ public class UserServiceImpl  implements UserService{
         // Assign roles
         if (userRequestDTO.getRoleIds() != null) {
             List<Roles> roles = roleRepository.findAllById(userRequestDTO.getRoleIds());
-            user.setRoles(roles);
+            user.setRoles(new HashSet<>(roles));
         }
 
         User savedUser = userRepository.save(user);
@@ -77,7 +77,7 @@ public class UserServiceImpl  implements UserService{
             user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
         }
 
-        user.setRoles(roleRepository.findAllById(userRequestDTO.getRoleIds()));
+        user.setRoles(new HashSet<>(roleRepository.findAllById(userRequestDTO.getRoleIds())));
         User updateduUser = userRepository.save(user);
         return UserMapper.mapToUserDTO(updateduUser);
     }

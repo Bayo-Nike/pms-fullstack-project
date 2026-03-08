@@ -7,7 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -39,13 +41,13 @@ public class User {
     @JoinColumn(name = "employee_id", unique = true)
     private Employee employee;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private List<Roles> roles = new ArrayList<>();
+    private Set<Roles> roles = new HashSet<>();
 
     public EmployeeStatus getStatus() {
         return employee != null ? employee.getStatus() : null;

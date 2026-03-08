@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.admin.service.impl;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,7 +58,7 @@ public class RoleServiceImpl implements RoleService{
         // Update fields
         role.setRoleName(roleDto.getRoleName());
         role.setDescription(roleDto.getDescription());
-        role.setPermissions(permissionService.getPermissions(roleDto.getPermissions()));
+        role.setPermissions(new HashSet<>(permissionService.getPermissions(roleDto.getPermissions())));
         Roles updatedRole = roleRepository.save(role);
         return RoleMapper.mapToRoleDTO(updatedRole);
     }

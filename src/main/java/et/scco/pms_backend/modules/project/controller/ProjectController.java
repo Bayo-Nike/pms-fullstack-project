@@ -1,63 +1,98 @@
 package et.scco.pms_backend.modules.project.controller;
 
+import et.scco.pms_backend.config.ApiResponse;
+import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
+import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
+import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
+import et.scco.pms_backend.utility.ResponseUtil;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import et.scco.pms_backend.modules.project.dto.request.ProjectRequestDTO;
-import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
-import et.scco.pms_backend.modules.project.service.ProjectService;
-import lombok.RequiredArgsConstructor;
-
 @RestController
-@RequestMapping("/project")
+@RequestMapping("/api/projects")
 @RequiredArgsConstructor
 public class ProjectController {
 
-    private final ProjectService projectService;
- 
-     // Build Add Project REST API
-    @PostMapping
-    public ResponseEntity<ProjectResponseDTO>createProject(@RequestBody ProjectRequestDTO projectRequestDTO){
-        ProjectResponseDTO savedProjectRequestDto=projectService.createProject(projectRequestDTO);
-        return  new ResponseEntity<>(savedProjectRequestDto,HttpStatus.CREATED);
-    }
+    private final ProjectServiceImpl projectService;
 
-    // Build Get Project REST API
-    @GetMapping("{id}")
-    public ResponseEntity<ProjectResponseDTO>getPermission(@PathVariable("id") Long projectId){
-        ProjectResponseDTO projectResponseDTO=projectService.getProjectById(projectId);
-        return ResponseEntity.ok(projectResponseDTO);
-
-    }
-
-    // Build Get All Projects REST API
     @GetMapping
-    public ResponseEntity<List<ProjectResponseDTO>>getAllProjects(){
-        List<ProjectResponseDTO> allProjectsDto=projectService.getAllProjects();
-        return ResponseEntity.ok(allProjectsDto);
-
+    public ApiResponse<Page<ProjectResponseDTO>> getProjects(Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);
+        return ResponseUtil.success("Projects fetched successfully", projects);
     }
 
-    // Build Update Project REST API
-    @PutMapping("{id}")
-    public ResponseEntity<ProjectResponseDTO>updateProject(@PathVariable("id") Long projectId,@RequestBody ProjectRequestDTO projectRequestDTO){
-        ProjectResponseDTO projectDtoResponseDTO=projectService.updateProject(projectId,projectRequestDTO);
-        return ResponseEntity.ok(projectDtoResponseDTO);
+    @GetMapping("/{id}")
+    public ApiResponse<ProjectResponseDTO> getProject(@PathVariable Long id) {
+        ProjectResponseDTO project = projectService.getProject(id);
+        return ResponseUtil.success("Project fetched successfully", project);
     }
-    // Build Delete Project REST API
-    @DeleteMapping("{id}")
-    public ResponseEntity<String>deleteProject(@PathVariable("id") Long projectId){
-        projectService.deleteProject(projectId);
-        return ResponseEntity.ok("Project deleted successfully.");
+
+    @PostMapping
+    public ApiResponse<ProjectResponseDTO> createProject(@RequestBody CreateProjectRequestDTO dto) {
+        System.out.println(dto);
+        ProjectResponseDTO project = projectService.createProject(dto);
+        return ResponseUtil.success("Project created successfully", project);
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<ProjectResponseDTO> updateProject(@PathVariable Long id,
+                                                         @RequestBody CreateProjectRequestDTO dto) {
+        ProjectResponseDTO project = projectService.updateProject(id, dto);
+        return ResponseUtil.success("Project updated successfully", project);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteProject(@PathVariable Long id) {
+        projectService.deleteProject(id);
+        return ResponseUtil.success("Project deleted successfully", null);
+    }
+
+    @PatchMapping("/{id}/status")
+    public ApiResponse<ProjectResponseDTO> updateStatus(@PathVariable Long id,
+                                                        @RequestParam String status) {
+        ProjectResponseDTO project = projectService.updateStatus(id, status);
+        return ResponseUtil.success("Project status updated", project);
+    }
+
+    @PatchMapping("/{id}/priority")
+    public ApiResponse<ProjectResponseDTO> updatePriority(@PathVariable Long id,
+                                                          @RequestParam String priority) {
+        ProjectResponseDTO project = projectService.updatePriority(id, priority);
+        return ResponseUtil.success("Project priority updated", project);
+    }
+
+    @PatchMapping("/{id}/manager")
+    public ApiResponse<ProjectResponseDTO> assignManager(@PathVariable Long id,
+                                                         @RequestParam Long projectManagerId) {
+        ProjectResponseDTO project = projectService.assignManager(id, projectManagerId);
+        return ResponseUtil.success("Project manager assigned", project);
+    }
+
+    @PatchMapping("/{id}/employees")
+    public ApiResponse<ProjectResponseDTO> assignEmployees(@PathVariable Long id,
+                                                           @RequestBody List<Long> employeeIds) {
+        ProjectResponseDTO project = projectService.assignEmployees(id, employeeIds);
+        return ResponseUtil.success("Employees assigned to project", project);
+    }
+
+    @PatchMapping("/{id}/budget")
+    public ApiResponse<ProjectResponseDTO> updateBudget(@PathVariable Long id,
+                                                        @RequestParam Double budget,
+                                                        @RequestParam Double budgetUsed) {
+        ProjectResponseDTO project = projectService.updateBudget(id, budget, budgetUsed);
+        return ResponseUtil.success("Project budget updated", project);
+    }
+
+    @PatchMapping("/{id}/timeline")
+    public ApiResponse<ProjectResponseDTO> updateTimeline(@PathVariable Long id,
+                                                          @RequestParam LocalDate startDate,
+                                                          @RequestParam LocalDate endDate) {
+        ProjectResponseDTO project = projectService.updateTimeline(id, startDate, endDate);
+        return ResponseUtil.success("Project timeline updated", project);
     }
 }

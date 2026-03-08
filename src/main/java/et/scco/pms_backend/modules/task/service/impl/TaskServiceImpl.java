@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import et.scco.pms_backend.exception.ResourceNotFoundException;
-import et.scco.pms_backend.modules.project.mapper.ProjectMapper;
-import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.task.dto.request.TaskRequestDTO;
 import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
 import et.scco.pms_backend.modules.task.mapper.TaskMapper;
