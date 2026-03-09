@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
+// @AllArgsConstructor
 public class ProjectResponseDTO {
 
     private Long id;

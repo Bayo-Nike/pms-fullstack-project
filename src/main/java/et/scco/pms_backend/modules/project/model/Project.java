@@ -69,6 +69,11 @@ public class Project {
 
     private LocalDateTime createdAt;
 
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
+
     // Many-to-many: multiple employees can be assigned to multiple projects
     @ManyToMany
     @JoinTable(

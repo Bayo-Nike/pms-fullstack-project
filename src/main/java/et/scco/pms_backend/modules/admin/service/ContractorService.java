@@ -4,6 +4,7 @@ import java.util.List;
 
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ContractorResponseDTO;
+import et.scco.pms_backend.modules.admin.model.Contractor;
 
 public interface ContractorService {
 
@@ -16,5 +17,7 @@ public interface ContractorService {
     List<ContractorResponseDTO> getAllContractors();
 
     void deleteContractor(Long contractorId);
+
+    Contractor getContractorEntityById(Long contractorId);
 
 }

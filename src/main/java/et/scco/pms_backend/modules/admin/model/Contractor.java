@@ -2,8 +2,11 @@ package et.scco.pms_backend.modules.admin.model;
 
 import java.time.LocalDateTime;
 
+import et.scco.pms_backend.enums.ContractorStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,8 +26,8 @@ public class Contractor {
     @Column(name = "contractor_name", nullable = false)
     private String contractorName;
 
-    @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ContractorStatus status;
 
     @Column(name = "document")
     private String document; // file name or path

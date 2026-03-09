@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.admin.mapper;
 
+import et.scco.pms_backend.enums.ContractorStatus;
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ContractorResponseDTO;
 import et.scco.pms_backend.modules.admin.model.Contractor;
@@ -27,7 +28,7 @@ public class ContractorMapper {
 
         Contractor contractor = new Contractor();
         contractor.setContractorName(dto.getContractorName());
-        contractor.setStatus(dto.getStatus());
+        contractor.setStatus(ContractorStatus.valueOf(dto.getStatus()));
         
 
         return contractor;

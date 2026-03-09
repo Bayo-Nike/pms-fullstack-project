@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.ContractorStatus;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ContractorResponseDTO;
@@ -52,6 +53,12 @@ public class ContractorServiceImpl implements ContractorService{
     }
 
     @Override
+    public Contractor getContractorEntityById(Long contractorId) {
+        return contractorRepository.findById(contractorId)
+            .orElseThrow(() -> new RuntimeException("Contractor not found with id: "+contractorId));
+    }
+
+    @Override
     public ContractorResponseDTO updateContractor(Long contractorId, ContractorRequestDTO contractorRequestDTO) throws Exception {
 
         Contractor contractor = contractorRepository.findById(contractorId)
@@ -60,7 +67,8 @@ public class ContractorServiceImpl implements ContractorService{
 
         // Update contractorName and status
         contractor.setContractorName(contractorRequestDTO.getContractorName());
-        contractor.setStatus(contractorRequestDTO.getStatus());
+        // contractor.setStatus(contractorRequestDTO.getStatus());
+        contractor.setStatus(ContractorStatus.valueOf(contractorRequestDTO.getStatus()));
 
         // Only update file if a new one is uploaded
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {

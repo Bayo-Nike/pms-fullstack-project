@@ -35,7 +35,6 @@ public class TaskController {
     // Build Get Task REST API
     @GetMapping("{id}")
     public ResponseEntity<TaskResponseDTO>getTask(@PathVariable("id") Long taskId){
-        System.out.println("================"+taskId);
         TaskResponseDTO taskResponseDTO=taskService.getTaskById(taskId);
         return ResponseEntity.ok(taskResponseDTO);
 

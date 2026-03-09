@@ -10,6 +10,8 @@ import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Position;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
+import et.scco.pms_backend.modules.auth.AuthUtility;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +72,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setDivision(division);
         employee.setPosition(position);
         employee.setCity(subCityService.getCity());
-        employee.setSubCity(subCityService.getSubCityEntity(dto.getSubCityId()));
+
+        if(dto.getSubCityId() > 0){
+            employee.setSubCity(subCityService.getSubCityEntity(dto.getSubCityId()));
+        }
         employee.setStatus(employeeStatus);
         Employee updated = employeeRepository.save(employee);
 
@@ -92,9 +97,18 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public List<Employee> findEmpsByEmployeeIds(List<Long> ids) {
+        return employeeRepository.findAllById(ids);
+    }
+
+    @Transactional
+    @Override
     public void deleteEmployee(Long id) {
-        //TODO - check projects and tasks before delete
-        //check user
+        Employee employee = employeeRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Employee is not Exist with given id:" + id));
+        
+    auditLogService.auditLog("Deleted", employee.getFullName()+" has been deleted", "THis action has been done by username of "+AuthUtility.getUserName());
         employeeRepository.deleteById(id);
     }
 }

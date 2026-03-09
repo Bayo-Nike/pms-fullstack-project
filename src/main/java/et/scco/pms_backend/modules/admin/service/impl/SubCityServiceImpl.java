@@ -31,6 +31,7 @@ public class SubCityServiceImpl implements SubCityService {
                 .orElseThrow(() -> new RuntimeException("SubCity not found with id: " + id));
         return SubCityMapper.toDto(subCity);
     }
+    
 
     @Override
     public List<SubCityResponseDto> getSubCities() {
