@@ -29,6 +29,7 @@ export default function Projects() {
 
             // Extract data from ApiResponse wrapper
             const apiResponse = res.data;
+            console.log("--------- "+apiResponse);
             const pageData = apiResponse.data; // This is the Page object
 
             console.log("Projects data:", pageData); // For debugging

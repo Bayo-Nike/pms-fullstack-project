@@ -85,11 +85,11 @@ export default function CreateEmployee() {
     };
 
     const handleSaveTrigger = () => {
-        const { fullName, email, divisionId, positionId, subCityId, status } = formData;
+        const { fullName, email, divisionId, positionId, status } = formData;
 
         // Strict Validation: No empty fields allowed
-        if (!fullName.trim() || !email.trim() || !divisionId || !positionId || !subCityId || !status) {
-            showAlert('error', 'Validation Failed: All fields are mandatory. Please complete the form.');
+        if (!fullName.trim() || !email.trim() || !divisionId || !positionId || !status) {
+            showAlert('error', 'Validation Failed: All fields are mandatory Except Subcity. Please complete the form.');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }

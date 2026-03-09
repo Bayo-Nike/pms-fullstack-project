@@ -25,7 +25,7 @@ export default function CreateProject() {
         projectManagerId: '',
         startDate: '',
         endDate: '',
-        status: 'PLANNING',
+        status: 'NOT_STARTED',
         priority: 'MEDIUM',
         currencyType: 'ETB',
         budget: '',
@@ -33,7 +33,7 @@ export default function CreateProject() {
         employeeIds: []
     });
 
-    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [] });
+    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [] });
     const [cityName, setCityName] = useState('...');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -48,23 +48,32 @@ export default function CreateProject() {
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, locRes, empRes, cityRes] = await Promise.all([
+                const [subRes, locRes, empRes, cityRes,contractorRes] = await Promise.all([
                     adminApi.GET_SUB_CITIES(),
                     adminApi.GET_LOCATIONS(),
                     adminApi.GET_EMPLOYEES(),
-                    adminApi.GET_CITY()
+                    adminApi.GET_CITY(),
+                    adminApi.GET_CONTRACTORS(),
                 ]);
 
                 setLookups({
                     subCities: subRes.data?.data || subRes.data || [],
                     locations: locRes.data?.data || locRes.data || [],
-                    employees: empRes.data?.data || empRes.data || []
+                    employees: empRes.data?.data || empRes.data || [],
+                    contractors: contractorRes.data?.data || contractorRes.data || []
                 });
                 setCityName(cityRes.data || cityRes);
 
                 if (isEdit) {
                     const res = await projectApi.GET_PROJECT(id);
-                    setFormData({ ...res.data.data });
+                    // setFormData({ ...res.data.data });
+                    setFormData({
+                        ...res.data.data,
+                        subCityId: String(res.data.data.subCityId || ''),
+                        locationId: String(res.data.data.locationId || ''),
+                        projectManagerId: String(res.data.data.projectManagerId || ''),
+                        contractorId: String(res.data.data.contractorId || '')
+                     });
                 }
             } catch (err) {
                 showAlert('error', 'Critical synchronization error.');
@@ -83,6 +92,16 @@ export default function CreateProject() {
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
+    };
+
+    const handleEmployeeChange = (e) => {
+        const selectedOptions = Array.from(e.target.selectedOptions);
+        const values = selectedOptions.map(option => Number(option.value));
+    
+        setFormData(prev => ({
+            ...prev,
+            employeeIds: values
+        }));
     };
 
     const handleSaveTrigger = () => {
@@ -106,6 +125,7 @@ export default function CreateProject() {
                 subCityId: Number(formData.subCityId),
                 locationId: Number(formData.locationId),
                 projectManagerId: Number(formData.projectManagerId),
+                contractorId: Number(formData.contractorId),
                 budget: parseFloat(formData.budget),
                 budgetUsed: parseFloat(formData.budgetUsed)
             };
@@ -187,7 +207,7 @@ export default function CreateProject() {
                     </div>
                 </div>
 
-                {/* 3. Management */}
+                {/* 3. Project Management */}
                 <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden h-full">
                     <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2"><Groups className="text-slate-400" fontSize="small" /><span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Management Assignment</span></div>
                     <div className="p-6 space-y-4">
@@ -199,9 +219,54 @@ export default function CreateProject() {
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase ml-1">Status *</label><select name="status" value={formData.status} onChange={handleInputChange} className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none"><option value="PLANNING">PLANNING</option><option value="ACTIVE">ACTIVE</option><option value="ON_HOLD">ON_HOLD</option></select></div>
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase ml-1">
+                                Status *
+                            </label>
+                            <select
+                                name="status"
+                                value={formData.status}
+                                onChange={handleInputChange}
+                                className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none">
+
+                                <option value="NOT_STARTED">NOT STARTED</option>
+                                <option value="ON_GOING">ON GOING</option>
+                                <option value="COMPLETED">COMPLETED</option>
+                                <option value="ON_HOLD">ON HOLD</option>
+                                <option value="CANCELLED">CANCELLED</option>
+                            </select>
+                            </div>
                             <div className="space-y-1"><label className="text-[9px] font-bold text-slate-400 uppercase ml-1">Priority *</label><select name="priority" value={formData.priority} onChange={handleInputChange} className="w-full text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none"><option value="LOW">LOW</option><option value="MEDIUM">MEDIUM</option><option value="HIGH">HIGH</option><option value="URGENT">URGENT</option></select></div>
                         </div>
+                    </div>
+                </div>
+
+                {/* 2. Contractor */}
+                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden h-full">
+                    <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2"><Info className="text-slate-400" fontSize="small" /><span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Contractor</span></div>
+                    <div className="p-6 space-y-4">
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-bold text-slate-400 uppercase ml-1">Contractor *</label>
+                            <div className="flex gap-2">
+                                <select name="contractorId" value={formData.contractorId} onChange={handleInputChange} className="flex-1 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:border-[#0284C7] appearance-none"><option value="">Select Conractor</option>{lookups.contractors.map(c => <option key={c.id} value={c.id}>{c.contractorName}</option>)}</select>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                {/* 3. Team Members */}
+                <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden h-full">
+                    <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2"><Groups className="text-slate-400" fontSize="small" /><span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Team Assignment</span></div>
+                    <div className="p-6 space-y-4">
+                        <div className="space-y-1">
+                            <label className={`text-[9px] font-bold uppercase ml-1 ${!formData.subCityId ? 'text-slate-300' : 'text-slate-400'}`}>Project Team *</label>
+                            <div className="relative">
+                                <Badge className={`absolute left-3 top-1/2 -translate-y-1/2 ${!formData.subCityId ? 'text-slate-200' : 'text-slate-400'}`} style={{ fontSize: 18 }} />
+                                <select name="employeeIds" multiple value={formData.employeeIds} onChange={handleEmployeeChange} disabled={!formData.subCityId} className="w-full pl-10 pr-3 py-2 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#0284C7] appearance-none disabled:bg-slate-50/50"><option value="">{formData.subCityId ? '-- Select Team --' : 'Waiting for Sub-City'}</option>{filteredManagers.map(m => <option key={m.id} value={m.id}>{m.fullName}</option>)}</select>
+                            </div>
+                        </div> 
+                        
                     </div>
                 </div>
             </div>
