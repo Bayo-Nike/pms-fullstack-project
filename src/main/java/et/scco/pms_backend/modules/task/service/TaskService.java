@@ -1,20 +1,19 @@
 package et.scco.pms_backend.modules.task.service;
 
-import java.util.List;
-
-import et.scco.pms_backend.modules.task.dto.request.TaskRequestDTO;
+import et.scco.pms_backend.modules.task.dto.request.CreateTaskRequestDTO;
 import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
+
+import java.util.List;
 
 public interface TaskService {
 
-    TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO);
+    TaskResponseDTO createTask(CreateTaskRequestDTO dto);
 
-    TaskResponseDTO getTaskById(Long taskId);
+    TaskResponseDTO updateTask(Long id, CreateTaskRequestDTO dto);
 
-    List<TaskResponseDTO> getAllTasks();
+    TaskResponseDTO getTask(Long id);
 
-    TaskResponseDTO updatetask(Long projectId, TaskRequestDTO taskRequestDTO);
+    List<TaskResponseDTO> getTasksByProject(Long projectId);
 
-    void deleteTask(Long taskId);     
-
+    void deleteTask(Long id);
 }

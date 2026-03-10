@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.service;
 
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
+import et.scco.pms_backend.modules.project.model.Project;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,5 +32,7 @@ public interface ProjectService {
     ProjectResponseDTO updateBudget(Long projectId, Double budget, Double budgetUsed);
 
     ProjectResponseDTO updateTimeline(Long projectId, LocalDate startDate, LocalDate endDate);
+
+    Project getProjectById(Long projectId);
 
 }

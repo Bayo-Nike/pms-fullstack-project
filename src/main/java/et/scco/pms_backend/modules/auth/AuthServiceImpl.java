@@ -6,7 +6,6 @@ import et.scco.pms_backend.modules.admin.mapper.UserMapper;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.utility.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -43,7 +40,6 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new BadCredentialsException("Invalid username/email or password");
         }
 

@@ -33,7 +33,7 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ApiResponse<ProjectResponseDTO> createProject(@RequestBody CreateProjectRequestDTO dto) { 
+    public ApiResponse<ProjectResponseDTO> createProject(@RequestBody CreateProjectRequestDTO dto) {
         ProjectResponseDTO project = projectService.createProject(dto);
         return ResponseUtil.success("Project created successfully", project);
     }

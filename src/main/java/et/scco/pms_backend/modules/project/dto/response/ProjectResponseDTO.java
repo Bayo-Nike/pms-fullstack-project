@@ -5,11 +5,11 @@ import et.scco.pms_backend.enums.CurrencyType;
 import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+
 
 @Data
 // @AllArgsConstructor
@@ -27,8 +27,8 @@ public class ProjectResponseDTO {
     private Long subCityId;
     private String subCityName;
 
-    private Long locationId;
-    private String locationName;
+    private List<Long> locationIds ;
+    private List<String> locationNames;
 
     private Long contractorId;
     private String contractorName;

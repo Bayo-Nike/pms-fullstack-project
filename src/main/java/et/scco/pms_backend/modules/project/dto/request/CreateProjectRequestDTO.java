@@ -1,5 +1,9 @@
 package et.scco.pms_backend.modules.project.dto.request;
 
+import et.scco.pms_backend.enums.CurrencyType;
+import et.scco.pms_backend.enums.ProjectPriority;
+import et.scco.pms_backend.enums.ProjectStatus;
+import et.scco.pms_backend.enums.ProjectType;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,23 +16,23 @@ public class CreateProjectRequestDTO {
     private String title;
     private String description;
 
-    private String projectType;
+    private ProjectType projectType;
 
     private Long cityId;
     private Long subCityId;
-    private Long locationId;
+    private List<Long> locationIds;
     private Long contractorId;
     private Long projectManagerId;
 
     private LocalDate startDate;
     private LocalDate endDate;
 
-    private String status;
-    private String priority;
-    private String currencyType;
+    private ProjectStatus status;
+    private ProjectPriority priority;
+    private CurrencyType currencyType;
 
     private Double budget;
     private Double budgetUsed;
 
-    private List<Long> employeeIds;
+    private List<Long> employeeIds; //team members
 }

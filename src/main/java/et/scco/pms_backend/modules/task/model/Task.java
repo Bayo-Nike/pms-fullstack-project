@@ -1,50 +1,131 @@
 package et.scco.pms_backend.modules.task.model;
- 
+
+import et.scco.pms_backend.enums.*;
+import et.scco.pms_backend.modules.admin.model.*;
+import et.scco.pms_backend.modules.project.model.Project;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+//
+//@Setter
+//@Getter
+//@Entity
+//@Table(name = "tasks")
+//public class Task {
+//
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+//
+//    @Column(name = "task_name", nullable = false)
+//    private String taskName;
+//
+//    // Many tasks belong to one project
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "project_id", nullable = false)
+//    private Project project;
+//
+//    // Employees assigned to this task
+//    @ManyToMany
+//    @JoinTable(
+//            name = "task_employee",
+//            joinColumns = @JoinColumn(name = "task_id"),
+//            inverseJoinColumns = @JoinColumn(name = "employee_id")
+//    )
+//    private List<Employee> employees = new ArrayList<>();
+//
+//    private LocalDate startDate;
+//
+//    private LocalDate endDate;
+//
+//    @Column(columnDefinition = "TEXT")
+//    private String description;
+//
+//    @Enumerated(EnumType.STRING)
+//    private TaskStatus status;
+//
+//    // Latitude / Longitude
+//    private Double latitude;
+//    private Double longitude;
+//
+//    // optional location reference
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "location_id")
+//    private Location location;
+//
+//    @Enumerated(EnumType.STRING)
+//    private ProjectPriority priority;
+//
+//    // importance of a task within a project
+//    private Double weight;
+//
+//    private LocalDateTime createdAt;
+//
+//    @PrePersist
+//    public void prePersist() {
+//        createdAt = LocalDateTime.now();
+//    }
+//}
 
-import et.scco.pms_backend.modules.admin.model.Employee;
-import et.scco.pms_backend.modules.admin.model.User;
-import et.scco.pms_backend.modules.project.model.Project;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
-
-@Data
+@Setter
+@Getter
 @Entity
-@Table (name = "tasks")
+@Table(name = "tasks")
 public class Task {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
-    private String description;
-    private String status;
 
-    private LocalDateTime startDate;
-    private LocalDateTime dueDate;
+    @Column(name = "task_name", nullable = false)
+    private String taskName;
 
-    // Many tasks belong to one project
-    @ManyToOne
-    @JoinColumn(name = "project_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
     private Project project;
 
+    @ManyToMany
+    @JoinTable(
+            name = "task_employee",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id")
+    )
+    private List<Employee> employees = new ArrayList<>();
 
-     // Many-to-Many: Task assigned to multiple users
-     @ManyToMany
-     @JoinTable(
-             name = "task_employee",
-             joinColumns = @JoinColumn(name = "task_id"),
-             inverseJoinColumns = @JoinColumn(name = "employee_id")
-     )
-     private List<Employee> teamMembers = new ArrayList<>();
+    private LocalDate startDate;
+    private LocalDate endDate;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
+
+    private Double latitude;
+    private Double longitude;
+
+    @ManyToMany
+    @JoinTable(
+            name = "task_locations",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "location_id")
+    )
+    private List<Location> locations = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private ProjectPriority priority;
+
+    private Double weight;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
 }

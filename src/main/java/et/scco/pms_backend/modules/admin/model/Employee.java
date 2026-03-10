@@ -54,7 +54,7 @@ public class Employee {
     )
     private List<Project> assignedProjects = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "teamMembers")
+    @ManyToMany(mappedBy = "employees")
     private List<Task> tasks = new ArrayList<>();
 
     @OneToOne(mappedBy = "employee")

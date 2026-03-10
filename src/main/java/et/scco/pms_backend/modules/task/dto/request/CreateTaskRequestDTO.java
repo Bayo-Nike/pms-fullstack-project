@@ -1,17 +1,17 @@
-package et.scco.pms_backend.modules.task.dto.response;
+package et.scco.pms_backend.modules.task.dto.request;
 
 import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.TaskStatus;
-import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-public class TaskResponseDTO {
+import lombok.Getter;
+import lombok.Setter;
 
-    private Long id;
+@Getter
+@Setter
+public class CreateTaskRequestDTO {
 
     private String taskName;
 
@@ -32,11 +32,8 @@ public class TaskResponseDTO {
     private Double longitude;
 
     private List<Long> locationIds;
-    private List<String> locationNames;
 
-    private ProjectPriority priority;
+    private ProjectPriority priority; // HIGH, MEDIUM, LOW
 
     private Double weight;
-
-    private LocalDateTime createdAt;
 }
