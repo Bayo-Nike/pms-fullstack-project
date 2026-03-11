@@ -68,6 +68,12 @@ const adminApi = {
     DELETE_LOCATION: (id) => api.delete(`/admin/locations/${id}`),
 
     GET_AUDIT_LOGS: () => api.get("/admin/logs"),
+
+    GET_INSPECTIONS: () => api.get("/admin/inspections"),
+    GET_INSPECTION: (id) => api.get(`/admin/inspections/${id}`),
+    CREATE_INSPECTION: (data) => api.post("/admin/inspections", data),
+    UPDATE_INSPECTION: (id, data) => api.put(`/admin/inspections/${id}`, data),
+    DELETE_INSPECTION: (id) => api.delete(`/admin/inspections/${id}`),
 };
 
 export default adminApi;

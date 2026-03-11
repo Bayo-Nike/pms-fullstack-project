@@ -104,6 +104,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/locations', name: 'Locations', permission: 'CAN_MANAGE_ROLES' },
+        { path: '/admin/inspections', name: 'Inspections Types', permission: 'CAN_VIEW_LOGS' },
         { path: '/admin/employees', name: 'Employees', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_VIEW_USERS' },

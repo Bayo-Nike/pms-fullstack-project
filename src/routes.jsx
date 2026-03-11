@@ -26,6 +26,8 @@ import Locations from './pages/admin/Locations';
 import CreateLocation from './pages/admin/CreateLocation';
 import AuditLog from './pages/admin/AuditLog';
 import CreateProject from './pages/project/CreateProject';
+import Inspections from './pages/admin/Inspections';
+import CreateInspection from './pages/admin/CreateInspection';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -135,6 +137,11 @@ export default function AppRoutes() {
         <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
         <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
         <Route path="resources/materials" element={placeholder("Inventory", "CAN_MANAGE_INVENTORY")} />
+
+
+        <Route path="admin/inspections" element={protect(<Inspections />, "CAN_MANAGE_MODULES")} />
+        <Route path="admin/inspections/create" element={protect(<CreateInspection />, "CAN_MANAGE_MODULES")} />
+        <Route path="admin/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_MANAGE_MODULES")} />
 
         <Route path="*" element={<Placeholder title="Page Not Found" />} />
       </Route>
