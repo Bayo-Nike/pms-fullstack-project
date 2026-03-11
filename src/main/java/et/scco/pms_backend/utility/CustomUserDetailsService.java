@@ -7,7 +7,7 @@ import et.scco.pms_backend.modules.admin.model.Roles;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
@@ -24,8 +24,9 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional(readOnly = true)  // Important for LAZY loading
-    public UserDetails loadUserByUsername(@NonNull String usernameOrEmail)
+    @Transactional(readOnly = true)
+    @NullMarked
+    public UserDetails loadUserByUsername(String usernameOrEmail)
             throws UsernameNotFoundException {
 
         User user = userRepository
@@ -47,20 +48,9 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
         }
 
-        // Check if user is active (for EMPLOYEE users)
-        boolean isEnabled = true;
-        if (user.getUserType() == UserType.EMPLOYEE && user.getStatus() != EmployeeStatus.ACTIVE) {
-            isEnabled = false;
-        }
+        // Check if the user is active (for EMPLOYEE users)
+        boolean isEnabled = user.getUserType() != UserType.EMPLOYEE || user.getStatus() == EmployeeStatus.ACTIVE;
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                isEnabled,  // enabled
-                true,       // accountNonExpired
-                true,       // credentialsNonExpired
-                true,       // accountNonLocked
-                authorities
-        );
+        return new CustomUserDetails(user, authorities, isEnabled);
     }
 }

@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Inspection {
+public class InspectionType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

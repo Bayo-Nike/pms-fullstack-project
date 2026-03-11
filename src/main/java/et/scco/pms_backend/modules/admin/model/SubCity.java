@@ -18,6 +18,7 @@ public class SubCity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id", nullable = false)
+
     @JsonIgnore
     private City city;
 }

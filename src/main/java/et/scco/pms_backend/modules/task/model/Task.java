@@ -11,66 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-//
-//@Setter
-//@Getter
-//@Entity
-//@Table(name = "tasks")
-//public class Task {
-//
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    private Long id;
-//
-//    @Column(name = "task_name", nullable = false)
-//    private String taskName;
-//
-//    // Many tasks belong to one project
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "project_id", nullable = false)
-//    private Project project;
-//
-//    // Employees assigned to this task
-//    @ManyToMany
-//    @JoinTable(
-//            name = "task_employee",
-//            joinColumns = @JoinColumn(name = "task_id"),
-//            inverseJoinColumns = @JoinColumn(name = "employee_id")
-//    )
-//    private List<Employee> employees = new ArrayList<>();
-//
-//    private LocalDate startDate;
-//
-//    private LocalDate endDate;
-//
-//    @Column(columnDefinition = "TEXT")
-//    private String description;
-//
-//    @Enumerated(EnumType.STRING)
-//    private TaskStatus status;
-//
-//    // Latitude / Longitude
-//    private Double latitude;
-//    private Double longitude;
-//
-//    // optional location reference
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "location_id")
-//    private Location location;
-//
-//    @Enumerated(EnumType.STRING)
-//    private ProjectPriority priority;
-//
-//    // importance of a task within a project
-//    private Double weight;
-//
-//    private LocalDateTime createdAt;
-//
-//    @PrePersist
-//    public void prePersist() {
-//        createdAt = LocalDateTime.now();
-//    }
-//}
 
 @Setter
 @Getter
