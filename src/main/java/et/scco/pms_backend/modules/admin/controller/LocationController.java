@@ -49,7 +49,6 @@ public class LocationController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteLocation(@PathVariable Long id) {
-
         locationService.deleteLocation(id);
         return ResponseUtil.success("Location deleted successfully", null);
     }
