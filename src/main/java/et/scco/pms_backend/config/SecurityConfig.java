@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/profile").authenticated()
                         .requestMatchers("/api/admin/contractors/download/**").permitAll() // allow contractor file view/download
                         .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/api/colorCodes/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 );
 
