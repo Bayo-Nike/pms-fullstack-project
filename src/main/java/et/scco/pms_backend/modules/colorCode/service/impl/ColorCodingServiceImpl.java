@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
+import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
@@ -30,21 +31,32 @@ public class ColorCodingServiceImpl implements ColorCodingService{
 
     @Override
     public ColorCodingResponseDTO createColorCodeTarget(ColorCodingRequestDTO colorCodingRequestDTO) {
-        
+
         ColorCoding colorCoding = ColorCodingMapper.mapToColorCoding(colorCodingRequestDTO);
         colorCoding.setCity(subCityServiceImpl.getCity());
-        
-        if(colorCodingRequestDTO.getSubCityId() > 0){
-            colorCoding.setSubCity(subCityServiceImpl.getSubCityEntity(colorCodingRequestDTO.getSubCityId()));
-        }
 
-        // 2. Get the logged-in username from Security Context
+        // 1. Get the logged-in username from Security Context
         String currentUsername = SecurityContextHolder
             .getContext().getAuthentication().getName();
 
-        // 3. Find the User entity and set it
+        // 2. Find the User entity
         User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new RuntimeException("The creating User not found"));
+            .orElseThrow(() -> new RuntimeException("The Creating User not found"));
+
+        // 3. Get user's subCity safely
+        SubCity userSubCity = user.getEmployee() != null ? user.getEmployee().getSubCity() : null;
+
+        // 4. Access control logic
+        // Allow if user's sub-city is null or matches the requested sub-city
+        if(userSubCity != null && colorCodingRequestDTO.getSubCityId() > 0
+        && !userSubCity.getId().equals(colorCodingRequestDTO.getSubCityId())) {
+            throw new RuntimeException("You are not allowed to create a record for another sub-city");
+        }
+
+        // 5. Set sub-city if provided
+        if(colorCodingRequestDTO.getSubCityId() > 0){
+            colorCoding.setSubCity(subCityServiceImpl.getSubCityEntity(colorCodingRequestDTO.getSubCityId()));
+        }
 
         colorCoding.setCreatedBy(user); 
 
@@ -73,7 +85,24 @@ public class ColorCodingServiceImpl implements ColorCodingService{
             .orElseThrow(() ->
                 new ResourceNotFoundException("Color code does not exist with given id: " + colorCodeId));
 
-        
+        // 1. Get the logged-in username from Security Context
+        String currentUsername = SecurityContextHolder
+            .getContext().getAuthentication().getName();
+
+        // 2. Find the User entity
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("The Updating User not found"));
+
+        // 3. Get user's subCity safely
+        SubCity userSubCity = user.getEmployee() != null ? user.getEmployee().getSubCity() : null;
+
+        // 4. Access control logic: Allow update if user's sub-city is null or matches the requested sub-city; otherwise deny
+        if(userSubCity != null && colorCodingRequestDTO.getSubCityId() > 0
+        && !userSubCity.getId().equals(colorCodingRequestDTO.getSubCityId())) {
+            throw new RuntimeException("You are not allowed to update another sub-city record");
+        }
+
+        // 5. Update fields
         colorCoding.setFiscalYear(colorCodingRequestDTO.getFiscalYear());
         colorCoding.setTarget(colorCodingRequestDTO.getTarget());
         colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
@@ -81,18 +110,10 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         colorCoding.setBuildingType(BuildingType.valueOf(colorCodingRequestDTO.getBuildingType()));
 
         colorCoding.setCity(subCityServiceImpl.getCity());
-        
+
         if(colorCodingRequestDTO.getSubCityId() > 0){
             colorCoding.setSubCity(subCityServiceImpl.getSubCityEntity(colorCodingRequestDTO.getSubCityId()));
         }
-
-        // 2. Get the logged-in username from Security Context
-        String currentUsername = SecurityContextHolder
-            .getContext().getAuthentication().getName();
-
-        // 3. Find the User entity and set it
-        User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new RuntimeException("The Updating User not found"));
 
         colorCoding.setCreatedBy(user);
 
