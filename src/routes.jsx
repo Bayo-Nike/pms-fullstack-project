@@ -28,6 +28,10 @@ import CreateLocation from './pages/admin/CreateLocation';
 import AuditLog from './pages/admin/AuditLog';
 import CreateProject from './pages/project/CreateProject';
 import ColorCodings from './pages/planning/ColorCodings';
+import InspectionTypes from './pages/admin/InspectionTypes';
+import CreateInspectionType from './pages/admin/CreateInspectionType';
+import Inspections from './pages/project/Inspections';
+import CreateInspection from './pages/project/CreateInspection';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -69,6 +73,11 @@ export default function AppRoutes() {
         <Route path="projects/edit/:id" element={protect(<CreateProject />, "CAN_EDIT_PROJECTS")} />
         <Route path="projects/milestones" element={placeholder("Milestones", "CAN_VIEW_PROJECTS")} />
         <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
+
+        {/* 2.5. Inspection Logs */}
+        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_MANAGE_INSPECTIONS")} />
+        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_MANAGE_INSPECTIONS")} />
+        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_MANAGE_INSPECTIONS")} />
 
         {/* 3. Contracts & Contractors */}
         <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
@@ -144,9 +153,9 @@ export default function AppRoutes() {
         <Route path="resources/materials" element={placeholder("Inventory", "CAN_MANAGE_INVENTORY")} />
 
 
-        <Route path="admin/inspections" element={protect(<Inspections />, "CAN_MANAGE_MODULES")} />
-        <Route path="admin/inspections/create" element={protect(<CreateInspection />, "CAN_MANAGE_MODULES")} />
-        <Route path="admin/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_MANAGE_MODULES")} />
+        <Route path="admin/inspection-types" element={protect(<InspectionTypes />, "CAN_VIEW_USERS")} />
+        <Route path="admin/inspection-types/create" element={protect(<CreateInspectionType />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/inspection-types/edit/:id" element={protect(<CreateInspectionType />, "CAN_MANAGE_USERS")} />
 
         <Route path="*" element={<Placeholder title="Page Not Found" />} />
       </Route>

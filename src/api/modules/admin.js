@@ -69,11 +69,11 @@ const adminApi = {
 
     GET_AUDIT_LOGS: () => api.get("/admin/logs"),
 
-    GET_INSPECTIONS: () => api.get("/admin/inspections"),
-    GET_INSPECTION: (id) => api.get(`/admin/inspections/${id}`),
-    CREATE_INSPECTION: (data) => api.post("/admin/inspections", data),
-    UPDATE_INSPECTION: (id, data) => api.put(`/admin/inspections/${id}`, data),
-    DELETE_INSPECTION: (id) => api.delete(`/admin/inspections/${id}`),
+    GET_INSPECTION_TYPES: () => api.get("/admin/inspection-types"),
+    GET_INSPECTION_TYPE: (id) => api.get(`/admin/inspection-types/${id}`),
+    CREATE_INSPECTION_TYPE: (data) => api.post("/admin/inspection-types", data),
+    UPDATE_INSPECTION_TYPE: (id, data) => api.put(`/admin/inspection-types/${id}`, data),
+    DELETE_INSPECTION_TYPE: (id) => api.delete(`/admin/inspection-types/${id}`),
 };
 
 export default adminApi;

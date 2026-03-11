@@ -5,7 +5,8 @@ import {
   Engineering, FolderCopy, Construction, ExpandMore,
   KeyboardBackspace, Settings, VerifiedUser, Timeline,
   Flag, Description, PhotoCamera, Inventory, History,
-  NotificationImportant
+  NotificationImportant,
+  Report
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,6 +29,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Dashboard />,
       children: [
         { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_VIEW_DASHBOARD' },
+        { path: '/dashboard/org-structure', name: 'Organization Structure', permission: 'CAN_VIEW_DASHBOARD' },
         { path: '/dashboard/gis', name: 'GIS Map View', permission: 'CAN_VIEW_GIS_MAP' },
         { path: '/dashboard/alerts', name: 'Alerts & Issues', permission: 'CAN_MANAGE_ALERTS' },
       ]
@@ -38,9 +40,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Assignment />,
       children: [
         { path: '/projects', name: 'Project List', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/progress', name: 'Physical Progress', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/milestones', name: 'Milestones', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/gantt', name: 'Gantt Schedule', permission: 'CAN_MANAGE_GANTT' },
+        { path: '/projects/city-subcities', name: 'Project Per-City/Sub-Cities', permission: 'CAN_VIEW_PROJECTS' },
+        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_MANAGE_INSPECTIONS' },
       ]
     },
     {
@@ -49,10 +50,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Handshake />,
       children: [
         { path: '/admin/contractors', name: 'Contractor List', permission: 'CAN_VIEW_CONTRACTS' },
-        { path: '/contracts/vo', name: 'Variation Orders (VO)', permission: 'CAN_MANAGE_VO' },
-        { path: '/contracts/performance', name: 'Contractor Performance', permission: 'CAN_RATE_CONTRACTORS' },
-        { path: '/contracts/retention', name: 'Retention & Damages', permission: 'CAN_MANAGE_RETENTION' },
-        { path: '/contracts/repository', name: 'Contract Repository', permission: 'CAN_ACCESS_REPOSITORY' },
       ]
     },
     {
@@ -88,22 +85,11 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       ]
     },
     {
-      id: 'documents',
-      name: 'Documents',
-      icon: <FolderCopy />,
+      id: 'reports',
+      name: 'Reports',
+      icon: <Report />,
       children: [
-        { path: '/docs/drawings', name: 'Drawing Management', permission: 'CAN_MANAGE_DRAWINGS' },
-        { path: '/docs/letters', name: 'Correspondence Log', permission: 'CAN_MANAGE_LETTERS' },
-        { path: '/docs/archive', name: 'Archive', permission: 'CAN_ARCHIVE_DOCS' },
-      ]
-    },
-    {
-      id: 'resources',
-      name: 'Resources',
-      icon: <Construction />,
-      children: [
-        { path: '/resources/equipment', name: 'Equipment Utilization', permission: 'CAN_MANAGE_EQUIPMENT' },
-        { path: '/resources/materials', name: 'Material Inventory', permission: 'CAN_MANAGE_INVENTORY' },
+        { path: '/reports/general', name: 'General Reports', permission: 'CAN_VIEW_REPORTS' },
       ]
     },
     {
@@ -115,7 +101,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/locations', name: 'Locations', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/inspections', name: 'Inspections Types', permission: 'CAN_VIEW_LOGS' },
+        { path: '/admin/inspection-types', name: 'Inspections Types', permission: 'CAN_VIEW_LOGS' },
         { path: '/admin/employees', name: 'Employees', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_MANAGE_ROLES' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_VIEW_USERS' },
