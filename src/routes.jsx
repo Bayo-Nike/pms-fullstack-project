@@ -20,14 +20,14 @@ import Positions from './pages/admin/Positions';
 import CreatePosition from './pages/admin/CreatePosition';
 import Contractors from './pages/admin/Contractors';
 import CreateContractor from './pages/admin/CreateContractor';
-import CreateColorCoding from './pages/colorCode/CreateColorCoding';
+import CreateColorCoding from './pages/planning/CreateColorCoding';
 import Employees from './pages/admin/Employees';
 import CreateEmployee from './pages/admin/CreateEmployee';
 import Locations from './pages/admin/Locations';
 import CreateLocation from './pages/admin/CreateLocation';
 import AuditLog from './pages/admin/AuditLog';
 import CreateProject from './pages/project/CreateProject';
-import ColorCodings from './pages/colorCode/ColorCodings';
+import ColorCodings from './pages/planning/ColorCodings';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -76,9 +76,9 @@ export default function AppRoutes() {
         <Route path="admin/contractors/edit/:id" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
 
         {/* 4. Color & Coding */}
-        <Route path="colorCode/ColorCodings" element={protect(<ColorCodings />, "CAN_VIEW_USERS")} />
-        <Route path="colorCode/CreateColorCoding/create" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
-        <Route path="colorCode/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
+        <Route path="planning/ColorCodings" element={protect(<ColorCodings />, "CAN_VIEW_USERS")} />
+        <Route path="planning/CreateColorCoding/create" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
+        <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
 
         {/* 4. Finance */}
         <Route path="finance/ipc" element={placeholder("IPC Management", "CAN_VIEW_FINANCE")} />

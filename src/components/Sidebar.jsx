@@ -56,11 +56,11 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       ]
     },
     {
-      id: 'color',
-      name: 'Color Coding',
+      id: 'plan',
+      name: 'Planning',
       icon: <ReceiptLong />,
       children: [
-        { path: '/colorCode/ColorCodings', name: 'Color Codings', permission: 'CAN_VIEW_FINANCE' },
+        { path: '/planning/ColorCodings', name: 'Color Codings', permission: 'CAN_VIEW_FINANCE' },
         { path: '/finance/advance', name: 'Advance Tracking', permission: 'CAN_TRACK_ADVANCE' },
         { path: '/finance/escalation', name: 'Price Adjustment', permission: 'CAN_MANAGE_ESCALATION' },
         { path: '/finance/history', name: 'Payment History', permission: 'CAN_VIEW_FINANCE' },

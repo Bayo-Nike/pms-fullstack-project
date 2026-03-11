@@ -118,7 +118,7 @@ export default function CreateTarget() {
         showAlert('success', 'Color Code created successfully.');
       }
   
-      setTimeout(() => navigate('/colorCode/ColorCodings'), 1500); // Note: check your route path
+      setTimeout(() => navigate('/planning/ColorCodings'), 1500); // Note: check your route path
   
     } catch (err) {
       showAlert('error', err.response?.data?.message || 'Transaction failed.');
@@ -149,11 +149,11 @@ export default function CreateTarget() {
 
       <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/colorCode/ColorCodings')} className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors">
+          <button onClick={() => navigate('/planning/ColorCodings')} className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors">
             <ArrowBack fontSize="small" />
           </button>
           <div>
-            <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update Target' : 'New Color Code Target'}</h1>
+            <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update Color Code' : 'New Color Code Target'}</h1>
             <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">COLOR CODE Target Registry</p>
           </div>
         </div>
