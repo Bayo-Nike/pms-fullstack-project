@@ -52,7 +52,7 @@ export default function Login() {
                         <ShieldOutlined style={{ fontSize: 32 }} />
                     </div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">SCCO PMS</h1>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Project Management Suite</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">Project Management System</p>
                 </div>
 
                 <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-2xl shadow-slate-200/60">
