@@ -102,6 +102,7 @@ public class Project {
     private String projectCode;
     private String title;
     private String description;
+    private String progress;
 
     @Enumerated(EnumType.STRING)
     private ProjectType projectType;

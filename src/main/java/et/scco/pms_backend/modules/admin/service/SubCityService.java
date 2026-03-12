@@ -16,4 +16,5 @@ public interface SubCityService {
     SubCityResponseDto updateSubCity(Long id, CreateSubCityRequestDto dto);
     void deleteSubCity(Long id);
     SubCity getSubCityEntity(Long subCityId);
+    SubCity getCurrentUserSubCity();
 }

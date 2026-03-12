@@ -96,13 +96,10 @@ public class ColorCodingServiceImpl implements ColorCodingService{
 
     @Override
     public List<ColorCodingResponseDTO> getAllColorCodes() {
-        // 1. Get the logged-in username
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        // 2. Find the User entity
-        User user = userRepository.findByUsername(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found"));
-        // 3. Get user's subCity safely
-        SubCity userSubCity = user.getEmployee() != null ? user.getEmployee().getSubCity() : null;
+         
+        // 1. Get current user's Sub-City using a helper
+        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+        
         List<ColorCoding> colorCodings=new ArrayList<>();
 
         // 4. Filtering Logic

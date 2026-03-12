@@ -4,6 +4,8 @@ import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
+import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.impl.ContractorServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.LocationServiceImpl;
@@ -37,7 +39,23 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
-        return projectRepository.findAll(pageable).map(this::mapToDTO);
+        // return projectRepository.findAll(pageable).map(this::mapToDTO); 
+
+        // 1. Get current user's Sub-City using a helper
+        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+
+        // 2. Fetch data based on Sub-City (Conditional logic)
+        Page<Project> projectPage;
+        if (userSubCity != null) {
+            projectPage = projectRepository.findBySubCity(userSubCity, pageable); // User belongs to a specific sub-city: filter with pagination
+        } else {
+            projectPage = projectRepository.findAll(pageable); // Admin user: get all with pagination
+        }
+
+        // 3. Map the Page of Entities to Page of DTOs
+        // This maintains pagination metadata (totalPages, totalElements) for the frontend
+        return projectPage.map(this::mapToDTO);
+
     }
 
     @Override
