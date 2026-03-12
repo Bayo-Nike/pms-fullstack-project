@@ -40,7 +40,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Assignment />,
       children: [
         { path: '/projects', name: 'Project List', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_MANAGE_INSPECTIONS' },
+        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_VIEW_PROJECTS' },
       ]
     },
     {
@@ -67,7 +67,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/finance/history', name: 'Payment History', permission: 'CAN_VIEW_FINANCE' },
       ]
     },
-    
+
     {
       id: 'reports',
       name: 'Reports',

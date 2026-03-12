@@ -32,6 +32,7 @@ import InspectionTypes from './pages/admin/InspectionTypes';
 import CreateInspectionType from './pages/admin/CreateInspectionType';
 import Inspections from './pages/project/Inspections';
 import CreateInspection from './pages/project/CreateInspection';
+import OrgStructure from './pages/admin/OrgStructure';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -63,6 +64,7 @@ export default function AppRoutes() {
 
         {/* 1. Dashboard */}
         <Route path="dashboard" element={protect(<Dashboard />, "CAN_VIEW_DASHBOARD")} />
+        <Route path="dashboard/org-structure" element={protect(<OrgStructure />, "CAN_VIEW_ORG_STRUCTURE")} />
         <Route path="dashboard/gis" element={placeholder("GIS Map View", "CAN_VIEW_GIS_MAP")} />
         <Route path="dashboard/alerts" element={placeholder("Alerts & Issues", "CAN_MANAGE_ALERTS")} />
 
@@ -75,9 +77,9 @@ export default function AppRoutes() {
         <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
 
         {/* 2.5. Inspection Logs */}
-        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_MANAGE_INSPECTIONS")} />
-        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_MANAGE_INSPECTIONS")} />
-        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_MANAGE_INSPECTIONS")} />
+        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
+        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
 
         {/* 3. Contracts & Contractors */}
         <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />

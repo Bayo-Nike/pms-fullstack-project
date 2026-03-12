@@ -2,6 +2,7 @@ import api from "../api";
 
 const projectApi = {
     GET_PROJECTS: (params) => api.get("/projects", { params }),
+    GET_MY_PROJECTS: (params) => api.get("/projects/my", { params }),
     GET_PROJECT: (id) => api.get(`/projects/${id}`),
     CREATE_PROJECT: (data) => api.post("/projects", data),
     UPDATE_PROJECT: (id, data) => api.put(`/projects/${id}`, data),
@@ -21,7 +22,6 @@ const projectApi = {
     CREATE_INSPECTION_LOG: (data) => api.post("/admin/inspections", data),
     UPDATE_INSPECTION_LOG: (id, data) => api.put(`/admin/inspections/${id}`, data),
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
-
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
 };
 
