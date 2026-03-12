@@ -30,7 +30,6 @@ public class InspectionTypesTypesServiceImpl implements InspectionTypesService {
         inspectionType.setProjectType(dto.getProjectType());
         inspectionType.setDescription(dto.getDescription());
         repository.save(inspectionType);
-        System.out.println(authContext.getEmployee());
         return true;
     }
 

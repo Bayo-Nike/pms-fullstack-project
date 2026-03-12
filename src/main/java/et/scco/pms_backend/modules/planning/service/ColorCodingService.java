@@ -1,9 +1,9 @@
-package et.scco.pms_backend.modules.colorCode.service;
+package et.scco.pms_backend.modules.planning.service;
 
 import java.util.List;
 
-import et.scco.pms_backend.modules.colorCode.dto.ColorCodingRequestDTO;
-import et.scco.pms_backend.modules.colorCode.dto.ColorCodingResponseDTO;
+import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
+import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
 
 public interface ColorCodingService {
 

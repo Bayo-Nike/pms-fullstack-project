@@ -1,10 +1,10 @@
-package et.scco.pms_backend.modules.colorCode.model;
+package et.scco.pms_backend.modules.planning.model;
 
 import java.time.LocalDateTime;
 
 import et.scco.pms_backend.enums.BuildingType;
-import et.scco.pms_backend.enums.ContractorStatus;
 import et.scco.pms_backend.enums.PlanType;
+import et.scco.pms_backend.enums.Quarter;
 import et.scco.pms_backend.modules.admin.model.City;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.User;
@@ -50,6 +50,9 @@ public class ColorCoding {
 
     @Enumerated(EnumType.STRING)
     private BuildingType buildingType;
+
+    @Enumerated(EnumType.STRING)
+    private Quarter quarter;
 
     @Column(name = "target")
     private Long target;

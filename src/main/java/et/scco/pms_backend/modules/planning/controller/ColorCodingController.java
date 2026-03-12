@@ -1,10 +1,9 @@
-package et.scco.pms_backend.modules.colorCode.controller;
+package et.scco.pms_backend.modules.planning.controller;
  
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import et.scco.pms_backend.config.ApiResponse;
-import et.scco.pms_backend.modules.colorCode.dto.ColorCodingRequestDTO;
-import et.scco.pms_backend.modules.colorCode.dto.ColorCodingResponseDTO;
-import et.scco.pms_backend.modules.colorCode.service.ColorCodingService;
+import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
+import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
+import et.scco.pms_backend.modules.planning.service.ColorCodingService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 
