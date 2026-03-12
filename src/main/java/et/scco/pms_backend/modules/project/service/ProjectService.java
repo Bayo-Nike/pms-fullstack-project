@@ -35,4 +35,5 @@ public interface ProjectService {
 
     Project getProjectById(Long projectId);
 
+    Page<ProjectResponseDTO> getMyProjects(Pageable pageable);
 }

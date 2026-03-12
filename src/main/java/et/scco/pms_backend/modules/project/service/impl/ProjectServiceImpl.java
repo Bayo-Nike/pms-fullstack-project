@@ -15,6 +15,7 @@ import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.modules.project.service.ProjectService;
+import et.scco.pms_backend.utility.AuthContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 
 @Service
@@ -36,6 +37,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final LocationServiceImpl locationServiceImpl;
     private final ContractorServiceImpl contractorServiceImpl;
     private final EmployeeServiceImpl employeeServiceImpl;
+    private final AuthContext authContext;
 
     @Override
     public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
@@ -161,6 +163,27 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
     }
+    @Override
+    public Page<ProjectResponseDTO> getMyProjects(Pageable pageable) {
+
+        if (authContext.isSuperAdmin() || authContext.isMayor()) {
+            return projectRepository
+                    .findAll(pageable)
+                    .map(this::mapToDTO);
+        }
+
+        Employee employee = authContext.getEmployee();
+
+        if (employee == null) {
+            return Page.empty(pageable);
+        }
+
+        return projectRepository
+                .findAllByEmployeesContaining(employee, pageable)
+                .map(this::mapToDTO);
+    }
+
+
     private ProjectResponseDTO mapToDTO(Project project) {
         if (project == null) return null;
 

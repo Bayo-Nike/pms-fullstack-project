@@ -11,7 +11,6 @@ public class InspectionRequestDto {
     private InspectionLevel inspectionLevel;
     private Long projectId;
     private Long taskId;
-    private Long employeeId;
     private LocalDate inspectionDate;
     private String inspectionResult;
 }

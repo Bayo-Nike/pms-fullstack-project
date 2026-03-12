@@ -26,6 +26,12 @@ public class ProjectController {
         return ResponseUtil.success("Projects fetched successfully", projects);
     }
 
+    @GetMapping("/my")
+    public ApiResponse<Page<ProjectResponseDTO>> getMyProjects(Pageable pageable) {
+        Page<ProjectResponseDTO>projects = projectService.getMyProjects(pageable);
+        return ResponseUtil.success("Projects fetched successfully", projects);
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<ProjectResponseDTO> getProject(@PathVariable Long id) {
         ProjectResponseDTO project = projectService.getProject(id);

@@ -8,7 +8,6 @@ public class ToDoException extends RuntimeException {
         this.status = status;
 
     }
-
     public int getStatus() {
         return status;
     }

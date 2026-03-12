@@ -10,11 +10,15 @@ import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
 import et.scco.pms_backend.modules.task.model.Task;
 import et.scco.pms_backend.modules.task.repository.TaskRepository;
 import et.scco.pms_backend.modules.task.service.TaskService;
+import et.scco.pms_backend.utility.AuthContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -25,6 +29,7 @@ public class TaskServiceImpl implements TaskService {
     private final EmployeeService employeeServiceImpl;    // to fetch employees
     private final LocationService locationServiceImpl;    // optional location
     private final ProjectServiceImpl projectService;
+    private final AuthContext authContext;
 
     // ---------------- Create Task ----------------
     @Override
@@ -60,10 +65,39 @@ public class TaskServiceImpl implements TaskService {
                 .map(this::mapToDTO)
                 .toList();
     }
+
     @Override
     public void deleteTask(Long id) {
         taskRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TaskResponseDTO> getMyTasks() {
+        // 1. Admin/Mayor Bypass
+        if (authContext.isSuperAdmin() || authContext.isMayor()) {
+            return taskRepository.findAll().stream().map(this::mapToDTO).toList();
+        }
+
+        // 2. Get Employee ID safely
+        Employee sessionEmployee = authContext.getEmployee();
+        if (sessionEmployee == null || sessionEmployee.getId() == null) {
+            System.out.println("DEBUG: No employee found in context");
+            return Collections.emptyList();
+        }
+
+        // 3. Fetch tasks using an explicit Join Query
+        // We use the ID directly to avoid "Detached Entity" issues
+        List<Task> taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
+
+        if (taskEntities == null) return Collections.emptyList();
+
+        // 4. Map to DTO with NULL SAFETY
+        return taskEntities.stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
 
     // ---------------- Mapper ----------------
     private Task mapToEntity(CreateTaskRequestDTO dto) {
@@ -102,6 +136,7 @@ public class TaskServiceImpl implements TaskService {
 
         return task;
     }
+
 
     private TaskResponseDTO mapToDTO(Task task) {
         TaskResponseDTO dto = new TaskResponseDTO();

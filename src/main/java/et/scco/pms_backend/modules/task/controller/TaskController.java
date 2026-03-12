@@ -37,6 +37,14 @@ public class TaskController {
         );
     }
 
+    @GetMapping("/my")
+    public ApiResponse<List<TaskResponseDTO>> getMyTasks() {
+        return ResponseUtil.success(
+                "My tasks fetched successfully",
+                taskService.getMyTasks()
+        );
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<TaskResponseDTO> getTask(@PathVariable Long id) {
 

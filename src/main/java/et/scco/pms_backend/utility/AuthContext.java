@@ -39,13 +39,17 @@ public class AuthContext {
         return getPrincipal().getEmployee();
     }
 
-    public Long getEmployeeId() {
-        Employee employee = getEmployee();
-        return employee != null ? employee.getId() : null;
-    }
-
-    public boolean isSystemUser() {
+    public boolean isSuperAdmin() {
         return getUser().getUserType() == UserType.SYSTEM;
     }
 
+    public boolean isMayor() {
+        return getUser()
+                .getRoles()
+                .stream()
+                .allMatch(role -> role.getRoleName().equals("MAYOR"));
+    }
+    public boolean isSystemUser() {
+        return getUser().getUserType() == UserType.SYSTEM;
+    }
 }

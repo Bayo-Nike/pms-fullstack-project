@@ -7,6 +7,9 @@
 //import et.scco.pms_backend.modules.admin.model.SubCity;
 //import et.scco.pms_backend.modules.admin.repository.PositionRepository;
 //import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+//import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
+//import et.scco.pms_backend.modules.project.repository.ProjectRepository;
+//import et.scco.pms_backend.modules.project.service.ProjectService;
 //import lombok.AllArgsConstructor;
 //import org.springframework.stereotype.Service;
 //
@@ -21,6 +24,13 @@
 //
 //    private boolean isSuperAdmin() {
 //        return authContext.getUser().getUserType() == UserType.SYSTEM;
+//    }
+//
+//    private boolean isMayor() {
+//        return authContext.getUser()
+//                .getRoles()
+//                .stream()
+//                .allMatch(role -> role.getRoleName().equals("MAYOR"));
 //    }
 //
 //    public List<SubCityResponseDto> getMySubCities()
@@ -51,5 +61,12 @@
 //        Position position = employee.getPosition();
 //
 //        return positionRepository.findAllByParent_Id(position.getId());
+//    }
+//
+//
+//    public final ProjectService projectService;
+//
+//    public List<ProjectResponseDTO> getMyProjects(){
+//
 //    }
 //}

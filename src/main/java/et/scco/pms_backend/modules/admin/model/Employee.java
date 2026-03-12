@@ -46,12 +46,7 @@ public class Employee {
     @Column(nullable = false)
     private EmployeeStatus status = EmployeeStatus.ACTIVE;
 
-    @ManyToMany
-    @JoinTable(
-            name = "employee_project",
-            joinColumns = @JoinColumn(name = "employee_id"),
-            inverseJoinColumns = @JoinColumn(name = "project_id")
-    )
+    @ManyToMany(mappedBy = "employees")
     private List<Project> assignedProjects = new ArrayList<>();
 
     @ManyToMany(mappedBy = "employees")

@@ -36,11 +36,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        // Add roles as authorities with ROLE_ prefix
         for (Roles role : user.getRoles()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
 
-            // Add permissions as authorities (without ROLE_ prefix)
             if (role.getPermissions() != null) {
                 for (Permission permission : role.getPermissions()) {
                     authorities.add(new SimpleGrantedAuthority(permission.getName()));
@@ -48,7 +46,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             }
         }
 
-        // Check if the user is active (for EMPLOYEE users)
         boolean isEnabled = user.getUserType() != UserType.EMPLOYEE || user.getStatus() == EmployeeStatus.ACTIVE;
 
         return new CustomUserDetails(user, authorities, isEnabled);

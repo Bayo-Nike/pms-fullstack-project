@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import et.scco.pms_backend.modules.auth.AuthUtility;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +40,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         colorCoding.setCity(subCityServiceImpl.getCity());
 
         // 1. Get the logged-in username from Security Context
-        String currentUsername = SecurityContextHolder
-            .getContext().getAuthentication().getName();
+        String currentUsername = AuthUtility.getUserName();
 
         // 2. Find the User entity
         User user = userRepository.findByUsername(currentUsername)
@@ -100,7 +100,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         // 1. Get current user's Sub-City using a helper
         SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
         
-        List<ColorCoding> colorCodings=new ArrayList<>();
+        List<ColorCoding> colorCodings;
 
         // 4. Filtering Logic
         if (userSubCity != null) {
@@ -127,7 +127,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         .orElseThrow(() -> new ResourceNotFoundException("Color code does not exist with given id: " + colorCodeId));
 
         // 2. Security Context
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String currentUsername = AuthUtility.getUserName();
         User user = userRepository.findByUsername(currentUsername)
             .orElseThrow(() -> new RuntimeException("The Updating User not found"));
 

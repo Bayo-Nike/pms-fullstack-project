@@ -4,5 +4,4 @@ public enum ContractorStatus {
     ACTIVE,
     INACTIVE,
     SUSPENDED
-
 }

@@ -46,9 +46,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/profile").authenticated()
                         .requestMatchers("/api/admin/contractors/download/**").permitAll()
                         // .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN","CITY_MAYOR")
+//                        .requestMatchers("/api/admin/**").hasAnyRole("SUPER_ADMIN","CITY_MAYOR")
                         // .requestMatchers("/api/colorCodes/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/api/colorCodes/**").hasAnyRole("SUPER_ADMIN","CITY_MAYOR")
+//                        .requestMatchers("/api/colorCodes/**").hasAnyRole("SUPER_ADMIN","CITY_MAYOR")
                         .anyRequest().authenticated()
                 );
 

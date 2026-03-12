@@ -1,7 +1,5 @@
 package et.scco.pms_backend.modules.auth;
 
-import et.scco.pms_backend.modules.admin.model.Employee;
-import et.scco.pms_backend.utility.CustomUserDetails;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,20 +18,5 @@ public class AuthUtility {
         }
 
         return authentication.getName();
-    }
-
-    public static Employee getEmployee() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()
-                || authentication instanceof AnonymousAuthenticationToken) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        assert userDetails != null;
-        return userDetails.getEmployee();
     }
 }

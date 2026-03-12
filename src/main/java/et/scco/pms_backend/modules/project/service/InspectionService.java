@@ -19,4 +19,5 @@ public interface InspectionService {
     void deleteInspection(Long id);
 
     List<InspectionResponseDto> getInspectionsByProject(Long projectId);
+
 }

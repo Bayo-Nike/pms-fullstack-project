@@ -38,8 +38,14 @@ public class InspectionServiceImpl implements InspectionService {
     @Override
     public Page<InspectionResponseDto> getAllInspections(Pageable pageable) {
 
+        if (authContext.isMayor() || authContext.isSuperAdmin()) {
+            return inspectionRepository.findAll(pageable)
+                    .map(this::mapToResponseDto);
+        }
 
-        return inspectionRepository.findAll(pageable)
+        // Find only my inspections with pagination
+        return inspectionRepository
+                .findAllByEmployee(authContext.getEmployee(), pageable)
                 .map(this::mapToResponseDto);
     }
 
@@ -97,8 +103,10 @@ public class InspectionServiceImpl implements InspectionService {
         Project project = projectRepository.findById(dto.getProjectId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        Employee employee = employeeRepository.findById(dto.getEmployeeId())
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        Employee employee = null;
+        if (!authContext.isSystemUser() || !authContext.isMayor()) {
+            employee = authContext.getEmployee();
+        }
 
         inspection.setInspectionType(type);
         inspection.setProject(project);

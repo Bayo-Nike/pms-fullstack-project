@@ -31,8 +31,6 @@ public class FileStorageService {
     }
 
     public Path getFilePath(String fileName) {
-
         return Paths.get(uploadDir).resolve(fileName);
     }
-
 }
