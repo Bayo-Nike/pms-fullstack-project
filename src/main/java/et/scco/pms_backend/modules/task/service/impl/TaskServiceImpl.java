@@ -2,8 +2,11 @@ package et.scco.pms_backend.modules.task.service.impl;
 
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
+import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
 import et.scco.pms_backend.modules.admin.service.LocationService;
+import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
+import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
 import et.scco.pms_backend.modules.task.dto.request.CreateTaskRequestDTO;
 import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
@@ -12,6 +15,9 @@ import et.scco.pms_backend.modules.task.repository.TaskRepository;
 import et.scco.pms_backend.modules.task.service.TaskService;
 import et.scco.pms_backend.utility.AuthContext;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +35,7 @@ public class TaskServiceImpl implements TaskService {
     private final LocationService locationServiceImpl;    // optional location
     private final ProjectServiceImpl projectService;
     private final AuthContext authContext;
+    // private final SubCityServiceImpl subCityServiceImpl;
 
     // ---------------- Create Task ----------------
     @Override
@@ -158,5 +165,25 @@ public class TaskServiceImpl implements TaskService {
         dto.setLocationNames(task.getLocations().stream().map(Location::getName).toList());
 
         return dto;
+    }
+
+    @Override
+    public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
+        Page<Task> taskPage;
+        taskPage = taskRepository.findAll(pageable);
+    //    // 1. Get current user's Sub-City using a helper
+    //     SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+
+    //     // 2. Fetch data based on Sub-City (Conditional logic)
+    //     Page<Task> taskPage;
+    //     if (userSubCity != null) {
+    //         taskPage = taskRepository.findBySubCity(userSubCity, pageable); // User belongs to a specific sub-city: filter with pagination
+    //     } else {
+    //         taskPage = taskRepository.findAll(pageable); // Admin user: get all with pagination
+    //     }
+
+    //     // 3. Map the Page of Entities to Page of DTOs
+    //     // This maintains pagination metadata (totalPages, totalElements) for the frontend
+        return taskPage.map(this::mapToDTO);
     }
 }

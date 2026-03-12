@@ -5,6 +5,9 @@ import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface TaskService {
 
     TaskResponseDTO createTask(CreateTaskRequestDTO dto);
@@ -18,5 +21,7 @@ public interface TaskService {
     void deleteTask(Long id);
 
     List<TaskResponseDTO> getMyTasks();
+
+    Page<TaskResponseDTO> getAllTasks(Pageable pageable);
 
 }

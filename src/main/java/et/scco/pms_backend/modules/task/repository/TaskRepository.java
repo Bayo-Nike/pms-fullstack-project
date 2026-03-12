@@ -1,6 +1,10 @@
 package et.scco.pms_backend.modules.task.repository;
 
+import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.task.model.Task;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

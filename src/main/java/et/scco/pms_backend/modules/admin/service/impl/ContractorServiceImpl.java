@@ -27,17 +27,11 @@ public class ContractorServiceImpl implements ContractorService{
     public ContractorResponseDTO createContractor(ContractorRequestDTO contractorRequestDTO) throws Exception{
 
         Contractor contractor = ContractorMapper.mapToContractor(contractorRequestDTO);
-        
-        // MultipartFile file = contractorRequestDTO.getDocument();
-
-        // String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
 
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {
             String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
             contractor.setDocument(fileName);
         }
-    
-        // contractor.setDocument(fileName);
         
 
         Contractor savedContractor = contractorRepository.save(contractor);

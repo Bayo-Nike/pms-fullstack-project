@@ -4,16 +4,14 @@ import et.scco.pms_backend.enums.*;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.project.model.Project;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Setter
-@Getter
+@Data
 @Entity
 @Table(name = "tasks")
 public class Task {
