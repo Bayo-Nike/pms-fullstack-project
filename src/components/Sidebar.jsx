@@ -40,7 +40,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Assignment />,
       children: [
         { path: '/projects', name: 'Project List', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/city-subcities', name: 'Project Per-City/Sub-Cities', permission: 'CAN_VIEW_PROJECTS' },
         { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_MANAGE_INSPECTIONS' },
       ]
     },
@@ -58,9 +57,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <ReceiptLong />,
       children: [
         { path: '/planning/ColorCodings', name: 'Color Codings', permission: 'CAN_VIEW_FINANCE' },
-        { path: '/finance/advance', name: 'Advance Tracking', permission: 'CAN_TRACK_ADVANCE' },
-        { path: '/finance/escalation', name: 'Price Adjustment', permission: 'CAN_MANAGE_ESCALATION' },
-        { path: '/finance/history', name: 'Payment History', permission: 'CAN_VIEW_FINANCE' },
       ]
     },
     {
@@ -68,22 +64,10 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Finance',
       icon: <ReceiptLong />,
       children: [
-        { path: '/finance/ipc', name: 'IPC Management', permission: 'CAN_VIEW_FINANCE' },
-        { path: '/finance/advance', name: 'Advance Tracking', permission: 'CAN_TRACK_ADVANCE' },
-        { path: '/finance/escalation', name: 'Price Adjustment', permission: 'CAN_MANAGE_ESCALATION' },
         { path: '/finance/history', name: 'Payment History', permission: 'CAN_VIEW_FINANCE' },
       ]
     },
-    {
-      id: 'field',
-      name: 'Field Operations',
-      icon: <Engineering />,
-      children: [
-        { path: '/field/diary', name: 'Daily Site Diary', permission: 'CAN_WRITE_DIARY' },
-        { path: '/field/photos', name: 'Geo-Tagged Photos', permission: 'CAN_UPLOAD_PHOTOS' },
-        { path: '/field/sync', name: 'Offline Sync Reports', permission: 'CAN_FORCE_SYNC' },
-      ]
-    },
+    
     {
       id: 'reports',
       name: 'Reports',
