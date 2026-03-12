@@ -7,6 +7,7 @@ const taskApi = {
     CREATE_TASK: (data) => api.post("/tasks", data),
     UPDATE_TASK: (id, data) => api.put(`/tasks/${id}`, data),
     DELETE_TASK: (id) => api.delete(`/tasks/${id}`),
+    GET_TASKS: (params) => api.get("/tasks", { params }),
 };
 
 export default taskApi;

@@ -33,7 +33,9 @@ import CreateInspectionType from './pages/admin/CreateInspectionType';
 import Inspections from './pages/project/Inspections';
 import CreateInspection from './pages/project/CreateInspection';
 import OrgStructure from './pages/admin/OrgStructure';
-import Mobile from './pages/admin/Mobile';
+import ProjectReport from './pages/reports/ProjectReport';
+import ProjectReportPage from './pages/reports/ProjectReportPage';
+import TaskReportPage from './pages/reports/TaskReportPage';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -94,6 +96,13 @@ export default function AppRoutes() {
 
         {/* 4. Finance */}
         <Route path="finance/ipc" element={placeholder("IPC Management", "CAN_VIEW_FINANCE")} />
+        <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
+        <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
+        <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
+
+        {/* 4. reports */}
+        <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/task" element={protect(<TaskReportPage />, "CAN_VIEW_FINANCE")} />
         <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
         <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
         <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
