@@ -11,6 +11,8 @@ import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.MobileUserRepository;
 import et.scco.pms_backend.modules.admin.service.MobileUserService;
 import et.scco.pms_backend.modules.auth.AuthResponseDto;
+import et.scco.pms_backend.modules.auth.UserResponseLoginDto;
+import et.scco.pms_backend.utility.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +33,7 @@ public class MobileUserServiceImpl implements MobileUserService {
 
     private final MobileUserRepository mobileUserRepository;
     private final EmployeeRepository employeeRepository;
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -77,6 +80,32 @@ public class MobileUserServiceImpl implements MobileUserService {
     }
 
 
+    private String generateSaltedCode(Long empId) {
+        // Simple salted logic: Base64 of (Timestamp + EmpId) taken to 8 chars
+        String salt = "SCCO-" + empId + "-" + System.currentTimeMillis();
+        String encoded = Base64.getEncoder().encodeToString(salt.getBytes());
+        // Remove non-alphanumeric and return the first 8 uppercase
+        return encoded.replaceAll("[^A-Za-z0-9]", "").substring(0, 8).toUpperCase();
+    }
+
+    private MobileUserResponseDto mapToDto(MobileUser entity) {
+        return MobileUserResponseDto.builder()
+                .id(entity.getId())
+                .employeeId(entity.getEmployee().getId())
+                .employeeName(entity.getEmployee().getFullName())
+                .userCode(entity.getUserCode())
+                .status(entity.getStatus())
+                .registrationDate(entity.getRegistrationDate())
+                .build();
+    }
+
+
+
+     //
+     //
+     // MOBILE USER
+     //
+
     @Transactional
     @Override
     public AuthResponseDto verifyMobileCode(MobileVerifyRequest request) {
@@ -91,7 +120,6 @@ public class MobileUserServiceImpl implements MobileUserService {
 
         // 3. Capture Device Details
         mobileUser.setDeviceInfo(request.getDeviceInfo());
-        mobileUser.setPairedAt(LocalDateTime.now());
         mobileUserRepository.save(mobileUser);
 
         // 4. Identity Retrieval
@@ -113,27 +141,5 @@ public class MobileUserServiceImpl implements MobileUserService {
         String token = jwtService.generateToken(authentication);
 
         return new AuthResponseDto(token, UserMapper.toResponseDto(user));
-    }
-
-
-
-
-    private String generateSaltedCode(Long empId) {
-        // Simple salted logic: Base64 of (Timestamp + EmpId) taken to 8 chars
-        String salt = "SCCO-" + empId + "-" + System.currentTimeMillis();
-        String encoded = Base64.getEncoder().encodeToString(salt.getBytes());
-        // Remove non-alphanumeric and return the first 8 uppercase
-        return encoded.replaceAll("[^A-Za-z0-9]", "").substring(0, 8).toUpperCase();
-    }
-
-    private MobileUserResponseDto mapToDto(MobileUser entity) {
-        return MobileUserResponseDto.builder()
-                .id(entity.getId())
-                .employeeId(entity.getEmployee().getId())
-                .employeeName(entity.getEmployee().getFullName())
-                .userCode(entity.getUserCode())
-                .status(entity.getStatus())
-                .registrationDate(entity.getRegistrationDate())
-                .build();
     }
 }
