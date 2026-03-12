@@ -20,8 +20,9 @@ export default function CreateTarget() {
   const [formData, setFormData] = useState({
     subCityId: '',
     fiscalYear: '',
-    planType: 'YEARLY',
-    buildingType: 'FACTORY',
+    planType: '',
+    buildingType: '',
+    quarter: '',
     target: '',
     achieved: ''
   });
@@ -61,13 +62,15 @@ export default function CreateTarget() {
 
         if (isEdit) {
           const res = await colorCodingApi.GET_COLOR_CODING(id);
+          console.log(res.data);
           const data = res.data?.data || res.data || res;
 
           setFormData({
             subCityId: data.subCity?.id || '',
             fiscalYear: data.fiscalYear || '',
-            planType: data.planType || 'YEARLY',
-            buildingType: data.buildingType || 'FACTORY',
+            planType: data.planType || '',
+            quarter: data.quarter || '',
+            buildingType: data.buildingType || '',
             target: data.target || '',
             achieved: data.achieved || ''
           });
@@ -86,9 +89,15 @@ export default function CreateTarget() {
   };
 
   const handleSaveTrigger = () => {
-    const { subCityId, fiscalYear, target, achieved } = formData;
+    const { subCityId, fiscalYear, target, achieved, buildingType, planType, quarter} = formData;
     if (!subCityId) return showAlert('error', 'Sub City is required.');
     if (!fiscalYear) return showAlert('error', 'Fiscal Year is required.');
+    if (!planType) return showAlert('error', 'Plan Modal is required.');
+    if (!buildingType) return showAlert('error', 'Building Type is required.');
+    // Validation for Quarter
+    if (planType === 'QUARTERLY' && !quarter) {
+      return showAlert('error', 'Please select a Quarter.');
+    }
     if (!target || Number(target) <= 0) return showAlert('error', 'Target value must be greater than 0.');
     if (achieved !== '' && Number(achieved) < 0) return showAlert('error', 'Achieved value cannot be negative.');
     setShowConfirm(true);
@@ -105,6 +114,8 @@ export default function CreateTarget() {
         
         fiscalYear: formData.fiscalYear,
         planType: formData.planType,
+        // Include quarter only if planType is QUARTERLY
+        quarter: formData.planType === 'QUARTERLY' ? formData.quarter : null, 
         buildingType: formData.buildingType,
         target: Number(formData.target),
         ...(isEdit && { achieved: Number(formData.achieved) })
@@ -201,6 +212,7 @@ export default function CreateTarget() {
             </select>
           </div>
 
+          {/* Plan Type */}
           <div className="space-y-1.5">
             <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Plan Type</label>
             <select
@@ -209,10 +221,30 @@ export default function CreateTarget() {
               onChange={handleInputChange}
               className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] appearance-none cursor-pointer shadow-sm"
             >
+              <option value="">-- Select Modal --</option>
               <option value="YEARLY">YEARLY</option>
               <option value="QUARTERLY">QUARTERLY</option>
             </select>
           </div>
+
+          {/* CONDITIONAL QUARTER SELECTION */}
+          {formData.planType === 'QUARTERLY' && (
+            <div className="space-y-1.5 animate-fadeIn">
+              <label className="text-[9px] font-bold uppercase text-amber-500 tracking-[0.2em] ml-1">Select Quarter</label>
+              <select
+                name="quarter"
+                value={formData.quarter}
+                onChange={handleInputChange}
+                className="w-full text-sm font-semibold bg-amber-50/50 border border-amber-200 rounded-xl px-4 py-3 outline-none focus:border-amber-500 appearance-none cursor-pointer shadow-sm"
+              >
+                <option value="">-- Select Quarter --</option>
+                <option value="Q1">Quarter 1 (Q1)</option>
+                <option value="Q2">Quarter 2 (Q2)</option>
+                <option value="Q3">Quarter 3 (Q3)</option>
+                <option value="Q4">Quarter 4 (Q4)</option>
+              </select>
+            </div>
+          )}
         </div>
 
         {/* RIGHT COLUMN */}
@@ -225,6 +257,7 @@ export default function CreateTarget() {
               onChange={handleInputChange}
               className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] appearance-none cursor-pointer shadow-sm"
             >
+              <option value="">-- Select Type --</option>
               <option value="FACTORY">FACTORY</option>
               <option value="HOUSEHOLD">HOUSEHOLD</option>
               <option value="FINCE">FINCE</option>

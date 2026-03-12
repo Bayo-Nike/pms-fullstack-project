@@ -430,6 +430,7 @@ export default function Projects() {
                         <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                             <tr>
                                 <th className="px-6 py-4">Identification</th>
+                                <th className="px-6 py-4">Type</th>
                                 <th className="px-6 py-4">Timeline</th>
                                 <th className="px-6 py-4">Budget Utilization</th>
                                 <th className="px-6 py-4 text-center">Status</th>
@@ -451,6 +452,12 @@ export default function Projects() {
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{proj.projectType === 'WATER_AND_ROAD' ? 'Water & Road' : 'Building'}</span>
                                                 <span className="text-[9px] text-slate-400 border-l pl-2 flex items-center gap-1 uppercase font-medium"><LocationOn style={{ fontSize: 12 }} /> {proj.subCityName}</span>
                                             </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5"><CalendarMonth style={{ fontSize: 14 }} className="text-slate-300" /> {proj.projectType}</span>
+                                            <span className="text-[10px] text-slate-400 uppercase font-medium">Target: {proj.projectType}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
