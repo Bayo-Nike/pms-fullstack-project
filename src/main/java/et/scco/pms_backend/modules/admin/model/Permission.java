@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
+@Entity
 public class Permission {
 
     @Id
