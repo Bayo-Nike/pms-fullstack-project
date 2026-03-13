@@ -42,9 +42,10 @@ public class DashboardServiceImpl implements DashboardService {
             .subCityCount(subId == null ? subCityRepository.count() : 1)
             
             // Financials & Charts: These methods now handle the null subId internally
-            .totalBudget(projectRepository.sumTotalBudget(subId))
+            // .totalBudget(projectRepository.sumTotalBudget(subId))
+            .budgetByCurrency(projectRepository.sumBudgetByCurrency(subId)) // Use the new multi-currency method
             .projectsBySubCity(projectRepository.countProjectsBySubCity(subId))
-            .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId))
+            .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId)) // for Budget vs Actual Spend
             
             .build();
     }
