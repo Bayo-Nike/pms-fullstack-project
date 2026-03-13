@@ -1,12 +1,10 @@
 package et.scco.pms_backend.modules.task.repository;
 
 import et.scco.pms_backend.modules.task.model.Task;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -27,4 +25,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 "JOIN t.employees e " +
                 "WHERE e.id = :employeeId")
         List<Task> findWithDetailsByEmployees_Id(@Param("employeeId") Long employeeId);
+
+        //
+        // Option A: Derived Method Name
+    long countByProjectSubCityId(Long subCityId);
+
+    // Option B: Explicit JPQL (Recommended)
+//     @Query("SELECT COUNT(t) FROM Task t WHERE t.project.subCity.id = :subCityId")
+//     long countTasksBySubCity(@Param("subCityId") Long subCityId);
 }

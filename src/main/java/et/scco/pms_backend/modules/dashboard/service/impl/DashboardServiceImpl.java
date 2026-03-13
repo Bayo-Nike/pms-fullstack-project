@@ -1,0 +1,52 @@
+package et.scco.pms_backend.modules.dashboard.service.impl;
+
+import org.springframework.stereotype.Service;
+
+import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
+import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
+import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+import et.scco.pms_backend.modules.admin.repository.UserRepository;
+import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
+import et.scco.pms_backend.modules.dashboard.dto.DashboardSummaryDTO;
+import et.scco.pms_backend.modules.dashboard.service.DashboardService;
+import et.scco.pms_backend.modules.project.repository.ProjectRepository;
+import et.scco.pms_backend.modules.task.repository.TaskRepository;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class DashboardServiceImpl implements DashboardService {
+
+    private final SubCityServiceImpl subCityServiceImpl;
+    private final EmployeeRepository employeeRepository;
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final ContractorRepository contractorRepository;
+    private final SubCityRepository subCityRepository;
+    private final TaskRepository taskRepository;
+
+    @Override
+    public DashboardSummaryDTO getSummary() {
+
+        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+        Long subId = (userSubCity != null) ? userSubCity.getId() : null;
+ 
+        return DashboardSummaryDTO.builder()
+            // Counts: Ternary logic used for simple counts
+            .employeeCount(subId == null ? employeeRepository.count() : employeeRepository.countBySubCityId(subId))
+            .userCount(subId == null ? userRepository.count() : userRepository.countByEmployeeSubCityId(subId))
+            .contractorCount(contractorRepository.count()) 
+            .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
+            .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
+            .subCityCount(subId == null ? subCityRepository.count() : 1)
+            
+            // Financials & Charts: These methods now handle the null subId internally
+            .totalBudget(projectRepository.sumTotalBudget(subId))
+            .projectsBySubCity(projectRepository.countProjectsBySubCity(subId))
+            .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId))
+            
+            .build();
+    }
+
+}

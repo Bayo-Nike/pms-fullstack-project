@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -82,7 +81,6 @@ public class TaskServiceImpl implements TaskService {
         // 2. Get Employee ID safely
         Employee sessionEmployee = authContext.getEmployee();
         if (sessionEmployee == null || sessionEmployee.getId() == null) {
-            System.out.println("DEBUG: No employee found in context");
             return Collections.emptyList();
         }
 
