@@ -19,9 +19,12 @@
     "@tiptap/react": "^3.4.2",
     "@tiptap/starter-kit": "^3.4.2",
     "axios": "^1.13.5",
+    "framer-motion": "^12.36.0",
+    "lucide-react": "^0.577.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "recharts": "^3.8.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

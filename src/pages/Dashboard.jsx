@@ -1,77 +1,185 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, UserCheck, HardHat, Construction, 
+  CheckSquare, Wallet, MapPin, TrendingUp, MoreHorizontal 
+} from 'lucide-react';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell 
+} from 'recharts';
+import dashboardApi from '../api/modules/dashboard'; // Your API instance
 
-export default function Dashboard() {
+export default function ProfessionalDashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const res = await dashboardApi.getSummary();
+      setData(res.data);
+    } catch (err) {
+      console.error("Dashboard Load Failed", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="h-screen flex items-center justify-center text-slate-400 animate-pulse">Loading Analytics...</div>;
+
   return (
-    <div className="space-y-5 animate-fadeIn">
-      {/* Header - Scaled Down */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-3">
+    <div className="p-6 space-y-8 bg-[#F8FAFC] min-h-screen animate-fadeIn">
+      
+      {/* 1. TOP HEADER SECTION */}
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-500 text-xs">Executive summary of Oromia Construction projects.</p>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">System Overview</h1>
+          <p className="text-slate-500 text-sm font-medium">Real-time SCCO performance analytics</p>
         </div>
-        <button className="w-full md:w-auto bg-[#FBAF1E] text-white px-5 py-2 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-95">
-          + New Project
-        </button>
+        <div className="flex gap-3">
+            <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
+                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                <span className="text-xs font-bold text-slate-600 uppercase">Live System Status</span>
+            </div>
+        </div>
       </div>
 
-      {/* Stats - Compact Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { l: 'Active Projects', v: '12', c: 'text-[#0284C7]' },
-          { l: 'Pending Tasks', v: '48', c: 'text-amber-600' },
-          { l: 'Team Members', v: '14', c: 'text-purple-600' },
-          { l: 'Budget Util.', v: '84.2%', c: 'text-green-600' }
-        ].map((s, i) => (
-          <div key={i} className="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
-            <p className="text-slate-400 text-[9px] font-bold uppercase tracking-widest">{s.l}</p>
-            <p className={`text-2xl font-bold mt-0.5 ${s.c}`}>{s.v}</p>
+      {/* 2. STATS GRID - 7 Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+        <StatCard icon={<Users size={20}/>} label="Employees" value={data?.employeeCount} color="blue" />
+        <StatCard icon={<UserCheck size={20}/>} label="Users" value={data?.userCount} color="indigo" />
+        <StatCard icon={<HardHat size={20}/>} label="Contractors" value={data?.contractorCount} color="amber" />
+        <StatCard icon={<Construction size={20}/>} label="Projects" value={data?.projectCount} color="sky" />
+        <StatCard icon={<CheckSquare size={20}/>} label="Tasks" value={data?.taskCount} color="purple" />
+        <StatCard icon={<Wallet size={20}/>} label="Budget" value={`$${(data?.totalBudget/1000000).toFixed(1)}M`} color="emerald" />
+        <StatCard icon={<MapPin size={20}/>} label="Sub Cities" value={data?.subCityCount} color="rose" />
+      </div>
+
+      {/* 3. CHARTS SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Expenditure Trend (Area Chart) */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold text-slate-800">Budget vs Actual Spend</h3>
+            <TrendingUp className="text-emerald-500" />
           </div>
-        ))}
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data?.budgetTrend}>
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0284C7" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#0284C7" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fill: '#94a3b8'}} />
+                <Tooltip contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} />
+                <Area type="monotone" dataKey="amount" stroke="#0284C7" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Sub-City Distribution (Pie Chart) */}
+        <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+          <h3 className="text-lg font-bold text-slate-800 mb-6">Project Distribution</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={data?.projectsBySubCity} innerRadius={80} outerRadius={100} paddingAngle={5} dataKey="value">
+                  {data?.projectsBySubCity.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 space-y-2">
+            {data?.projectsBySubCity.map((item, i) => (
+              <div key={i} className="flex justify-between items-center text-sm">
+                <span className="flex items-center gap-2 text-slate-500">
+                  <span className="w-2 h-2 rounded-full" style={{backgroundColor: COLORS[i % COLORS.length]}}></span>
+                  {item.name}
+                </span>
+                <span className="font-bold text-slate-700">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Main Table Card - Tighter Padding */}
-      <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-50 flex justify-between items-center">
-          <h2 className="text-base font-bold text-slate-800">Priority Projects</h2>
-          <button className="text-[#0284C7] text-xs font-bold hover:underline">View All</button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-              <tr>
-                <th className="px-6 py-3">Project</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Deadline</th>
-                <th className="px-6 py-3 text-right">Progress</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {[
-                { n: 'Adama Highway', s: 'In Progress', d: '12 Oct 2024', p: 65 },
-                { n: 'Jimma Hospital', s: 'Planning', d: '20 Nov 2024', p: 12 }
-              ].map((row, i) => (
-                <tr key={i} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-700">{row.n}</td>
-                  <td className="px-6 py-4">
-                    <span className="bg-sky-50 text-[#0284C7] px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase">
-                      {row.s}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-xs text-slate-500">{row.d}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="text-[10px] font-bold text-slate-600">{row.p}%</span>
-                      <div className="w-16 bg-slate-100 h-1 rounded-full overflow-hidden">
-                        <div className="bg-[#0284C7] h-full" style={{ width: `${row.p}%` }} />
-                      </div>
+      {/* 4. RECENT ACTIVITY TABLE */}
+      <div className="bg-[#1E293B] rounded-[32px] p-8 text-white shadow-2xl overflow-hidden relative">
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold">Priority Construction Tracking</h3>
+            <button className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
+              <MoreHorizontal />
+            </button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em]">
+                  <th className="pb-4">Contractor</th>
+                  <th className="pb-4">Location</th>
+                  <th className="pb-4">Compliance</th>
+                  <th className="pb-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {/* Dynamically Map Projects Here */}
+                <tr className="group">
+                  <td className="py-4 font-bold text-sm">SCCO Auth.</td>
+                  <td className="py-4 text-sm text-slate-300">Shaggar City</td>
+                  <td className="py-4">
+                    <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-400 w-[80%]"></div>
                     </div>
                   </td>
+                  <td className="py-4 text-right">
+                    <button className="text-[10px] font-black bg-sky-500 hover:bg-sky-400 px-4 py-1.5 rounded-lg transition-all">REVIEWS</button>
+                  </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </tbody>
+            </table>
+          </div>
         </div>
+        {/* Decorative background circle */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl"></div>
       </div>
     </div>
   );
 }
+
+// Sub-component for clean code
+const StatCard = ({ icon, label, value, color }) => {
+  const colorMap = {
+    blue: "bg-blue-50 text-blue-600",
+    indigo: "bg-indigo-50 text-indigo-600",
+    amber: "bg-amber-50 text-amber-600",
+    sky: "bg-sky-50 text-sky-600",
+    purple: "bg-purple-50 text-purple-600",
+    emerald: "bg-emerald-50 text-emerald-600",
+    rose: "bg-rose-50 text-rose-600"
+  };
+
+  return (
+    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+      <div className={`p-2.5 rounded-2xl w-fit mb-3 ${colorMap[color]}`}>
+        {icon}
+      </div>
+      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{label}</p>
+      <p className="text-xl font-black text-slate-800 mt-1">{value || 0}</p>
+    </div>
+  );
+};
+
+const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
