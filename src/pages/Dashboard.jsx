@@ -192,45 +192,8 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* 4. RECENT ACTIVITY TABLE */}
-      <div className="bg-[#1E293B] rounded-[32px] p-8 text-white shadow-2xl overflow-hidden relative">
-        <div className="relative z-10">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold">Priority Construction Tracking</h3>
-            <button className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
-              <MoreHorizontal />
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em]">
-                  <th className="pb-4">Contractor</th>
-                  <th className="pb-4">Location</th>
-                  <th className="pb-4">Compliance</th>
-                  <th className="pb-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {/* Dynamically Map Projects Here */}
-                <tr className="group">
-                  <td className="py-4 font-bold text-sm">SCCO Auth.</td>
-                  <td className="py-4 text-sm text-slate-300">Shaggar City</td>
-                  <td className="py-4">
-                    <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-400 w-[80%]"></div>
-                    </div>
-                  </td>
-                  <td className="py-4 text-right">
-                    <button className="text-[10px] font-black bg-sky-500 hover:bg-sky-400 px-4 py-1.5 rounded-lg transition-all">REVIEWS</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {/* Decorative background circle */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl"></div>
-      </div>
+      {/* Come Back */}
+
     </div>
   );
 }
