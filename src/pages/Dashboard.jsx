@@ -12,6 +12,16 @@ import dashboardApi from '../api/modules/dashboard'; // Your API instance
 export default function ProfessionalDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // 1. Create a state for the selected currency (default to ETB)
+  const [activeCurrency, setActiveCurrency] = useState('ETB');
+
+  // 2. Filter the trend data based on the selection
+  const filteredTrend = data?.budgetTrend?.filter(
+    item => item.currency === activeCurrency
+  ) || [];
+
+  // 3. Get unique currencies from the data to generate buttons automatically
+  const availableCurrencies = [...new Set(data?.budgetTrend?.map(item => item.currency))];
 
   useEffect(() => {
     fetchDashboardData();
@@ -54,7 +64,8 @@ export default function ProfessionalDashboard() {
         <StatCard icon={<HardHat size={20}/>} label="Contractors" value={data?.contractorCount} color="amber" />
         <StatCard icon={<Construction size={20}/>} label="Projects" value={data?.projectCount} color="sky" />
         <StatCard icon={<CheckSquare size={20}/>} label="Tasks" value={data?.taskCount} color="purple" />
-        <StatCard icon={<Wallet size={20}/>} label="Budget" value={`$${(data?.totalBudget/1000000).toFixed(1)}M`} color="emerald" />
+        {/* <StatCard icon={<Wallet size={20}/>} label="Budget" value={`$${(data?.totalBudget/1000000).toFixed(1)}M`} color="emerald" /> */}
+        <BudgetStatCard icon={<Wallet size={20}/>} label="Total Budget" budgets={data?.budgetByCurrency} color="emerald" />
         <StatCard icon={<MapPin size={20}/>} label="Sub Cities" value={data?.subCityCount} color="rose" />
       </div>
 
@@ -62,7 +73,7 @@ export default function ProfessionalDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Expenditure Trend (Area Chart) */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+        {/* <div className="lg:col-span-2 bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-bold text-slate-800">Budget vs Actual Spend</h3>
             <TrendingUp className="text-emerald-500" />
@@ -84,7 +95,72 @@ export default function ProfessionalDashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </div> */}
+        <div className="lg:col-span-2 bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">Budget Utilization</h3>
+              <p className="text-slate-400 text-xs font-medium">Monthly expenditure trend ({activeCurrency})</p>
+            </div>
+            
+            {/* CURRENCY TOGGLE BUTTONS */}
+            <div className="flex bg-slate-100 p-1 rounded-xl">
+              {availableCurrencies.map((curr) => (
+                <button
+                  key={curr}
+                  onClick={() => setActiveCurrency(curr)}
+                  className={`px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${
+                    activeCurrency === curr 
+                    ? "bg-white text-[#0284C7] shadow-sm" 
+                    : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {curr}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={filteredTrend}> {/* Use filteredTrend here */}
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0284C7" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#0284C7" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis 
+                  dataKey="month" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 12, fill: '#94a3b8', fontWeight: 600}} 
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{fontSize: 11, fill: '#94a3b8'}} 
+                  tickFormatter={(value) => value >= 1000000 ? `${(value/1000000).toFixed(1)}M` : value.toLocaleString()}
+                />
+                <Tooltip 
+                  cursor={{ stroke: '#0284C7', strokeWidth: 2, strokeDasharray: '5 5' }}
+                  contentStyle={{borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)'}} 
+                  formatter={(value) => [`${value.toLocaleString()} ${activeCurrency}`, 'Amount']}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="amount" 
+                  stroke="#0284C7" 
+                  strokeWidth={4} 
+                  fillOpacity={1} 
+                  fill="url(#colorValue)" 
+                  animationDuration={1500}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+</div>
 
         {/* Sub-City Distribution (Pie Chart) */}
         <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
@@ -116,45 +192,8 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* 4. RECENT ACTIVITY TABLE */}
-      <div className="bg-[#1E293B] rounded-[32px] p-8 text-white shadow-2xl overflow-hidden relative">
-        <div className="relative z-10">
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold">Priority Construction Tracking</h3>
-            <button className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors">
-              <MoreHorizontal />
-            </button>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em]">
-                  <th className="pb-4">Contractor</th>
-                  <th className="pb-4">Location</th>
-                  <th className="pb-4">Compliance</th>
-                  <th className="pb-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {/* Dynamically Map Projects Here */}
-                <tr className="group">
-                  <td className="py-4 font-bold text-sm">SCCO Auth.</td>
-                  <td className="py-4 text-sm text-slate-300">Shaggar City</td>
-                  <td className="py-4">
-                    <div className="h-1.5 w-24 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-amber-400 w-[80%]"></div>
-                    </div>
-                  </td>
-                  <td className="py-4 text-right">
-                    <button className="text-[10px] font-black bg-sky-500 hover:bg-sky-400 px-4 py-1.5 rounded-lg transition-all">REVIEWS</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        {/* Decorative background circle */}
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl"></div>
-      </div>
+      {/* Come Back */}
+
     </div>
   );
 }
@@ -178,6 +217,39 @@ const StatCard = ({ icon, label, value, color }) => {
       </div>
       <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{label}</p>
       <p className="text-xl font-black text-slate-800 mt-1">{value || 0}</p>
+    </div>
+  );
+};
+
+const BudgetStatCard = ({ icon, label, budgets, color }) => {
+  const colorMap = {
+    emerald: "bg-emerald-50 text-emerald-600",
+  };
+
+  return (
+    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
+      <div className={`p-2.5 rounded-2xl w-fit mb-3 ${colorMap[color]}`}>
+        {icon}
+      </div>
+      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{label}</p>
+      
+      <div className="mt-1 space-y-1">
+        {budgets && budgets.length > 0 ? (
+          budgets.map((b, i) => (
+            <div key={i} className="flex items-baseline gap-1">
+              <span className="text-xl font-black text-slate-800">
+                {/* Format number to Million (M) or K */}
+                {b.amount >= 1000000 
+                  ? `${(b.amount / 1000000).toFixed(1)}M` 
+                  : b.amount.toLocaleString()}
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">{b.currency}</span>
+            </div>
+          ))
+        ) : (
+          <p className="text-xl font-black text-slate-800">0.0</p>
+        )}
+      </div>
     </div>
   );
 };
