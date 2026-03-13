@@ -25,8 +25,13 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
     //
-    @Query("SELECT SUM(p.budget) FROM Project p WHERE (:subCityId IS NULL OR p.subCity.id = :subCityId)")
-    Double sumTotalBudget(@Param("subCityId") Long subCityId);
+//     @Query("SELECT SUM(p.budget) FROM Project p WHERE (:subCityId IS NULL OR p.subCity.id = :subCityId)")
+//     Double sumTotalBudget(@Param("subCityId") Long subCityId);
+       @Query("SELECT p.currencyType as currency, SUM(p.budget) as amount " +
+              "FROM Project p " +
+              "WHERE (:subId IS NULL OR p.subCity.id = :subId) " +
+              "GROUP BY p.currencyType")
+       List<Map<String, Object>> sumBudgetByCurrency(@Param("subId") Long subId);
 
      // "Smart" Pie Chart Query: 
     // If subId is null (Admin), it groups ALL projects by sub-city.
@@ -38,13 +43,23 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Map<String, Object>> countProjectsBySubCity(@Param("subId") Long subId);
 
     // Area Chart: SQL Server Format (MMM), filter if subId is provided
-    @Query(value = "SELECT FORMAT(created_at, 'MMM') as month, SUM(budget) as amount " +
-                   "FROM projects " +
-                   "WHERE (:subId IS NULL OR sub_city_id = :subId) " +
-                   "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at) " +
-                   "ORDER BY MONTH(created_at)", 
-           nativeQuery = true)
-    List<Map<String, Object>> getMonthlyBudgetTrend(@Param("subId") Long subId);
+//     @Query(value = "SELECT FORMAT(created_at, 'MMM') as month, SUM(budget) as amount " +
+//                    "FROM projects " +
+//                    "WHERE (:subId IS NULL OR sub_city_id = :subId) " +
+//                    "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at) " +
+//                    "ORDER BY MONTH(created_at)", 
+//            nativeQuery = true)
+//     List<Map<String, Object>> getMonthlyBudgetTrend(@Param("subId") Long subId);
+
+@Query(value = "SELECT FORMAT(created_at, 'MMM') as month, " +
+              "currency_type as currency, " + // Add this
+              "SUM(budget) as amount " +
+              "FROM projects " +
+              "WHERE (:subId IS NULL OR sub_city_id = :subId) " +
+              "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at), currency_type " + // Group by currency too
+              "ORDER BY MONTH(created_at)", 
+       nativeQuery = true)
+List<Map<String, Object>> getMonthlyBudgetTrend(@Param("subId") Long subId);
     
     // Count methods with sub-city filter
    long countBySubCityId(Long subCityId);

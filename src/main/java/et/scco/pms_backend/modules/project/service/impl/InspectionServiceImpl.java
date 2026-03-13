@@ -31,7 +31,6 @@ public class InspectionServiceImpl implements InspectionService {
     private final InspectionTypesRepository inspectionTypeRepository;
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
-    private final EmployeeRepository employeeRepository;
     private final AuthContext authContext;
 
 
