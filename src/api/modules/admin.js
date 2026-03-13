@@ -74,6 +74,13 @@ const adminApi = {
     CREATE_INSPECTION_TYPE: (data) => api.post("/admin/inspection-types", data),
     UPDATE_INSPECTION_TYPE: (id, data) => api.put(`/admin/inspection-types/${id}`, data),
     DELETE_INSPECTION_TYPE: (id) => api.delete(`/admin/inspection-types/${id}`),
+
+
+    // Mobile User Management
+    GET_MOBILE_USERS: () => api.get("/admin/mobile-users"),
+    REGISTER_MOBILE_USER: (data) => api.post("/admin/mobile-users", data),
+    UPDATE_MOBILE_STATUS: (id, status) => api.patch(`/admin/mobile-users/${id}/status?status=${status}`),
+    DELETE_MOBILE_USER: (id) => api.delete(`/admin/mobile-users/${id}`),
 };
 
 export default adminApi;

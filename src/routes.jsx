@@ -33,6 +33,7 @@ import CreateInspectionType from './pages/admin/CreateInspectionType';
 import Inspections from './pages/project/Inspections';
 import CreateInspection from './pages/project/CreateInspection';
 import OrgStructure from './pages/admin/OrgStructure';
+import Mobile from './pages/admin/Mobile';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -141,6 +142,8 @@ export default function AppRoutes() {
         <Route path="admin/roles/create" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
         <Route path="admin/roles/edit/:id" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
         <Route path="admin/logs" element={placeholder("Audit Logs", "CAN_VIEW_LOGS")} />
+
+        <Route path='admin/mobile' element={protect(<Mobile />, "CAN_MANAGE_USERS")} />
 
         <Route path="admin/locations" element={protect(<Locations />, "CAN_VIEW_USERS")} />
         <Route path="admin/locations/create" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
