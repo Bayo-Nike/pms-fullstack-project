@@ -1,11 +1,9 @@
 package et.scco.pms_backend.modules.planning.service.impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import et.scco.pms_backend.modules.auth.AuthUtility;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import et.scco.pms_backend.enums.BuildingType;
@@ -115,9 +113,6 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         return colorCodings.stream()
                 .map(ColorCodingMapper::mapToColorCodingResponseDTO)
                 .collect(Collectors.toList());
-            // List<ColorCoding> colorCodings = colorCodingRepository.findAll();
-            // return colorCodings.stream().map(ColorCodingMapper::mapToColorCodingResponseDTO)
-            //         .collect(Collectors.toList());
     }
 
     @Override
