@@ -73,7 +73,9 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Reports',
       icon: <Report />,
       children: [
-        { path: '/reports/general', name: 'General Reports', permission: 'CAN_VIEW_REPORTS' },
+        // { path: '/reports/general', name: 'General Reports', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/project', name: 'Project Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/task', name: 'Task Report', permission: 'CAN_VIEW_REPORTS' },
       ]
     },
     {
