@@ -11,7 +11,6 @@ import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.MobileUserRepository;
 import et.scco.pms_backend.modules.admin.service.MobileUserService;
 import et.scco.pms_backend.modules.auth.AuthResponseDto;
-import et.scco.pms_backend.modules.auth.UserResponseLoginDto;
 import et.scco.pms_backend.utility.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
