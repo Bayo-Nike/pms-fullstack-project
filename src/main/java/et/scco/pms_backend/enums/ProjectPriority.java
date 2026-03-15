@@ -1,7 +1,8 @@
 package et.scco.pms_backend.enums;
 
 public enum ProjectPriority {
-    HIGH,
+    LOW,
     MEDIUM,
-    LOW
+    HIGH,
+    URGENT
 }

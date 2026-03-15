@@ -6,6 +6,9 @@ import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
 import et.scco.pms_backend.modules.task.service.TaskService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,12 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
+
+    @GetMapping
+    public ApiResponse<Page<TaskResponseDTO>> getTasks(Pageable pageable) {
+        Page<TaskResponseDTO> tasks = taskService.getAllTasks(pageable);
+        return ResponseUtil.success("Task fetched successfully", tasks);
+    }
 
     @PostMapping
     public ApiResponse<TaskResponseDTO> createTask(@RequestBody CreateTaskRequestDTO dto) {
