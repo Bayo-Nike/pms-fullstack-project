@@ -11,7 +11,7 @@ import {
 import { Search, FileText, Table, ChevronLeft, ChevronRight } from "lucide-react";
 import { exportToExcel, exportToPDF } from "../../utility/exportUtils";
 
-export default function ProjectReport({ data = [], loading }) {
+export default function ProjectReport({ data = [], loading, onRefresh }) {
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([]); // <--- Sorting state
@@ -119,6 +119,13 @@ export default function ProjectReport({ data = [], loading }) {
             >
               <FileText size={16}/> PDF
             </button>
+
+            <button
+            onClick={onRefresh}
+            className="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded-md text-sm"
+          >
+            Refresh
+          </button>
 
           </div>
 
