@@ -3,15 +3,12 @@ package et.scco.pms_backend.modules.admin.model;
 import et.scco.pms_backend.enums.EmployeeStatus;
 import et.scco.pms_backend.enums.UserType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
+import lombok.Data;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Table(name = "users")
 public class User {
 
