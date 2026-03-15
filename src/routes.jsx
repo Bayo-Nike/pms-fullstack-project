@@ -36,6 +36,9 @@ import OrgStructure from './pages/admin/OrgStructure';
 import ProjectReport from './pages/reports/ProjectReport';
 import ProjectReportPage from './pages/reports/ProjectReportPage';
 import TaskReportPage from './pages/reports/TaskReportPage';
+import Mobile from './pages/admin/Mobile';
+import ProjectCosts from './pages/project/ProjectCosts';
+import ManageProjectCosts from './pages/project/ManageProjectCosts';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -84,6 +87,7 @@ export default function AppRoutes() {
         <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
         <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
 
+
         {/* 3. Contracts & Contractors */}
         <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
         <Route path="admin/contractors/create" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
@@ -95,10 +99,9 @@ export default function AppRoutes() {
         <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
 
         {/* 4. Finance */}
-        <Route path="finance/ipc" element={placeholder("IPC Management", "CAN_VIEW_FINANCE")} />
-        <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
-        <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
-        <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
+        <Route path="finance/project-costs" element={protect(<ProjectCosts />, "CAN_VIEW_FINANCE")} />
+        <Route path='finance/project-costs/:id' element={protect(<ManageProjectCosts />, "CAN_MANAGE_PROJECT_COSTS")} />
+
 
         {/* 4. reports */}
         <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_VIEW_FINANCE")} />

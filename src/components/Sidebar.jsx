@@ -30,8 +30,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       children: [
         { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_VIEW_DASHBOARD' },
         { path: '/dashboard/org-structure', name: 'Organization Structure', permission: 'CAN_VIEW_DASHBOARD' },
-        // { path: '/dashboard/gis', name: 'GIS Map View', permission: 'CAN_VIEW_GIS_MAP' },
-        // { path: '/dashboard/alerts', name: 'Alerts & Issues', permission: 'CAN_MANAGE_ALERTS' },
       ]
     },
     {
@@ -64,7 +62,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Finance',
       icon: <ReceiptLong />,
       children: [
-        { path: '/finance/history', name: 'Payment History', permission: 'CAN_VIEW_FINANCE' },
+        { path: '/finance/project-costs', name: 'Project Costs', permission: 'CAN_VIEW_FINANCE' },
       ]
     },
 
