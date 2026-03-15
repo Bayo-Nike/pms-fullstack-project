@@ -33,9 +33,17 @@ import CreateInspectionType from './pages/admin/CreateInspectionType';
 import Inspections from './pages/project/Inspections';
 import CreateInspection from './pages/project/CreateInspection';
 import OrgStructure from './pages/admin/OrgStructure';
-import ProjectReport from './pages/reports/ProjectReport';
 import ProjectReportPage from './pages/reports/ProjectReportPage';
 import TaskReportPage from './pages/reports/TaskReportPage';
+import RoleReportPage from './pages/reports/RoleReportPage';
+import EmployeeReportPage from './pages/reports/EmployeeReportPage';
+import UserReportPage from './pages/reports/UserReportPage';
+import PermissionReportPage from './pages/reports/PermissionReportPage';
+import ModuleReportPage from './pages/reports/ModuleReportPage';
+import LocationReportPage from './pages/reports/LocationReportPage';
+import DivisionReportPage from './pages/reports/DivisionReportPage';
+import ContractorReportPage from './pages/reports/ContractorReportPage';
+import AuditLogReportPage from './pages/reports/AuditLogReportPage';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -103,6 +111,15 @@ export default function AppRoutes() {
         {/* 4. reports */}
         <Route path="reports/project" element={protect(<ProjectReportPage/>, "CAN_VIEW_FINANCE")} />
         <Route path="reports/task" element={protect(<TaskReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/role" element={protect(<RoleReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/module" element={protect(<ModuleReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/permission" element={protect(<PermissionReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/employee" element={protect(<EmployeeReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/user" element={protect(<UserReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/contractor" element={protect(<ContractorReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/location" element={protect(<LocationReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/division" element={protect(<DivisionReportPage/>, "CAN_VIEW_FINANCE")} />
+        <Route path="reports/auditLog" element={protect(<AuditLogReportPage/>, "CAN_VIEW_FINANCE")} />
         <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
         <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
         <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />

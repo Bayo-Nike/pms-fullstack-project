@@ -76,6 +76,16 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         // { path: '/reports/general', name: 'General Reports', permission: 'CAN_VIEW_REPORTS' },
         { path: '/reports/project', name: 'Project Report', permission: 'CAN_VIEW_REPORTS' },
         { path: '/reports/task', name: 'Task Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/role', name: 'Role Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/module', name: 'Module Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/permission', name: 'Permission Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/employee', name: 'Employee Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/user', name: 'User Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/contractor', name: 'Contractor Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/location', name: 'Location Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/division', name: 'Division Report', permission: 'CAN_VIEW_REPORTS' },
+        { path: '/reports/auditLog', name: 'Audit Log Report', permission: 'CAN_VIEW_REPORTS' },
+
       ]
     },
     {
