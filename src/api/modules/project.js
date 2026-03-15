@@ -23,6 +23,15 @@ const projectApi = {
     UPDATE_INSPECTION_LOG: (id, data) => api.put(`/admin/inspections/${id}`, data),
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
+
+
+
+    // Project Cost Transactional APIs
+    // Project Cost History
+    GET_PROJECT_COST_HISTORY: (projectId) => api.get(`/projects/${projectId}/costs`),
+    ADD_PROJECT_COST: (data) => api.post("/projects/costs", data),
+    UPDATE_PROJECT_COST: (id, data) => api.put(`/projects/costs/${id}`, data), // Added for editing
+    DELETE_PROJECT_COST: (id) => api.delete(`/projects/costs/${id}`),
 };
 
 export default projectApi;
