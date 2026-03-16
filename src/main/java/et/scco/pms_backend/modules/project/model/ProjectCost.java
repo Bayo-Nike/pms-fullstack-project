@@ -3,14 +3,12 @@ package et.scco.pms_backend.modules.project.model;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.task.model.Task;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Table(name = "project_costs")
 public class ProjectCost {
 
