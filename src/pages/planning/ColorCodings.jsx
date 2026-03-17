@@ -95,6 +95,7 @@ export default function ColorCodings() {
                             <th className="px-6 py-4">Sub-City Name</th>
                             <th className="px-6 py-4">Target</th>
                             <th className="px-6 py-4">Achieved</th>
+                            <th className='px-6 py-4'>Documents</th>
                             <th className="px-6 py-4 text-right">Operations</th>
                         </tr>
                     </thead>
@@ -126,6 +127,16 @@ export default function ColorCodings() {
                                         <div className="w-8 h-8 bg-sky-50 text-[#0284C7] rounded-lg flex items-center justify-center group-hover:bg-[#0284C7] group-hover:text-white transition-all"><CorporateFare style={{ fontSize: 18 }} /></div>
                                         <span className="text-sm font-semibold text-slate-700">{c.achieved}</span>
                                     </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    {c.document ? (
+                                        <a href={`http://localhost:8080/api/admin/contractors/download/${c.performanceDocument}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#0284C7] hover:text-[#016da3] transition-colors">
+                                            <CloudDone style={{ fontSize: 16 }} />
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter border-b border-sky-200">View File</span>
+                                        </a>
+                                    ) : (
+                                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">No Artifact</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

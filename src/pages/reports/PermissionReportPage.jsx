@@ -11,8 +11,7 @@ export default function PermissionReportPage() {
     try {
       const res = await adminApi.GET_PERMISSIONS();
       const permissionsData = res.data || [];
-
-      console.log(permissionsData)
+ 
       const transformed = permissionsData.map((perm, index) => {
         const roles = perm.roleIds || [];
         return {
