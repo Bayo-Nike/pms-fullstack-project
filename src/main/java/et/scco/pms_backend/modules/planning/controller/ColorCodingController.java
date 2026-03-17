@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,14 +69,15 @@ public class ColorCodingController {
         return ResponseEntity.ok(allColorCodesDto);
 
     }
- 
 
     // Build Update ColorCode REST API
-    @PutMapping("/{id}")
-    public ResponseEntity<ColorCodingResponseDTO>updateColorCode(@PathVariable("id") Long contractorId,@RequestBody ColorCodingRequestDTO colorCodingRequestDTO){
-        ColorCodingResponseDTO colorCodingResponseDTO =colorCodingService.updateColorCode(contractorId,colorCodingRequestDTO);
+    @PutMapping(value = "{id}", consumes = "multipart/form-data")
+    public ResponseEntity<ColorCodingResponseDTO>updateColorCode(@PathVariable("id") Long colorCodeId,@ModelAttribute ColorCodingRequestDTO colorCodingRequestDTO)throws Exception{
+        
+        ColorCodingResponseDTO colorCodingResponseDTO =colorCodingService.updateColorCode(colorCodeId,colorCodingRequestDTO);
         return ResponseEntity.ok(colorCodingResponseDTO);
     }
+
     // Build Delete ColorCode REST API
     @DeleteMapping("{id}")
     public ResponseEntity<String>deleteColorCode(@PathVariable("id") Long colorCodeId){

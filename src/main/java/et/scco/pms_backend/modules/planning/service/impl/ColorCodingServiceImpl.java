@@ -20,6 +20,7 @@ import et.scco.pms_backend.modules.planning.mapper.ColorCodingMapper;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
+import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +30,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     private final ColorCodingRepository colorCodingRepository;
     private final SubCityServiceImpl subCityServiceImpl;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
 
     @Override
@@ -116,7 +118,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     }
 
     @Override
-    public ColorCodingResponseDTO updateColorCode(Long colorCodeId, ColorCodingRequestDTO colorCodingRequestDTO) {
+    public ColorCodingResponseDTO updateColorCode(Long colorCodeId, ColorCodingRequestDTO colorCodingRequestDTO) throws Exception{
         // 1. Fetch existing record
         ColorCoding colorCoding = colorCodingRepository.findById(colorCodeId)
         .orElseThrow(() -> new ResourceNotFoundException("Color code does not exist with given id: " + colorCodeId));
@@ -176,7 +178,18 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         colorCoding.setSubCity(targetSubCity);
         colorCoding.setCity(subCityServiceImpl.getCity());
 
+        // if creater
         colorCoding.setCreatedBy(user);
+
+        // if evaluator
+        // colorCoding.setCreatedBy(user);
+
+        // Only update file if a new one is uploaded
+        if (colorCodingRequestDTO.getPerformanceDocument() != null && !colorCodingRequestDTO.getPerformanceDocument().isEmpty()) {
+            String fileName = fileStorageService.storeFile(colorCodingRequestDTO.getPerformanceDocument());
+            colorCoding.setPerformanceDocument(fileName);
+        }
+        // else: keep the existing file
 
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);
