@@ -1,12 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Dashboard, Map, Assignment, Handshake, ReceiptLong,
-  Engineering, FolderCopy, Construction, ExpandMore,
-  KeyboardBackspace, Settings, VerifiedUser, Timeline,
-  Flag, Description, PhotoCamera, Inventory, History,
-  NotificationImportant,
-  Report
+  Dashboard, Assignment, Handshake, ReceiptLong,
+  ExpandMore, KeyboardBackspace, Settings, Report
 } from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 
@@ -21,93 +17,100 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
     setOpenMenu(openMenu === menuName ? '' : menuName);
   };
 
-  // 1. FULL MENU DEFINITION WITH PERMISSIONS
+  // ===========================
+  // MENU WITH MODULE-LEVEL PERMISSIONS
+  // ===========================
   const fullMenuGroups = [
     {
       id: 'dashboard',
       name: 'Dashboard',
       icon: <Dashboard />,
+      permission: 'CAN_SEE_DASHBOARD',
       children: [
-        { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_VIEW_DASHBOARD' },
-        { path: '/dashboard/org-structure', name: 'Organization Structure', permission: 'CAN_VIEW_DASHBOARD' },
+        { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_SEE_DASHBOARD' },
+        { path: '/dashboard/org-structure', name: 'Organization Structure', permission: 'CAN_SEE_ORG_STRUCTURE' },
       ]
     },
     {
       id: 'projects',
       name: 'Projects',
       icon: <Assignment />,
+      permission: 'CAN_SEE_PROJECT',
       children: [
-        { path: '/projects', name: 'Project List', permission: 'CAN_VIEW_PROJECTS' },
-        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_VIEW_PROJECTS' },
+        { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
+        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
       ]
     },
     {
       id: 'contracts',
       name: 'Contracts',
       icon: <Handshake />,
+      permission: 'CAN_SEE_CONTRACT',
       children: [
-        { path: '/admin/contractors', name: 'Contractor List', permission: 'CAN_VIEW_CONTRACTS' },
+        { path: '/contractors', name: 'Contractors', permission: 'CAN_SEE_CONTRACT_LIST' },
       ]
     },
     {
-      id: 'plan',
+      id: 'planning',
       name: 'Planning',
       icon: <ReceiptLong />,
+      permission: 'CAN_SEE_PLANNING',
       children: [
-        { path: '/planning/ColorCodings', name: 'Color Codings', permission: 'CAN_VIEW_FINANCE' },
+        { path: '/planning/color-codings', name: 'Color Codings', permission: 'CAN_SEE_COLOR_CODING_LIST' },
       ]
     },
     {
       id: 'finance',
       name: 'Finance',
       icon: <ReceiptLong />,
+      permission: 'CAN_SEE_FINANCE',
       children: [
-        { path: '/finance/project-costs', name: 'Project Costs', permission: 'CAN_VIEW_FINANCE' },
+        { path: '/finance/project-costs', name: 'Project Costs', permission: 'CAN_SEE_PROJECT_FINANCE' },
       ]
     },
-
     {
       id: 'reports',
       name: 'Reports',
       icon: <Report />,
+      permission: 'CAN_SEE_REPORT',
       children: [
-        // { path: '/reports/general', name: 'General Reports', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/project', name: 'Project Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/task', name: 'Task Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/role', name: 'Role Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/module', name: 'Module Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/permission', name: 'Permission Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/employee', name: 'Employee Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/user', name: 'User Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/contractor', name: 'Contractor Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/location', name: 'Location Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/division', name: 'Division Report', permission: 'CAN_VIEW_REPORTS' },
-        { path: '/reports/auditLog', name: 'Audit Log Report', permission: 'CAN_VIEW_REPORTS' },
-
+        { path: '/reports/project', name: 'Project Report', permission: 'CAN_SEE_PROJECT_REPORT' },
+        { path: '/reports/task', name: 'Task Report', permission: 'CAN_SEE_TASK_REPORT' },
+        { path: '/reports/role', name: 'Role Report', permission: 'CAN_SEE_ROLE_REPORT' },
+        { path: '/reports/employee', name: 'Employee Report', permission: 'CAN_SEE_EMPLOYEE_REPORT' },
+        { path: '/reports/user', name: 'User Report', permission: 'CAN_SEE_USER_REPORT' },
+        { path: '/reports/contractor', name: 'Contractor Report', permission: 'CAN_SEE_CONTRACTORS_REPORT' },
+        { path: '/reports/location', name: 'Location Report', permission: 'CAN_SEE_LOCATION_REPORT' },
+        { path: '/reports/division', name: 'Division Report', permission: 'CAN_SEE_DIVISION_REPORT' },
+        { path: '/reports/audit-log', name: 'Audit Log', permission: 'CAN_SEE_AUDIT_LOG' },
       ]
     },
     {
       id: 'admin',
       name: 'Sys Admin',
       icon: <Settings />,
+      permission: 'CAN_SEE_SYS_ADMIN',
       children: [
-        { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/positions', name: 'Positions', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/locations', name: 'Locations', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/inspection-types', name: 'Inspections Types', permission: 'CAN_VIEW_LOGS' },
-        { path: '/admin/employees', name: 'Employees', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_MANAGE_ROLES' },
-        { path: '/admin/users', name: 'User Management', permission: 'CAN_VIEW_USERS' },
-        { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_MANAGE_MODULES' },
-        { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_MANAGE_ROLES' },
+        { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/locations', name: 'Locations', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_SEE_SYS_ADMIN' },
       ]
     }
   ];
 
-  // 2. PERMISSION FILTER LOGIC
+  // ===========================
+  // FILTER MODULES & CHILDREN BY PERMISSION
+  // ===========================
   const menuGroups = useMemo(() => {
     return fullMenuGroups
+      .filter(group => can(group.permission))
       .map(group => ({
         ...group,
         children: group.children.filter(child => can(child.permission))
@@ -144,7 +147,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
               </button>
 
               {isOpen && (!isCollapsed || isMobile) && (
-                <div className="mt-1 ml-6 border-l-2 border-slate-100 space-y-1 animate-fadeIn">
+                <div className="mt-1 ml-6 border-l-2 border-slate-100 space-y-1">
                   {group.children.map((child) => (
                     <NavLink
                       key={child.path}
@@ -168,7 +171,9 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       {!isMobile && (
         <div className="p-4 border-t border-slate-50 flex-shrink-0">
           <button onClick={toggleSidebar} className="flex items-center gap-4 w-full h-10 px-4 text-slate-400 hover:text-[#0284C7] transition-all rounded-xl">
-            <div className={`transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}><KeyboardBackspace /></div>
+            <div className={`transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}>
+              <KeyboardBackspace />
+            </div>
             {!isCollapsed && <span className="text-[10px] font-bold uppercase tracking-widest">Collapse Sidebar</span>}
           </button>
         </div>
