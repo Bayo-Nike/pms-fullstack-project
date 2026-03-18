@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import et.scco.pms_backend.modules.auth.AuthUtility;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
@@ -18,8 +19,10 @@ import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
 import et.scco.pms_backend.modules.planning.mapper.ColorCodingMapper;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
+import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
+import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +32,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     private final ColorCodingRepository colorCodingRepository;
     private final SubCityServiceImpl subCityServiceImpl;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
 
     @Override
@@ -116,7 +120,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     }
 
     @Override
-    public ColorCodingResponseDTO updateColorCode(Long colorCodeId, ColorCodingRequestDTO colorCodingRequestDTO) {
+    public ColorCodingResponseDTO updateColorCode(Long colorCodeId, ColorCodingRequestDTO colorCodingRequestDTO) throws Exception{
         // 1. Fetch existing record
         ColorCoding colorCoding = colorCodingRepository.findById(colorCodeId)
         .orElseThrow(() -> new ResourceNotFoundException("Color code does not exist with given id: " + colorCodeId));
@@ -176,7 +180,43 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         colorCoding.setSubCity(targetSubCity);
         colorCoding.setCity(subCityServiceImpl.getCity());
 
+        // if creater
         colorCoding.setCreatedBy(user);
+
+        // if evaluator
+        // colorCoding.setCreatedBy(user);
+
+    // 1. HANDLE DELETIONS
+    if (colorCodingRequestDTO.getDeletedFileIds() != null && !colorCodingRequestDTO.getDeletedFileIds().isEmpty()) {
+         
+        List<String> fileNamesToDelete = colorCoding.getPerformanceDocuments().stream()
+                .filter(doc -> colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId()))
+                .map(ColorCodingDocument::getFileName)
+                .collect(Collectors.toList());
+
+        colorCoding.getPerformanceDocuments().removeIf(doc -> 
+            colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId())
+        );
+         
+        if (!fileNamesToDelete.isEmpty()) {
+            fileStorageService.deletePhysicalFiles(fileNamesToDelete); 
+        }
+    }
+
+        // Handle multiple files
+        if (colorCodingRequestDTO.getPerformanceDocuments() != null && !colorCodingRequestDTO.getPerformanceDocuments().isEmpty()) {
+            
+            for (MultipartFile file : colorCodingRequestDTO.getPerformanceDocuments()) {
+                
+                String fileName = fileStorageService.storeFile(file); 
+                
+                ColorCodingDocument doc = new ColorCodingDocument();
+                doc.setFileName(fileName);
+                doc.setColorCoding(colorCoding);
+                
+                colorCoding.getPerformanceDocuments().add(doc);
+            }
+        }
 
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);

@@ -1,10 +1,14 @@
 package et.scco.pms_backend.modules.planning.mapper;
  
+import java.util.List;
+import java.util.stream.Collectors;
+
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
 import et.scco.pms_backend.enums.Quarter;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
+import et.scco.pms_backend.modules.planning.dto.DocumentResponseDTO;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
 
 public class ColorCodingMapper {
@@ -23,6 +27,13 @@ public class ColorCodingMapper {
         dto.setFiscalYear(colorCoding.getFiscalYear());
         dto.setTarget(colorCoding.getTarget());
         dto.setAchieved(colorCoding.getAchieved());
+        // dto.setPerformanceDocuments(colorCoding.getPerformanceDocuments());
+        if (colorCoding.getPerformanceDocuments() != null) {
+            List<DocumentResponseDTO> docDTOs = colorCoding.getPerformanceDocuments().stream()
+                .map(doc -> new DocumentResponseDTO(doc.getId(), doc.getFileName()))
+                .collect(Collectors.toList());
+            dto.setPerformanceDocuments(docDTOs);
+        }
         // dto.setCreatedByUserName(colorCoding.getCreatedBy());
  
         return dto;

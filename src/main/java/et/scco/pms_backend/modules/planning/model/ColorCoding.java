@@ -1,6 +1,8 @@
 package et.scco.pms_backend.modules.planning.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
@@ -8,6 +10,7 @@ import et.scco.pms_backend.enums.Quarter;
 import et.scco.pms_backend.modules.admin.model.City;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,7 +20,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -60,11 +65,29 @@ public class ColorCoding {
     @Column(name = "achieved")
     private Long achieved;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
+
+    // @Column(name = "performance_document")
+    // private String performanceDocument; // file name or path
+    @OneToMany(mappedBy = "colorCoding", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ColorCodingDocument> performanceDocuments = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "measured_by")
+    private User measuredBy;
+
+    @Column(name = "measured_date")
+    private LocalDateTime measuredDate;
 
     @PrePersist
     public void prePersist() {
         createdDate = LocalDateTime.now();
     }
+    @PreUpdate
+    public void PreUpdate() {
+        measuredDate = LocalDateTime.now();
+    }
+
+    
 }

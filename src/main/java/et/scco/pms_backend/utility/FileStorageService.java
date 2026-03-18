@@ -1,8 +1,10 @@
 package et.scco.pms_backend.utility;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -32,5 +34,29 @@ public class FileStorageService {
 
     public Path getFilePath(String fileName) {
         return Paths.get(uploadDir).resolve(fileName);
+    }
+ 
+
+    // Assuming your upload directory is named "uploads"
+    private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
+    
+    // Deletes physical files from the directory
+    public void deletePhysicalFiles(List<String> fileNames) {
+        for (String fileName : fileNames) {
+            try { 
+                
+                Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
+                boolean deleted = Files.deleteIfExists(filePath);
+                
+                // if (deleted) {
+                //     System.out.println("Successfully deleted physical file: " + fileName);
+                // } else {
+                //     System.out.println("File not found on disk, skipping: " + fileName);
+                // }
+                
+            } catch (IOException ex) {
+                System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
+            }
+        }
     }
 }

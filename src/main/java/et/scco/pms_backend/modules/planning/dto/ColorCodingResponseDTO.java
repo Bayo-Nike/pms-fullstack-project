@@ -1,6 +1,8 @@
 package et.scco.pms_backend.modules.planning.dto;
 
 
+import java.util.List;
+
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
 import et.scco.pms_backend.enums.Quarter;
@@ -22,5 +24,7 @@ public class ColorCodingResponseDTO {
     private Long target;
     private Long achieved;
     private User createdByUserName;
+    // private String performanceDocument;
+    private List<DocumentResponseDTO> performanceDocuments; 
 
 }
