@@ -28,6 +28,7 @@ import CreateLocation from './pages/admin/CreateLocation';
 import AuditLog from './pages/admin/AuditLog';
 import CreateProject from './pages/project/CreateProject';
 import ColorCodings from './pages/planning/ColorCodings';
+import ColorCodingDetails from './pages/planning/ColorCodingDetails';
 import InspectionTypes from './pages/admin/InspectionTypes';
 import CreateInspectionType from './pages/admin/CreateInspectionType';
 import Inspections from './pages/project/Inspections';
@@ -105,6 +106,7 @@ export default function AppRoutes() {
         <Route path="planning/ColorCodings" element={protect(<ColorCodings />, "CAN_VIEW_USERS")} />
         <Route path="planning/CreateColorCoding/create" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
         <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
+        <Route path="planning/ColorCodings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_USERS")} />
 
         {/* 4. Finance */}
         <Route path="finance/project-costs" element={protect(<ProjectCosts />, "CAN_VIEW_FINANCE")} />
