@@ -1,5 +1,7 @@
 package et.scco.pms_backend.modules.planning.dto;
  
+import java.util.List;
+
 import org.springframework.web.multipart.MultipartFile;
 import lombok.Data;
 
@@ -14,6 +16,8 @@ public class ColorCodingRequestDTO {
     private String buildingType;
     private Long target;
     private Long achieved;
-    private MultipartFile performanceDocument;
+    // private MultipartFile performanceDocument;
+    private List<MultipartFile> performanceDocuments;
+    private List<Long> deletedFileIds; // to handle delete option
 
 }

@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/profile").authenticated()
                         .requestMatchers("/api/admin/contractors/download/**").permitAll()
+                        .requestMatchers("/api/colorCodes/download/**").permitAll()
                         .requestMatchers("/api/auth/mobile/verify").permitAll()
                         .requestMatchers("/api/auth/mobile/profile").authenticated()
                         // .requestMatchers("/api/admin/**").hasRole("SUPER_ADMIN")

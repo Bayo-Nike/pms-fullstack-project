@@ -1,9 +1,15 @@
 package et.scco.pms_backend.modules.planning.controller;
  
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -62,12 +68,43 @@ public class ColorCodingController {
 
     }
 
+    // Build Get Colorcoding Details REST API
+    @GetMapping("details/{id}")
+    public ResponseEntity<ColorCodingResponseDTO>getColorCodeDetails(@PathVariable("id") Long colorCodeId){
+        ColorCodingResponseDTO contractorResponseDTO=colorCodingService.getColorCodeById(colorCodeId);
+        return ResponseEntity.ok(contractorResponseDTO);
+
+    }
+
+
     // Build Get All ColorCodes REST API
     @GetMapping
     public ResponseEntity<List<ColorCodingResponseDTO>>getAllColorCodes(){
         List<ColorCodingResponseDTO> allColorCodesDto=colorCodingService.getAllColorCodes();
         return ResponseEntity.ok(allColorCodesDto);
 
+    }
+
+    @GetMapping("/download/{filename:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws Exception {
+        Path filePath = Paths.get("uploads").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found " + filename);
+        }
+
+        // Try to determine content type
+        String contentType = "application/octet-stream";
+        if (filename.endsWith(".png")) contentType = "image/png";
+        else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) contentType = "image/jpeg";
+        else if (filename.endsWith(".pdf")) contentType = "application/pdf";
+        else if (filename.endsWith(".docx")) contentType = "application/docx";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 
     // Build Update ColorCode REST API

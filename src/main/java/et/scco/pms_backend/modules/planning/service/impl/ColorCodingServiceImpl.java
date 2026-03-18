@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import et.scco.pms_backend.modules.auth.AuthUtility;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
@@ -18,6 +19,7 @@ import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
 import et.scco.pms_backend.modules.planning.mapper.ColorCodingMapper;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
+import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
 import et.scco.pms_backend.utility.FileStorageService;
@@ -184,12 +186,37 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         // if evaluator
         // colorCoding.setCreatedBy(user);
 
-        // Only update file if a new one is uploaded
-        if (colorCodingRequestDTO.getPerformanceDocument() != null && !colorCodingRequestDTO.getPerformanceDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(colorCodingRequestDTO.getPerformanceDocument());
-            colorCoding.setPerformanceDocument(fileName);
+    // 1. HANDLE DELETIONS
+    if (colorCodingRequestDTO.getDeletedFileIds() != null && !colorCodingRequestDTO.getDeletedFileIds().isEmpty()) {
+         
+        List<String> fileNamesToDelete = colorCoding.getPerformanceDocuments().stream()
+                .filter(doc -> colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId()))
+                .map(ColorCodingDocument::getFileName)
+                .collect(Collectors.toList());
+
+        colorCoding.getPerformanceDocuments().removeIf(doc -> 
+            colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId())
+        );
+         
+        if (!fileNamesToDelete.isEmpty()) {
+            fileStorageService.deletePhysicalFiles(fileNamesToDelete); 
         }
-        // else: keep the existing file
+    }
+
+        // Handle multiple files
+        if (colorCodingRequestDTO.getPerformanceDocuments() != null && !colorCodingRequestDTO.getPerformanceDocuments().isEmpty()) {
+            
+            for (MultipartFile file : colorCodingRequestDTO.getPerformanceDocuments()) {
+                
+                String fileName = fileStorageService.storeFile(file); 
+                
+                ColorCodingDocument doc = new ColorCodingDocument();
+                doc.setFileName(fileName);
+                doc.setColorCoding(colorCoding);
+                
+                colorCoding.getPerformanceDocuments().add(doc);
+            }
+        }
 
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);
