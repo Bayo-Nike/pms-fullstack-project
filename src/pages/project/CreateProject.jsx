@@ -385,12 +385,9 @@ export default function CreateProject() {
                 subCityId: Number(formData.subCityId),
                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
                 contractorId: formData.contractorId ? Number(formData.contractorId) : null,
-<<<<<<< HEAD
                 consultantId: formData.consultantId ? Number(formData.consultantId) : null,
                 budget: parseFloat(formData.budget || 0),
-=======
                 budget: formData.budget ? parseFloat(formData.budget) : 0,
->>>>>>> 7c46c5ec1f156cb170f3c5e1f26bd0d66fd28960
                 budgetUsed: parseFloat(formData.budgetUsed || 0)
             };
 
@@ -472,12 +469,6 @@ export default function CreateProject() {
                             </div>
                         </div>
                         <div className="space-y-2">
-<<<<<<< HEAD
-                            <label className={`text-[10px] font-bold uppercase ml-1 ${!formData.subCityId ? 'text-slate-300' : 'text-slate-400'}`}>Project Sites (Multi-Select) *</label>
-                            <select disabled={!formData.subCityId} onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none appearance-none disabled:opacity-50"><option value="">-- Tag Locations --</option>{availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
-                            <div className="flex flex-wrap gap-2 pt-2">{formData.locationIds.map(locId => { const loc = lookups.locations.find(l => l.id === locId); return <div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase">{loc?.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer" style={{ fontSize: 14 }} /></div> })}</div>
-                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultant</label><select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none"><option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}</select></div>
-=======
                             <label className={`text-[10px] font-bold uppercase ml-1 ${!formData.subCityId ? 'text-slate-300' : 'text-slate-400'}`}>Project Sites (Optional)</label>
                             <select
                                 disabled={!formData.subCityId}
@@ -496,7 +487,6 @@ export default function CreateProject() {
                                     return <div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase">{loc?.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:text-red-400" style={{ fontSize: 14 }} /></div>
                                 })}
                             </div>
->>>>>>> 7c46c5ec1f156cb170f3c5e1f26bd0d66fd28960
                         </div>
                     </div>
                 </div>

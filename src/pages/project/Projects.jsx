@@ -340,7 +340,6 @@ export default function Projects() {
                     {searchTerm && <Close onClick={() => { setSearchTerm(''); fetchProjects(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-red-400" style={{ fontSize: 16 }} />}
                 </div>
 
-<<<<<<< HEAD
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
@@ -421,7 +420,6 @@ export default function Projects() {
                         </tbody>
                     </table>
                 </div>
-=======
                 <div className="flex items-center gap-2">
                     <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2 text-[10px] font-bold uppercase text-slate-600 outline-none cursor-pointer">
                         <option value="">All Status</option>
@@ -520,7 +518,6 @@ export default function Projects() {
                         ))}
                     </tbody>
                 </table>
->>>>>>> 7c46c5ec1f156cb170f3c5e1f26bd0d66fd28960
 
                 {/* Footer Pagination */}
                 <div className="px-8 py-6 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
