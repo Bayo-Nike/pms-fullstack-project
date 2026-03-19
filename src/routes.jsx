@@ -42,8 +42,6 @@ import ManageProjectCosts from './pages/project/ManageProjectCosts';
 import RoleReportPage from './pages/reports/RoleReportPage';
 import EmployeeReportPage from './pages/reports/EmployeeReportPage';
 import UserReportPage from './pages/reports/UserReportPage';
-import PermissionReportPage from './pages/reports/PermissionReportPage';
-import ModuleReportPage from './pages/reports/ModuleReportPage';
 import LocationReportPage from './pages/reports/LocationReportPage';
 import DivisionReportPage from './pages/reports/DivisionReportPage';
 import ContractorReportPage from './pages/reports/ContractorReportPage';
@@ -51,25 +49,11 @@ import AuditLogReportPage from './pages/reports/AuditLogReportPage';
 import Consultancies from './pages/admin/Consultancies';
 import CreateConsultant from './pages/admin/CreateConsultancies';
 
-// Placeholder Component
-const Placeholder = ({ title }) => (
-  <div className="p-10 bg-white rounded-[32px] border border-slate-100 shadow-sm animate-fadeIn">
-    <h1 className="text-2xl font-bold text-slate-800">{title}</h1>
-    <div className="h-1 w-20 bg-[#FBAF1E] mt-2 mb-4 rounded-full"></div>
-    <p className="text-slate-400">Under development for SCCO PMS.</p>
-  </div>
-);
 
 export default function AppRoutes() {
 
-  // Helper to wrap components in a PermissionRoute
   const protect = (comp, perm) => (
     <PermissionRoute permission={perm}>{comp}</PermissionRoute>
-  );
-
-  // Helper for placeholders
-  const placeholder = (title, perm) => (
-    <PermissionRoute permission={perm}><Placeholder title={title} /></PermissionRoute>
   );
 
   return (
@@ -80,125 +64,88 @@ export default function AppRoutes() {
         <Route index element={<Navigate to="/dashboard" replace />} />
 
         {/* 1. Dashboard */}
-        <Route path="dashboard" element={protect(<Dashboard />, "CAN_VIEW_DASHBOARD")} />
-        <Route path="dashboard/org-structure" element={protect(<OrgStructure />, "CAN_VIEW_ORG_STRUCTURE")} />
-        <Route path="dashboard/gis" element={placeholder("GIS Map View", "CAN_VIEW_GIS_MAP")} />
-        <Route path="dashboard/alerts" element={placeholder("Alerts & Issues", "CAN_MANAGE_ALERTS")} />
+        <Route path="dashboard" element={protect(<Dashboard />, "CAN_SEE_DASHBOARD")} />
+        <Route path="dashboard/org-structure" element={protect(<OrgStructure />, "CAN_SEE_ORG_STRUCTURE")} />
 
         {/* 2. Projects */}
-        <Route path="projects" element={protect(<Projects />, "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/create" element={protect(<CreateProject />, "CAN_CREATE_PROJECTS")} />
-        <Route path="projects/:id" element={protect(<ProjectDetails />, "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/edit/:id" element={protect(<CreateProject />, "CAN_EDIT_PROJECTS")} />
-        <Route path="projects/milestones" element={placeholder("Milestones", "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
+        <Route path="projects" element={protect(<Projects />, "CAN_SEE_PROJECT_LIST")} />
+        <Route path="projects/create" element={protect(<CreateProject />, "CAN_CREATE_PROJECT")} />
+        <Route path="projects/:id" element={protect(<ProjectDetails />, "CAN_VIEW_PROJECT_DETAIL")} />
+        <Route path="projects/edit/:id" element={protect(<CreateProject />, "CAN_EDIT_PROJECT")} />
 
-        {/* 2.5. Inspection Logs */}
-        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_VIEW_PROJECTS")} />
+        {/* Inspections */}
+        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_SEE_INSPECTIONS")} />
+        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_LOG_INSPECTION")} />
+        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_EDIT_INSPECTION")} />
 
+        {/* 3. Finance */}
+        <Route path="finance/project-costs" element={protect(<ProjectCosts />, "CAN_SEE_PROJECT_FINANCE")} />
+        <Route path="finance/project-costs/:id" element={protect(<ManageProjectCosts />, "CAN_RECORD_COST")} />
 
-        {/* 3. Contracts & Contractors */}
-        <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
-        <Route path="admin/contractors/create" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
-        <Route path="admin/contractors/edit/:id" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
-        <Route path="admin/consultancy" element={protect(<Consultancies />, "CAN_VIEW_USERS")} />
-        <Route path="admin/consultancy/create" element={protect(<CreateConsultant />, "CAN_VIEW_USERS")} />
-        <Route path="admin/consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_VIEW_USERS")} />
-
-        {/* 4. Color & Coding */}
-        <Route path="planning/ColorCodings" element={protect(<ColorCodings />, "CAN_VIEW_USERS")} />
-        <Route path="planning/CreateColorCoding/create" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
-        <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_VIEW_USERS")} />
-        <Route path="planning/ColorCodings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_USERS")} />
-
-        {/* 4. Finance */}
-        <Route path="finance/project-costs" element={protect(<ProjectCosts />, "CAN_VIEW_FINANCE")} />
-        <Route path='finance/project-costs/:id' element={protect(<ManageProjectCosts />, "CAN_MANAGE_PROJECT_COSTS")} />
+        {/* 4. Contractors */}
+        <Route path="contractors" element={protect(<Contractors />, "CAN_SEE_CONTRACT_LIST")} />
+        <Route path="contractors/create" element={protect(<CreateContractor />, "CAN_REGISTER_CONTRACTOR")} />
+        <Route path="contractors/edit/:id" element={protect(<CreateContractor />, "CAN_EDIT_CONTRACTOR")} />
+        <Route path="consultancy" element={protect(<Consultancies />, "CAN_SEE_CONTRACT_LIST")} />
+        <Route path="consultancy/create" element={protect(<CreateConsultant />, "CAN_REGISTER_CONTRACTOR")} />
+        <Route path="consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_EDIT_CONTRACTOR")} />
 
 
-        {/* 4. reports */}
-        <Route path="reports/project" element={protect(<ProjectReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/task" element={protect(<TaskReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/role" element={protect(<RoleReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/module" element={protect(<ModuleReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/permission" element={protect(<PermissionReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/employee" element={protect(<EmployeeReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/user" element={protect(<UserReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/contractor" element={protect(<ContractorReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/location" element={protect(<LocationReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/division" element={protect(<DivisionReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="reports/auditLog" element={protect(<AuditLogReportPage/>, "CAN_VIEW_FINANCE")} />
-        <Route path="finance/advance" element={placeholder("Advance Tracking", "CAN_TRACK_ADVANCE")} />
-        <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
-        <Route path="finance/history" element={placeholder("Payment History", "CAN_VIEW_FINANCE")} />
+        {/* 5. Planning */}
+        <Route path="planning/color-codings" element={protect(<ColorCodings />, "CAN_SEE_COLOR_CODING_LIST")} />
+        <Route path="planning/color-codings/create" element={protect(<CreateColorCoding />, "CAN_REGISTER_COLOR_CODING")} />
+        <Route path="planning/color-codings/edit/:id" element={protect(<CreateColorCoding />, "CAN_EDIT_COLOR_CODING")} />
+        <Route path="planning/color-codings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_COLOR_CODING")} />
 
-        {/* 3. CONTRACTS MODULE */}
-        <Route path="admin/contracts" element={placeholder("Contracts Management", "CAN_VIEW_CONTRACTS")} />
-        <Route path="admin/contracts/create" element={placeholder("Create Contract", "CAN_VIEW_CONTRACTS")} />
-        <Route path="admin/contracts/edit/:id" element={placeholder("Edit Contract", "CAN_VIEW_CONTRACTS")} />
+        {/* 6. Reports */}
+        <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_SEE_PROJECT_REPORT")} />
+        <Route path="reports/task" element={protect(<TaskReportPage />, "CAN_SEE_TASK_REPORT")} />
+        <Route path="reports/role" element={protect(<RoleReportPage />, "CAN_SEE_ROLE_REPORT")} />
+        <Route path="reports/employee" element={protect(<EmployeeReportPage />, "CAN_SEE_EMPLOYEE_REPORT")} />
+        <Route path="reports/user" element={protect(<UserReportPage />, "CAN_SEE_USER_REPORT")} />
+        <Route path="reports/contractor" element={protect(<ContractorReportPage />, "CAN_SEE_CONTRACTORS_REPORT")} />
+        <Route path="reports/location" element={protect(<LocationReportPage />, "CAN_SEE_LOCATION_REPORT")} />
+        <Route path="reports/division" element={protect(<DivisionReportPage />, "CAN_SEE_DIVISION_REPORT")} />
+        <Route path="reports/audit-log" element={protect(<AuditLogReportPage />, "CAN_SEE_AUDIT_LOG")} />
 
-        {/* 5. Field Operations */}
-        <Route path="field/diary" element={placeholder("Daily Site Diary", "CAN_WRITE_DIARY")} />
-        <Route path="field/photos" element={placeholder("Geo-Tagged Photos", "CAN_UPLOAD_PHOTOS")} />
-        <Route path="field/sync" element={placeholder("Offline Sync", "CAN_FORCE_SYNC")} />
+        {/* 7. Sys Admin */}
+        <Route path="admin/sub-cities" element={protect(<SubCities />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/sub-cities/create" element={protect(<CreateSubCity />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/sub-cities/edit/:id" element={protect(<CreateSubCity />, "CAN_SEE_SYS_ADMIN")} />
 
-        {/* 6. Documents */}
-        <Route path="docs/drawings" element={placeholder("Drawings", "CAN_MANAGE_DRAWINGS")} />
-        <Route path="docs/letters" element={placeholder("Letters", "CAN_MANAGE_LETTERS")} />
-        <Route path="docs/archive" element={placeholder("Archive", "CAN_ARCHIVE_DOCS")} />
+        <Route path="admin/divisions" element={protect(<Divisions />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/divisions/create" element={protect(<CreateDivision />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/divisions/edit/:id" element={protect(<CreateDivision />, "CAN_SEE_SYS_ADMIN")} />
 
-        {/* 7. Resources */}
-        <Route path="resources/equipment" element={placeholder("Equipment", "CAN_MANAGE_EQUIPMENT")} />
-        <Route path="resources/materials" element={placeholder("Inventory", "CAN_MANAGE_INVENTORY")} />
+        <Route path="admin/positions" element={protect(<Positions />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/positions/create" element={protect(<CreatePosition />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/positions/edit/:id" element={protect(<CreatePosition />, "CAN_SEE_SYS_ADMIN")} />
 
-        {/* 8. Sys Admin */}
-        <Route path="admin/sub-cities" element={protect(<SubCities />, "CAN_VIEW_USERS")} />
-        <Route path="admin/sub-cities/create" element={protect(<CreateSubCity />, "CAN_VIEW_USERS")} />
-        <Route path="admin/sub-cities/edit/:id" element={protect(<CreateSubCity />, "CAN_VIEW_USERS")} />
+        <Route path="admin/users" element={protect(<Users />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/users/create" element={protect(<CreateUser />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/users/edit/:id" element={protect(<CreateUser />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path="admin/divisions" element={protect(<Divisions />, "CAN_VIEW_USERS")} />
-        <Route path="admin/divisions/create" element={protect(<CreateDivision />, "CAN_VIEW_USERS")} />
-        <Route path="admin/divisions/edit/:id" element={protect(<CreateDivision />, "CAN_VIEW_USERS")} />
+        <Route path="admin/employees" element={protect(<Employees />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/employees/create" element={protect(<CreateEmployee />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/employees/edit/:id" element={protect(<CreateEmployee />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path="admin/positions" element={protect(<Positions />, "CAN_VIEW_USERS")} />
-        <Route path="admin/positions/create" element={protect(<CreatePosition />, "CAN_VIEW_USERS")} />
-        <Route path="admin/positions/edit/:id" element={protect(<CreatePosition />, "CAN_VIEW_USERS")} />
+        <Route path="admin/roles" element={protect(<Roles />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/roles/create" element={protect(<CreateRole />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/roles/edit/:id" element={protect(<CreateRole />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path="admin/users" element={protect(<Users />, "CAN_VIEW_USERS")} />
-        <Route path="admin/users/create" element={protect(<CreateUser />, "CAN_MANAGE_USERS")} />
-        <Route path="admin/users/edit/:id" element={protect(<CreateUser />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/locations" element={protect(<Locations />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/locations/create" element={protect(<CreateLocation />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/locations/edit/:id" element={protect(<CreateLocation />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path="admin/employees" element={protect(<Employees />, "CAN_MANAGE_USERS")} />
-        <Route path="admin/employees/create" element={protect(<CreateEmployee />, "CAN_MANAGE_USERS")} />
-        <Route path="admin/employees/edit/:id" element={protect(<CreateEmployee />, "CAN_MANAGE_USERS")} />
+        <Route path="admin/audit-log" element={protect(<AuditLog />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path='admin/mobile' element={protect(<Mobile />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path="admin/roles" element={protect(<Roles />, "CAN_MANAGE_ROLES")} />
-        <Route path="admin/roles/create" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
-        <Route path="admin/roles/edit/:id" element={protect(<CreateRole />, "CAN_MANAGE_ROLES")} />
-        <Route path="admin/logs" element={placeholder("Audit Logs", "CAN_VIEW_LOGS")} />
+        <Route path="admin/inspection-types" element={protect(<InspectionTypes />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/inspection-types/create" element={protect(<CreateInspectionType />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/inspection-types/edit/:id" element={protect(<CreateInspectionType />, "CAN_SEE_SYS_ADMIN")} />
 
-        <Route path='admin/mobile' element={protect(<Mobile />, "CAN_MANAGE_USERS")} />
-
-        <Route path="admin/locations" element={protect(<Locations />, "CAN_VIEW_USERS")} />
-        <Route path="admin/locations/create" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
-        <Route path="admin/locations/edit/:id" element={protect(<CreateLocation />, "CAN_VIEW_USERS")} />
-
-        <Route path="admin/audit-log" element={protect(<AuditLog />, "CAN_VIEW_LOGS")} />
-
-        {/* Extra routes missing in the old commented version */}
-        <Route path="projects/milestones" element={placeholder("Milestones", "CAN_VIEW_PROJECTS")} />
-        <Route path="projects/gantt" element={placeholder("Gantt Schedule", "CAN_MANAGE_GANTT")} />
-        <Route path="finance/escalation" element={placeholder("Price Adjustment", "CAN_MANAGE_ESCALATION")} />
-        <Route path="resources/materials" element={placeholder("Inventory", "CAN_MANAGE_INVENTORY")} />
-
-
-        <Route path="admin/inspection-types" element={protect(<InspectionTypes />, "CAN_VIEW_USERS")} />
-        <Route path="admin/inspection-types/create" element={protect(<CreateInspectionType />, "CAN_MANAGE_USERS")} />
-        <Route path="admin/inspection-types/edit/:id" element={protect(<CreateInspectionType />, "CAN_MANAGE_USERS")} />
-
-        <Route path="*" element={<Placeholder title="Page Not Found" />} />
+        {/* 404 */}
+        <Route path="*" element={<div>Page Not Found</div>} />
       </Route>
     </Routes>
   );
