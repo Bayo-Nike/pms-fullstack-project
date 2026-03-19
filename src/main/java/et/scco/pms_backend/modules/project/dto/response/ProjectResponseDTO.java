@@ -34,6 +34,9 @@ public class ProjectResponseDTO {
     private Long contractorId;
     private String contractorName;
 
+    private Long consultantId;
+    private String consultantName;
+
     private Long projectManagerId;
     private String projectManagerName;
 

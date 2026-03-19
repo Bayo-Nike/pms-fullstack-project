@@ -5,6 +5,7 @@ import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.service.impl.ConsultancyServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.ContractorServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.LocationServiceImpl;
@@ -34,6 +35,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final SubCityServiceImpl subCityServiceImpl;
     private final LocationServiceImpl locationServiceImpl;
     private final ContractorServiceImpl contractorServiceImpl;
+    private final ConsultancyServiceImpl consultancyServiceImpl;
     private final EmployeeServiceImpl employeeServiceImpl;
     private final AuthContext authContext;
 
@@ -210,6 +212,10 @@ public class ProjectServiceImpl implements ProjectService {
             dto.setContractorId(project.getContractor().getId());
             dto.setContractorName(project.getContractor().getContractorName());
         }
+        if (project.getConsultancy() != null) {
+            dto.setConsultantId(project.getConsultancy().getId());
+            dto.setConsultantName(project.getConsultancy().getConsultantName());
+        }
         if (project.getProjectManager() != null) {
             dto.setProjectManagerId(project.getProjectManager().getId());
             dto.setProjectManagerName(project.getProjectManager().getFullName());
@@ -247,6 +253,9 @@ public class ProjectServiceImpl implements ProjectService {
         // relations
         if (dto.getContractorId() != null) {
             project.setContractor(contractorServiceImpl.getContractorEntityById(dto.getContractorId()));
+        }
+        if (dto.getConsultantId() != null) {
+            project.setConsultancy(consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId()));
         }
         if (dto.getSubCityId() != null) {
             project.setSubCity(subCityServiceImpl.getSubCityEntity(dto.getSubCityId()));
