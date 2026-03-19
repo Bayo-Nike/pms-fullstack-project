@@ -70,7 +70,7 @@ export default function CreateContractor() {
                 await adminApi.CREATE_CONTRACTOR(formData);
                 showAlert('success', 'New partner established in registry.');
             }
-            setTimeout(() => navigate('/admin/contractors'), 1500);
+            setTimeout(() => navigate('/contractors'), 1500);
         } catch (err) {
             showAlert('error', err.response?.data?.message || 'Transaction rejected.');
         } finally {

@@ -386,7 +386,6 @@ export default function CreateProject() {
                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
                 contractorId: formData.contractorId ? Number(formData.contractorId) : null,
                 consultantId: formData.consultantId ? Number(formData.consultantId) : null,
-                budget: parseFloat(formData.budget || 0),
                 budget: formData.budget ? parseFloat(formData.budget) : 0,
                 budgetUsed: parseFloat(formData.budgetUsed || 0)
             };
@@ -487,6 +486,8 @@ export default function CreateProject() {
                                     return <div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase">{loc?.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:text-red-400" style={{ fontSize: 14 }} /></div>
                                 })}
                             </div>
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultancy Partner</label><select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}</select></div>
+                            
                         </div>
                     </div>
                 </div>

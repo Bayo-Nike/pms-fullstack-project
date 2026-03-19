@@ -47,7 +47,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Handshake />,
       permission: 'CAN_SEE_CONTRACT',
       children: [
-        { path: '/contractors', name: 'Contractors', permission: 'CAN_SEE_CONTRACT_LIST' },
+        { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACT_LIST' },
         { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_VIEW_CONTRACTS' },
         
       ]
@@ -58,7 +58,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <ReceiptLong />,
       permission: 'CAN_SEE_PLANNING',
       children: [
-        { path: '/planning/color-codings', name: 'Color Codings', permission: 'CAN_SEE_COLOR_CODING_LIST' },
+        { path: '/planning/ColorCodings', name: 'Color Codings', permission: 'CAN_SEE_COLOR_CODING_LIST' },
       ]
     },
     {

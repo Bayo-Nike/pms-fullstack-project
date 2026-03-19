@@ -92,10 +92,10 @@ export default function AppRoutes() {
 
 
         {/* 5. Planning */}
-        <Route path="planning/color-codings" element={protect(<ColorCodings />, "CAN_SEE_COLOR_CODING_LIST")} />
-        <Route path="planning/color-codings/create" element={protect(<CreateColorCoding />, "CAN_REGISTER_COLOR_CODING")} />
-        <Route path="planning/color-codings/edit/:id" element={protect(<CreateColorCoding />, "CAN_EDIT_COLOR_CODING")} />
-        <Route path="planning/color-codings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_COLOR_CODING")} />
+        <Route path="planning/ColorCodings" element={protect(<ColorCodings />, "CAN_SEE_COLOR_CODING_LIST")} />
+        <Route path="planning/ColorCodings/create" element={protect(<CreateColorCoding />, "CAN_REGISTER_COLOR_CODING")} />
+        <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_EDIT_COLOR_CODING")} />
+        <Route path="planning/ColorCodings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_COLOR_CODING")} />
 
         {/* 6. Reports */}
         <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_SEE_PROJECT_REPORT")} />

@@ -142,7 +142,7 @@ export default function ColorCodings() {
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Sub-City Level Registry</p>
                 </div>
                 {can('CAN_MANAGE_MODULES') && (
-                    <button onClick={() => navigate('/planning/CreateColorCoding/create')} className="bg-[#FBAF1E] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-100 hover:bg-[#e09a15] transition-all uppercase tracking-widest">
+                    <button onClick={() => navigate('/planning/ColorCodings/create')} className="bg-[#FBAF1E] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-100 hover:bg-[#e09a15] transition-all uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Register Color Code Target
                     </button>
                 )}

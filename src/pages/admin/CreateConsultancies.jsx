@@ -72,7 +72,7 @@ export default function CreateConsultant() {
                 await adminApi.CREATE_CONSULTANT(formData);
                 showAlert('success', 'New Consultant established in registry.');
             }
-            setTimeout(() => navigate('/admin/consultancy'), 1500);
+            setTimeout(() => navigate('/consultancy'), 1500);
         } catch (err) {
             showAlert('error', err.response?.data?.message || 'Transaction rejected.');
         } finally {
@@ -104,7 +104,7 @@ export default function CreateConsultant() {
             {/* Header */}
             <div className="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/admin/consultancy')} className="p-2.5 bg-slate-50 border border-slate-200 rounded-2xl hover:bg-slate-100 transition-colors">
+                    <button onClick={() => navigate('/consultancy')} className="p-2.5 bg-slate-50 border border-slate-200 rounded-2xl hover:bg-slate-100 transition-colors">
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
