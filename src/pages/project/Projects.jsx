@@ -431,6 +431,7 @@ export default function Projects() {
                             <tr>
                                 <th className="px-6 py-4">Identification</th>
                                 <th className="px-6 py-4">Type</th>
+                                <th className="px-6 py-4">Sub-City</th>
                                 <th className="px-6 py-4">Timeline</th>
                                 <th className="px-6 py-4">Budget Utilization</th>
                                 <th className="px-6 py-4 text-center">Status</th>
@@ -462,8 +463,14 @@ export default function Projects() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col gap-1">
+                                            <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5"><CalendarMonth style={{ fontSize: 14 }} className="text-slate-300" /> {proj.subCityName}</span>
+                                            <span className="text-[10px] text-slate-400 uppercase font-medium">Location: {proj.subCityName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col gap-1">
                                             <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5"><CalendarMonth style={{ fontSize: 14 }} className="text-slate-300" /> {new Date(proj.startDate).toLocaleDateString()}</span>
-                                            <span className="text-[10px] text-slate-400 uppercase font-medium">Target: {new Date(proj.endDate).toLocaleDateString()}</span>
+                                            <span className="text-[10px] text-slate-400 uppercase font-medium">Completion Date: {new Date(proj.endDate).toLocaleDateString()}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 min-w-[180px]">

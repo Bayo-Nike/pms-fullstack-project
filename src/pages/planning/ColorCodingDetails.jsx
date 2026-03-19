@@ -100,8 +100,8 @@ export default function ViewTarget() {
              <SectionTitle icon={<FilterList fontSize="inherit"/>} title="Period & Type" />
              <div className="grid grid-cols-2 gap-4">
                 <DataBlock label="Fiscal Year" value={data.fiscalYear} />
-                <DataBlock label="Building" value={data.buildingType} />
-                <DataBlock label="Mode" value={data.planType} />
+                <DataBlock label="Building Type" value={data.buildingType} />
+                <DataBlock label="Plan Mode" value={data.planType} />
                 {data.planType === 'QUARTERLY' && <DataBlock label="Quarter" value={data.quarter} color="text-amber-600" />}
              </div>
 

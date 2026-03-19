@@ -42,11 +42,13 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       ]
     },
     {
-      id: 'contracts',
-      name: 'Contracts',
+      id: 'contracts-consultancies',
+      name: 'Contracts & Consultancies',
       icon: <Handshake />,
       children: [
         { path: '/admin/contractors', name: 'Contractor List', permission: 'CAN_VIEW_CONTRACTS' },
+        { path: '/admin/consultancy', name: 'Consultancy List', permission: 'CAN_VIEW_CONTRACTS' },
+        
       ]
     },
     {

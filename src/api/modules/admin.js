@@ -60,6 +60,24 @@ const adminApi = {
         }),
     DELETE_CONTRACTOR: (id) => api.delete(`/admin/contractors/${id}`),
 
+    //Consultancy
+    GET_CONSULTANTS: () => api.get("/admin/consultancy"),
+    GET_CONSULTANT: (id) => api.get(`/admin/consultancy/${id}`),
+    CREATE_CONSULTANT: (data) =>
+        api.post("/admin/consultancy", data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+
+    UPDATE_CONSULTANT: (id, data) =>
+        api.put(`/admin/consultancy/${id}`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+    DELETE_CONSULTANT: (id) => api.delete(`/admin/consultancy/${id}`),
+
 
     GET_LOCATIONS: () => api.get("/admin/locations"),
     GET_LOCATION: (id) => api.get(`/admin/locations/${id}`),

@@ -904,13 +904,13 @@ export default function CreateProject() {
 
     const [formData, setFormData] = useState({
         projectCode: '', title: '', description: '', projectType: 'BUILDING',
-        cityId: 1, subCityId: '', locationIds: [], contractorId: '',
+        cityId: 1, subCityId: '', locationIds: [], contractorId: '', consultantId: '',
         projectManagerId: '', startDate: '', endDate: '', status: 'NOT_STARTED',
         priority: 'MEDIUM', currencyType: 'ETB', budget: '', budgetUsed: '0',
         employeeIds: []
     });
 
-    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [] });
+    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [], consultancies: [] });
     const [cityName, setCityName] = useState('...');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -922,17 +922,18 @@ export default function CreateProject() {
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, locRes, empRes, cityRes, contractorRes] = await Promise.all([
+                const [subRes, locRes, empRes, cityRes, contractorRes, consultantRes] = await Promise.all([
                     adminApi.GET_SUB_CITIES(), adminApi.GET_LOCATIONS(),
                     adminApi.GET_EMPLOYEES(), adminApi.GET_CITY(),
-                    adminApi.GET_CONTRACTORS(),
+                    adminApi.GET_CONTRACTORS(), adminApi.GET_CONSULTANTS(),
                 ]);
 
                 setLookups({
                     subCities: subRes.data?.data || subRes.data || [],
                     locations: locRes.data?.data || locRes.data || [],
                     employees: empRes.data?.data || empRes.data || [],
-                    contractors: contractorRes.data?.data || contractorRes.data || []
+                    contractors: contractorRes.data?.data || contractorRes.data || [],
+                    consultancies: consultantRes.data?.data || consultantRes.data || []
                 });
                 setCityName(cityRes.data || cityRes);
 
@@ -944,6 +945,7 @@ export default function CreateProject() {
                         subCityId: d.subCityId ? String(d.subCityId) : '',
                         projectManagerId: d.projectManagerId ? String(d.projectManagerId) : '',
                         contractorId: d.contractorId ? String(d.contractorId) : '',
+                        consultantId: d.consultantId ? String(d.consultantId) : '',
                         locationIds: d.locationIds || [],
                         employeeIds: d.employeeIds || []
                     });
@@ -981,6 +983,7 @@ export default function CreateProject() {
                 subCityId: Number(formData.subCityId),
                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
                 contractorId: formData.contractorId ? Number(formData.contractorId) : null,
+                consultantId: formData.consultantId ? Number(formData.consultantId) : null,
                 budget: parseFloat(formData.budget || 0),
                 budgetUsed: parseFloat(formData.budgetUsed || 0)
             };
@@ -1044,6 +1047,7 @@ export default function CreateProject() {
                             <label className={`text-[10px] font-bold uppercase ml-1 ${!formData.subCityId ? 'text-slate-300' : 'text-slate-400'}`}>Project Sites (Multi-Select) *</label>
                             <select disabled={!formData.subCityId} onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 text-sm font-semibold outline-none appearance-none disabled:opacity-50"><option value="">-- Tag Locations --</option>{availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select>
                             <div className="flex flex-wrap gap-2 pt-2">{formData.locationIds.map(locId => { const loc = lookups.locations.find(l => l.id === locId); return <div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase">{loc?.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer" style={{ fontSize: 14 }} /></div> })}</div>
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultant</label><select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none"><option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}</select></div>
                         </div>
                     </div>
                 </div>

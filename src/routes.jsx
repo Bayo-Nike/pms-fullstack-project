@@ -48,6 +48,8 @@ import LocationReportPage from './pages/reports/LocationReportPage';
 import DivisionReportPage from './pages/reports/DivisionReportPage';
 import ContractorReportPage from './pages/reports/ContractorReportPage';
 import AuditLogReportPage from './pages/reports/AuditLogReportPage';
+import Consultancies from './pages/admin/Consultancies';
+import CreateConsultant from './pages/admin/CreateConsultancies';
 
 // Placeholder Component
 const Placeholder = ({ title }) => (
@@ -101,6 +103,9 @@ export default function AppRoutes() {
         <Route path="admin/contractors" element={protect(<Contractors />, "CAN_VIEW_USERS")} />
         <Route path="admin/contractors/create" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
         <Route path="admin/contractors/edit/:id" element={protect(<CreateContractor />, "CAN_VIEW_USERS")} />
+        <Route path="admin/consultancy" element={protect(<Consultancies />, "CAN_VIEW_USERS")} />
+        <Route path="admin/consultancy/create" element={protect(<CreateConsultant />, "CAN_VIEW_USERS")} />
+        <Route path="admin/consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_VIEW_USERS")} />
 
         {/* 4. Color & Coding */}
         <Route path="planning/ColorCodings" element={protect(<ColorCodings />, "CAN_VIEW_USERS")} />

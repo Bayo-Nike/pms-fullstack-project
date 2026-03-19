@@ -163,6 +163,7 @@ export default function ColorCodings() {
                         <tr>
                             <th className="px-6 py-4">Fiscal Year</th>
                             <th className="px-6 py-4">Sub-City Name</th>
+                            <th className="px-6 py-4">Plan Type</th>
                             <th className="px-6 py-4">Target</th>
                             <th className="px-6 py-4">Achieved</th>
                             <th className='px-6 py-4'>Documents</th>
@@ -187,6 +188,14 @@ export default function ColorCodings() {
                                         <span className="text-sm font-semibold text-slate-700">{c.subCity?.subCityName}</span>
                                     </div>
                                 </td>
+                                <td className="px-6 py-4">
+                                    <span className="text-sm font-black text-slate-700">
+                                        {c.planType === "QUARTERLY"
+                                            ? `${c.planType}-${c.quarter}`
+                                            : c.planType}
+                                    </span>
+                                </td>
+
                                 <td className="px-6 py-4">
                                     <span className="text-sm font-black text-slate-700">{c.target}</span>
                                 </td>

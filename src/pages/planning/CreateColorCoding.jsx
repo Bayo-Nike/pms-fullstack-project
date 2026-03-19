@@ -366,7 +366,7 @@ export default function CreateTarget() {
                 </div>
 
                 <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[#0284C7] transition-all relative cursor-pointer bg-slate-50/30 group">
-                  <input type="file" multiple onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                  <input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                   <UploadFile className="text-slate-300 group-hover:text-[#0284C7] mb-2" style={{ fontSize: 40 }} />
                   <p className="text-[10px] font-bold text-slate-500 uppercase">Click to add documents</p>
                 </div>
