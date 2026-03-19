@@ -3,7 +3,6 @@ package et.scco.pms_backend.modules.project.service.impl;
 import et.scco.pms_backend.enums.InspectionLevel;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.InspectionType;
-import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.InspectionTypesRepository;
 import et.scco.pms_backend.modules.project.dto.request.InspectionRequestDto;
 import et.scco.pms_backend.modules.project.dto.response.InspectionResponseDto;
@@ -95,7 +94,12 @@ public class InspectionServiceImpl implements InspectionService {
                 .toList();
     }
 
-    private void updateInspectionEntity(Inspection inspection, InspectionRequestDto dto) {
+    private void updateInspectionEntity(Inspection inspection, InspectionRequestDto dto)
+    {
+        if (authContext.isSuperAdmin()) {
+            throw new RuntimeException("Super Admin cannot update Inspection");
+        }
+
         InspectionType type = inspectionTypeRepository.findById(dto.getInspectionTypeId())
                 .orElseThrow(() -> new RuntimeException("Inspection Type not found"));
 
@@ -103,7 +107,7 @@ public class InspectionServiceImpl implements InspectionService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         Employee employee = null;
-        if (!authContext.isSystemUser() || !authContext.isMayor()) {
+        if (!authContext.isSystemUser()) {
             employee = authContext.getEmployee();
         }
 

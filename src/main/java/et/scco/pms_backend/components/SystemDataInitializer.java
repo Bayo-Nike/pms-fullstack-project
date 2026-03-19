@@ -146,83 +146,87 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Dashboard",
                 List.of(
-                        new PermissionData("CAN_VIEW_DASHBOARD", "View Dashboard"),
-                        new PermissionData("CAN_VIEW_GIS_MAP", "View GIS Map"),
-                        new PermissionData("CAN_VIEW_KPIS", "View KPIs"),
-                        new PermissionData("CAN_MANAGE_ALERTS", "Manage Alerts")
+                        new PermissionData("CAN_SEE_DASHBOARD", "See Dashboard"),
+                        new PermissionData("CAN_SEE_ORG_STRUCTURE", "See Organization Structure")
                 )
         );
 
         insertModuleWithPermissions(
                 "Projects",
                 List.of(
-                        new PermissionData("CAN_VIEW_PROJECTS", "View Projects"),
-                        new PermissionData("CAN_CREATE_PROJECTS", "Create Projects"),
-                        new PermissionData("CAN_EDIT_PROJECTS", "Edit Projects"),
-                        new PermissionData("CAN_MANAGE_GANTT", "Manage Schedule"),
-                        new PermissionData("CAN_DELETE_PROJECTS", "Delete Projects")
-                )
-        );
-
-        insertModuleWithPermissions(
-                "Contracts",
-                List.of(
-                        new PermissionData("CAN_VIEW_CONTRACTS", "View Contracts"),
-                        new PermissionData("CAN_MANAGE_VO", "Manage VO"),
-                        new PermissionData("CAN_RATE_CONTRACTORS", "Rate Performance"),
-                        new PermissionData("CAN_MANAGE_RETENTION", "Manage Retention"),
-                        new PermissionData("CAN_ACCESS_REPOSITORY", "Access Repository")
+                        new PermissionData("CAN_SEE_PROJECT", "See Project"),
+                        new PermissionData("CAN_SEE_PROJECT_LIST", "See Project List"),
+                        new PermissionData("CAN_CREATE_PROJECT", "Create Project"),
+                        new PermissionData("CAN_UPDATE_PROJECT", "Update Project"),
+                        new PermissionData("CAN_VIEW_PROJECT_DETAIL", "View Project Detail"),
+                        new PermissionData("CAN_DELETE_PROJECT", "Delete Project"),
+                        new PermissionData("CAN_EDIT_PROJECT", "Edit Project"),
+                        new PermissionData("CAN_CREATE_TASK", "Create Task"),
+                        new PermissionData("CAN_EDIT_TASK", "Edit Task"),
+                        new PermissionData("CAN_UPDATE_TASK", "Update Task"),
+                        new PermissionData("CAN_DELETE_TASK", "Delete Task"),
+                        new PermissionData("CAN_SEE_INSPECTIONS", "See Inspections"),
+                        new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
+                        new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
+                        new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection")
                 )
         );
 
         insertModuleWithPermissions(
                 "Finance",
                 List.of(
-                        new PermissionData("CAN_VIEW_FINANCE", "View Finance"),
-                        new PermissionData("CAN_SUBMIT_IPC", "Submit IPC"),
-                        new PermissionData("CAN_VERIFY_IPC", "Verify IPC"),
-                        new PermissionData("CAN_TRACK_ADVANCE", "Track Advances"),
-                        new PermissionData("CAN_MANAGE_ESCALATION", "Manage Escalation")
+                        new PermissionData("CAN_SEE_FINANCE", "See Finance"),
+                        new PermissionData("CAN_SEE_PROJECT_FINANCE", "See Project Finance"),
+                        new PermissionData("CAN_RECORD_COST", "Record Cost"),
+                        new PermissionData("CAN_EDIT_RECORD", "Edit Record"),
+                        new PermissionData("CAN_DELETE_RECORD", "Delete Record")
                 )
         );
 
         insertModuleWithPermissions(
-                "Field Ops",
+                "Contracts",
                 List.of(
-                        new PermissionData("CAN_WRITE_DIARY", "Write Diary"),
-                        new PermissionData("CAN_UPLOAD_PHOTOS", "Upload Photos"),
-                        new PermissionData("CAN_VIEW_FIELD_REPORTS", "View Reports"),
-                        new PermissionData("CAN_FORCE_SYNC", "Force Sync")
+                        new PermissionData("CAN_SEE_CONTRACT", "See Contract"),
+                        new PermissionData("CAN_SEE_CONTRACT_LIST", "See Contract List"),
+                        new PermissionData("CAN_REGISTER_CONTRACTOR", "Register Contractor"),
+                        new PermissionData("CAN_EDIT_CONTRACTOR", "Edit Contractor"),
+                        new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor")
                 )
         );
 
         insertModuleWithPermissions(
-                "Documents",
+                "Planning",
                 List.of(
-                        new PermissionData("CAN_VIEW_DOCS", "View Docs"),
-                        new PermissionData("CAN_MANAGE_DRAWINGS", "Manage Drawings"),
-                        new PermissionData("CAN_MANAGE_LETTERS", "Manage Letters"),
-                        new PermissionData("CAN_ARCHIVE_DOCS", "Archive Records")
+                        new PermissionData("CAN_SEE_PLANNING", "See Planning"),
+                        new PermissionData("CAN_SEE_COLOR_CODING_LIST", "See Color Coding List"),
+                        new PermissionData("CAN_REGISTER_COLOR_CODING", "Register Color Coding"),
+                        new PermissionData("CAN_EDIT_COLOR_CODING", "Edit Color Coding"),
+                        new PermissionData("CAN_DELETE_COLOR_CODING", "Delete Color Coding"),
+                        new PermissionData("CAN_VIEW_COLOR_CODING", "Can View Color Coding"),
+                        new PermissionData("CAN_UPDATE_COLOR_CODING_ACHIEVEMENT", "Update Color Implementation")
                 )
         );
 
         insertModuleWithPermissions(
-                "Resources",
+                "Reports",
                 List.of(
-                        new PermissionData("CAN_VIEW_RESOURCES", "View Resources"),
-                        new PermissionData("CAN_MANAGE_EQUIPMENT", "Manage Equipment"),
-                        new PermissionData("CAN_MANAGE_INVENTORY", "Manage Inventory")
+                        new PermissionData("CAN_SEE_REPORT", "See Report"),
+                        new PermissionData("CAN_SEE_PROJECT_REPORT", "See Project Report"),
+                        new PermissionData("CAN_SEE_TASK_REPORT", "See Task Report"),
+                        new PermissionData("CAN_SEE_ROLE_REPORT", "See Role Report"),
+                        new PermissionData("CAN_SEE_EMPLOYEE_REPORT", "See Employee Report"),
+                        new PermissionData("CAN_SEE_USER_REPORT", "See User Report"),
+                        new PermissionData("CAN_SEE_CONTRACTORS_REPORT", "See Contractors Report"),
+                        new PermissionData("CAN_SEE_LOCATION_REPORT", "See Location Report"),
+                        new PermissionData("CAN_SEE_DIVISION_REPORT", "See Division Report"),
+                        new PermissionData("CAN_SEE_AUDIT_LOG", "See Audit Log")
                 )
         );
 
         insertModuleWithPermissions(
                 "Sys Admin",
                 List.of(
-                        new PermissionData("CAN_VIEW_USERS", "View Users"),
-                        new PermissionData("CAN_MANAGE_USERS", "Manage Users"),
-                        new PermissionData("CAN_MANAGE_ROLES", "Manage Roles"),
-                        new PermissionData("CAN_MANAGE_MODULES", "Manage Modules"),
-                        new PermissionData("CAN_VIEW_LOGS", "View Logs")
+                        new PermissionData("CAN_SEE_SYS_ADMIN", "See System Admin")
                 )
         );
     }

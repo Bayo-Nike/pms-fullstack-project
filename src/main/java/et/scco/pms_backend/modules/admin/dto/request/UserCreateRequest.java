@@ -8,7 +8,6 @@ import java.util.List;
 public class UserCreateRequest {
     private Long employeeId;
     private String username;
-    private String email;
     private String password;
     private List<Long> roleIds;
 }

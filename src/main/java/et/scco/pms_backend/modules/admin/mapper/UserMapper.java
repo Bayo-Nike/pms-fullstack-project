@@ -38,7 +38,7 @@ public class UserMapper {
         if (dto == null) return null;
         User user = new User();
         user.setEmployee(employee);
-        user.setEmail(dto.getEmail());
+        user.setEmail(employee.getEmail());
         user.setUsername(dto.getUsername());
         user.setUserType(UserType.EMPLOYEE);
         return user;
