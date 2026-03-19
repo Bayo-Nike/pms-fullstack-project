@@ -193,6 +193,16 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor")
                 )
         );
+        insertModuleWithPermissions(
+                "Consultants",
+                List.of(
+                        new PermissionData("CAN_SEE_CONSULTANT", "See Consultant"),
+                        new PermissionData("CAN_SEE_CONSULTANT_LIST", "See Consultant List"),
+                        new PermissionData("CAN_REGISTER_CONSULTANT", "Register Consultant"),
+                        new PermissionData("CAN_EDIT_CONSULTANT", "Edit Consultant"),
+                        new PermissionData("CAN_DELETE_CONSULTANT", "Delete Consultant")
+                )
+        );
 
         insertModuleWithPermissions(
                 "Planning",
