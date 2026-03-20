@@ -23,12 +23,12 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 //    List<Task> findAllByEmployees_Id(Long employeeId);
 
 
-        @Query("SELECT DISTINCT t FROM Task t " +
-                "LEFT JOIN FETCH t.project " +
-                "LEFT JOIN FETCH t.locations " +
-                "JOIN t.employees e " +
-                "WHERE e.id = :employeeId")
-        List<Task> findWithDetailsByEmployees_Id(@Param("employeeId") Long employeeId);
+//        @Query("SELECT DISTINCT t FROM Task t " +
+//                "LEFT JOIN FETCH t.project " +
+//                "LEFT JOIN FETCH t.locations " +
+//                "JOIN t.employees e " +
+//                "WHERE e.id = :employeeId")
+//        List<Task> findWithDetailsByEmployees_Id(@Param("employeeId") Long employeeId);
 
         //
         // Option A: Derived Method Name
@@ -37,4 +37,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     // Option B: Explicit JPQL (Recommended)
 //     @Query("SELECT COUNT(t) FROM Task t WHERE t.project.subCity.id = :subCityId")
 //     long countTasksBySubCity(@Param("subCityId") Long subCityId);
+
+
+        @Query("SELECT DISTINCT t FROM Task t " +
+                "LEFT JOIN FETCH t.project " +
+                "LEFT JOIN FETCH t.locations " +
+                "LEFT JOIN FETCH t.employees")
+        List<Task> findAllWithDetails();
+
+        @Query("SELECT DISTINCT t FROM Task t " +
+                "LEFT JOIN FETCH t.project " +
+                "LEFT JOIN FETCH t.locations " +
+                "JOIN t.employees e " +
+                "WHERE e.id = :employeeId")
+        List<Task> findWithDetailsByEmployees_Id(@Param("employeeId") Long employeeId);
 }

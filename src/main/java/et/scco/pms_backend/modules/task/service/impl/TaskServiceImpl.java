@@ -77,24 +77,23 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> getMyTasks() {
-        // 1. Admin/Mayor Bypass
+        List<Task> taskEntities;
+
+        // 1. Admin/Mayor Bypass - Use a query that fetches relations!
         if (authContext.isSuperAdmin() || authContext.isMayor()) {
-            return taskRepository.findAll().stream().map(this::mapToDTO).toList();
+            taskEntities = taskRepository.findAllWithDetails();
+        } else {
+            // 2. Regular Employee path
+            Employee sessionEmployee = authContext.getEmployee();
+            if (sessionEmployee == null || sessionEmployee.getId() == null) {
+                return Collections.emptyList();
+            }
+            taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
         }
-
-        // 2. Get Employee ID safely
-        Employee sessionEmployee = authContext.getEmployee();
-        if (sessionEmployee == null || sessionEmployee.getId() == null) {
-            return Collections.emptyList();
-        }
-
-        // 3. Fetch tasks using an explicit Join Query
-        // We use the ID directly to avoid "Detached Entity" issues
-        List<Task> taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
 
         if (taskEntities == null) return Collections.emptyList();
 
-        // 4. Map to DTO with NULL SAFETY
+        // 3. Map to DTO
         return taskEntities.stream()
                 .map(this::mapToDTO)
                 .toList();

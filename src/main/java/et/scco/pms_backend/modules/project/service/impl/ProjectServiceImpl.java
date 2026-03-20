@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List; 
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -167,6 +168,7 @@ public class ProjectServiceImpl implements ProjectService {
             return Page.empty(pageable);
         }
 
+
         return projectRepository
                 .findAllByEmployeesContaining(employee, pageable)
                 .map(this::mapToDTO);
@@ -182,34 +184,6 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setTitle(project.getTitle());
         dto.setDescription(project.getDescription());
         dto.setProjectType(project.getProjectType());
-
-        if (project.getCity() != null) {
-            dto.setCityId(project.getCity().getId());
-            dto.setCityName(project.getCity().getName());
-        }
-        if (project.getSubCity() != null) {
-            dto.setSubCityId(project.getSubCity().getId());
-            dto.setSubCityName(project.getSubCity().getSubCityName());
-        }
-
-        // 🔹 multiple locations
-        List<Location> locations = project.getLocations();
-        dto.setLocationIds(locations.stream().map(Location::getId).toList());
-        dto.setLocationNames(locations.stream().map(Location::getName).toList());
-
-        if (project.getContractor() != null) {
-            dto.setContractorId(project.getContractor().getId());
-            dto.setContractorName(project.getContractor().getContractorName());
-        }
-        if (project.getConsultancy() != null) {
-            dto.setConsultantId(project.getConsultancy().getId());
-            dto.setConsultantName(project.getConsultancy().getConsultantName());
-        }
-        if (project.getProjectManager() != null) {
-            dto.setProjectManagerId(project.getProjectManager().getId());
-            dto.setProjectManagerName(project.getProjectManager().getFullName());
-        }
-
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
         dto.setStatus(project.getStatus());
@@ -218,10 +192,44 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setBudget(project.getBudget());
         dto.setBudgetUsed(project.getBudgetUsed());
 
-        // Employees
+        if (project.getCity() != null) {
+            dto.setCityId(project.getCity().getId());
+            dto.setCityName(project.getCity().getName());
+        }
+
+        if (project.getSubCity() != null) {
+            dto.setSubCityId(project.getSubCity().getId());
+            dto.setSubCityName(project.getSubCity().getSubCityName());
+        }
+
+        List<Location> locations = project.getLocations();
+        if (locations != null && !locations.isEmpty()) {
+            dto.setLocationIds(locations.stream().map(Location::getId).toList());
+            dto.setLocationNames(locations.stream().map(Location::getName).toList());
+        }
+
+        if (project.getContractor() != null) {
+            dto.setContractorId(project.getContractor().getId());
+            dto.setContractorName(project.getContractor().getContractorName());
+        }
+
+        if (project.getConsultancy() != null) {
+            dto.setConsultantId(project.getConsultancy().getId());
+            dto.setConsultantName(project.getConsultancy().getConsultantName());
+        }
+
+        if (project.getProjectManager() != null) {
+            dto.setProjectManagerId(project.getProjectManager().getId());
+            dto.setProjectManagerName(project.getProjectManager().getFullName());
+        }
+
         List<Employee> employees = project.getEmployees();
-        dto.setEmployeeIds(employees.stream().map(Employee::getId).toList());
-        dto.setEmployeeNames(employees.stream().map(Employee::getFullName).toList());
+        if (employees != null && !employees.isEmpty()) {
+            dto.setEmployeeIds(employees.stream().map(Employee::getId).toList());
+            dto.setEmployeeNames(employees.stream().map(Employee::getFullName).toList());
+        }
+
+        System.out.println(dto);
 
         return dto;
     }
@@ -239,25 +247,23 @@ public class ProjectServiceImpl implements ProjectService {
         project.setBudget(dto.getBudget());
         project.setBudgetUsed(dto.getBudgetUsed());
 
-        // relations
-        if (dto.getContractorId() != null) {
-            project.setContractor(contractorServiceImpl.getContractorEntityById(dto.getContractorId()));
-        }
-        if (dto.getConsultantId() != null) {
-            project.setConsultancy(consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId()));
-        }
-        if (dto.getSubCityId() != null) {
-            project.setSubCity(subCityServiceImpl.getSubCityEntity(dto.getSubCityId()));
-        }
-        if (dto.getProjectManagerId() != null) {
-            project.setProjectManager(employeeServiceImpl.findEmployee(dto.getProjectManagerId()));
-        }
-        if (dto.getEmployeeIds() != null && !dto.getEmployeeIds().isEmpty()) {
-            project.setEmployees(employeeServiceImpl.findEmpsByEmployeeIds(dto.getEmployeeIds()));
-        }
-        if (dto.getLocationIds() != null && !dto.getLocationIds().isEmpty()) {
-            project.setLocations(locationServiceImpl.getLocationsByIds(dto.getLocationIds()));
-        }
+        project.setContractor(dto.getContractorId() != null ?
+                contractorServiceImpl.getContractorEntityById(dto.getContractorId()) : null);
+
+        project.setConsultancy(dto.getConsultantId() != null ?
+                consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId()) : null);
+
+        project.setSubCity(dto.getSubCityId() != null ?
+                subCityServiceImpl.getSubCityEntity(dto.getSubCityId()) : null);
+
+        project.setProjectManager(dto.getProjectManagerId() != null ?
+                employeeServiceImpl.findEmployee(dto.getProjectManagerId()) : null);
+
+        project.setEmployees(dto.getEmployeeIds() != null && !dto.getEmployeeIds().isEmpty() ?
+                employeeServiceImpl.findEmpsByEmployeeIds(dto.getEmployeeIds()) : new ArrayList<>());
+
+        project.setLocations(dto.getLocationIds() != null && !dto.getLocationIds().isEmpty() ?
+                locationServiceImpl.getLocationsByIds(dto.getLocationIds()) : new ArrayList<>());
 
         project.setCity(subCityServiceImpl.getCity());
     }
