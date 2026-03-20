@@ -71,20 +71,6 @@ public class ProjectController {
         return ResponseUtil.success("Project priority updated", project);
     }
 
-    @PatchMapping("/{id}/manager")
-    public ApiResponse<ProjectResponseDTO> assignManager(@PathVariable Long id,
-                                                         @RequestParam Long projectManagerId) {
-        ProjectResponseDTO project = projectService.assignManager(id, projectManagerId);
-        return ResponseUtil.success("Project manager assigned", project);
-    }
-
-    @PatchMapping("/{id}/employees")
-    public ApiResponse<ProjectResponseDTO> assignEmployees(@PathVariable Long id,
-                                                           @RequestBody List<Long> employeeIds) {
-        ProjectResponseDTO project = projectService.assignEmployees(id, employeeIds);
-        return ResponseUtil.success("Employees assigned to project", project);
-    }
-
     @PatchMapping("/{id}/budget")
     public ApiResponse<ProjectResponseDTO> updateBudget(@PathVariable Long id,
                                                         @RequestParam Double budget,

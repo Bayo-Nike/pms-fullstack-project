@@ -38,7 +38,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
         cost.setPhase(dto.getPhase());
         cost.setAmount(dto.getAmount());
 
-        if (!authContext.isSystemUser()) {
+        if (!authContext.isSuperAdmin()) {
             cost.setCreatedBy(authContext.getEmployee());
         }
 

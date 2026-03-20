@@ -16,4 +16,6 @@ public interface UserService {
     UserResponseDTO updateUser(Long userId, UserCreateRequest userRequestDTO);
 
     void deleteUser(Long userId);
+
+    String getManagerUserName();
 }

@@ -190,13 +190,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_SEE_CONTRACT_LIST", "See Contract List"),
                         new PermissionData("CAN_REGISTER_CONTRACTOR", "Register Contractor"),
                         new PermissionData("CAN_EDIT_CONTRACTOR", "Edit Contractor"),
-                        new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor")
-                )
-        );
-        insertModuleWithPermissions(
-                "Consultants",
-                List.of(
-                        new PermissionData("CAN_SEE_CONSULTANT", "See Consultant"),
+                        new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor"),
                         new PermissionData("CAN_SEE_CONSULTANT_LIST", "See Consultant List"),
                         new PermissionData("CAN_REGISTER_CONSULTANT", "Register Consultant"),
                         new PermissionData("CAN_EDIT_CONSULTANT", "Edit Consultant"),
@@ -228,8 +222,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_SEE_USER_REPORT", "See User Report"),
                         new PermissionData("CAN_SEE_CONTRACTORS_REPORT", "See Contractors Report"),
                         new PermissionData("CAN_SEE_LOCATION_REPORT", "See Location Report"),
-                        new PermissionData("CAN_SEE_DIVISION_REPORT", "See Division Report"),
-                        new PermissionData("CAN_SEE_AUDIT_LOG", "See Audit Log")
+                        new PermissionData("CAN_SEE_DIVISION_REPORT", "See Division Report")
                 )
         );
 
@@ -263,7 +256,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
     private void initSuperAdmin() {
 
-        Roles role = roleRepository.findByRoleName("SUPER_ADMIN")
+        Roles admin = roleRepository.findByRoleName("SUPER_ADMIN")
                 .orElseGet(() -> {
                     Roles r = new Roles();
                     r.setRoleName("SUPER_ADMIN");
@@ -272,10 +265,26 @@ public class SystemDataInitializer implements ApplicationRunner {
                 });
 
         // Assign all permissions
-        role.getPermissions().clear();
-        role.getPermissions().addAll(permissionRepository.findAll());
-        roleRepository.save(role);
-        //
+        admin.getPermissions().clear();
+        admin.getPermissions().addAll(permissionRepository.findAll());
+        roleRepository.save(admin);
+
+
+        roleRepository.findByRoleName("MAYOR")
+                .orElseGet(() -> {
+                    Roles r = new Roles();
+                    r.setRoleName("MAYOR");
+                    r.setDescription("City Mayor Role");
+                    return roleRepository.save(r);
+                });
+
+        roleRepository.findByRoleName("MANAGER")
+                .orElseGet(() -> {
+                    Roles r = new Roles();
+                    r.setRoleName("MANAGER");
+                    r.setDescription("City Manager Role");
+                    return roleRepository.save(r);
+                });
 
         User user = userRepository.findByUsername(superAdminProperties.getUsername())
                 .orElseGet(() -> {
@@ -284,7 +293,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                     u.setUsername(superAdminProperties.getUsername());
                     u.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
                     u.setEmail(superAdminProperties.getUserEmail());
-                    u.setRoles(new HashSet<>(List.of(role)));
+                    u.setRoles(new HashSet<>(List.of(admin)));
                     u.setUserType(UserType.SYSTEM);
                     u.setEmployee(null);
 

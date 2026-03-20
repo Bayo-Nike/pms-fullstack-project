@@ -26,7 +26,9 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String projectCode;
+
     private String title;
     private String description;
     private String progress;
