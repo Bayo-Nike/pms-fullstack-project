@@ -17,7 +17,6 @@ export default function CreateInspection() {
     const { user: currentUser } = useAuth(); // Contains employeeId
     const isEdit = Boolean(id);
 
-    // Form State matching InspectionRequestDto
     const [formData, setFormData] = useState({
         inspectionTypeId: '',
         inspectionLevel: 'PROJECT', // PROJECT or TASK
