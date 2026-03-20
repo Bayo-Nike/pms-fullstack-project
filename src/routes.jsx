@@ -65,7 +65,7 @@ export default function AppRoutes() {
 
         {/* 1. Dashboard */}
         <Route path="dashboard" element={protect(<Dashboard />, "CAN_SEE_DASHBOARD")} />
-        <Route path="dashboard/org-structure" element={protect(<OrgStructure />, "CAN_SEE_ORG_STRUCTURE")} />
+        <Route path="org-structure" element={protect(<OrgStructure />, "CAN_SEE_ORG_STRUCTURE")} />
 
         {/* 2. Projects */}
         <Route path="projects" element={protect(<Projects />, "CAN_SEE_PROJECT_LIST")} />
@@ -74,13 +74,13 @@ export default function AppRoutes() {
         <Route path="projects/edit/:id" element={protect(<CreateProject />, "CAN_EDIT_PROJECT")} />
 
         {/* Inspections */}
-        <Route path="projects/inspections" element={protect(<Inspections />, "CAN_SEE_INSPECTIONS")} />
-        <Route path="projects/inspections/create" element={protect(<CreateInspection />, "CAN_LOG_INSPECTION")} />
-        <Route path="projects/inspections/edit/:id" element={protect(<CreateInspection />, "CAN_EDIT_INSPECTION")} />
+        <Route path="inspections" element={protect(<Inspections />, "CAN_SEE_INSPECTIONS")} />
+        <Route path="inspections/create" element={protect(<CreateInspection />, "CAN_LOG_INSPECTION")} />
+        <Route path="inspections/edit/:id" element={protect(<CreateInspection />, "CAN_EDIT_INSPECTION")} />
 
         {/* 3. Finance */}
-        <Route path="finance/project-costs" element={protect(<ProjectCosts />, "CAN_SEE_PROJECT_FINANCE")} />
-        <Route path="finance/project-costs/:id" element={protect(<ManageProjectCosts />, "CAN_RECORD_COST")} />
+        <Route path="project-costs" element={protect(<ProjectCosts />, "CAN_SEE_PROJECT_FINANCE")} />
+        <Route path="project-costs/:id" element={protect(<ManageProjectCosts />, "CAN_RECORD_COST")} />
 
         {/* 4. Contractors */}
         <Route path="contractors" element={protect(<Contractors />, "CAN_SEE_CONTRACT_LIST")} />
@@ -96,8 +96,7 @@ export default function AppRoutes() {
         <Route path="planning/ColorCodings/create" element={protect(<CreateColorCoding />, "CAN_REGISTER_COLOR_CODING")} />
         <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_EDIT_COLOR_CODING")} />
         <Route path="planning/ColorCodings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_COLOR_CODING")} />
-        
-
+   
         {/* 6. Reports */}
         <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_SEE_PROJECT_REPORT")} />
         <Route path="reports/task" element={protect(<TaskReportPage />, "CAN_SEE_TASK_REPORT")} />
@@ -107,7 +106,6 @@ export default function AppRoutes() {
         <Route path="reports/contractor" element={protect(<ContractorReportPage />, "CAN_SEE_CONTRACTORS_REPORT")} />
         <Route path="reports/location" element={protect(<LocationReportPage />, "CAN_SEE_LOCATION_REPORT")} />
         <Route path="reports/division" element={protect(<DivisionReportPage />, "CAN_SEE_DIVISION_REPORT")} />
-        <Route path="reports/audit-log" element={protect(<AuditLogReportPage />, "CAN_SEE_AUDIT_LOG")} />
 
         {/* 7. Sys Admin */}
         <Route path="admin/sub-cities" element={protect(<SubCities />, "CAN_SEE_SYS_ADMIN")} />
@@ -146,8 +144,9 @@ export default function AppRoutes() {
         <Route path="admin/inspection-types/edit/:id" element={protect(<CreateInspectionType />, "CAN_SEE_SYS_ADMIN")} />
 
         {/* 404 */}
-        <Route path="*" element={<div>Page Not Found</div>} />
       </Route>
+      <Route path="*" element={<div>Page Not Found</div>} />
+
     </Routes>
   );
 }

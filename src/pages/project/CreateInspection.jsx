@@ -135,7 +135,7 @@ export default function CreateInspection() {
             if (isEdit) await projectApi.UPDATE_INSPECTION_LOG(id, payload);
             else await projectApi.CREATE_INSPECTION_LOG(payload);
 
-            navigate('/projects/inspections');
+            navigate('/inspections');
         } catch (err) {
             showAlert('error', err.response?.data?.message || 'Transaction rejected by server.');
         } finally {

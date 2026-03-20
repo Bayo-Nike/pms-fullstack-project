@@ -28,7 +28,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       permission: 'CAN_SEE_DASHBOARD',
       children: [
         { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_SEE_DASHBOARD' },
-        { path: '/dashboard/org-structure', name: 'Organization Structure', permission: 'CAN_SEE_ORG_STRUCTURE' },
+        { path: '/org-structure', name: 'Organization Structure', permission: 'CAN_SEE_ORG_STRUCTURE' },
       ]
     },
     {
@@ -38,7 +38,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       permission: 'CAN_SEE_PROJECT',
       children: [
         { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
-        { path: '/projects/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
+        { path: '/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
       ]
     },
     {
@@ -49,7 +49,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       children: [
         { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACT_LIST' },
         { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_VIEW_CONTRACTS' },
-        
+
       ]
     },
     {
@@ -67,7 +67,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <ReceiptLong />,
       permission: 'CAN_SEE_FINANCE',
       children: [
-        { path: '/finance/project-costs', name: 'Project Costs', permission: 'CAN_SEE_PROJECT_FINANCE' },
+        { path: '/project-costs', name: 'Project Costs', permission: 'CAN_SEE_PROJECT_FINANCE' },
       ]
     },
     {
@@ -84,7 +84,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/reports/contractor', name: 'Contractor Report', permission: 'CAN_SEE_CONTRACTORS_REPORT' },
         { path: '/reports/location', name: 'Location Report', permission: 'CAN_SEE_LOCATION_REPORT' },
         { path: '/reports/division', name: 'Division Report', permission: 'CAN_SEE_DIVISION_REPORT' },
-        { path: '/reports/audit-log', name: 'Audit Log', permission: 'CAN_SEE_AUDIT_LOG' },
       ]
     },
     {

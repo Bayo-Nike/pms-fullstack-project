@@ -169,13 +169,16 @@ export default function Roles() {
                                                     >
                                                         <Edit style={{ fontSize: 18 }} />
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleDeleteClick(role)}
-                                                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
-                                                        title="Delete Role"
-                                                    >
-                                                        <Delete style={{ fontSize: 18 }} />
-                                                    </button>
+                                                    {
+                                                        (!(role.roleName === 'MAYOR' || role.roleName === 'MANAGER')) &&
+                                                        (<button
+                                                            onClick={() => handleDeleteClick(role)}
+                                                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
+                                                            title="Delete Role"
+                                                        >
+                                                            <Delete style={{ fontSize: 18 }} />
+                                                        </button>)
+                                                    }
                                                 </>
                                             )}
                                         </div>

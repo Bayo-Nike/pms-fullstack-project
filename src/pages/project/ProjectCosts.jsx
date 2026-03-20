@@ -173,7 +173,7 @@ export default function ProjectCosts() {
                                             </div>
                                         </td>
                                         <td className="px-8 py-5 text-right">
-                                            <button onClick={() => navigate(`/finance/project-costs/${proj.id}`)} className="p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-[#0284C7] hover:text-white transition-all shadow-sm active:scale-90">
+                                            <button onClick={() => navigate(`/project-costs/${proj.id}`)} className="p-2.5 bg-slate-100 text-slate-500 rounded-xl hover:bg-[#0284C7] hover:text-white transition-all shadow-sm active:scale-90">
                                                 <ReceiptLong style={{ fontSize: 20 }} />
                                             </button>
                                         </td>
