@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.planning.service.impl;
 
+import et.scco.pms_backend.modules.admin.controller.AuditLogController;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,19 +24,17 @@ import et.scco.pms_backend.modules.planning.model.ColorCoding;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
-import et.scco.pms_backend.utility.CustomUserDetailsService;
 import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ColorCodingServiceImpl implements ColorCodingService{
-
+ 
     private final ColorCodingRepository colorCodingRepository;
     private final SubCityServiceImpl subCityServiceImpl;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
-    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Override
@@ -187,15 +186,16 @@ public class ColorCodingServiceImpl implements ColorCodingService{
                 .map(role -> role.getRoleName())
                 .collect(Collectors.toSet());
 
-        if (userRoles.contains("SITE ENGINEER")) { // If Evaluator
-            colorCoding.setMeasuredBy(user);
-            colorCoding.PreUpdate();
-            colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
-
-        }else{ // If Planner
+        if (userRoles.contains("Sub-City Officer")) { // If Planner
             colorCoding.setCreatedBy(user);
             colorCoding.prePersist();
             colorCoding.setAchieved(colorCoding.getAchieved());
+
+        }else{ // If Evaluator
+            colorCoding.setMeasuredBy(user);
+            colorCoding.PreUpdate();
+            colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
+            
         }
 
     // 1. HANDLE DELETIONS

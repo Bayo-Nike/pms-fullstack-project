@@ -86,7 +86,6 @@ public class SubCityServiceImpl implements SubCityService {
         if (currentEmp == null){
             return null;
         }
-        System.out.println("hello");
         return currentEmp.getSubCity();
     }
 }

@@ -33,7 +33,6 @@ public class MobileUserController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         String username = auth.getName();
-        System.out.println("Username: " + username);
         return ResponseEntity.ok(authService.getProfile());
     }
 }

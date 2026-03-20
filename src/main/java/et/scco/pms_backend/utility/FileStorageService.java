@@ -48,12 +48,6 @@ public class FileStorageService {
                 Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
                 boolean deleted = Files.deleteIfExists(filePath);
                 
-                // if (deleted) {
-                //     System.out.println("Successfully deleted physical file: " + fileName);
-                // } else {
-                //     System.out.println("File not found on disk, skipping: " + fileName);
-                // }
-                
             } catch (IOException ex) {
                 System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
             }
