@@ -23,5 +23,7 @@ public interface UserRepository extends JpaRepository <User, Long> {
 
     boolean existsByEmployee_Id(Long employeeId);
 
-    List<User> findAllByRolesContaining(Set<Roles> roles);
+    // List<User> findAllByRolesContaining(Set<Roles> roles);
+    List<User> findAllByRolesIn(Set<Roles> roles);
+    
 }
