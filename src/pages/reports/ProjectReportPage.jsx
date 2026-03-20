@@ -10,28 +10,28 @@ export default function ProjectReportPage() {
   const fetchProjects = async () => {
 
     try {
-  
+
       setLoading(true);
-  
+
       const res = await projectApi.GET_PROJECTS({ page: 0, size: 1000 });
-  
+
       const pageData = res.data.data;
-  
+
       setProjects(pageData.content || []);
-      
-  
+
+
     } catch (err) {
-  
+
       console.error("Report fetch error:", err);
-  
+
     } finally {
-  
+
       setLoading(false);
-  
+
     }
-  
+
   };
-  
+
 
   useEffect(() => {
 

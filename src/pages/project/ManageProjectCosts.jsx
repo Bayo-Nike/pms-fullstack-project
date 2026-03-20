@@ -101,7 +101,7 @@ export default function ManageProjectCosts() {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm gap-6">
                 <div className="flex items-center gap-5">
-                    <button onClick={() => navigate('/finance/project-costs')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-all"><ArrowBack fontSize="small" /></button>
+                    <button onClick={() => navigate('/project-costs')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-all"><ArrowBack fontSize="small" /></button>
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-black text-[#0284C7] bg-sky-50 px-2 py-1 rounded-lg border border-sky-100 uppercase">{project.projectCode}</span>

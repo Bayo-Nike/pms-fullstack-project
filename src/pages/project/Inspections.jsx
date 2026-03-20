@@ -80,7 +80,7 @@ export default function Inspections() {
                     <div className="w-12 h-12 bg-sky-50 text-[#0284C7] rounded-2xl flex items-center justify-center shadow-inner"><FactCheck /></div>
                     <div><h1 className="text-xl font-bold text-slate-900">Quality Assurance</h1><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Inspection Registry</p></div>
                 </div>
-                <button onClick={() => navigate('/projects/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                <button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                     <Add /> Log Inspection
                 </button>
             </div>
