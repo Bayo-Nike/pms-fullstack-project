@@ -90,7 +90,6 @@ public class TaskServiceImpl implements TaskService {
             }
             taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
         }
-        System.out.println(taskEntities);
 
         if (taskEntities == null) return Collections.emptyList();
 

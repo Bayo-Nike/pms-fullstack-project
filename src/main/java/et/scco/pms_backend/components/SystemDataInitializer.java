@@ -141,6 +141,7 @@ public class SystemDataInitializer implements ApplicationRunner {
         positionRepository.save(position);
     }
 
+
     private void initModulesAndPermissions() {
 
         insertModuleWithPermissions(
@@ -154,7 +155,6 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Projects",
                 List.of(
-                        new PermissionData("CAN_SEE_PROJECT", "See Project"),
                         new PermissionData("CAN_SEE_PROJECT_LIST", "See Project List"),
                         new PermissionData("CAN_CREATE_PROJECT", "Create Project"),
                         new PermissionData("CAN_UPDATE_PROJECT", "Update Project"),
@@ -166,7 +166,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_UPDATE_TASK", "Update Task"),
                         new PermissionData("CAN_DELETE_TASK", "Delete Task"),
                         new PermissionData("CAN_SEE_INSPECTIONS", "See Inspections"),
-                        new PermissionData("CAN_VIEW_INSPECTION", "can View Inspection"),
+                        new PermissionData("CAN_VIEW_INSPECTION", "View Inspection"),
                         new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
                         new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
                         new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection")
@@ -176,7 +176,6 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Finance",
                 List.of(
-                        new PermissionData("CAN_SEE_FINANCE", "See Finance"),
                         new PermissionData("CAN_SEE_PROJECT_FINANCE", "See Project Finance"),
                         new PermissionData("CAN_RECORD_COST", "Record Cost"),
                         new PermissionData("CAN_EDIT_RECORD", "Edit Record"),
@@ -187,7 +186,6 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Contracts",
                 List.of(
-                        new PermissionData("CAN_SEE_CONTRACT", "See Contract"),
                         new PermissionData("CAN_SEE_CONTRACT_LIST", "See Contract List"),
                         new PermissionData("CAN_REGISTER_CONTRACTOR", "Register Contractor"),
                         new PermissionData("CAN_EDIT_CONTRACTOR", "Edit Contractor"),
@@ -202,12 +200,11 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Planning",
                 List.of(
-                        new PermissionData("CAN_SEE_PLANNING", "See Planning"),
                         new PermissionData("CAN_SEE_COLOR_CODING_LIST", "See Color Coding List"),
                         new PermissionData("CAN_REGISTER_COLOR_CODING", "Register Color Coding"),
                         new PermissionData("CAN_EDIT_COLOR_CODING", "Edit Color Coding"),
                         new PermissionData("CAN_DELETE_COLOR_CODING", "Delete Color Coding"),
-                        new PermissionData("CAN_VIEW_COLOR_CODING", "Can View Color Coding"),
+                        new PermissionData("CAN_VIEW_COLOR_CODING", "View Color Coding"),
                         new PermissionData("CAN_UPDATE_COLOR_CODING_ACHIEVEMENT", "Update Color Implementation")
                 )
         );
@@ -215,7 +212,6 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Reports",
                 List.of(
-                        new PermissionData("CAN_SEE_REPORT", "See Report"),
                         new PermissionData("CAN_SEE_PROJECT_REPORT", "See Project Report"),
                         new PermissionData("CAN_SEE_TASK_REPORT", "See Task Report"),
                         new PermissionData("CAN_SEE_ROLE_REPORT", "See Role Report"),
@@ -234,6 +230,101 @@ public class SystemDataInitializer implements ApplicationRunner {
                 )
         );
     }
+
+//
+//    private void initModulesAndPermissions() {
+//
+//        insertModuleWithPermissions(
+//                "Dashboard",
+//                List.of(
+//                        new PermissionData("CAN_SEE_DASHBOARD", "See Dashboard"),
+//                        new PermissionData("CAN_SEE_ORG_STRUCTURE", "See Organization Structure")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Projects",
+//                List.of(
+//                        new PermissionData("CAN_SEE_PROJECT", "See Project"),
+//                        new PermissionData("CAN_SEE_PROJECT_LIST", "See Project List"),
+//                        new PermissionData("CAN_CREATE_PROJECT", "Create Project"),
+//                        new PermissionData("CAN_UPDATE_PROJECT", "Update Project"),
+//                        new PermissionData("CAN_VIEW_PROJECT_DETAIL", "View Project Detail"),
+//                        new PermissionData("CAN_DELETE_PROJECT", "Delete Project"),
+//                        new PermissionData("CAN_EDIT_PROJECT", "Edit Project"),
+//                        new PermissionData("CAN_CREATE_TASK", "Create Task"),
+//                        new PermissionData("CAN_EDIT_TASK", "Edit Task"),
+//                        new PermissionData("CAN_UPDATE_TASK", "Update Task"),
+//                        new PermissionData("CAN_DELETE_TASK", "Delete Task"),
+//                        new PermissionData("CAN_SEE_INSPECTIONS", "See Inspections"),
+//                        new PermissionData("CAN_VIEW_INSPECTION", "can View Inspection"),
+//                        new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
+//                        new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
+//                        new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Finance",
+//                List.of(
+//                        new PermissionData("CAN_SEE_FINANCE", "See Finance"),
+//                        new PermissionData("CAN_SEE_PROJECT_FINANCE", "See Project Finance"),
+//                        new PermissionData("CAN_RECORD_COST", "Record Cost"),
+//                        new PermissionData("CAN_EDIT_RECORD", "Edit Record"),
+//                        new PermissionData("CAN_DELETE_RECORD", "Delete Record")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Contracts",
+//                List.of(
+//                        new PermissionData("CAN_SEE_CONTRACT", "See Contract"),
+//                        new PermissionData("CAN_SEE_CONTRACT_LIST", "See Contract List"),
+//                        new PermissionData("CAN_REGISTER_CONTRACTOR", "Register Contractor"),
+//                        new PermissionData("CAN_EDIT_CONTRACTOR", "Edit Contractor"),
+//                        new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor"),
+//                        new PermissionData("CAN_SEE_CONSULTANT_LIST", "See Consultant List"),
+//                        new PermissionData("CAN_REGISTER_CONSULTANT", "Register Consultant"),
+//                        new PermissionData("CAN_EDIT_CONSULTANT", "Edit Consultant"),
+//                        new PermissionData("CAN_DELETE_CONSULTANT", "Delete Consultant")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Planning",
+//                List.of(
+//                        new PermissionData("CAN_SEE_PLANNING", "See Planning"),
+//                        new PermissionData("CAN_SEE_COLOR_CODING_LIST", "See Color Coding List"),
+//                        new PermissionData("CAN_REGISTER_COLOR_CODING", "Register Color Coding"),
+//                        new PermissionData("CAN_EDIT_COLOR_CODING", "Edit Color Coding"),
+//                        new PermissionData("CAN_DELETE_COLOR_CODING", "Delete Color Coding"),
+//                        new PermissionData("CAN_VIEW_COLOR_CODING", "Can View Color Coding"),
+//                        new PermissionData("CAN_UPDATE_COLOR_CODING_ACHIEVEMENT", "Update Color Implementation")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Reports",
+//                List.of(
+//                        new PermissionData("CAN_SEE_REPORT", "See Report"),
+//                        new PermissionData("CAN_SEE_PROJECT_REPORT", "See Project Report"),
+//                        new PermissionData("CAN_SEE_TASK_REPORT", "See Task Report"),
+//                        new PermissionData("CAN_SEE_ROLE_REPORT", "See Role Report"),
+//                        new PermissionData("CAN_SEE_EMPLOYEE_REPORT", "See Employee Report"),
+//                        new PermissionData("CAN_SEE_USER_REPORT", "See User Report"),
+//                        new PermissionData("CAN_SEE_CONTRACTORS_REPORT", "See Contractors Report"),
+//                        new PermissionData("CAN_SEE_LOCATION_REPORT", "See Location Report"),
+//                        new PermissionData("CAN_SEE_DIVISION_REPORT", "See Division Report")
+//                )
+//        );
+//
+//        insertModuleWithPermissions(
+//                "Sys Admin",
+//                List.of(
+//                        new PermissionData("CAN_SEE_SYS_ADMIN", "See System Admin")
+//                )
+//        );
+//    }
 
     private void insertModuleWithPermissions(String moduleName,
                                              List<PermissionData> permissions) {
