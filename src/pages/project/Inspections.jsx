@@ -132,7 +132,7 @@ export default function Inspections() {
                                     <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => navigate(`/projects/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"><Edit style={{ fontSize: 20 }} /></button>
+                                            <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"><Edit style={{ fontSize: 20 }} /></button>
                                             <button onClick={() => setDeleteConfig({ show: true, id: log.id })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Delete style={{ fontSize: 20 }} /></button>
                                         </div>
                                     </td>
