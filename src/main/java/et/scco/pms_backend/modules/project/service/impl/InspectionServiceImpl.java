@@ -4,6 +4,8 @@ import et.scco.pms_backend.enums.InspectionLevel;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.InspectionType;
 import et.scco.pms_backend.modules.admin.repository.InspectionTypesRepository;
+import et.scco.pms_backend.modules.admin.service.NotificationService;
+import et.scco.pms_backend.modules.admin.service.UserService;
 import et.scco.pms_backend.modules.project.dto.request.InspectionRequestDto;
 import et.scco.pms_backend.modules.project.dto.response.InspectionResponseDto;
 import et.scco.pms_backend.modules.project.model.Inspection;
@@ -31,6 +33,8 @@ public class InspectionServiceImpl implements InspectionService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final AuthContext authContext;
+    private final UserService userService;
+    private final NotificationService notificationService;
 
 
     @Override
@@ -62,6 +66,15 @@ public class InspectionServiceImpl implements InspectionService {
         updateInspectionEntity(inspection, dto);
 
         Inspection saved = inspectionRepository.save(inspection);
+
+        //send notification
+        notificationService.sendNotification(
+                authContext.getUsername(),
+                userService.getManagerUserName(),
+                "Project inspection result",
+                "inspections/edit/"+saved.getId()
+        );
+
         return mapToResponseDto(saved);
     }
 
@@ -107,7 +120,7 @@ public class InspectionServiceImpl implements InspectionService {
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
         Employee employee = null;
-        if (!authContext.isSystemUser()) {
+        if (!authContext.isSuperAdmin()) {
             employee = authContext.getEmployee();
         }
 

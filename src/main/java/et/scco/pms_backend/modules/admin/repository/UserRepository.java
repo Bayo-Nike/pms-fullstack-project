@@ -1,13 +1,14 @@
 package et.scco.pms_backend.modules.admin.repository;
 
+import et.scco.pms_backend.modules.admin.model.Roles;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import et.scco.pms_backend.modules.admin.model.User;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRepository extends JpaRepository <User, Long> {
 
@@ -20,7 +21,7 @@ public interface UserRepository extends JpaRepository <User, Long> {
     // Option A: Derived Method Name
     long countByEmployeeSubCityId(Long subCityId);
 
-    // Option B: Explicit JPQL (Recommended for clarity)
-    // @Query("SELECT COUNT(u) FROM User u WHERE u.employee.subCity.id = :subCityId")
-    // long countUsersBySubCity(@Param("subCityId") Long subCityId);
+    boolean existsByEmployee_Id(Long employeeId);
+
+    List<User> findAllByRolesContaining(Set<Roles> roles);
 }

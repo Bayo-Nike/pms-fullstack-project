@@ -49,7 +49,11 @@ public class AuthContext {
                 .stream()
                 .allMatch(role -> role.getRoleName().equals("MAYOR"));
     }
-    public boolean isSystemUser() {
-        return getUser().getUserType() == UserType.SYSTEM;
+
+    public boolean isManager(){
+        return getUser()
+                .getRoles()
+                .stream()
+                .allMatch(roles -> roles.getRoleName().equals("MANAGER"));
     }
 }

@@ -41,17 +41,15 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
-        // return projectRepository.findAll(pageable).map(this::mapToDTO); 
 
-        // 1. Get current user's Sub-City using a helper
         SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
 
-        // 2. Fetch data based on Sub-City (Conditional logic)
         Page<Project> projectPage;
+
         if (userSubCity != null) {
-            projectPage = projectRepository.findBySubCity(userSubCity, pageable); // User belongs to a specific sub-city: filter with pagination
+            projectPage = projectRepository.findBySubCity(userSubCity, pageable);
         } else {
-            projectPage = projectRepository.findAll(pageable); // Admin user: get all with pagination
+            projectPage = projectRepository.findAll(pageable);
         }
 
         // 3. Map the Page of Entities to Page of DTOs
@@ -73,6 +71,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         if (projectRepository.existsByTitleAndSubCityId(dto.getTitle(), dto.getSubCityId())) {
             throw new RuntimeException("Project already exists in this sub-city");
+        }
+
+        if (projectRepository.existsByProjectCode(dto.getProjectCode())){
+            throw new RuntimeException("Project code exists");
         }
 
         Project project = new Project();
@@ -124,19 +126,6 @@ public class ProjectServiceImpl implements ProjectService {
         return mapToDTO(project);
     }
 
-    @Transactional
-    @Override
-    public ProjectResponseDTO assignManager(Long projectId, Long managerId) {
-        // fetch project and employee, set projectManager
-        return null; // implement
-    }
-
-    @Transactional
-    @Override
-    public ProjectResponseDTO assignEmployees(Long projectId, List<Long> employeeIds) {
-        // fetch project, fetch employees, set employees list
-        return null; // implement
-    }
 
     @Transactional
     @Override

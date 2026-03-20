@@ -53,5 +53,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        long countBySubCityId(Long subCityId);
 
 
-       
+    boolean existsByProjectCode(String projectCode);
 }

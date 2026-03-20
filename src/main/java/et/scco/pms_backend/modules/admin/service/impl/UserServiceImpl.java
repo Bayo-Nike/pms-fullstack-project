@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.admin.service.impl;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import et.scco.pms_backend.enums.UserType;
@@ -33,6 +34,10 @@ public class UserServiceImpl  implements UserService{
     @Override
     public UserResponseDTO createUser(UserCreateRequest userRequestDTO)
     {
+        if (userRepository.existsByEmployee_Id(userRequestDTO.getEmployeeId())){
+            throw new RuntimeException("User already exists");
+        }
+
         Employee employee = employeeService.findEmployee(userRequestDTO.getEmployeeId());
         User user = UserMapper.mapToUser(userRequestDTO, employee);
 
@@ -44,6 +49,7 @@ public class UserServiceImpl  implements UserService{
             List<Roles> roles = roleRepository.findAllById(userRequestDTO.getRoleIds());
             user.setRoles(new HashSet<>(roles));
         }
+
 
         User savedUser = userRepository.save(user);
 
@@ -103,5 +109,17 @@ public class UserServiceImpl  implements UserService{
         }
 
         userRepository.delete(user);
+    }
+
+
+    @Override
+    public String getManagerUserName(){
+        List<User> users = userRepository.findAllByRolesContaining(
+                Set.of(roleRepository.findByRoleName("MANAGER").orElseThrow())
+        );
+        if (users == null){
+            return null;
+        }
+        return users.getFirst().getUsername();
     }
 }

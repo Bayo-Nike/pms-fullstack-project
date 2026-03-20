@@ -25,10 +25,6 @@ public interface ProjectService {
 
     ProjectResponseDTO updatePriority(Long id, String priority);
 
-    ProjectResponseDTO assignManager(Long projectId, Long managerId);
-
-    ProjectResponseDTO assignEmployees(Long projectId, List<Long> employeeIds);
-
     ProjectResponseDTO updateBudget(Long projectId, Double budget, Double budgetUsed);
 
     ProjectResponseDTO updateTimeline(Long projectId, LocalDate startDate, LocalDate endDate);
