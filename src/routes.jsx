@@ -45,7 +45,6 @@ import UserReportPage from './pages/reports/UserReportPage';
 import LocationReportPage from './pages/reports/LocationReportPage';
 import DivisionReportPage from './pages/reports/DivisionReportPage';
 import ContractorReportPage from './pages/reports/ContractorReportPage';
-import AuditLogReportPage from './pages/reports/AuditLogReportPage';
 import Consultancies from './pages/admin/Consultancies';
 import CreateConsultant from './pages/admin/CreateConsultancies';
 
@@ -76,6 +75,7 @@ export default function AppRoutes() {
         {/* Inspections */}
         <Route path="inspections" element={protect(<Inspections />, "CAN_SEE_INSPECTIONS")} />
         <Route path="inspections/create" element={protect(<CreateInspection />, "CAN_LOG_INSPECTION")} />
+        <Route path='inspections/:id' element={protect(<CreateInspection />, "CAN_VIEW_INSPECTION")} />
         <Route path="inspections/edit/:id" element={protect(<CreateInspection />, "CAN_EDIT_INSPECTION")} />
 
         {/* 3. Finance */}
@@ -86,9 +86,10 @@ export default function AppRoutes() {
         <Route path="contractors" element={protect(<Contractors />, "CAN_SEE_CONTRACT_LIST")} />
         <Route path="contractors/create" element={protect(<CreateContractor />, "CAN_REGISTER_CONTRACTOR")} />
         <Route path="contractors/edit/:id" element={protect(<CreateContractor />, "CAN_EDIT_CONTRACTOR")} />
-        <Route path="consultancy" element={protect(<Consultancies />, "CAN_SEE_CONTRACT_LIST")} />
-        <Route path="consultancy/create" element={protect(<CreateConsultant />, "CAN_REGISTER_CONTRACTOR")} />
-        <Route path="consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_EDIT_CONTRACTOR")} />
+
+        <Route path="consultancy" element={protect(<Consultancies />, "CAN_SEE_CONSULTANT_LIST")} />
+        <Route path="consultancy/create" element={protect(<CreateConsultant />, "CAN_REGISTER_CONSULTANT")} />
+        <Route path="consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_EDIT_CONSULTANT")} />
 
 
         {/* 5. Planning */}
@@ -96,7 +97,7 @@ export default function AppRoutes() {
         <Route path="planning/ColorCodings/create" element={protect(<CreateColorCoding />, "CAN_REGISTER_COLOR_CODING")} />
         <Route path="planning/ColorCodings/edit/:id" element={protect(<CreateColorCoding />, "CAN_EDIT_COLOR_CODING")} />
         <Route path="planning/ColorCodings/details/:id" element={protect(<ColorCodingDetails />, "CAN_VIEW_COLOR_CODING")} />
-   
+
         {/* 6. Reports */}
         <Route path="reports/project" element={protect(<ProjectReportPage />, "CAN_SEE_PROJECT_REPORT")} />
         <Route path="reports/task" element={protect(<TaskReportPage />, "CAN_SEE_TASK_REPORT")} />
