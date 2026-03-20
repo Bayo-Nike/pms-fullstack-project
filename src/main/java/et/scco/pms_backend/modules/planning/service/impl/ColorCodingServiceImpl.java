@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.planning.service.impl;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import et.scco.pms_backend.modules.auth.AuthUtility;
@@ -22,6 +23,7 @@ import et.scco.pms_backend.modules.planning.model.ColorCoding;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
+import et.scco.pms_backend.utility.CustomUserDetailsService;
 import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +35,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     private final SubCityServiceImpl subCityServiceImpl;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final CustomUserDetailsService customUserDetailsService;
 
 
     @Override
@@ -173,18 +176,27 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         // 7. Update fields on the entity
         colorCoding.setFiscalYear(colorCodingRequestDTO.getFiscalYear());
         colorCoding.setTarget(colorCodingRequestDTO.getTarget());
-        colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
+        
         colorCoding.setPlanType(PlanType.valueOf(colorCodingRequestDTO.getPlanType()));
         colorCoding.setBuildingType(BuildingType.valueOf(colorCodingRequestDTO.getBuildingType()));
         colorCoding.setQuarter(quarterValue); // Set the safe value (will be null for YEARLY)
         colorCoding.setSubCity(targetSubCity);
         colorCoding.setCity(subCityServiceImpl.getCity());
 
-        // if creater
-        colorCoding.setCreatedBy(user);
+        Set<String> userRoles = user.getRoles().stream()
+                .map(role -> role.getRoleName())
+                .collect(Collectors.toSet());
 
-        // if evaluator
-        // colorCoding.setCreatedBy(user);
+        if (userRoles.contains("SITE ENGINEER")) { // If Evaluator
+            colorCoding.setMeasuredBy(user);
+            colorCoding.PreUpdate();
+            colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
+
+        }else{ // If Planner
+            colorCoding.setCreatedBy(user);
+            colorCoding.prePersist();
+            colorCoding.setAchieved(colorCoding.getAchieved());
+        }
 
     // 1. HANDLE DELETIONS
     if (colorCodingRequestDTO.getDeletedFileIds() != null && !colorCodingRequestDTO.getDeletedFileIds().isEmpty()) {
@@ -221,6 +233,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);
     }
+
 
     @Override
     public void deleteColorCode(Long colorCodeId) {

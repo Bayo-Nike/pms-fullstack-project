@@ -73,9 +73,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setPosition(position);
         employee.setCity(subCityService.getCity());
 
-        if(dto.getSubCityId() > 0){
+        if(dto.getSubCityId() !=null && dto.getSubCityId() > 0){
             employee.setSubCity(subCityService.getSubCityEntity(dto.getSubCityId()));
+        }else{
+            employee.setSubCity(null);
         }
+        
         employee.setStatus(employeeStatus);
         Employee updated = employeeRepository.save(employee);
 

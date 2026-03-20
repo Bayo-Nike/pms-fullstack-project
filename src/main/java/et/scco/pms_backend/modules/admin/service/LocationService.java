@@ -4,8 +4,6 @@ package et.scco.pms_backend.modules.admin.service;
 import et.scco.pms_backend.modules.admin.dto.request.LocationRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.LocationResponseDTO;
 import et.scco.pms_backend.modules.admin.model.Location;
-import et.scco.pms_backend.modules.admin.model.SubCity;
-
 import java.util.List;
 
 public interface LocationService {
