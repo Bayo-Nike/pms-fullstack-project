@@ -86,7 +86,9 @@ public class InspectionServiceImpl implements InspectionService {
 
         updateInspectionEntity(inspection, dto);
 
+        System.out.println("6");
         Inspection updated = inspectionRepository.save(inspection);
+        System.out.println("7");
         return mapToResponseDto(updated);
     }
 
