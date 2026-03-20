@@ -114,7 +114,7 @@ export default function CreateSubCity() {
                     disabled={saving}
                     className="bg-[#0284C7] text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50"
                 >
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : isEdit ? 'UPDATE NAME' : 'COMMIT REGISTRATION'}
+                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : isEdit ? 'UPDATE SUB-CITY' : 'COMMIT REGISTRATION'}
                 </button>
             </div>
 

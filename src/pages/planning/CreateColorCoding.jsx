@@ -25,7 +25,7 @@ export default function CreateTarget() {
   const isEdit = Boolean(id);
 
   const { can } = useAuth();
-  const canManageRoles = can('CAN_MANAGE_ROLES');
+  const canUpdateColorCodingImplementation = can('CAN_UPDATE_COLOR_CODING_ACHIEVEMENT');
 
   // --- FORM DATA STATE ---
   const [formData, setFormData] = useState({
@@ -146,7 +146,7 @@ export default function CreateTarget() {
       payload.append('buildingType', formData.buildingType);
       payload.append('target', formData.target);
       
-      if (canManageRoles && formData.achieved !== '') {
+      if (canUpdateColorCodingImplementation && formData.achieved !== '') {
           payload.append('achieved', formData.achieved);
       }
 
@@ -252,9 +252,9 @@ export default function CreateTarget() {
               <select
                 name="subCityId"
                 value={formData.subCityId}
-                onChange={!canManageRoles ? handleInputChange : undefined}
-                disabled={canManageRoles}
-                className={`flex-1 text-sm font-semibold px-4 py-3 border rounded-xl outline-none ${canManageRoles ? 'bg-slate-50' : 'bg-white border-slate-200'}`}
+                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+                disabled={canUpdateColorCodingImplementation}
+                className={`flex-1 text-sm font-semibold px-4 py-3 border rounded-xl outline-none ${canUpdateColorCodingImplementation ? 'bg-slate-50' : 'bg-white border-slate-200'}`}
               >
                 <option value="">-- Select Sub-City --</option>
                 {subCities.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
@@ -268,8 +268,8 @@ export default function CreateTarget() {
               <select
                 name="fiscalYear"
                 value={formData.fiscalYear}
-                onChange={!canManageRoles ? handleInputChange : undefined}
-                disabled={canManageRoles}
+                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+                disabled={canUpdateColorCodingImplementation}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
               >
                 <option value="">-- Select Year --</option>
@@ -281,8 +281,8 @@ export default function CreateTarget() {
               <select
                 name="buildingType"
                 value={formData.buildingType}
-                onChange={!canManageRoles ? handleInputChange : undefined}
-                disabled={canManageRoles}
+                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+                disabled={canUpdateColorCodingImplementation}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
               >
                 <option value="">-- Select Type --</option>
@@ -298,8 +298,8 @@ export default function CreateTarget() {
             <select
               name="planType"
               value={formData.planType}
-              onChange={!canManageRoles ? handleInputChange : undefined}
-              disabled={canManageRoles}
+              onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+              disabled={canUpdateColorCodingImplementation}
               className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
             >
               <option value="">-- Select Modal --</option>
@@ -314,8 +314,8 @@ export default function CreateTarget() {
               <select
                 name="quarter"
                 value={formData.quarter}
-                onChange={!canManageRoles ? handleInputChange : undefined}
-                disabled={canManageRoles}
+                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+                disabled={canUpdateColorCodingImplementation}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-amber-50/20 border-amber-200"
               >
                 <option value="">-- Select --</option>
@@ -334,14 +334,14 @@ export default function CreateTarget() {
               name="target"
               type="number"
               value={formData.target}
-              onChange={!canManageRoles ? handleInputChange : undefined}
-              readOnly={canManageRoles}
+              onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
+              readOnly={canUpdateColorCodingImplementation}
               className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200 focus:border-[#0284C7]"
               placeholder="Enter numerical target"
             />
           </div>
 
-          {canManageRoles && (
+          {canUpdateColorCodingImplementation && (
             <>
               <div className="space-y-1.5">
                 <label className="text-[9px] font-bold uppercase text-[#0284C7] tracking-[0.2em] ml-1">Achieved Value</label>

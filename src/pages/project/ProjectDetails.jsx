@@ -622,7 +622,9 @@ export default function ProjectDetails() {
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                     <div className="flex items-center gap-3"><div className="w-10 h-10 bg-[#0284C7] text-white rounded-2xl flex items-center justify-center shadow-lg"><Assignment /></div><div><h2 className="text-lg font-bold text-slate-900 leading-none">Task Registry</h2><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Lifecycle Tracking</p></div></div>
+                    {can('CAN_CREATE_TASK') && (
                     <button onClick={() => { setEditingTask(null); setTaskFormData({ taskName: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg flex items-center gap-2 transition-all active:scale-95"><Add style={{ fontSize: 18 }} /> New Task</button>
+                    )}
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left"><thead className="bg-slate-50 text-[9px] font-bold text-slate-400 uppercase tracking-widest"><tr><th className="px-8 py-4">Task Component</th><th className="px-6 py-4 text-center">Weight</th><th className="px-6 py-4 text-center">Status</th><th className="px-8 py-4 text-right">Actions</th></tr></thead>

@@ -35,6 +35,10 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
       header: "Type"
     },
     {
+      accessorKey: "employeeNames",
+      header: "Employee"
+    },
+    {
       accessorKey: "status",
       header: "Status"
     },
