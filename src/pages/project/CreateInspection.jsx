@@ -166,7 +166,7 @@ export default function CreateInspection() {
             {/* Action Bar */}
             <div className="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <button onClick={() => navigate('/projects/inspections')} className="p-2.5 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+                    <button onClick={() => navigate('/inspections')} className="p-2.5 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Results' : 'Perform Quality Check'}</h1>
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standardized QC Entry</p>
