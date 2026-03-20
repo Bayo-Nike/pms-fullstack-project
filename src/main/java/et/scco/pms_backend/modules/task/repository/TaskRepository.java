@@ -39,13 +39,13 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 //     long countTasksBySubCity(@Param("subCityId") Long subCityId);
 
 
-        @Query("SELECT DISTINCT t FROM Task t " +
+        @Query("SELECT t FROM Task t " +
                 "LEFT JOIN FETCH t.project " +
                 "LEFT JOIN FETCH t.locations " +
                 "LEFT JOIN FETCH t.employees")
         List<Task> findAllWithDetails();
 
-        @Query("SELECT DISTINCT t FROM Task t " +
+        @Query("SELECT t FROM Task t " +
                 "LEFT JOIN FETCH t.project " +
                 "LEFT JOIN FETCH t.locations " +
                 "JOIN t.employees e " +

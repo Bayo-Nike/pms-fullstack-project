@@ -85,11 +85,12 @@ public class TaskServiceImpl implements TaskService {
         } else {
             // 2. Regular Employee path
             Employee sessionEmployee = authContext.getEmployee();
-            if (sessionEmployee == null || sessionEmployee.getId() == null) {
+            if (sessionEmployee == null) {
                 return Collections.emptyList();
             }
             taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
         }
+        System.out.println(taskEntities);
 
         if (taskEntities == null) return Collections.emptyList();
 
@@ -167,19 +168,6 @@ public class TaskServiceImpl implements TaskService {
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
         Page<Task> taskPage;
         taskPage = taskRepository.findAll(pageable);
-    //    // 1. Get current user's Sub-City using a helper
-    //     SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
-
-    //     // 2. Fetch data based on Sub-City (Conditional logic)
-    //     Page<Task> taskPage;
-    //     if (userSubCity != null) {
-    //         taskPage = taskRepository.findBySubCity(userSubCity, pageable); // User belongs to a specific sub-city: filter with pagination
-    //     } else {
-    //         taskPage = taskRepository.findAll(pageable); // Admin user: get all with pagination
-    //     }
-
-    //     // 3. Map the Page of Entities to Page of DTOs
-    //     // This maintains pagination metadata (totalPages, totalElements) for the frontend
         return taskPage.map(this::mapToDTO);
     }
 }

@@ -229,8 +229,6 @@ public class ProjectServiceImpl implements ProjectService {
             dto.setEmployeeNames(employees.stream().map(Employee::getFullName).toList());
         }
 
-        System.out.println(dto);
-
         return dto;
     }
 

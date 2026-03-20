@@ -166,6 +166,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_UPDATE_TASK", "Update Task"),
                         new PermissionData("CAN_DELETE_TASK", "Delete Task"),
                         new PermissionData("CAN_SEE_INSPECTIONS", "See Inspections"),
+                        new PermissionData("CAN_VIEW_INSPECTION", "can View Inspection"),
                         new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
                         new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
                         new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection")
