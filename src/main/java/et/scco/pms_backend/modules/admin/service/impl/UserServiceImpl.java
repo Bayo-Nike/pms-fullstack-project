@@ -117,7 +117,7 @@ public class UserServiceImpl  implements UserService{
         List<User> users = userRepository.findAllByRolesIn(
                 Set.of(roleRepository.findByRoleName("MANAGER").orElseThrow())
         );
-        System.out.println("---"+users);
+        
         if (users == null){
             return null;
         }
