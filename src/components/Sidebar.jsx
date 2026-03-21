@@ -17,15 +17,13 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
     setOpenMenu(openMenu === menuName ? '' : menuName);
   };
 
-  // ===========================
-  // MENU WITH MODULE-LEVEL PERMISSIONS
-  // ===========================
+
+
   const fullMenuGroups = [
     {
       id: 'dashboard',
       name: 'Dashboard',
       icon: <Dashboard />,
-      permission: 'CAN_SEE_DASHBOARD',
       children: [
         { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_SEE_DASHBOARD' },
         { path: '/org-structure', name: 'Organization Structure', permission: 'CAN_SEE_ORG_STRUCTURE' },
@@ -35,7 +33,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       id: 'projects',
       name: 'Projects',
       icon: <Assignment />,
-      permission: 'CAN_SEE_PROJECT',
       children: [
         { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
         { path: '/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
@@ -45,18 +42,15 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       id: 'contracts-consultancies',
       name: 'Contracts & Consultancies',
       icon: <Handshake />,
-      permission: 'CAN_SEE_CONTRACT',
       children: [
         { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACT_LIST' },
-        { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_VIEW_CONTRACTS' },
-
+        { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_SEE_CONSULTANT_LIST' },
       ]
     },
     {
       id: 'planning',
       name: 'Planning',
       icon: <ReceiptLong />,
-      permission: 'CAN_SEE_PLANNING',
       children: [
         { path: '/planning/ColorCodings', name: 'Color Codings', permission: 'CAN_SEE_COLOR_CODING_LIST' },
       ]
@@ -65,7 +59,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       id: 'finance',
       name: 'Finance',
       icon: <ReceiptLong />,
-      permission: 'CAN_SEE_FINANCE',
       children: [
         { path: '/project-costs', name: 'Project Costs', permission: 'CAN_SEE_PROJECT_FINANCE' },
       ]
@@ -74,7 +67,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       id: 'reports',
       name: 'Reports',
       icon: <Report />,
-      permission: 'CAN_SEE_REPORT',
       children: [
         { path: '/reports/project', name: 'Project Report', permission: 'CAN_SEE_PROJECT_REPORT' },
         { path: '/reports/task', name: 'Task Report', permission: 'CAN_SEE_TASK_REPORT' },
@@ -90,7 +82,6 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       id: 'admin',
       name: 'Sys Admin',
       icon: <Settings />,
-      permission: 'CAN_SEE_SYS_ADMIN',
       children: [
         { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_SYS_ADMIN' },
@@ -111,13 +102,13 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
   // ===========================
   const menuGroups = useMemo(() => {
     return fullMenuGroups
-      .filter(group => can(group.permission))
       .map(group => ({
         ...group,
         children: group.children.filter(child => can(child.permission))
       }))
       .filter(group => group.children.length > 0);
   }, [can]);
+
 
   const sidebarWidth = isMobile ? 'w-[280px]' : (isCollapsed ? 'w-[80px]' : 'w-[285px]');
 

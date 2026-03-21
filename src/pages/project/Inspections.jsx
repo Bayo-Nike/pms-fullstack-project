@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Add, FactCheck, Person,
-    ChevronLeft, ChevronRight, Edit, Delete, HelpOutline
+    ChevronLeft, ChevronRight, Edit, Delete, HelpOutline,
+    Visibility, Close, Description, Assignment, Layers, EventNote
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -16,16 +17,18 @@ export default function Inspections() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(5);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
 
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null });
+
+    // View Modal State
+    const [viewModal, setViewModal] = useState({ show: false, log: null });
 
     useEffect(() => { fetchLogs(); }, []);
 
     const fetchLogs = async () => {
         try {
-            // Now calling /api/inspections (No /admin prefix)
             const res = await projectApi.GET_INSPECTION_LOGS();
             const data = res.data?.data?.content || res.data?.data || [];
             setLogs(data);
@@ -59,12 +62,79 @@ export default function Inspections() {
 
     return (
         <div className="w-full space-y-6 pb-12 px-4 animate-fadeIn relative">
+
+            {/* VIEW DETAIL MODAL */}
+            {viewModal.show && viewModal.log && (
+                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn p-4">
+                    <div className="bg-white rounded-[32px] shadow-2xl border border-slate-100 w-full max-w-lg overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-[#0284C7] text-white flex items-center justify-center">
+                                    <FactCheck />
+                                </div>
+                                <div>
+                                    <h3 className="font-black text-slate-800 uppercase tracking-tight">Inspection Record</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID: #{viewModal.log.id}</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setViewModal({ show: false, log: null })} className="p-2 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
+                        </div>
+
+                        <div className="p-8 space-y-6 overflow-y-auto">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Context Level</p>
+                                    <span className={`inline-block text-[10px] font-black px-2 py-1 rounded border uppercase ${viewModal.log.inspectionLevel === 'TASK' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
+                                        {viewModal.log.inspectionLevel}
+                                    </span>
+                                </div>
+                                <div className="space-y-1 text-right">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Template Type</p>
+                                    <p className="text-sm font-bold text-slate-700">{viewModal.log.inspectionTypeName}</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><Assignment fontSize="small" /> Project Association</p>
+                                <p className="text-sm font-semibold text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">{viewModal.log.projectTitle}</p>
+                            </div>
+
+                            {viewModal.log.taskName && (
+                                <div className="space-y-2">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><Layers fontSize="small" /> Task Component</p>
+                                    <p className="text-sm font-semibold text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">{viewModal.log.taskName}</p>
+                                </div>
+                            )}
+
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2"><Description fontSize="small" /> Results & Observations</p>
+                                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 min-h-[100px]">
+                                    <p className="text-sm text-slate-600 leading-relaxed italic">{viewModal.log.inspectionResult}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-4 border-t border-slate-50">
+                                <div className="flex items-center gap-2 text-slate-500">
+                                    <Person style={{ fontSize: 16 }} />
+                                    <span className="text-xs font-bold">{viewModal.log.employeeName}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-slate-400">
+                                    <EventNote style={{ fontSize: 16 }} />
+                                    <span className="text-[10px] font-bold uppercase">{viewModal.log.inspectionDate}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* DELETE MODAL */}
             {deleteConfig.show && (
                 <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
                     <div className="bg-white rounded-[32px] shadow-2xl p-10 max-w-sm w-full mx-4 text-center border">
                         <HelpOutline className="text-red-500 mb-6 mx-auto" style={{ fontSize: 64 }} />
                         <h3 className="text-xl font-bold uppercase tracking-tight text-slate-800">Confirm Deletion</h3>
-                        <p className="text-sm text-slate-500 mt-2">Permanently remove this inspection log?</p>
+                        <p className="text-sm text-slate-500 mt-2 leading-relaxed">Permanently remove this inspection log?</p>
                         <div className="flex gap-4 mt-10">
                             <button onClick={() => setDeleteConfig({ show: false })} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-bold uppercase tracking-widest hover:bg-slate-50">Cancel</button>
                             <button onClick={executeDelete} className="flex-1 px-4 py-3 rounded-2xl bg-red-500 text-white text-[11px] font-bold uppercase tracking-widest shadow-lg">Delete</button>
@@ -75,21 +145,23 @@ export default function Inspections() {
 
             <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
 
+            {/* Header Area */}
             <div className="flex items-center justify-between bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-sky-50 text-[#0284C7] rounded-2xl flex items-center justify-center shadow-inner"><FactCheck /></div>
                     <div><h1 className="text-xl font-bold text-slate-900">Quality Assurance</h1><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Inspection Registry</p></div>
                 </div>
-                <button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                <button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg shadow-sky-100 transition-all active:scale-95">
                     <Add /> Log Inspection
                 </button>
             </div>
 
+            {/* Table Area */}
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-50 bg-slate-50/20">
                     <div className="relative max-w-md w-full">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 20 }} />
-                        <input type="text" placeholder="Search logs..." className="w-full pl-12 pr-6 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-[#0284C7]" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} />
+                        <input type="text" placeholder="Search logs..." className="w-full pl-12 pr-6 py-3.5 bg-white border border-slate-200 rounded-2xl text-sm font-medium outline-none focus:border-[#0284C7] transition-all" value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} />
                     </div>
                 </div>
 
@@ -111,7 +183,7 @@ export default function Inspections() {
                                 <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-5">
                                         <div className="flex flex-col">
-                                            <span className={`w-fit text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter ${log.taskName ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
+                                            <span className={`w-fit text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter ${log.inspectionLevel === 'TASK' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
                                                 {log.inspectionLevel}
                                             </span>
                                             <span className="text-[11px] font-bold text-slate-700 mt-1 truncate max-w-[150px]">{log.taskName || log.projectTitle}</span>
@@ -132,8 +204,9 @@ export default function Inspections() {
                                     <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"><Edit style={{ fontSize: 20 }} /></button>
-                                            <button onClick={() => setDeleteConfig({ show: true, id: log.id })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"><Delete style={{ fontSize: 20 }} /></button>
+                                            <button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Full Log"><Visibility style={{ fontSize: 20 }} /></button>
+                                            <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Entry"><Edit style={{ fontSize: 20 }} /></button>
+                                            <button onClick={() => setDeleteConfig({ show: true, id: log.id })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Log"><Delete style={{ fontSize: 20 }} /></button>
                                         </div>
                                     </td>
                                 </tr>
