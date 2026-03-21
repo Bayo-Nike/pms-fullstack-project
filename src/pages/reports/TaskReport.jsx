@@ -17,6 +17,7 @@ export default function TaskReport({ data = [], loading, onRefresh }) {
 
   const columns = useMemo(
     () => [
+      { accessorKey: "sno", header: "S/No" },
       { accessorKey: "taskName", header: "Task Name", enableSorting: true },
       { accessorKey: "project", header: "Project", enableSorting: true },
       { accessorKey: "employees", header: "Employees", enableSorting: true },

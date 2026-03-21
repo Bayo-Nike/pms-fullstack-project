@@ -20,13 +20,15 @@ export default function TaskReportPage() {
     try {
       const res = await taskApi.GET_TASKS({ page: 0, size: 1000 });
       const pageData = res.data.data;
+      console.log(pageData)
 
       // Transform for display/export
-      const transformedTasks = (pageData?.content || []).map(task => ({
+      const transformedTasks = (pageData?.content || []).map((task,index) => ({
+        sno: index + 1,
         id: task.id,
         taskName: task.taskName,
         project: task.projectTitle || `Project ID: ${task.projectId}`,
-        employees: (task.employeeIds || []).join(", "),
+        employees: (task.employeeNames || []).join(", "),
     // .map(eid => projectStaff.find(emp => emp.id === eid)?.fullName)
     // .filter(Boolean)
     // .join(", "),
