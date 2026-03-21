@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.project.service;
 
+import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
@@ -11,7 +12,9 @@ import java.util.List;
 
 public interface ProjectService {
 
-    Page<ProjectResponseDTO> getAllProjects(Pageable pageable);
+//    Page<ProjectResponseDTO> getAllProjects(Pageable pageable);
+
+    Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable);
 
     ProjectResponseDTO getProject(Long id);
 
