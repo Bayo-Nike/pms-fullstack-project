@@ -108,7 +108,7 @@
 //             const payload = {
 //                 ...formData,
 //                 subCityId: Number(formData.subCityId),
-//                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
+//                 projectId: formData.projectId ? Number(formData.projectManagerId) : null,
 //                 contractorId: formData.contractorId ? Number(formData.contractorId) : null,
 //                 budget: parseFloat(formData.budget || 0),
 //                 budgetUsed: parseFloat(formData.budgetUsed || 0)

@@ -132,7 +132,9 @@ export default function CreateInspection() {
                 inspectionResult: formData.inspectionResult.trim()
             };
 
+            console.log(payload);
             if (isEdit) await projectApi.UPDATE_INSPECTION_LOG(id, payload);
+            
             else await projectApi.CREATE_INSPECTION_LOG(payload);
 
             navigate('/inspections');
