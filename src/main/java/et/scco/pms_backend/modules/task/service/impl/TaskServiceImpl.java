@@ -144,8 +144,12 @@ public class TaskServiceImpl implements TaskService {
         dto.setId(task.getId());
         dto.setTaskName(task.getTaskName());
         dto.setProjectId(task.getProject() != null ? task.getProject().getId() : null);
+        dto.setProjectTitle(task.getProject() != null ? task.getProject().getTitle() : null);
 
         dto.setEmployeeIds(task.getEmployees().stream().map(Employee::getId).toList());
+        if (dto.getEmployeeIds() != null || !dto.getEmployeeIds().isEmpty()) {
+            dto.setEmployeeNames(task.getEmployees().stream().map(Employee::getFullName).toList());
+        }
 
         dto.setStartDate(task.getStartDate());
         dto.setEndDate(task.getEndDate());

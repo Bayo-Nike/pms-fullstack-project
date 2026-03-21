@@ -16,8 +16,10 @@ public class TaskResponseDTO {
     private String taskName;
 
     private Long projectId;
+    private String projectTitle;
 
     private List<Long> employeeIds;
+    private List<String> employeeNames;
 
     private LocalDate startDate;
 
