@@ -35,10 +35,14 @@ export default function Projects() {
       try {
         const res = await adminApi.GET_SUB_CITIES();
         setSubCities(res.data?.data || res.data || []);
-      } catch (err) { console.error("Sub-city fetch failed", err); }
+      } catch (err) {
+        console.error("Sub-city fetch failed", err);
+      }
     };
     fetchLookups();
   }, []);
+
+
 
   const fetchProjects = useCallback(async (page = 0) => {
     setLoading(true);
@@ -46,9 +50,11 @@ export default function Projects() {
       const params = {
         page: page,
         size: pageInfo.size,
-        search: searchTerm || null,
+        // Use .trim() for search and ensure empty dropdowns are null
+        search: searchTerm.trim() || null,
         status: statusFilter || null,
-        subCityId: subCityFilter || null
+        // Ensure subCityId is sent as a variable name matching the backend @RequestParam
+        subCityId: subCityFilter && subCityFilter !== "" ? subCityFilter : null
       };
 
       const res = await projectApi.GET_PROJECTS(params);
@@ -68,12 +74,37 @@ export default function Projects() {
     }
   }, [pageInfo.size, searchTerm, statusFilter, subCityFilter]);
 
+
+
+
+  // Re-fetch when dropdown filters change
   useEffect(() => {
     fetchProjects(0);
   }, [statusFilter, subCityFilter, fetchProjects]);
 
   const handleSearchSubmit = (e) => {
-    if (e.key === 'Enter') fetchProjects(0);
+    if (e.key === 'Enter') {
+      fetchProjects(0);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    // Trigger fresh fetch with page 0 and no search term
+    setLoading(true);
+    const params = {
+      page: 0,
+      size: pageInfo.size,
+      search: null,
+      status: statusFilter !== '' ? statusFilter : null,
+      subCityId: subCityFilter !== '' ? subCityFilter : null
+    };
+    projectApi.GET_PROJECTS(params).then(res => {
+      const pageData = res.data.data;
+      setProjects(pageData.content || []);
+      setPageInfo(prev => ({ ...prev, current: 0, total: pageData.totalPages, totalElements: pageData.totalElements }));
+      setLoading(false);
+    });
   };
 
   const executeDelete = async () => {
@@ -135,19 +166,19 @@ export default function Projects() {
         )}
       </div>
 
-      {/* Simplified Filter Bar */}
+      {/* Filter Bar */}
       <div className="bg-white p-4 rounded-[28px] border border-slate-100 shadow-sm flex flex-wrap items-center gap-4">
         <div className="relative max-w-xs w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
           <input
             type="text"
             placeholder="Search... (Enter)"
-            className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-[#0284C7]"
+            className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-[#0284C7] transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleSearchSubmit}
           />
-          {searchTerm && <Close onClick={() => { setSearchTerm(''); fetchProjects(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-red-400" style={{ fontSize: 16 }} />}
+          {searchTerm && <Close onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 cursor-pointer hover:text-red-400" style={{ fontSize: 16 }} />}
         </div>
 
         <div className="flex items-center gap-2">
@@ -173,7 +204,7 @@ export default function Projects() {
         </div>
 
         <div className="ml-auto px-4 py-2 bg-sky-50 rounded-xl border border-sky-100 text-[10px] font-black text-[#0284C7] uppercase tracking-widest">
-          Records: {pageInfo.totalElements}
+          Total: {pageInfo.totalElements}
         </div>
       </div>
 
@@ -191,9 +222,9 @@ export default function Projects() {
           </thead>
           <tbody className="divide-y divide-slate-50">
             {loading ? (
-              <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 italic animate-pulse font-medium">Syncing PMS Registry...</td></tr>
+              <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 italic animate-pulse font-medium">Synchronizing PMS Registry...</td></tr>
             ) : projects.length === 0 ? (
-              <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 italic font-medium">No results found matching your current filters.</td></tr>
+              <tr><td colSpan="5" className="px-8 py-20 text-center text-slate-400 italic font-medium">No results matching filters.</td></tr>
             ) : projects.map((proj) => (
               <tr key={proj.id} className="hover:bg-slate-50/50 transition-colors group">
                 <td className="px-8 py-5">
@@ -215,8 +246,8 @@ export default function Projects() {
                 </td>
                 <td className="px-6 py-5">
                   <div className="flex flex-col gap-1">
-                    <span className="text-xs font-bold text-slate-700">{new Date(proj.startDate).toLocaleDateString()}</span>
-                    <span className="text-[10px] text-slate-400 uppercase font-medium">to {new Date(proj.endDate).toLocaleDateString()}</span>
+                    <span className="text-xs font-bold text-slate-700">{proj.startDate ? new Date(proj.startDate).toLocaleDateString() : 'TBD'}</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-medium">to {proj.endDate ? new Date(proj.endDate).toLocaleDateString() : 'TBD'}</span>
                   </div>
                 </td>
                 <td className="px-6 py-5 text-center">
@@ -226,11 +257,9 @@ export default function Projects() {
                 </td>
                 <td className="px-8 py-5 text-right">
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {
-                      can('CAN_VIEW_PROJECT_DETAIL') && (
-                        <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="View Dossier"><Visibility style={{ fontSize: 20 }} /></button>
-                      )
-                    }
+                    {can('CAN_VIEW_PROJECT_DETAIL') && (
+                      <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="View Dossier"><Visibility style={{ fontSize: 20 }} /></button>
+                    )}
                     {can('CAN_EDIT_PROJECT') && (
                       <button onClick={() => navigate(`/projects/edit/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#FBAF1E] hover:bg-amber-50 rounded-xl transition-all" title="Edit Registry"><Edit style={{ fontSize: 20 }} /></button>
                     )}
