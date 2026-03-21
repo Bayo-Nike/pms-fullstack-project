@@ -38,7 +38,6 @@ public class Task {
     private LocalDate startDate;
     private LocalDate endDate;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)

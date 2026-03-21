@@ -68,12 +68,12 @@ public class InspectionServiceImpl implements InspectionService {
         Inspection saved = inspectionRepository.save(inspection);
 
         //send notification
-        notificationService.sendNotification(
-                authContext.getUsername(),
-                userService.getManagerUserName(),
-                "Project inspection result",
-                "inspections/edit/"+saved.getId()
-        );
+//        notificationService.sendNotification(
+//                authContext.getUsername(),
+//                userService.getManagerUserName(),
+//                "Project inspection result",
+//                "inspections/edit/"+saved.getId()
+//        );
 
         return mapToResponseDto(saved);
     }

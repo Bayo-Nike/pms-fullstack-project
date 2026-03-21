@@ -77,24 +77,23 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public List<TaskResponseDTO> getMyTasks() {
-        // 1. Admin/Mayor Bypass
+        List<Task> taskEntities;
+
+        // 1. Admin/Mayor Bypass - Use a query that fetches relations!
         if (authContext.isSuperAdmin() || authContext.isMayor()) {
-            return taskRepository.findAll().stream().map(this::mapToDTO).toList();
+            taskEntities = taskRepository.findAllWithDetails();
+        } else {
+            // 2. Regular Employee path
+            Employee sessionEmployee = authContext.getEmployee();
+            if (sessionEmployee == null) {
+                return Collections.emptyList();
+            }
+            taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
         }
-
-        // 2. Get Employee ID safely
-        Employee sessionEmployee = authContext.getEmployee();
-        if (sessionEmployee == null || sessionEmployee.getId() == null) {
-            return Collections.emptyList();
-        }
-
-        // 3. Fetch tasks using an explicit Join Query
-        // We use the ID directly to avoid "Detached Entity" issues
-        List<Task> taskEntities = taskRepository.findWithDetailsByEmployees_Id(sessionEmployee.getId());
 
         if (taskEntities == null) return Collections.emptyList();
 
-        // 4. Map to DTO with NULL SAFETY
+        // 3. Map to DTO
         return taskEntities.stream()
                 .map(this::mapToDTO)
                 .toList();
@@ -168,19 +167,6 @@ public class TaskServiceImpl implements TaskService {
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
         Page<Task> taskPage;
         taskPage = taskRepository.findAll(pageable);
-    //    // 1. Get current user's Sub-City using a helper
-    //     SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
-
-    //     // 2. Fetch data based on Sub-City (Conditional logic)
-    //     Page<Task> taskPage;
-    //     if (userSubCity != null) {
-    //         taskPage = taskRepository.findBySubCity(userSubCity, pageable); // User belongs to a specific sub-city: filter with pagination
-    //     } else {
-    //         taskPage = taskRepository.findAll(pageable); // Admin user: get all with pagination
-    //     }
-
-    //     // 3. Map the Page of Entities to Page of DTOs
-    //     // This maintains pagination metadata (totalPages, totalElements) for the frontend
         return taskPage.map(this::mapToDTO);
     }
 }
