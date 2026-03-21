@@ -110,7 +110,6 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
-
         createPosition("Mayor", null, "Mayor Office");
         createPosition("Manager", "Mayor", "Manager Office");
         createPosition("Director", "Manager", "Director Office");
