@@ -40,23 +40,48 @@ public class ProjectServiceImpl implements ProjectService {
     private final EmployeeServiceImpl employeeServiceImpl;
     private final AuthContext authContext;
 
+//    @Override
+//    public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
+//
+//        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+//
+//        Page<Project> projectPage;
+//
+//        if (userSubCity != null) {
+//            projectPage = projectRepository.findBySubCity(userSubCity, pageable);
+//        } else {
+//            projectPage = projectRepository.findAll(pageable);
+//        }
+//
+//        return projectPage.map(this::mapToDTO);
+//    }
+
     @Override
-    public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
+    public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
 
-        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
+        // 1. Get the sub-city restriction for the current user
+        SubCity restrictedSubCity = subCityServiceImpl.getCurrentUserSubCity();
 
-        Page<Project> projectPage;
+        Long finalSubCityId;
 
-        if (userSubCity != null) {
-            projectPage = projectRepository.findBySubCity(userSubCity, pageable);
+        if (restrictedSubCity != null) {
+            // 2. User is restricted (e.g., Regional Manager).
+            // Force the filter to THEIR sub-city only.
+            finalSubCityId = restrictedSubCity.getId();
         } else {
-            projectPage = projectRepository.findAll(pageable);
+            // 3. User is Super Admin. Use the filter from the dropdown.
+            // If they chose "All Regions", subCityId will be null.
+            finalSubCityId = subCityId;
         }
 
-        // 3. Map the Page of Entities to Page of DTOs
-        // This maintains pagination metadata (totalPages, totalElements) for the frontend
-        return projectPage.map(this::mapToDTO);
+        Page<Project> projectPage = projectRepository.findWithFilters(
+                search,
+                status,
+                finalSubCityId,
+                pageable
+        );
 
+        return projectPage.map(this::mapToDTO);
     }
 
     @Override

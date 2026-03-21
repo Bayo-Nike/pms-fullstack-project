@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.controller;
 
 import et.scco.pms_backend.config.ApiResponse;
+import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
@@ -20,9 +21,21 @@ public class ProjectController {
 
     private final ProjectServiceImpl projectService;
 
+//    @GetMapping
+//    public ApiResponse<Page<ProjectResponseDTO>> getProjects(Pageable pageable) {
+//        Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);
+//        return ResponseUtil.success("Projects fetched successfully", projects);
+//    }
+
     @GetMapping
-    public ApiResponse<Page<ProjectResponseDTO>> getProjects(Pageable pageable) {
-        Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);
+    public ApiResponse<Page<ProjectResponseDTO>> getProjects(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) ProjectStatus status,
+            @RequestParam(required = false) Long subCityId,
+            Pageable pageable) {
+
+        // Pass these new parameters to your service
+        Page<ProjectResponseDTO> projects = projectService.getAllProjects(search, status, subCityId, pageable);
         return ResponseUtil.success("Projects fetched successfully", projects);
     }
 

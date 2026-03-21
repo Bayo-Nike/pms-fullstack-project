@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.project.repository;
 
+import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.project.model.Project;
@@ -54,4 +55,16 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
     boolean existsByProjectCode(String projectCode);
+
+
+       @Query("SELECT p FROM Project p WHERE " +
+               "(:status IS NULL OR p.status = :status) AND " +
+               "(:subCityId IS NULL OR p.subCity.id = :subCityId) AND " + // Check this matches your field name
+               "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
+               "OR LOWER(p.projectCode) LIKE LOWER(CONCAT('%', :search, '%')))")
+       Page<Project> findWithFilters(
+               @Param("search") String search,
+               @Param("status") ProjectStatus status,
+               @Param("subCityId") Long subCityId,
+               Pageable pageable);
 }
