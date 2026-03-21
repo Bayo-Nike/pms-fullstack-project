@@ -151,9 +151,15 @@ export default function Inspections() {
                     <div className="w-12 h-12 bg-sky-50 text-[#0284C7] rounded-2xl flex items-center justify-center shadow-inner"><FactCheck /></div>
                     <div><h1 className="text-xl font-bold text-slate-900">Quality Assurance</h1><p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Inspection Registry</p></div>
                 </div>
-                <button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg shadow-sky-100 transition-all active:scale-95">
-                    <Add /> Log Inspection
-                </button>
+
+                {
+                    can('CAN_LOG_INSPECTION') &&
+                    (<button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg shadow-sky-100 transition-all active:scale-95">
+                        <Add /> Log Inspection
+                    </button>)
+                }
+
+
             </div>
 
             {/* Table Area */}
@@ -204,9 +210,19 @@ export default function Inspections() {
                                     <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Full Log"><Visibility style={{ fontSize: 20 }} /></button>
-                                            <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Entry"><Edit style={{ fontSize: 20 }} /></button>
-                                            <button onClick={() => setDeleteConfig({ show: true, id: log.id })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Log"><Delete style={{ fontSize: 20 }} /></button>
+                                            {
+                                                can('CAN_VIEW_INSPECTION') &&
+                                                (<button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Full Log"><Visibility style={{ fontSize: 20 }} /></button>
+                                                )}
+                                            {can('CAN_EDIT_INSPECTION') &&
+                                                (
+                                                    <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Entry"><Edit style={{ fontSize: 20 }} /></button>
+                                                )}
+                                            {can('CAN_DELETE_INSPECTION') &&
+                                                (
+                                                    <button onClick={() => setDeleteConfig({ show: true, id: log.id })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Log"><Delete style={{ fontSize: 20 }} /></button>
+                                                )}
+
                                         </div>
                                     </td>
                                 </tr>

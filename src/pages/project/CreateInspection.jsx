@@ -15,6 +15,7 @@ export default function CreateInspection() {
     const navigate = useNavigate();
     const { id } = useParams();
     const { user: currentUser } = useAuth(); // Contains employeeId
+    const { can } = useAuth(); // Authorization check
     const isEdit = Boolean(id);
 
     const [formData, setFormData] = useState({
@@ -173,9 +174,14 @@ export default function CreateInspection() {
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standardized QC Entry</p>
                     </div>
                 </div>
-                <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-4 rounded-2xl font-bold text-xs flex items-center gap-3 hover:bg-[#0369a1] active:scale-95 transition-all shadow-xl disabled:opacity-50 uppercase tracking-widest">
-                    <Save style={{ fontSize: 20 }} /> {saving ? 'SAVING...' : 'COMMIT LOG'}
-                </button>
+                {
+                    can('CAN_UPDATE_INSPECTION') && (
+                        <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-4 rounded-2xl font-bold text-xs flex items-center gap-3 hover:bg-[#0369a1] active:scale-95 transition-all shadow-xl disabled:opacity-50 uppercase tracking-widest">
+                            <Save style={{ fontSize: 20 }} /> {saving ? 'SAVING...' : 'COMMIT LOG'}
+                        </button>
+                    )
+                }
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

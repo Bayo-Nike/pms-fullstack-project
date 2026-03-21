@@ -9,6 +9,7 @@ export default function ManageProjectCosts() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user: currentUser } = useAuth();
+    const { can } = useAuth();
 
     const [project, setProject] = useState(null);
     const [tasks, setTasks] = useState([]);
@@ -141,9 +142,13 @@ export default function ManageProjectCosts() {
                             <div className="w-10 h-10 bg-[#0284C7] text-white rounded-2xl flex items-center justify-center shadow-lg"><History /></div>
                             <span className="text-sm font-black text-slate-900 uppercase tracking-widest">Update History</span>
                         </div>
-                        <button onClick={() => { setEditingRecord(null); setForm({ phase: '', taskId: '', amount: '' }); setIsModalOpen(true); }} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all flex items-center gap-2">
-                            <Add style={{ fontSize: 18 }} /> Record Cost
-                        </button>
+                        {
+                            can('CAN_RECORD_COST') && (
+                                <button onClick={() => { setEditingRecord(null); setForm({ phase: '', taskId: '', amount: '' }); setIsModalOpen(true); }} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all flex items-center gap-2">
+                                    <Add style={{ fontSize: 18 }} /> Record Cost
+                                </button>
+                            )
+                        }
                     </div>
 
                     <div className="overflow-x-auto">
@@ -177,8 +182,16 @@ export default function ManageProjectCosts() {
                                         </td>
                                         <td className="px-8 py-5 text-right">
                                             <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button onClick={() => { setEditingRecord(item); setForm({ phase: item.phase, taskId: item.taskId || '', amount: item.amount }); setIsModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
-                                                <button onClick={() => setDeleteConfig({ show: true, id: item.id })} className="p-1.5 text-slate-400 hover:text-red-500 transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                                {
+                                                    can('CAN_EDIT_RECORD') && (
+                                                        <button onClick={() => { setEditingRecord(item); setForm({ phase: item.phase, taskId: item.taskId || '', amount: item.amount }); setIsModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                    )
+                                                }
+                                                {
+                                                    can('CAN_DELETE_RECORD') && (
+                                                        <button onClick={() => setDeleteConfig({ show: true, id: item.id })} className="p-1.5 text-slate-400 hover:text-red-500 transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                                    )
+                                                }
                                             </div>
                                         </td>
                                     </tr>

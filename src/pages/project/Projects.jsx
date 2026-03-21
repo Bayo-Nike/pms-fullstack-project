@@ -128,7 +128,7 @@ export default function Projects() {
             <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">SCCO Infrastructure Hub</p>
           </div>
         </div>
-        {can('CAN_CREATE_PROJECTS') && (
+        {can('CAN_CREATE_PROJECT') && (
           <button onClick={() => navigate('/projects/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
             <Add /> New Project
           </button>
@@ -226,11 +226,15 @@ export default function Projects() {
                 </td>
                 <td className="px-8 py-5 text-right">
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="View Dossier"><Visibility style={{ fontSize: 20 }} /></button>
-                    {can('CAN_EDIT_PROJECTS') && (
+                    {
+                      can('CAN_VIEW_PROJECT_DETAIL') && (
+                        <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="View Dossier"><Visibility style={{ fontSize: 20 }} /></button>
+                      )
+                    }
+                    {can('CAN_EDIT_PROJECT') && (
                       <button onClick={() => navigate(`/projects/edit/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#FBAF1E] hover:bg-amber-50 rounded-xl transition-all" title="Edit Registry"><Edit style={{ fontSize: 20 }} /></button>
                     )}
-                    {can('CAN_DELETE_PROJECTS') && (
+                    {can('CAN_DELETE_PROJECT') && (
                       <button onClick={() => setDeleteConfig({ show: true, id: proj.id, title: proj.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete style={{ fontSize: 20 }} /></button>
                     )}
                   </div>
