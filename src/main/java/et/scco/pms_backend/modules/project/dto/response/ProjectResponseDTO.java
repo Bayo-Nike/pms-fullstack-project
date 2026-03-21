@@ -37,6 +37,9 @@ public class ProjectResponseDTO {
     private Long consultantId;
     private String consultantName;
 
+    private Long clientId;
+    private String clientName;
+
     private Long projectManagerId;
     private String projectManagerName;
 

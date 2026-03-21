@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/contractors/download/**").permitAll()
                         .requestMatchers("/api/colorCodes/download/**").permitAll()
                         .requestMatchers("/api/admin/consultancy/download/**").permitAll()
+                        .requestMatchers("/api/admin/client/download/**").permitAll()
                         .requestMatchers("/api/auth/mobile/verify").permitAll()
                         .anyRequest().authenticated()
                 );

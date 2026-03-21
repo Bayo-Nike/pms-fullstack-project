@@ -53,6 +53,10 @@ public class Project {
     private Consultancy  consultancy;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_manager_id")
     private Employee projectManager;
 

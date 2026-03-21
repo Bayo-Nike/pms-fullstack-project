@@ -5,6 +5,7 @@ import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.service.impl.ClientServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.ConsultancyServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.ContractorServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
@@ -37,6 +38,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final LocationServiceImpl locationServiceImpl;
     private final ContractorServiceImpl contractorServiceImpl;
     private final ConsultancyServiceImpl consultancyServiceImpl;
+    private final ClientServiceImpl clientServiceImpl;
     private final EmployeeServiceImpl employeeServiceImpl;
     private final AuthContext authContext;
 
@@ -243,6 +245,11 @@ public class ProjectServiceImpl implements ProjectService {
             dto.setConsultantName(project.getConsultancy().getConsultantName());
         }
 
+        if (project.getClient() != null) {
+            dto.setClientId(project.getClient().getId());
+            dto.setClientName(project.getClient().getClientName());
+        }
+
         if (project.getProjectManager() != null) {
             dto.setProjectManagerId(project.getProjectManager().getId());
             dto.setProjectManagerName(project.getProjectManager().getFullName());
@@ -275,6 +282,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         project.setConsultancy(dto.getConsultantId() != null ?
                 consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId()) : null);
+        project.setClient(dto.getClientId() != null ?
+                clientServiceImpl.getClientEntityById(dto.getClientId()) : null);
 
         project.setSubCity(dto.getSubCityId() != null ?
                 subCityServiceImpl.getSubCityEntity(dto.getSubCityId()) : null);

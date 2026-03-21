@@ -24,6 +24,7 @@ public class CreateProjectRequestDTO {
     private List<Long> locationIds;
     private Long contractorId;
     private Long consultantId;
+    private Long clientId;
     private Long projectManagerId;
 
     private LocalDate startDate;
