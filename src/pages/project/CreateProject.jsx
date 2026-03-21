@@ -8,8 +8,10 @@ import {
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CreateProject() {
+    const { can } = useAuth();
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id);
@@ -99,13 +101,11 @@ export default function CreateProject() {
         return () => document.removeEventListener("mousedown", handleOutside);
     }, []);
 
-    // --- LOGIC: Filter for Sites ---
     const availableLocations = useMemo(() => {
         if (!formData.subCityId) return [];
         return lookups.locations.filter(l => String(l.subCityId) === String(formData.subCityId));
     }, [formData.subCityId, lookups.locations]);
 
-    // --- LOGIC: Filter for Project Lead (Employees with no subCityId OR matching selected one) ---
     const filteredManagers = useMemo(() => {
         if (!formData.subCityId) return [];
         return lookups.employees.filter(e =>
@@ -113,7 +113,6 @@ export default function CreateProject() {
         );
     }, [formData.subCityId, lookups.employees]);
 
-    // --- LOGIC: Filter for Team Tagging (Employees with no subCityId OR matching selected one) ---
     const teamOptions = useMemo(() => {
         if (!formData.subCityId) return [];
         return lookups.employees.filter(emp =>
@@ -201,9 +200,13 @@ export default function CreateProject() {
                     <button onClick={() => navigate('/projects')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
                     <div><h1 className="text-2xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Project' : 'Launch Project'}</h1><p className="text-[12px] text-slate-400 mt-1.5 uppercase tracking-[0.2em] font-bold">Lifecycle Panel</p></div>
                 </div>
-                <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-bold text-xs flex items-center gap-3 hover:bg-[#0369a1] active:scale-95 transition-all shadow-xl shadow-sky-100 disabled:opacity-50 tracking-widest uppercase">
-                    <Save style={{ fontSize: 20 }} /> {saving ? 'SAVING...' : 'COMMIT CHANGES'}
-                </button>
+
+                {/* Save Button Permission Check */}
+                {((!isEdit && can('CAN_CREATE_PROJECT')) || (isEdit && can('CAN_UPDATE_PROJECT'))) && (
+                    <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-bold text-xs flex items-center gap-3 hover:bg-[#0369a1] active:scale-95 transition-all shadow-xl shadow-sky-100 disabled:opacity-50 tracking-widest uppercase">
+                        <Save style={{ fontSize: 20 }} /> {saving ? 'SAVING...' : 'COMMIT CHANGES'}
+                    </button>
+                )}
             </div>
 
             {/* ROW 1: CORE FIELDS */}
@@ -264,6 +267,7 @@ export default function CreateProject() {
                                 {filteredManagers.map(m => <option key={m.id} value={String(m.id)}>{m.fullName} {m.subCityId == null ? '(HQ)' : ''}</option>)}
                             </select>
                         </div>
+                        {/* Contractor Permission Check */}
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Contractor Partner</label><select name="contractorId" value={formData.contractorId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.contractors.map(c => <option key={c.id} value={String(c.id)}>{c.contractorName}</option>)}</select></div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Status</label><select name="status" value={formData.status} onChange={handleInputChange} className="w-full text-[11px] font-black bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none uppercase">{['NOT_STARTED', 'ON_GOING', 'COMPLETED', 'ON_HOLD', 'CANCELLED'].map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}</select></div>
@@ -318,13 +322,21 @@ export default function CreateProject() {
 
             {/* ROW 3: FINANCE & TIMELINE */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
-                    <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><Payments className="text-[#FBAF1E]" /> Financial Context</div>
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Contract Budget</label><input name="budget" type="number" value={formData.budget} onChange={handleInputChange} className="w-full text-2xl font-black bg-slate-50 border border-slate-200 rounded-[28px] px-8 py-5 outline-none focus:border-[#0284C7] transition-all" placeholder="0.00" /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Currency</label><select name="currencyType" value={formData.currencyType} onChange={handleInputChange} className="w-full h-[72px] font-bold bg-slate-50 border border-slate-200 rounded-[28px] px-8 appearance-none"><option value="ETB">ETB - Birr</option><option value="USD">USD - Dollar</option></select></div>
+                {/* Finance Permission Check */}
+                {can('CAN_SEE_PROJECT_FINANCE') ? (
+                    <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
+                        <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><Payments className="text-[#FBAF1E]" /> Financial Context</div>
+                        <div className="grid grid-cols-2 gap-8">
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Total Contract Budget</label><input name="budget" type="number" value={formData.budget} onChange={handleInputChange} className="w-full text-2xl font-black bg-slate-50 border border-slate-200 rounded-[28px] px-8 py-5 outline-none focus:border-[#0284C7] transition-all" placeholder="0.00" /></div>
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Currency</label><select name="currencyType" value={formData.currencyType} onChange={handleInputChange} className="w-full h-[72px] font-bold bg-slate-50 border border-slate-200 rounded-[28px] px-8 appearance-none"><option value="ETB">ETB - Birr</option><option value="USD">USD - Dollar</option></select></div>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-slate-50/50 rounded-[40px] border border-dashed border-slate-200 p-10 flex flex-col items-center justify-center text-center">
+                        <Payments className="text-slate-200 mb-4" style={{ fontSize: 40 }} />
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Financial context restricted</p>
+                    </div>
+                )}
 
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
                     <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><CalendarMonth className="text-sky-500" /> Project Schedule</div>
