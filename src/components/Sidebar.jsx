@@ -45,6 +45,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       children: [
         { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACT_LIST' },
         { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_SEE_CONSULTANT_LIST' },
+        { path: '/client', name: 'Client List', permission: 'CAN_SEE_CONSULTANT_LIST' },
       ]
     },
     {

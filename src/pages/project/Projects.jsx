@@ -187,10 +187,10 @@ export default function Projects() {
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-transparent text-[10px] font-bold uppercase text-slate-600 outline-none cursor-pointer">
               <option value="">All Status</option>
               <option value="NOT_STARTED">Not Started</option>
-              <option value="ACTIVE">Active</option>
               <option value="ON_GOING">On Going</option>
               <option value="COMPLETED">Completed</option>
               <option value="ON_HOLD">On Hold</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
           </div>
 

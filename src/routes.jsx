@@ -47,6 +47,8 @@ import DivisionReportPage from './pages/reports/DivisionReportPage';
 import ContractorReportPage from './pages/reports/ContractorReportPage';
 import Consultancies from './pages/admin/Consultancies';
 import CreateConsultant from './pages/admin/CreateConsultancies';
+import Clients from './pages/admin/Clients';
+import CreateClient from './pages/admin/CreateClient';
 
 
 export default function AppRoutes() {
@@ -90,6 +92,10 @@ export default function AppRoutes() {
         <Route path="consultancy" element={protect(<Consultancies />, "CAN_SEE_CONSULTANT_LIST")} />
         <Route path="consultancy/create" element={protect(<CreateConsultant />, "CAN_REGISTER_CONSULTANT")} />
         <Route path="consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_EDIT_CONSULTANT")} />
+
+        <Route path="client" element={protect(<Clients />, "CAN_SEE_CONSULTANT_LIST")} />
+        <Route path="client/create" element={protect(<CreateClient />, "CAN_REGISTER_CONSULTANT")} />
+        <Route path="client/edit/:id" element={protect(<CreateClient />, "CAN_EDIT_CONSULTANT")} />
 
 
         {/* 5. Planning */}

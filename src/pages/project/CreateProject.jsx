@@ -38,7 +38,7 @@ export default function CreateProject() {
         employeeIds: []
     });
 
-    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [], consultancies: [] });
+    const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [], consultancies: [], clients: [] });
     const [cityName, setCityName] = useState('...');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -55,13 +55,14 @@ export default function CreateProject() {
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, locRes, empRes, cityRes, contractorRes, consultantRes] = await Promise.all([
+                const [subRes, locRes, empRes, cityRes, contractorRes, consultantRes, clientRes] = await Promise.all([
                     adminApi.GET_SUB_CITIES(),
                     adminApi.GET_LOCATIONS(),
                     adminApi.GET_EMPLOYEES(),
                     adminApi.GET_CITY(),
                     adminApi.GET_CONTRACTORS(),
                     adminApi.GET_CONSULTANTS(),
+                    adminApi.GET_CLIENTS(),
                 ]);
 
                 setLookups({
@@ -69,7 +70,8 @@ export default function CreateProject() {
                     locations: locRes.data?.data || locRes.data || [],
                     employees: empRes.data?.data || empRes.data || [],
                     contractors: contractorRes.data?.data || contractorRes.data || [],
-                    consultancies: consultantRes.data?.data || consultantRes.data || []
+                    consultancies: consultantRes.data?.data || consultantRes.data || [],
+                    clients: clientRes.data?.data || clientRes.data || [],
                 });
 
                 const cityValue = cityRes.data !== undefined ? cityRes.data : cityRes;
@@ -220,6 +222,7 @@ export default function CreateProject() {
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Formal Title *</label><input name="title" value={formData.title} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Summary</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full text-sm font-medium bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Client Partner</label><select name="clientId" value={formData.clientId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.clients.map(c => <option key={c.id} value={String(c.id)}>{c.clientName}</option>)}</select></div>
                     </div>
                 </div>
 
@@ -254,6 +257,7 @@ export default function CreateProject() {
                             </div>
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultancy Partner</label><select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}</select></div>
+                        
                     </div>
                 </div>
 

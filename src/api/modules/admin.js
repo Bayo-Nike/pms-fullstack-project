@@ -78,6 +78,24 @@ const adminApi = {
         }),
     DELETE_CONSULTANT: (id) => api.delete(`/admin/consultancy/${id}`),
 
+    //Client
+    GET_CLIENTS: () => api.get("/admin/client"),
+    GET_CLIENT: (id) => api.get(`/admin/client/${id}`),
+    CREATE_CLIENT: (data) =>
+        api.post("/admin/client", data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+
+    UPDATE_CLIENT: (id, data) =>
+        api.put(`/admin/client/${id}`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        }),
+    DELETE_CLIENT: (id) => api.delete(`/admin/client/${id}`),
+
 
     GET_LOCATIONS: () => api.get("/admin/locations"),
     GET_LOCATION: (id) => api.get(`/admin/locations/${id}`),
