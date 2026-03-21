@@ -94,7 +94,9 @@ export default function Contractors() {
                             <th className="px-6 py-4">Contracting Firm</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Verification</th>
+                            {(can('CAN_EDIT_CONTRACTOR') || can('CAN_DELETE_CONTRACTOR')) && (
                             <th className="px-6 py-4 text-right">Operations</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -123,12 +125,18 @@ export default function Contractors() {
                                         <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">No Artifact</span>
                                     )}
                                 </td>
+                                {(can('CAN_EDIT_CONTRACTOR') || can('CAN_DELETE_CONTRACTOR')) && (
                                 <td className="px-6 py-4 text-right">
                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {can('CAN_EDIT_CONTRACTOR') && (
                                         <button onClick={() => navigate(`/contractors/edit/${c.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                    )}
+                                    {can('CAN_DELETE_CONTRACTOR') && (
                                         <button onClick={() => setDeleteConfig({ show: true, id: c.id, name: c.contractorName })} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                    )}
                                     </div>
                                 </td>
+                                )}
                             </tr>
                         ))}
                     </tbody>
