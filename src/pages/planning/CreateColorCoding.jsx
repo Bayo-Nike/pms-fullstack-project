@@ -289,6 +289,7 @@ export default function CreateTarget() {
                 <option value="FACTORY">FACTORY</option>
                 <option value="HOUSEHOLD">HOUSEHOLD</option>
                 <option value="FENCE">FENCE</option>
+                <option value="COMMERCIAL_CENTER">COMMERCIAL CENTER</option>
               </select>
             </div>
           </div>
