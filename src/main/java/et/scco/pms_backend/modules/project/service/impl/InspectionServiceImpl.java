@@ -129,8 +129,10 @@ public class InspectionServiceImpl implements InspectionService {
         inspection.setProject(project);
         inspection.setEmployee(employee);
         inspection.setInspectionLevel(dto.getInspectionLevel());
+        inspection.setWeatherCondition(dto.getWeatherCondition());
         inspection.setInspectionDate(dto.getInspectionDate());
         inspection.setInspectionResult(dto.getInspectionResult());
+        inspection.setActiveWorkers(dto.getActiveWorkers());
 
         if (dto.getInspectionLevel() == InspectionLevel.TASK && dto.getTaskId() != null) {
             Task task = taskRepository.findById(dto.getTaskId())
@@ -149,6 +151,7 @@ public class InspectionServiceImpl implements InspectionService {
         dto.setInspectionTypeName(inspection.getInspectionType().getName());
 
         dto.setInspectionLevel(inspection.getInspectionLevel());
+        dto.setWeatherCondition(inspection.getWeatherCondition());
 
         dto.setProjectId(inspection.getProject().getId());
         dto.setProjectTitle(inspection.getProject().getTitle());
@@ -163,6 +166,7 @@ public class InspectionServiceImpl implements InspectionService {
 
         dto.setInspectionDate(inspection.getInspectionDate());
         dto.setInspectionResult(inspection.getInspectionResult());
+        dto.setActiveWorkers(inspection.getActiveWorkers());
 
         return dto;
     }

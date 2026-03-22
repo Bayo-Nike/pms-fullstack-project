@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.dto.response;
 
 import et.scco.pms_backend.enums.InspectionLevel;
+import et.scco.pms_backend.enums.WeatherCondition;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class InspectionResponseDto {
     private String inspectionTypeName;
 
     private InspectionLevel inspectionLevel;
+    private WeatherCondition weatherCondition;
 
     private Long projectId;
     private String projectTitle;
@@ -29,4 +31,6 @@ public class InspectionResponseDto {
 
     private LocalDate inspectionDate;
     private String inspectionResult;
+
+    private Long activeWorkers;
 }
