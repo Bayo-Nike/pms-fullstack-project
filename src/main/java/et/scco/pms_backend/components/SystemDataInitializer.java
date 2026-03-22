@@ -4,7 +4,6 @@ package et.scco.pms_backend.components;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
-import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -89,9 +88,25 @@ public class SystemDataInitializer implements ApplicationRunner {
             return;
         }
         createDivision("Mayor Office", null);
-        createDivision("Manager Office", "Mayor Office");
-        createDivision("Director Office", "Manager Office");
-        createDivision("Team Leader Office", "Director Office");
+
+        createDivision("City Office", "Mayor Office");
+
+        createDivision("City Record Office", "City Office");
+        createDivision("City Building Director Office", "City Office");
+        createDivision("City Water and Road Director Office", "City Office");
+        createDivision("Sub-City Office", "City Office");
+        createDivision("City Finance Office", "City Office");
+
+        createDivision("City Design Team Leader Office", "City Building Director Office");
+        createDivision("City Monitoring Team Leader Office", "City Building Director Office");
+        
+        createDivision("City Team Leader 1 Office", "City Water and Road Director Office");
+        createDivision("City Team Leader 2 Office", "City Water and Road Director Office");
+
+        createDivision("Sub-City Building Team Leader Office", "Sub-City Office");
+        createDivision("Sub-City Water and Road Team Leader Office", "Sub-City Office");
+        createDivision("Sub-City Record Office", "Sub-City Office");
+        
     }
 
     private void createDivision(String name, String parentName) {
@@ -116,9 +131,32 @@ public class SystemDataInitializer implements ApplicationRunner {
             return;
         }
         createPosition("Mayor", null, "Mayor Office");
-        createPosition("Manager", "Mayor", "Manager Office");
-        createPosition("Director", "Manager", "Director Office");
-        createPosition("Team Leader", "Director", "Team Leader Office");
+
+        createPosition("City Office Head", "Mayor", "City Office");
+
+        createPosition("City Building Director", "City Office Head", "City Building Director Office");
+        createPosition("City Water and Road Director", "City Office Head", "City Water and Road Director Office");
+        createPosition("Sub-City Office Head", "City Office Head", "Sub-City Office");
+        createPosition("Finance Officer", "City Office Head", "City Finance Office");
+
+        createPosition("City Design Team Leader", "City Building Director", "City Design Team Leader Office");
+        createPosition("City Monitoring Team Leader", "City Building Director", "City Design Team Leader Office");
+
+        createPosition("City Team Leader 1", "City Water and Road Director", "City Team Leader 1 Office");
+        createPosition("City Team Leader 2", "City Water and Road Director", "City Team Leader 2 Office");
+
+        createPosition("City Site Engineer", "City Design Team Leader", "City Design Team Leader Office");
+        createPosition("City Site Engineer", "City Monitoring Team Leader", "City Monitoring Team Leader Office");
+        createPosition("City Site Engineer", "City Team Leader 1", "City Team Leader 1 Office");
+        createPosition("City Site Engineer", "City Team Leader 2", "City Team Leader 2 Office");
+
+        createPosition("Sub-City Building Team Leader", "Sub-City Office Head", "Sub-City Building Team Leader Office");
+        createPosition("Sub-City Water and Road Team Leader", "Sub-City Office Head", "Sub-City Water and Road Team Leader Office");
+        createPosition("Sub-City Record Office Head", "Sub-City Office Head", "Sub-City Record Office");
+
+        createPosition("Sub-City Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
+        createPosition("Sub-City Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
+        
     }
 
 
