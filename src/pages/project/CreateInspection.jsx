@@ -24,7 +24,9 @@ export default function CreateInspection() {
         projectId: '',
         taskId: '',
         inspectionDate: new Date().toISOString().split('T')[0],
-        inspectionResult: ''
+        inspectionResult: '',
+        weatherCondition: '',
+        activeWorkers: ''
     });
 
     // Data Lookups
@@ -105,10 +107,14 @@ export default function CreateInspection() {
     };
 
     const handleSaveTrigger = () => {
-        const { projectId, inspectionTypeId, inspectionResult, inspectionLevel, taskId } = formData;
+        const { projectId, inspectionTypeId, inspectionResult, inspectionLevel, weatherCondition, taskId } = formData;
 
-        if (!projectId || !inspectionTypeId || !inspectionResult.trim()) {
+        if (!projectId || !inspectionTypeId || !inspectionResult.trim()|| !weatherCondition.trim()) {
             showAlert('error', 'Required validation failed: Project, Template Type, and Results must be filled.');
+            return;
+        }
+        if (!formData.activeWorkers || Number(formData.activeWorkers) <= 0) {
+            showAlert('error', 'Active workers must be greater than 0.');
             return;
         }
         if (inspectionLevel === 'TASK' && !taskId) {
@@ -125,6 +131,8 @@ export default function CreateInspection() {
             const payload = {
                 inspectionTypeId: Number(formData.inspectionTypeId),
                 inspectionLevel: formData.inspectionLevel,
+                weatherCondition:formData.weatherCondition,
+                activeWorkers: formData.activeWorkers ? Number(formData.activeWorkers) : 0,
                 projectId: Number(formData.projectId),
                 taskId: formData.taskId ? Number(formData.taskId) : null,
                 employeeId: Number(formData.employeeId),
@@ -253,6 +261,40 @@ export default function CreateInspection() {
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Formal Observation / Result</label>
                             <textarea rows="5" value={formData.inspectionResult} onChange={e => setFormData({ ...formData, inspectionResult: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-[28px] px-6 py-5 text-sm font-medium outline-none resize-none focus:border-[#0284C7] transition-all" placeholder="Enter observation details, compliance status, or remedial actions..."></textarea>
+                        </div>
+
+                        <div className="space-y-1.5">
+                        <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Weather Condition</label>
+                        <select
+                            name="weatherCondition"
+                            value={formData.weatherCondition}
+                            onChange={(e) =>
+                                setFormData({ ...formData, weatherCondition: e.target.value })
+                            }
+                            className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
+                        >
+                            <option value="">-- Select Weather --</option>
+                            <option value="SUNNY">SUNNY</option>
+                            <option value="CLOUD">CLOUD</option>
+                            <option value="RAIN">RAIN</option>
+                            <option value="WINDY">WINDY</option>
+                            <option value="STORM">STORM</option>
+                            <option value="SNOW">SNOW</option>
+                            <option value="UNKNOWN">UNKNOWN</option>
+                        </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Active Workers</label>
+                            <input
+                                name="activeWorkers"
+                                type="number"
+                                value={formData.activeWorkers}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, activeWorkers: e.target.value })
+                                }
+                                className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200 focus:border-[#0284C7]"
+                                placeholder="Enter numerical target"
+                            />
                         </div>
 
                         <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
