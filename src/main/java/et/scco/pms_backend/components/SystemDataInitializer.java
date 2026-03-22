@@ -85,7 +85,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initDivisions() {
-
+        if (divisionRepository.count() > 4){
+            return;
+        }
         createDivision("Mayor Office", null);
         createDivision("Manager Office", "Mayor Office");
         createDivision("Director Office", "Manager Office");
@@ -110,6 +112,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
+        if (positionRepository.count() > 4){
+            return;
+        }
         createPosition("Mayor", null, "Mayor Office");
         createPosition("Manager", "Mayor", "Manager Office");
         createPosition("Director", "Manager", "Director Office");
