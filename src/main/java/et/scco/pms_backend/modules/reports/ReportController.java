@@ -1,4 +1,4 @@
-package et.scco.pms_backend.modules.reports.controller;
+package et.scco.pms_backend.modules.reports;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 

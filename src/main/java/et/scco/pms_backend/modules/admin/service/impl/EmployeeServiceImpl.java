@@ -11,6 +11,7 @@ import et.scco.pms_backend.modules.admin.model.Position;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
 import et.scco.pms_backend.modules.auth.AuthUtility;
+import et.scco.pms_backend.utility.AuthContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,11 +27,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DivisionServiceImpl divisionService;
     private final PositionServiceImpl positionService;
     private final AuditLogServiceImpl auditLogService;
+    private final AuthContext authContext;
 
     @Override
     public Employee findEmployee(Long id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id: " + id));
+    }
+
+    public Employee findEmployeeWithDivision(){
+        return employeeRepository.findByIdWithDivision(authContext.getEmployee().getId()).orElse(null);
     }
 
     @Override

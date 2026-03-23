@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Transactional
 @Component
@@ -302,50 +303,55 @@ public class SystemDataInitializer implements ApplicationRunner {
 
     private void initSuperAdmin() {
 
-        Roles admin = roleRepository.findByRoleName("SUPER_ADMIN")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("SUPER_ADMIN");
-                    r.setDescription("System Super Administrator");
-                    return roleRepository.save(r);
-                });
+        Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
+        getOrCreateRole("MAYOR", "City Mayor Role");
+        getOrCreateRole("MANAGER", "City Manager Role");
 
-        // Assign all permissions
-        admin.getPermissions().clear();
-        admin.getPermissions().addAll(permissionRepository.findAll());
+        List<String> requiredPermissions = List.of(
+                "CAN_SEE_DASHBOARD",
+                "CAN_SEE_ORG_STRUCTURE",
+                "CAN_SEE_SYS_ADMIN",
+                "CAN_SEE_ROLE_REPORT",
+                "CAN_SEE_EMPLOYEE_REPORT",
+                "CAN_SEE_USER_REPORT",
+                "CAN_SEE_DIVISION_REPORT",
+                "CAN_SEE_LOCATION_REPORT"
+        );
+
+        List<Permission> permissions =
+                permissionRepository.findAllBySlugIn(requiredPermissions);
+
+        if (permissions.size() != requiredPermissions.size()) {
+            throw new RuntimeException("Missing required permissions for SUPER_ADMIN");
+        }
+
+        admin.setPermissions(new HashSet<>(permissions));
         roleRepository.save(admin);
 
-
-        roleRepository.findByRoleName("MAYOR")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("MAYOR");
-                    r.setDescription("City Mayor Role");
-                    return roleRepository.save(r);
-                });
-
-        roleRepository.findByRoleName("MANAGER")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("MANAGER");
-                    r.setDescription("City Manager Role");
-                    return roleRepository.save(r);
-                });
-
         User user = userRepository.findByUsername(superAdminProperties.getUsername())
-                .orElseGet(() -> {
+                .orElseGet(User::new);
 
-                    User u = new User();
-                    u.setUsername(superAdminProperties.getUsername());
-                    u.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
-                    u.setEmail(superAdminProperties.getUserEmail());
-                    u.setRoles(new HashSet<>(List.of(admin)));
-                    u.setUserType(UserType.SYSTEM);
-                    u.setEmployee(null);
+        user.setUsername(superAdminProperties.getUsername());
+        user.setEmail(superAdminProperties.getUserEmail());
+        user.setRoles(new HashSet<>(List.of(admin)));
+        user.setUserType(UserType.SYSTEM);
+        user.setEmployee(null);
 
-                    return userRepository.save(u);
-                });
+        if (user.getId() == null) {
+            user.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
+        }
+
         userRepository.save(user);
+    }
+
+    private Roles getOrCreateRole(String name, String description) {
+        return roleRepository.findByRoleName(name)
+                .orElseGet(() -> {
+                    Roles r = new Roles();
+                    r.setRoleName(name);
+                    r.setDescription(description);
+                    return roleRepository.save(r);
+                });
     }
 
     private record PermissionData(String slug, String name) {}

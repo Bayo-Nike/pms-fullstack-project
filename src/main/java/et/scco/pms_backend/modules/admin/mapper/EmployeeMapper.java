@@ -10,6 +10,7 @@ public class EmployeeMapper {
           employee.getId(),
           employee.getFullName(),
           employee.getDivision().getId(),
+          employee.getDivision().getDivisionGroup(),
           employee.getDivision().getName(),
           employee.getPosition().getId(),
           employee.getPosition().getName(),
