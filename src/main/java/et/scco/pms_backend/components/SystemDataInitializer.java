@@ -1,6 +1,7 @@
 package et.scco.pms_backend.components;
 
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
@@ -87,29 +88,28 @@ public class SystemDataInitializer implements ApplicationRunner {
         if (divisionRepository.count() > 4){
             return;
         }
-        createDivision("Mayor Office", null);
+        createDivision("Mayor Office", DivisionGroup.BTH, null);
 
-        createDivision("City Office", "Mayor Office");
+        createDivision("City Office", DivisionGroup.BTH, "Mayor Office");
 
-        createDivision("City Record Office", "City Office");
-        createDivision("City Building Director Office", "City Office");
-        createDivision("City Water and Road Director Office", "City Office");
-        createDivision("Sub-City Office", "City Office");
-        createDivision("City Finance Office", "City Office");
+        createDivision("City Record Office", DivisionGroup.BTH, "City Office");
+        createDivision("City Building Director Office", DivisionGroup.BLD, "City Office");
+        createDivision("City Water and Road Director Office", DivisionGroup.WAR, "City Office");
+        createDivision("Sub-City Office", DivisionGroup.BTH, "City Office");
+        createDivision("City Finance Office", DivisionGroup.BTH, "City Office");
 
-        createDivision("City Design Team Leader Office", "City Building Director Office");
-        createDivision("City Monitoring Team Leader Office", "City Building Director Office");
+        createDivision("City Design Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
+        createDivision("City Monitoring Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
         
-        createDivision("City Team Leader 1 Office", "City Water and Road Director Office");
-        createDivision("City Team Leader 2 Office", "City Water and Road Director Office");
+        createDivision("City Team Leader 1 Office", DivisionGroup.WAR, "City Water and Road Director Office");
+        createDivision("City Team Leader 2 Office", DivisionGroup.WAR, "City Water and Road Director Office");
 
-        createDivision("Sub-City Building Team Leader Office", "Sub-City Office");
-        createDivision("Sub-City Water and Road Team Leader Office", "Sub-City Office");
-        createDivision("Sub-City Record Office", "Sub-City Office");
-        
+        createDivision("Sub-City Building Team Leader Office", DivisionGroup.BLD, "Sub-City Office");
+        createDivision("Sub-City Water and Road Team Leader Office", DivisionGroup.WAR, "Sub-City Office");
+        createDivision("Sub-City Record Office", DivisionGroup.BTH, "Sub-City Office");
     }
 
-    private void createDivision(String name, String parentName) {
+    private void createDivision(String name, DivisionGroup divisionGroup, String parentName) {
 
         if (divisionRepository.existsByNameIgnoreCase(name)) {
             return;
@@ -117,6 +117,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         Division division = new Division();
         division.setName(name);
+        division.setDivisionGroup(divisionGroup);
 
         if (parentName != null) {
             divisionRepository.findByNameIgnoreCase(parentName)
@@ -156,7 +157,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("Sub-City Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
         createPosition("Sub-City Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
-        
+        createPosition("City Record Office Head", "City Office Head", "City Record Office");
     }
 
 
