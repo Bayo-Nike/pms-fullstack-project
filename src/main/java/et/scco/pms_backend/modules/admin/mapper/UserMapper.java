@@ -3,6 +3,7 @@ package et.scco.pms_backend.modules.admin.mapper;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.dto.request.UserCreateRequest;
 import et.scco.pms_backend.modules.admin.dto.response.UserResponseDTO;
@@ -58,11 +59,40 @@ public class UserMapper {
                 .distinct()
                 .toList();
 
+        Employee employee = user.getEmployee();
+
+        Long divisionId = null;
+        DivisionGroup divisionGroup = null;
+        Long subCityId = null;
+        String fullName = UserType.SYSTEM.name();
+        Long positionId = null;
+
+        if (employee != null) {
+            fullName = employee.getFullName();
+
+            if (employee.getDivision() != null) {
+                divisionId = employee.getDivision().getId();
+                divisionGroup = employee.getDivision().getDivisionGroup();
+            }
+
+            if (employee.getSubCity() != null) {
+                subCityId = employee.getSubCity().getId();
+            }
+
+            if (employee.getPosition() != null) {
+                positionId = employee.getPosition().getId();
+            }
+        }
+
         return new UserResponseLoginDto(
                 user.getId(),
                 user.getUsername(),
-                user.getUserType().equals(UserType.EMPLOYEE) ? user.getEmployee().getFullName(): UserType.SYSTEM.name(),
+                fullName,
                 user.getEmail(),
+                positionId,
+                divisionId,
+                divisionGroup,
+                subCityId,
                 roles,
                 permissions
         );

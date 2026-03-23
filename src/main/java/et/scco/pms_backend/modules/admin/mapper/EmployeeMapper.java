@@ -14,6 +14,7 @@ public class EmployeeMapper {
           employee.getDivision().getName(),
           employee.getPosition().getId(),
           employee.getPosition().getName(),
+          employee.getPosition().getParent() != null ? employee.getPosition().getParent().getId() : null,
           employee.getCity().getName(),
           employee.getSubCity() != null ? employee.getSubCity().getId() : null,
           employee.getSubCity() != null ? employee.getSubCity().getSubCityName() : null,

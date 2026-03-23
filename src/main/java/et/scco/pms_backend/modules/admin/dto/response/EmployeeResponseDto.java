@@ -14,6 +14,7 @@ public class EmployeeResponseDto {
     private String divisionName;
     private Long positionId;
     private String positionName;
+    private Long positionParentId;
     private String cityName;
     private Long subCityId;
     private String subCityName;

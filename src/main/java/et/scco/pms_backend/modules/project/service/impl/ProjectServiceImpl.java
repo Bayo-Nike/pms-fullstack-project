@@ -212,6 +212,7 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setCurrencyType(project.getCurrencyType());
         dto.setBudget(project.getBudget());
         dto.setBudgetUsed(project.getBudgetUsed());
+        dto.setProjectLevel(project.getProjectLevel());
 
         if (project.getCity() != null) {
             dto.setCityId(project.getCity().getId());
@@ -270,6 +271,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCurrencyType(dto.getCurrencyType());
         project.setBudget(dto.getBudget());
         project.setBudgetUsed(dto.getBudgetUsed());
+        project.setProjectLevel(dto.getProjectLevel());
 
         project.setContractor(dto.getContractorId() != null ?
                 contractorServiceImpl.getContractorEntityById(dto.getContractorId()) : null);
