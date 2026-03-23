@@ -93,7 +93,7 @@ export default function InspectionTypes() {
                     <h1 className="text-base font-bold text-slate-900">Inspection Types</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">QA Standard Definitions</p>
                 </div>
-                {can('CAN_MANAGE_MODULES') && (
+                {can('CAN_SEE_SYS_ADMIN') && (
                     <button
                         onClick={() => navigate('/admin/inspection-types/create')}
                         className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest"

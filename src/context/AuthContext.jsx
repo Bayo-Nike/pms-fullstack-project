@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
 
     const can = useCallback((permissionSlug) => {
         if (!user) return false;
-        if (user.roles?.includes('SUPER_ADMIN')) return true;
+        // if (user.roles?.includes('SUPER_ADMIN')) return true;
         return user.permissions?.includes(permissionSlug) || false;
     }, [user]);
 
