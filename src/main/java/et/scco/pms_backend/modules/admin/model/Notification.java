@@ -14,12 +14,12 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String owner;
-    private String receiver;
+    private Long owner;
+    private Long receiver;
     private String message;
     private String notificationUrl;
     private LocalDateTime createdAt;
-    private boolean deleted = false;
+    private boolean seen = false;
 
     @PrePersist
     void createdAt(){

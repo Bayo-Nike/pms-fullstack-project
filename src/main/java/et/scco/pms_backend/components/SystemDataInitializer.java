@@ -192,7 +192,8 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "Dashboard",
                 List.of(
                         new PermissionData("CAN_SEE_DASHBOARD", "See Dashboard"),
-                        new PermissionData("CAN_SEE_ORG_STRUCTURE", "See Organization Structure")
+                        new PermissionData("CAN_SEE_ORG_STRUCTURE", "See Organization Structure"),
+                        new PermissionData("CAN_SEE_MY_REPORTEES", "Can Se My Reportees")
                 )
         );
 
@@ -310,6 +311,7 @@ public class SystemDataInitializer implements ApplicationRunner {
         List<String> requiredPermissions = List.of(
                 "CAN_SEE_DASHBOARD",
                 "CAN_SEE_ORG_STRUCTURE",
+                "CAN_SEE_MY_REPORTEES",
                 "CAN_SEE_SYS_ADMIN",
                 "CAN_SEE_ROLE_REPORT",
                 "CAN_SEE_EMPLOYEE_REPORT",

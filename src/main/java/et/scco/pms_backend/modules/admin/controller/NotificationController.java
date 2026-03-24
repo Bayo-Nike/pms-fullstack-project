@@ -27,9 +27,8 @@ public class NotificationController {
         );
     }
 
-
-    @DeleteMapping("/{id}")
-    void deleteMyNotification(@PathVariable Long id){
-        notificationService.deleteMyNotification(id);
+    @PostMapping("/{id}")
+    void markAsRead(@PathVariable Long id){
+        notificationService.markAsRead(id);
     }
 }

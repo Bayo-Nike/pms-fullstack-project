@@ -8,6 +8,7 @@ import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.modules.admin.service.impl.ClientServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.ConsultancyServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.ContractorServiceImpl;
@@ -19,6 +20,7 @@ import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.modules.project.service.ProjectService;
+import et.scco.pms_backend.utility.AuthContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +43,9 @@ public class ProjectServiceImpl implements ProjectService {
     private final ConsultancyServiceImpl consultancyServiceImpl;
     private final ClientServiceImpl clientServiceImpl;
     private final EmployeeServiceImpl employeeServiceImpl;
+    private final NotificationService notificationService;
+    private final AuthContext authContext;
+
 
     @Transactional(readOnly = true)
     @Override
@@ -109,6 +114,16 @@ public class ProjectServiceImpl implements ProjectService {
         populateProject(project, dto);
 
         Project saved = projectRepository.save(project);
+
+        //send notification to manager
+        if (dto.getProjectManagerId() != null){
+            notificationService.sendNotification(
+                    authContext.getEmployee().getId(),
+                    dto.getProjectManagerId(),
+                    "A new project has been create and assigned to you",
+                    "projects/"+saved.getId()
+            );
+        }
 
         return mapToDTO(saved);
     }
