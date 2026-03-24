@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowBack, LocationCity, Description, InsertDriveFile, Search,
   GridView, List, Download, OpenInNew, Visibility,
-  ChevronLeft, ChevronRight, FilterList,
-  Assignment
+  ChevronLeft, ChevronRight, FilterList
 } from '@mui/icons-material';
 
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -26,46 +25,6 @@ export default function ViewTarget() {
   const docsPerPage = 10; // Controls how many rows render at once to save memory
 
   const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
-
-  const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
-
-  const [achievementForm, setAchievementForm] = useState({
-    achieved: 1,
-    feedback: '',
-    locations: [{ latitude: '', longitude: '' }]
-  });
-
-  const addLocation = () => {
-    setAchievementForm(prev => ({
-      ...prev,
-      locations: [...prev.locations, { latitude: '', longitude: '' }]
-    }));
-  };
-  
-  
-  const removeLocation = (index) => {
-    if (achievementForm.locations.length === 1) return;
-  
-    setAchievementForm(prev => {
-      const updated = prev.locations.filter((_, i) => i !== index);
-      return {
-        ...prev,
-        locations: updated,
-        achieved: updated.length
-      };
-    });
-  };
-  
-  const updateLocation = (index, field, value) => {
-    const updated = [...achievementForm.locations];
-    updated[index][field] = value;
-  
-    setAchievementForm(prev => ({
-      ...prev,
-      locations: updated,
-      achieved: updated.length
-    }));
-  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -108,55 +67,6 @@ export default function ViewTarget() {
 
   if (loading) return <div className="p-20 text-center animate-pulse italic text-slate-400">Loading High-Volume Data...</div>;
   if (!data) return null;
-
-  const handleSubmitAchievement = async () => {
-    try {
-      const invalid = achievementForm.locations.some(
-        loc => !loc.latitude || !loc.longitude
-      );
-  
-      if (invalid) {
-        return setAlert({
-          show: true,
-          type: 'warning',
-          message: 'All locations must have latitude and longitude'
-        });
-      }
-  
-      const payload = {
-        colorCodingId: id,
-        achieved: achievementForm.locations.length,
-        locations: achievementForm.locations.map(loc => ({
-          latitude: Number(loc.latitude),
-          longitude: Number(loc.longitude)
-        })),
-        feedback: achievementForm.feedback,
-      };
-  
-      await colorCodingApi.SUBMIT_ACHIEVEMENT(payload);
-  
-      setIsAchievementModalOpen(false);
-  
-      setAlert({
-        show: true,
-        type: 'success',
-        message: 'Achievement submitted successfully'
-      });
-  
-      setAchievementForm({
-        achieved: 1,
-        feedback: '',
-        locations: [{ latitude: '', longitude: '' }]
-      });
-  
-    } catch (err) {
-      setAlert({
-        show: true,
-        type: 'error',
-        message: 'Submission failed'
-      });
-    }
-  };
 
   return (
     <div className="w-full space-y-4 pb-10 px-2 animate-fadeIn h-screen overflow-hidden flex flex-col">
@@ -278,105 +188,6 @@ export default function ViewTarget() {
           </div>
         </div>
       </div>
-
-      {/* ACTION BUTTON */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setIsAchievementModalOpen(true)}
-          className="bg-[#0284C7] text-white px-4 py-2 rounded-xl text-xs font-bold"
-        >
-          + Add Achievement
-        </button>
-      </div>
-
-      {/* MODAL */}
-      {isAchievementModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-2xl rounded-2xl p-6 space-y-6 shadow-xl">
-
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold text-slate-800">Submit Achievement</h2>
-              <button
-                onClick={() => setIsAchievementModalOpen(false)}
-                className="text-slate-400 hover:text-red-500"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Achieved */}
-            <div>
-              <label className="text-xs font-bold text-slate-500">Total Achieved</label>
-              <input
-                type="number"
-                value={achievementForm.achieved}
-                readOnly
-                className="w-full bg-slate-100 border rounded-xl px-4 py-2 mt-1"
-              />
-            </div>
-
-            {/* Locations */}
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-bold text-slate-700">Locations</h3>
-                <button
-                  onClick={addLocation}
-                  className="bg-[#0284C7] text-white px-3 py-1 rounded-lg text-xs"
-                >
-                  + Add
-                </button>
-              </div>
-
-              {achievementForm.locations.map((loc, index) => (
-                <div key={index} className="grid grid-cols-3 gap-3 items-center">
-                  <input
-                    placeholder="Latitude"
-                    value={loc.latitude}
-                    onChange={(e) => updateLocation(index, 'latitude', e.target.value)}
-                    className="border rounded-lg px-3 py-2 text-xs"
-                  />
-
-                  <input
-                    placeholder="Longitude"
-                    value={loc.longitude}
-                    onChange={(e) => updateLocation(index, 'longitude', e.target.value)}
-                    className="border rounded-lg px-3 py-2 text-xs"
-                  />
-
-                  <button
-                    onClick={() => removeLocation(index)}
-                    className="text-red-500 text-xs"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Feedback */}
-            <div>
-              <label className="text-xs font-bold text-slate-500">Feedback</label>
-              <textarea
-                value={achievementForm.feedback}
-                onChange={(e) =>
-                  setAchievementForm({ ...achievementForm, feedback: e.target.value })
-                }
-                className="w-full border rounded-xl px-4 py-2 mt-1"
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              onClick={handleSubmitAchievement}
-              disabled={achievementForm.locations.length === 0}
-              className="w-full bg-[#0284C7] text-white py-3 rounded-xl font-bold"
-            >
-              Submit Achievement
-            </button>
-
-          </div>
-        </div>
-      )}
     </div>
   );
 }
