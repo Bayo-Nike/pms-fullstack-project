@@ -14,6 +14,9 @@ const colorCodingApi = {
 
     DELETE_COLOR_CODING: (id) => api.delete(`/colorCodes/${id}`),
     GET_FISCAL_YEARS: (params) => api.get("/colorCodes/fiscal-years", { params }),
+    SUBMIT_ACHIEVEMENT: (payload) => api.post('/colorCodes/submit-achievement', payload),
+    // api/modules/colorCoding.js
+    GET_ACHIEVEMENT_HISTORY: (id) => api.get(`/colorCodes/${id}/achievements`),
 };
 
 export default colorCodingApi;
