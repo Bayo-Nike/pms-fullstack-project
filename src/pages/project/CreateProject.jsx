@@ -986,6 +986,8 @@ export default function CreateProject() {
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Type *</label><select name="projectType" value={formData.projectType} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none"><option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option></select></div>
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Formal Title *</label><input name="title" value={formData.title} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Summary</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full text-sm font-medium bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+
                     </div>
                 </div>
 
@@ -1088,7 +1090,8 @@ export default function CreateProject() {
 
             {/* Timelines and Finance */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {can('CAN_SEE_PROJECT_FINANCE') && (
+                {
+                    // can('CAN_SEE_PROJECT_FINANCE') && (
                     <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
                         <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><Payments className="text-[#FBAF1E]" /> Financial Context</div>
                         <div className="grid grid-cols-2 gap-8">
@@ -1096,7 +1099,8 @@ export default function CreateProject() {
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Currency</label><select name="currencyType" value={formData.currencyType} onChange={handleInputChange} className="w-full h-[72px] font-bold bg-slate-50 border border-slate-200 rounded-[28px] px-8 appearance-none"><option value="ETB">ETB</option><option value="USD">USD</option></select></div>
                         </div>
                     </div>
-                )}
+                    // )
+                }
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
                     <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><CalendarMonth className="text-sky-500" /> Project Schedule</div>
                     <div className="grid grid-cols-2 gap-8">

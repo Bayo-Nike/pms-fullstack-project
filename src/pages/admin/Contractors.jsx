@@ -73,7 +73,7 @@ export default function Contractors() {
                     <h1 className="text-base font-bold text-slate-900 leading-none">Contracting Partners</h1>
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">External Resource Registry</p>
                 </div>
-                {can('CAN_MANAGE_MODULES') && (
+                {can('CAN_REGISTER_CONTRACTOR') && (
                     <button onClick={() => navigate('/contractors/create')} className="bg-[#FBAF1E] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-100 hover:bg-[#e09a15] transition-all uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Register Firm
                     </button>
@@ -95,7 +95,7 @@ export default function Contractors() {
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Verification</th>
                             {(can('CAN_EDIT_CONTRACTOR') || can('CAN_DELETE_CONTRACTOR')) && (
-                            <th className="px-6 py-4 text-right">Operations</th>
+                                <th className="px-6 py-4 text-right">Operations</th>
                             )}
                         </tr>
                     </thead>
@@ -126,16 +126,16 @@ export default function Contractors() {
                                     )}
                                 </td>
                                 {(can('CAN_EDIT_CONTRACTOR') || can('CAN_DELETE_CONTRACTOR')) && (
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {can('CAN_EDIT_CONTRACTOR') && (
-                                        <button onClick={() => navigate(`/contractors/edit/${c.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
-                                    )}
-                                    {can('CAN_DELETE_CONTRACTOR') && (
-                                        <button onClick={() => setDeleteConfig({ show: true, id: c.id, name: c.contractorName })} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
-                                    )}
-                                    </div>
-                                </td>
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            {can('CAN_EDIT_CONTRACTOR') && (
+                                                <button onClick={() => navigate(`/contractors/edit/${c.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                            )}
+                                            {can('CAN_DELETE_CONTRACTOR') && (
+                                                <button onClick={() => setDeleteConfig({ show: true, id: c.id, name: c.contractorName })} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                            )}
+                                        </div>
+                                    </td>
                                 )}
                             </tr>
                         ))}
