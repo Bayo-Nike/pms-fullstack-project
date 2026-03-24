@@ -1,7 +1,10 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.ProjectStatus;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
@@ -16,7 +19,6 @@ import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.modules.project.service.ProjectService;
-import et.scco.pms_backend.utility.AuthContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
@@ -40,43 +41,41 @@ public class ProjectServiceImpl implements ProjectService {
     private final ConsultancyServiceImpl consultancyServiceImpl;
     private final ClientServiceImpl clientServiceImpl;
     private final EmployeeServiceImpl employeeServiceImpl;
-    private final AuthContext authContext;
 
-//    @Override
-//    public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
-//
-//        SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
-//
-//        Page<Project> projectPage;
-//
-//        if (userSubCity != null) {
-//            projectPage = projectRepository.findBySubCity(userSubCity, pageable);
-//        } else {
-//            projectPage = projectRepository.findAll(pageable);
-//        }
-//
-//        return projectPage.map(this::mapToDTO);
-//    }
-
+    @Transactional(readOnly = true)
     @Override
     public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
 
-        // 1. Get the sub-city restriction for the current user
-        SubCity restrictedSubCity = subCityServiceImpl.getCurrentUserSubCity();
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
 
-        Long finalSubCityId;
+        if (employee == null) {
+            return projectRepository.findAll(pageable).map(this::mapToDTO);
+        }
 
-        if (restrictedSubCity != null) {
-            // 2. User is restricted (e.g., Regional Manager).
-            // Force the filter to THEIR sub-city only.
-            finalSubCityId = restrictedSubCity.getId();
-        } else {
-            // 3. User is Super Admin. Use the filter from the dropdown.
-            // If they chose "All Regions", subCityId will be null.
-            finalSubCityId = subCityId;
+        SubCity restrictedSubCity = employee.getSubCity();
+
+        Division division = employee.getDivision();
+
+        if (division == null) {
+            return Page.empty(pageable);
+        }
+
+        DivisionGroup divisionGroup = division.getDivisionGroup();
+
+        Long finalSubCityId = (restrictedSubCity != null)
+                ? restrictedSubCity.getId()
+                : subCityId;
+
+        ProjectType projectType = null;
+
+        if (divisionGroup.equals(DivisionGroup.BLD)) {
+            projectType = ProjectType.BUILDING;
+        } else if (!divisionGroup.equals(DivisionGroup.BTH)) {
+            projectType = ProjectType.WATER_AND_ROAD;
         }
 
         Page<Project> projectPage = projectRepository.findWithFilters(
+                projectType,
                 search,
                 status,
                 finalSubCityId,
@@ -180,21 +179,16 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findById(projectId)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
     }
+
+    //used for inspection only
     @Override
     public Page<ProjectResponseDTO> getMyProjects(Pageable pageable) {
 
-        if (authContext.isSuperAdmin() || authContext.isMayor()) {
-            return projectRepository
-                    .findAll(pageable)
-                    .map(this::mapToDTO);
-        }
-
-        Employee employee = authContext.getEmployee();
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
 
         if (employee == null) {
             return Page.empty(pageable);
         }
-
 
         return projectRepository
                 .findAllByEmployeesContaining(employee, pageable)
@@ -218,6 +212,7 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setCurrencyType(project.getCurrencyType());
         dto.setBudget(project.getBudget());
         dto.setBudgetUsed(project.getBudgetUsed());
+        dto.setProjectLevel(project.getProjectLevel());
 
         if (project.getCity() != null) {
             dto.setCityId(project.getCity().getId());
@@ -276,6 +271,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setCurrencyType(dto.getCurrencyType());
         project.setBudget(dto.getBudget());
         project.setBudgetUsed(dto.getBudgetUsed());
+        project.setProjectLevel(dto.getProjectLevel());
 
         project.setContractor(dto.getContractorId() != null ?
                 contractorServiceImpl.getContractorEntityById(dto.getContractorId()) : null);

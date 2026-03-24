@@ -1,6 +1,7 @@
 package et.scco.pms_backend.components;
 
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Transactional
 @Component
@@ -84,30 +86,31 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initDivisions() {
+        if (divisionRepository.count() > 4){
+            return;
+        }
+        createDivision("Mayor Office", DivisionGroup.BTH, null);
 
-        createDivision("Mayor Office", null);
+        createDivision("City Office", DivisionGroup.BTH, "Mayor Office");
 
-        createDivision("City Office", "Mayor Office");
+        createDivision("City Record Office", DivisionGroup.BTH, "City Office");
+        createDivision("City Building Director Office", DivisionGroup.BLD, "City Office");
+        createDivision("City Water and Road Director Office", DivisionGroup.WAR, "City Office");
+        createDivision("Sub-City Office", DivisionGroup.BTH, "City Office");
+        createDivision("City Finance Office", DivisionGroup.BTH, "City Office");
 
-        createDivision("City Record Office", "City Office");
-        createDivision("City Building Director Office", "City Office");
-        createDivision("City Water and Road Director Office", "City Office");
-        createDivision("Sub-City Office", "City Office");
-        createDivision("City Finance Office", "City Office");
-
-        createDivision("City Design Team Leader Office", "City Building Director Office");
-        createDivision("City Monitoring Team Leader Office", "City Building Director Office");
+        createDivision("City Design Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
+        createDivision("City Monitoring Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
         
-        createDivision("City Team Leader 1 Office", "City Water and Road Director Office");
-        createDivision("City Team Leader 2 Office", "City Water and Road Director Office");
+        createDivision("City Team Leader 1 Office", DivisionGroup.WAR, "City Water and Road Director Office");
+        createDivision("City Team Leader 2 Office", DivisionGroup.WAR, "City Water and Road Director Office");
 
-        createDivision("Sub-City Building Team Leader Office", "Sub-City Office");
-        createDivision("Sub-City Water and Road Team Leader Office", "Sub-City Office");
-        createDivision("Sub-City Record Office", "Sub-City Office");
-        
+        createDivision("Sub-City Building Team Leader Office", DivisionGroup.BLD, "Sub-City Office");
+        createDivision("Sub-City Water and Road Team Leader Office", DivisionGroup.WAR, "Sub-City Office");
+        createDivision("Sub-City Record Office", DivisionGroup.BTH, "Sub-City Office");
     }
 
-    private void createDivision(String name, String parentName) {
+    private void createDivision(String name, DivisionGroup divisionGroup, String parentName) {
 
         if (divisionRepository.existsByNameIgnoreCase(name)) {
             return;
@@ -115,6 +118,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         Division division = new Division();
         division.setName(name);
+        division.setDivisionGroup(divisionGroup);
 
         if (parentName != null) {
             divisionRepository.findByNameIgnoreCase(parentName)
@@ -125,6 +129,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
+        if (positionRepository.count() > 4){
+            return;
+        }
         createPosition("Mayor", null, "Mayor Office");
 
         createPosition("City Office Head", "Mayor", "City Office");
@@ -152,7 +159,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("Sub-City Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
         createPosition("Sub-City Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
-        
+        createPosition("City Record Office Head", "City Office Head", "City Record Office");
     }
 
 
@@ -297,50 +304,55 @@ public class SystemDataInitializer implements ApplicationRunner {
 
     private void initSuperAdmin() {
 
-        Roles admin = roleRepository.findByRoleName("SUPER_ADMIN")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("SUPER_ADMIN");
-                    r.setDescription("System Super Administrator");
-                    return roleRepository.save(r);
-                });
+        Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
+        getOrCreateRole("MAYOR", "City Mayor Role");
+        getOrCreateRole("MANAGER", "City Manager Role");
 
-        // Assign all permissions
-        admin.getPermissions().clear();
-        admin.getPermissions().addAll(permissionRepository.findAll());
+        List<String> requiredPermissions = List.of(
+                "CAN_SEE_DASHBOARD",
+                "CAN_SEE_ORG_STRUCTURE",
+                "CAN_SEE_SYS_ADMIN",
+                "CAN_SEE_ROLE_REPORT",
+                "CAN_SEE_EMPLOYEE_REPORT",
+                "CAN_SEE_USER_REPORT",
+                "CAN_SEE_DIVISION_REPORT",
+                "CAN_SEE_LOCATION_REPORT"
+        );
+
+        List<Permission> permissions =
+                permissionRepository.findAllBySlugIn(requiredPermissions);
+
+        if (permissions.size() != requiredPermissions.size()) {
+            throw new RuntimeException("Missing required permissions for SUPER_ADMIN");
+        }
+
+        admin.setPermissions(new HashSet<>(permissions));
         roleRepository.save(admin);
 
-
-        roleRepository.findByRoleName("MAYOR")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("MAYOR");
-                    r.setDescription("City Mayor Role");
-                    return roleRepository.save(r);
-                });
-
-        roleRepository.findByRoleName("MANAGER")
-                .orElseGet(() -> {
-                    Roles r = new Roles();
-                    r.setRoleName("MANAGER");
-                    r.setDescription("City Manager Role");
-                    return roleRepository.save(r);
-                });
-
         User user = userRepository.findByUsername(superAdminProperties.getUsername())
-                .orElseGet(() -> {
+                .orElseGet(User::new);
 
-                    User u = new User();
-                    u.setUsername(superAdminProperties.getUsername());
-                    u.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
-                    u.setEmail(superAdminProperties.getUserEmail());
-                    u.setRoles(new HashSet<>(List.of(admin)));
-                    u.setUserType(UserType.SYSTEM);
-                    u.setEmployee(null);
+        user.setUsername(superAdminProperties.getUsername());
+        user.setEmail(superAdminProperties.getUserEmail());
+        user.setRoles(new HashSet<>(List.of(admin)));
+        user.setUserType(UserType.SYSTEM);
+        user.setEmployee(null);
 
-                    return userRepository.save(u);
-                });
+        if (user.getId() == null) {
+            user.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
+        }
+
         userRepository.save(user);
+    }
+
+    private Roles getOrCreateRole(String name, String description) {
+        return roleRepository.findByRoleName(name)
+                .orElseGet(() -> {
+                    Roles r = new Roles();
+                    r.setRoleName(name);
+                    r.setDescription(description);
+                    return roleRepository.save(r);
+                });
     }
 
     private record PermissionData(String slug, String name) {}

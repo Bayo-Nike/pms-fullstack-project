@@ -1,11 +1,11 @@
 package et.scco.pms_backend.modules.admin.service.impl;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.DivisionRequestDto;
 import et.scco.pms_backend.modules.admin.dto.response.DivisionResponseDto;
 import et.scco.pms_backend.modules.admin.mapper.DivisionMapper;
 import et.scco.pms_backend.modules.admin.model.Division;
-import et.scco.pms_backend.modules.admin.model.Position;
 import et.scco.pms_backend.modules.admin.repository.DivisionRepository;
 import et.scco.pms_backend.modules.admin.service.DivisionService;
 import lombok.AllArgsConstructor;
@@ -46,6 +46,7 @@ public class DivisionServiceImpl implements DivisionService {
         }
 
         Division division = new Division();
+        division.setDivisionGroup(DivisionGroup.valueOf(dto.getDivisionGroup()));
         division.setName(dto.getName());
 
         if (dto.getParentId() != null) {
@@ -64,6 +65,7 @@ public class DivisionServiceImpl implements DivisionService {
 
         Division division = divisionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Division not found with id: " + id));
+        division.setDivisionGroup(DivisionGroup.valueOf(dto.getDivisionGroup()));
         division.setName(dto.getName());
         if (dto.getParentId() != null) {
             Division parent = divisionRepository.findById(dto.getParentId())

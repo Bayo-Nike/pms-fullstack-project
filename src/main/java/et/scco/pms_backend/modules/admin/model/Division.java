@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.admin.model;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,6 +25,10 @@ public class Division {
 
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DivisionGroup divisionGroup;
 
     // Parent Division
     @ManyToOne(fetch = FetchType.LAZY)

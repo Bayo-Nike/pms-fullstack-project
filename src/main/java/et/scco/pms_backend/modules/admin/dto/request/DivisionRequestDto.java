@@ -5,5 +5,6 @@ import lombok.Data;
 @Data
 public class DivisionRequestDto {
     private String name;
+    private String divisionGroup;
     private Long parentId;
 }

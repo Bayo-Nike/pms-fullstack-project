@@ -25,6 +25,7 @@ public class DivisionMapper {
         return new DivisionResponseDto(
                 division.getId(),
                 division.getName(),
+                division.getDivisionGroup(),
                 parent != null ? parent.getId():null,
                 parent != null ? parent.getName():null,
                 childrenRes

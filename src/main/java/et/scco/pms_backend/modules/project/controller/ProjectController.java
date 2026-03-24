@@ -20,12 +20,6 @@ public class ProjectController {
 
     private final ProjectServiceImpl projectService;
 
-//    @GetMapping
-//    public ApiResponse<Page<ProjectResponseDTO>> getProjects(Pageable pageable) {
-//        Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);
-//        return ResponseUtil.success("Projects fetched successfully", projects);
-//    }
-
     @GetMapping
     public ApiResponse<Page<ProjectResponseDTO>> getProjects(
             @RequestParam(required = false) String search,

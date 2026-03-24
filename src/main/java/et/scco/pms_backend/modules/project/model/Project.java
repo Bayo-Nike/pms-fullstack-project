@@ -4,10 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import et.scco.pms_backend.enums.CurrencyType;
-import et.scco.pms_backend.enums.ProjectPriority;
-import et.scco.pms_backend.enums.ProjectStatus;
-import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.enums.*;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.task.model.Task;
 import jakarta.persistence.*;
@@ -32,6 +29,10 @@ public class Project {
     private String title;
     private String description;
     private String progress;
+
+
+    @Enumerated(EnumType.STRING)
+    private ProjectLevel projectLevel;
 
     @Enumerated(EnumType.STRING)
     private ProjectType projectType;

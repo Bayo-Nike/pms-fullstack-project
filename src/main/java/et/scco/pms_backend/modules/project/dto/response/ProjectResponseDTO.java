@@ -1,10 +1,7 @@
 package et.scco.pms_backend.modules.project.dto.response;
 
 
-import et.scco.pms_backend.enums.CurrencyType;
-import et.scco.pms_backend.enums.ProjectPriority;
-import et.scco.pms_backend.enums.ProjectStatus;
-import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.enums.*;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -20,6 +17,8 @@ public class ProjectResponseDTO {
     private String title;
     private String description;
     private String progress;
+
+    private ProjectLevel projectLevel;
     private ProjectType projectType;
 
     private Long cityId;
