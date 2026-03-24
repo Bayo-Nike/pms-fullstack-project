@@ -133,6 +133,7 @@ public class SystemDataInitializer implements ApplicationRunner {
         createPosition("City Water and Road Director", "City Office Head", "City Water and Road Director Office");
         createPosition("Sub-City Office Head", "City Office Head", "Sub-City Office");
         createPosition("Finance Officer", "City Office Head", "City Finance Office");
+        createPosition("City Record Office Head", "City Office Head", "City Record Office");
 
         createPosition("City Design Team Leader", "City Building Director", "City Design Team Leader Office");
         createPosition("City Monitoring Team Leader", "City Building Director", "City Design Team Leader Office");

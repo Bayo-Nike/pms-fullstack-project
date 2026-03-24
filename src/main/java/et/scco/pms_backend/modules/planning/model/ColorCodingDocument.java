@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.planning.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,5 +23,9 @@ public class ColorCodingDocument {
     @ManyToOne
     @JoinColumn(name = "color_coding_id")
     private ColorCoding colorCoding;
+
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "color_coding_details_id")
+    // private ColorCodingDetails colorCodingDetails;
 
 }
