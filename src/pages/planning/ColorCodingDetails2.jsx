@@ -4,9 +4,7 @@ import {
   ArrowBack, LocationCity, Description, InsertDriveFile, Search,
   GridView, List, Download, OpenInNew, Visibility,
   ChevronLeft, ChevronRight, FilterList,
-  FactCheck,
-  UploadFile,
-  Close
+  Assignment
 } from '@mui/icons-material';
 
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -21,11 +19,6 @@ export default function ViewTarget() {
   const [parentCityName, setParentCityName] = useState('...');
   const [loading, setLoading] = useState(true);
   
-  // --- FILE MANAGEMENT STATES ---
-  const [newFiles, setNewFiles] = useState([]);        // Files selected from computer
-  const [existingFiles, setExistingFiles] = useState([]); // Files already on server {id, fileName}
-  const [deletedFileIds, setDeletedFileIds] = useState([]); // IDs to be purged from DB
-  
   // UNLIMITED FILE HANDLING STATES
   const [viewMode, setViewMode] = useState('list');
   const [docSearch, setDocSearch] = useState('');
@@ -36,38 +29,11 @@ export default function ViewTarget() {
 
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
 
-  // --- FILE HANDLING LOGIC ---
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    setNewFiles(prev => [...prev, ...selectedFiles]);
-  };
-
-  const triggerFileDelete = (file, type, index = null) => {
-    setFileToProcess({ ...file, type, index });
-    setShowFileConfirm(true);
-  };
-
-
-  const confirmFileDeletion = () => {
-    if (fileToProcess.type === 'existing') {
-      // Mark for DB deletion and remove from UI
-      setDeletedFileIds(prev => [...prev, fileToProcess.id]);
-      setExistingFiles(prev => prev.filter(f => f.id !== fileToProcess.id));
-    } else {
-      // Simply remove from local selection
-      setNewFiles(prev => prev.filter((_, i) => i !== fileToProcess.index));
-    }
-    setShowFileConfirm(false);
-    setFileToProcess(null);
-  };
-
   const [achievementForm, setAchievementForm] = useState({
     achieved: 1,
     feedback: '',
     locations: [{ latitude: '', longitude: '' }]
   });
-
-
 
   const addLocation = () => {
     setAchievementForm(prev => ({
@@ -75,6 +41,7 @@ export default function ViewTarget() {
       locations: [...prev.locations, { latitude: '', longitude: '' }]
     }));
   };
+  
   
   const removeLocation = (index) => {
     if (achievementForm.locations.length === 1) return;
@@ -384,60 +351,6 @@ export default function ViewTarget() {
                   </button>
                 </div>
               ))}
-            </div>
-
-            {/* ARTIFACT SYSTEM */}
-            <div className="space-y-4 pt-2">
-              <div className="flex items-center justify-between border-b pb-2">
-                <div className="flex items-center gap-2">
-                  <FactCheck className="text-slate-400" fontSize="small" />
-                  <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Performance Artifacts</span>
-                </div>
-                <span className="text-[9px] font-bold text-[#0284C7] uppercase bg-sky-50 px-2 py-0.5 rounded-full">Unlimited</span>
-              </div>
-
-              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-[#0284C7] transition-all relative cursor-pointer bg-slate-50/30 group">
-                <input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                <UploadFile className="text-slate-300 group-hover:text-[#0284C7] mb-2" style={{ fontSize: 40 }} />
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Click to add documents</p>
-              </div>
-
-              <div className="max-h-64 overflow-y-auto pr-2 space-y-2 custom-scrollbar">
-                {/* EXISTING FILES (On Server) */}
-                {existingFiles.map((file) => (
-                  <div key={`exist-${file.id}`} className="flex items-center gap-3 p-3 rounded-xl border bg-white border-slate-100 shadow-sm group hover:border-[#0284C7] transition-all">
-                    <CloudDone className="text-emerald-500" style={{ fontSize: 18 }} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-slate-700 truncate">{file.fileName}</p>
-                      <p className="text-[9px] font-black uppercase text-slate-300">Saved Archive</p>
-                    </div>
-                    <button type="button" onClick={() => triggerFileDelete(file, 'existing')} className="p-1.5 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all">
-                      <DeleteOutline style={{ fontSize: 18 }} />
-                    </button>
-                  </div>
-                ))}
-
-                {/* NEW FILES (To be Uploaded) */}
-                {newFiles.map((file, idx) => (
-                  <div key={`new-${idx}`} className="flex items-center gap-3 p-3 rounded-xl border bg-sky-50/30 border-sky-100 animate-slideIn">
-                    <Description className="text-[#0284C7]" style={{ fontSize: 18 }} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-slate-700 truncate">{file.name}</p>
-                      <p className="text-[9px] font-black uppercase text-[#0284C7]">Pending Sync</p>
-                    </div>
-                    <button type="button" onClick={() => triggerFileDelete(file, 'new', idx)} className="p-1.5 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500 transition-all">
-                      <Close style={{ fontSize: 16 }} />
-                    </button>
-                  </div>
-                ))}
-
-                {existingFiles.length === 0 && newFiles.length === 0 && (
-                  <div className="text-center py-10 border-2 border-dotted border-slate-100 rounded-2xl">
-                      <Description className="text-slate-100 mb-2" style={{ fontSize: 48 }} />
-                      <p className="text-[10px] font-bold uppercase text-slate-300">No attachments found</p>
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Feedback */}

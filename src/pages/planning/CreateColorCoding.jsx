@@ -146,7 +146,7 @@ export default function CreateTarget() {
       payload.append('buildingType', formData.buildingType);
       payload.append('target', formData.target);
       
-      if (canUpdateColorCodingImplementation && formData.achieved !== '') {
+      if (isEdit && formData.achieved !== '') {
           payload.append('achieved', formData.achieved);
       }
 
@@ -252,8 +252,7 @@ export default function CreateTarget() {
               <select
                 name="subCityId"
                 value={formData.subCityId}
-                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-                disabled={canUpdateColorCodingImplementation}
+                onChange={handleInputChange}
                 className={`flex-1 text-sm font-semibold px-4 py-3 border rounded-xl outline-none ${canUpdateColorCodingImplementation ? 'bg-slate-50' : 'bg-white border-slate-200'}`}
               >
                 <option value="">-- Select Sub-City --</option>
@@ -268,8 +267,7 @@ export default function CreateTarget() {
               <select
                 name="fiscalYear"
                 value={formData.fiscalYear}
-                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-                disabled={canUpdateColorCodingImplementation}
+                onChange={handleInputChange}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
               >
                 <option value="">-- Select Year --</option>
@@ -281,8 +279,7 @@ export default function CreateTarget() {
               <select
                 name="buildingType"
                 value={formData.buildingType}
-                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-                disabled={canUpdateColorCodingImplementation}
+                onChange={handleInputChange}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
               >
                 <option value="">-- Select Type --</option>
@@ -299,8 +296,7 @@ export default function CreateTarget() {
             <select
               name="planType"
               value={formData.planType}
-              onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-              disabled={canUpdateColorCodingImplementation}
+              onChange={handleInputChange}
               className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200"
             >
               <option value="">-- Select Modal --</option>
@@ -315,8 +311,7 @@ export default function CreateTarget() {
               <select
                 name="quarter"
                 value={formData.quarter}
-                onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-                disabled={canUpdateColorCodingImplementation}
+                onChange={handleInputChange}
                 className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-amber-50/20 border-amber-200"
               >
                 <option value="">-- Select --</option>
@@ -335,14 +330,13 @@ export default function CreateTarget() {
               name="target"
               type="number"
               value={formData.target}
-              onChange={!canUpdateColorCodingImplementation ? handleInputChange : undefined}
-              readOnly={canUpdateColorCodingImplementation}
+              onChange={handleInputChange}
               className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200 focus:border-[#0284C7]"
               placeholder="Enter numerical target"
             />
           </div>
 
-          {canUpdateColorCodingImplementation && (
+          {isEdit && (
             <>
               <div className="space-y-1.5">
                 <label className="text-[9px] font-bold uppercase text-[#0284C7] tracking-[0.2em] ml-1">Achieved Value</label>

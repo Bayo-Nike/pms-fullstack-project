@@ -5,6 +5,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import Layout from './components/Layout';
 import AppRoutes from './routes';
 import { AuthProvider } from './context/AuthContext';
+import 'leaflet/dist/leaflet.css';
 
 const theme = createTheme({
   typography: { fontFamily: '"Poppins", sans-serif' },
