@@ -49,6 +49,7 @@ import Consultancies from './pages/admin/Consultancies';
 import CreateConsultant from './pages/admin/CreateConsultancies';
 import Clients from './pages/admin/Clients';
 import CreateClient from './pages/admin/CreateClient';
+import Reportees from './pages/admin/Reportees';
 
 
 export default function AppRoutes() {
@@ -67,6 +68,7 @@ export default function AppRoutes() {
         {/* 1. Dashboard */}
         <Route path="dashboard" element={protect(<Dashboard />, "CAN_SEE_DASHBOARD")} />
         <Route path="org-structure" element={protect(<OrgStructure />, "CAN_SEE_ORG_STRUCTURE")} />
+        <Route path="my-reportees" element={protect(<Reportees />, "CAN_SEE_MY_REPORTEES")} />
 
         {/* 2. Projects */}
         <Route path="projects" element={protect(<Projects />, "CAN_SEE_PROJECT_LIST")} />

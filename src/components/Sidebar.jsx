@@ -27,6 +27,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       children: [
         { path: '/dashboard', name: 'Executive Overview', permission: 'CAN_SEE_DASHBOARD' },
         { path: '/org-structure', name: 'Organization Structure', permission: 'CAN_SEE_ORG_STRUCTURE' },
+        { path: '/my-reportees', name: 'My Reportees', permission: 'CAN_SEE_MY_REPORTEES' }
       ]
     },
     {

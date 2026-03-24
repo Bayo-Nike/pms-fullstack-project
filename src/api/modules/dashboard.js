@@ -6,5 +6,6 @@ const dashboardApi = {
     // You can add more specific calls here later
     getProjectDetails: (id) => api.get(`/dashboard/project/${id}`),
 
+    getMyReportees: () => api.get('/jurisdiction/reportees'),
 }
 export default dashboardApi;
