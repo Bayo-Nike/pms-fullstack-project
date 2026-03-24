@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     Edit, Delete, Search, Add, AccountTree,
     HelpOutline, CorporateFare, ChevronLeft, ChevronRight,
-    Schema // Use Schema instead of Hierarchy
+    Schema
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -17,11 +17,9 @@ export default function Divisions() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Pagination States
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
 
-    // UI States
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, name: '' });
 
@@ -69,7 +67,8 @@ export default function Divisions() {
     const filteredDivisions = useMemo(() => {
         return divisions.filter(d =>
             (d.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (d.parentName || "").toLowerCase().includes(searchTerm.toLowerCase())
+            (d.parentName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (d.divisionGroup || "").toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [divisions, searchTerm]);
 
@@ -106,7 +105,7 @@ export default function Divisions() {
                     <h1 className="text-base font-bold text-slate-900">Divisions</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">Organizational Hierarchy</p>
                 </div>
-                {can('CAN_MANAGE_MODULES') && (
+                {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => navigate('/admin/divisions/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Create Division
                     </button>
@@ -136,6 +135,7 @@ export default function Divisions() {
                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
                             <th className="px-6 py-3">Division Name</th>
+                            <th className="px-6 py-3">Group</th>
                             <th className="px-6 py-3">Parent</th>
                             <th className="px-6 py-3">Sub-Units</th>
                             <th className="px-6 py-3 text-right">Operations</th>
@@ -143,7 +143,7 @@ export default function Divisions() {
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {loading ? (
-                            <tr><td colSpan="4" className="px-6 py-10 text-center text-slate-400 text-xs italic">Syncing hierarchy...</td></tr>
+                            <tr><td colSpan="5" className="px-6 py-10 text-center text-slate-400 text-xs italic">Syncing hierarchy...</td></tr>
                         ) : paginatedDivisions.length > 0 ? (
                             paginatedDivisions.map((d) => (
                                 <tr key={d.id} className="hover:bg-slate-50/50 transition-colors group">
@@ -154,6 +154,14 @@ export default function Divisions() {
                                             </div>
                                             <span className="text-sm font-semibold text-slate-700">{d.name}</span>
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-3.5">
+                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${d.divisionGroup === 'BTH' ? 'bg-purple-50 text-purple-600 border-purple-100' :
+                                            d.divisionGroup === 'WAR' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                                                'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                            }`}>
+                                            {d.divisionGroup || 'N/A'}
+                                        </span>
                                     </td>
                                     <td className="px-6 py-3.5">
                                         {d.parentName ? (
@@ -172,7 +180,7 @@ export default function Divisions() {
                                     </td>
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {can('CAN_MANAGE_MODULES') && (
+                                            {can('CAN_SEE_SYS_ADMIN') && (
                                                 <>
                                                     <button onClick={() => navigate(`/admin/divisions/edit/${d.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 16 }} /></button>
                                                     <button onClick={() => handleDeleteClick(d)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 16 }} /></button>
@@ -183,12 +191,11 @@ export default function Divisions() {
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan="4" className="px-6 py-20 text-center text-slate-400 text-xs italic">No units found matching "{searchTerm}"</td></tr>
+                            <tr><td colSpan="5" className="px-6 py-20 text-center text-slate-400 text-xs italic">No units found matching "{searchTerm}"</td></tr>
                         )}
                     </tbody>
                 </table>
 
-                {/* Footer */}
                 <div className="px-6 py-4 bg-slate-50/20 border-t border-slate-100 flex items-center justify-between">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                         Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredDivisions.length)} of {filteredDivisions.length}

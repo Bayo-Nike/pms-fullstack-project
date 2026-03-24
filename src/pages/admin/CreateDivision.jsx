@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowBack, Save, CorporateFare, AccountTree, HelpOutline, InfoOutlined } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
@@ -9,13 +9,12 @@ export default function CreateDivision() {
     const { id } = useParams();
     const isEdit = Boolean(id);
 
-    // Form States
     const [name, setName] = useState('');
-    const [parentId, setParentId] = useState(''); // Stores the ID of the parent division
+    const [divisionGroup, setDivisionGroup] = useState('BTH'); // Defaulting to BTH as per "else" logic
+    const [parentId, setParentId] = useState('');
 
-    // UI & Data States
     const [availableDivisions, setAvailableDivisions] = useState([]);
-    const [currentDivisionData, setCurrentDivisionData] = useState(null); // Full response data if editing
+    const [currentDivisionData, setCurrentDivisionData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -29,21 +28,17 @@ export default function CreateDivision() {
     useEffect(() => {
         const initData = async () => {
             try {
-                // 1. Fetch all divisions to populate the "Parent" dropdown
                 const listRes = await adminApi.GET_DIVISIONS();
                 const list = listRes.data || listRes;
-
-                // Filter out the current division from the parent list if editing 
-                // (a division cannot be its own parent)
                 const filteredList = isEdit ? list.filter(d => d.id.toString() !== id) : list;
                 setAvailableDivisions(filteredList);
 
-                // 2. Fetch specific division details if editing
                 if (isEdit) {
                     const detailRes = await adminApi.GET_DIVISION(id);
                     const data = detailRes.data || detailRes;
                     setCurrentDivisionData(data);
                     setName(data.name || '');
+                    setDivisionGroup(data.divisionGroup || 'BTH');
                     setParentId(data.parentId || '');
                 }
             } catch (err) {
@@ -55,6 +50,20 @@ export default function CreateDivision() {
         };
         initData();
     }, [id, isEdit]);
+
+    // SMART SUGGESTION LOGIC
+    const handleNameChange = (val) => {
+        setName(val);
+        const lower = val.toLowerCase();
+
+        if (lower.includes('building')) {
+            setDivisionGroup('BLD');
+        } else if (lower.includes('water') || lower.includes('road')) {
+            setDivisionGroup('WAR');
+        } else {
+            setDivisionGroup('BTH');
+        }
+    };
 
     const handleSaveTrigger = () => {
         if (!name.trim()) {
@@ -68,9 +77,9 @@ export default function CreateDivision() {
         setShowConfirm(false);
         setSaving(true);
         try {
-            // Payload matches DivisionRequestDto
             const payload = {
                 name: name.trim(),
+                divisionGroup: divisionGroup,
                 parentId: parentId === '' ? null : parentId
             };
 
@@ -95,7 +104,6 @@ export default function CreateDivision() {
     return (
         <div className="w-full space-y-4 pb-10 px-2 relative animate-fadeIn">
 
-            {/* Confirmation Dialog */}
             {showConfirm && (
                 <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-100 text-center">
@@ -112,14 +120,8 @@ export default function CreateDivision() {
                 </div>
             )}
 
-            <AlertMessage
-                show={alert.show}
-                type={alert.type}
-                message={alert.message}
-                onClose={() => setAlert(prev => ({ ...prev, show: false }))}
-            />
+            <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert(prev => ({ ...prev, show: false }))} />
 
-            {/* Header / Action Bar */}
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-3">
                     <button onClick={() => navigate('/admin/divisions')} className="p-1.5 bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors">
@@ -140,7 +142,6 @@ export default function CreateDivision() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {/* Left Card: General Info */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
                         <CorporateFare className="text-slate-400" fontSize="small" />
@@ -152,10 +153,24 @@ export default function CreateDivision() {
                             <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Division Name</label>
                             <input
                                 className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white transition-all"
-                                placeholder="e.g. Roads & Infrastructure Department"
+                                placeholder="e.g. Building Infrastructure Dept"
                                 value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                onChange={(e) => handleNameChange(e.target.value)}
                             />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Division Group</label>
+                            <select
+                                value={divisionGroup}
+                                onChange={(e) => setDivisionGroup(e.target.value)}
+                                className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white transition-all appearance-none cursor-pointer"
+                            >
+                                {/* KEPT CURRENT ORDER */}
+                                <option value="BLD">Building (BLD)</option>
+                                <option value="WAR">Water and Road (WAR)</option>
+                                <option value="BTH">Both (BTH)</option>
+                            </select>
                         </div>
 
                         {isEdit && currentDivisionData?.children?.length > 0 && (
@@ -173,7 +188,6 @@ export default function CreateDivision() {
                     </div>
                 </div>
 
-                {/* Right Card: Hierarchy Context */}
                 <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                     <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
                         <AccountTree className="text-slate-400" fontSize="small" />
@@ -195,9 +209,6 @@ export default function CreateDivision() {
                                     </option>
                                 ))}
                             </select>
-                            <p className="text-[10px] text-slate-400 italic ml-1 mt-2">
-                                Leave as "None" if this is a primary department reporting directly to the CEO/Admin.
-                            </p>
                         </div>
                     </div>
                 </div>
