@@ -1,6 +1,8 @@
 package et.scco.pms_backend.modules.planning.service.impl;
 
 import et.scco.pms_backend.modules.admin.controller.AuditLogController;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,9 +21,13 @@ import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
+import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
+import et.scco.pms_backend.modules.planning.dto.request.LocationDTO;
 import et.scco.pms_backend.modules.planning.mapper.ColorCodingMapper;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
+import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
+import et.scco.pms_backend.modules.planning.repository.ColorCodingDetailRepository;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
 import et.scco.pms_backend.utility.FileStorageService;
@@ -192,7 +198,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
             colorCoding.setAchieved(colorCoding.getAchieved());
 
         }else{ // If Evaluator
-            colorCoding.setMeasuredBy(user);
+            // colorCoding.setMeasuredBy(user);
             colorCoding.PreUpdate();
             colorCoding.setAchieved(colorCodingRequestDTO.getAchieved());
             

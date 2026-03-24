@@ -54,6 +54,6 @@ public class AuthContext {
         return getUser()
                 .getRoles()
                 .stream()
-                .allMatch(roles -> roles.getRoleName().equals("MANAGER"));
+                .allMatch(roles -> roles.getRoleName().equals("CITY_OFFICE_HEAD"));
     }
 }

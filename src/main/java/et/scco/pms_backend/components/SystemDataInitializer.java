@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Transactional
 @Component
@@ -306,7 +305,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
         getOrCreateRole("MAYOR", "City Mayor Role");
-        getOrCreateRole("MANAGER", "City Manager Role");
+        getOrCreateRole("CITY_OFFICE_HEAD", "City Office Head Role");
 
         List<String> requiredPermissions = List.of(
                 "CAN_SEE_DASHBOARD",

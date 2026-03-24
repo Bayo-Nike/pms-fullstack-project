@@ -115,7 +115,7 @@ public class UserServiceImpl  implements UserService{
     @Override
     public String getManagerUserName(){
         List<User> users = userRepository.findAllByRolesIn(
-                Set.of(roleRepository.findByRoleName("MANAGER").orElseThrow())
+                Set.of(roleRepository.findByRoleName("CITY_OFFICE_HEAD").orElseThrow())
         );
         
         if (users == null){
