@@ -24,7 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
+import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
+import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
+import et.scco.pms_backend.modules.planning.service.impl.AchievementServiceImpl;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/colorCodes")
 public class ColorCodingController {
     private final ColorCodingService colorCodingService;
+    private final AchievementServiceImpl achievementServiceImpl;
 
     // Dynamic Fiscal Year API
     @GetMapping("/fiscal-years")
@@ -120,6 +124,18 @@ public class ColorCodingController {
     public ResponseEntity<String>deleteColorCode(@PathVariable("id") Long colorCodeId){
         colorCodingService.deleteColorCode(colorCodeId);
         return ResponseEntity.ok("ColorCode deleted successfully.");
+    }
+
+    @PostMapping("/submit-achievement")
+    public ResponseEntity<String> submit(@RequestBody AchievementRequestDTO dto) {
+        achievementServiceImpl.submitAchievement(dto);
+        return ResponseEntity.ok("Achievement saved successfully");
+    }  
+
+    @GetMapping("/{id}/achievements")
+    public ResponseEntity<List<ColorCodingDetails>> getAchievementHistory(@PathVariable Long id) {
+        List<ColorCodingDetails> list = achievementServiceImpl.findByColorCodingIdOrderBySubmittedDateDesc(id);
+        return ResponseEntity.ok(list);
     }
 
 }

@@ -62,23 +62,25 @@ public class ColorCoding {
     @Column(name = "target")
     private Long target;
 
-    @Column(name = "achieved")
-    private Long achieved;
+    @Column(name = "achieved",nullable = false)
+    private Long achieved=0L;
 
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;
+    @Column(name = "updated_date", updatable = false)
+    private LocalDateTime updatedDate;
 
     // @Column(name = "performance_document")
     // private String performanceDocument; // file name or path
     @OneToMany(mappedBy = "colorCoding", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ColorCodingDocument> performanceDocuments = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "measured_by")
-    private User measuredBy;
+    // @ManyToOne
+    // @JoinColumn(name = "measured_by")
+    // private User measuredBy;
 
-    @Column(name = "measured_date")
-    private LocalDateTime measuredDate;
+    // @Column(name = "measured_date")
+    // private LocalDateTime measuredDate;
 
     @PrePersist
     public void prePersist() {
@@ -86,7 +88,7 @@ public class ColorCoding {
     }
     @PreUpdate
     public void PreUpdate() {
-        measuredDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now();
     }
 
     
