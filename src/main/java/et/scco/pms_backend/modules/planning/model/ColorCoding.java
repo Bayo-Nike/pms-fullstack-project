@@ -62,8 +62,8 @@ public class ColorCoding {
     @Column(name = "target")
     private Long target;
 
-    @Column(name = "achieved",nullable = false)
-    private Long achieved=0L;
+    @Column(name = "achieved")
+    private Long achieved;
 
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate;

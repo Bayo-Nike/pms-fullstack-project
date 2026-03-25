@@ -138,4 +138,11 @@ public class ColorCodingController {
         return ResponseEntity.ok(list);
     }
 
+    @PutMapping("/achievement/{detailId}")
+    public ResponseEntity<?> updateAchievement(@PathVariable Long detailId, 
+        @RequestBody AchievementRequestDTO dto) {
+        achievementServiceImpl.updateAchievement(detailId, dto);
+        return ResponseEntity.ok("Achievement updated successfully");
+    }
+
 }

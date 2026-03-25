@@ -5,7 +5,6 @@ import java.util.List;
 
 import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
-import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
 
 public interface ColorCodingService {
 

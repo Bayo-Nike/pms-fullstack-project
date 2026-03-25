@@ -5,6 +5,10 @@ import java.util.stream.Collectors;
  
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.model.User;
+import et.scco.pms_backend.modules.admin.repository.UserRepository;
+import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
 import et.scco.pms_backend.modules.planning.model.AchievementLocation;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
@@ -19,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class AchievementServiceImpl { 
     private final ColorCodingRepository colorCodingRepository;
     private final ColorCodingDetailRepository codingDetailRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void submitAchievement(AchievementRequestDTO dto) {
@@ -48,6 +53,16 @@ public class AchievementServiceImpl {
         long addedCount = locations.size();
         
         colorCoding.setAchieved(currentTotal + addedCount);
+        // 5. Security Context
+        String currentUsername = AuthUtility.getUserName();
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("The Updating User not found"));
+
+        // 6. Access control logic
+        SubCity userSubCity = user.getEmployee() != null ? user.getEmployee().getSubCity() : null;
+        if(userSubCity != null){
+            // colorCodingDetails.setSubmittedBy(user);
+        }
  
         // Saving details will automatically save locations due to CascadeType.ALL
         codingDetailRepository.save(colorCodingDetails); 
@@ -58,6 +73,56 @@ public class AchievementServiceImpl {
 
     public List<ColorCodingDetails> findByColorCodingIdOrderBySubmittedDateDesc(Long id) {
         return codingDetailRepository.findByColorCodingIdOrderBySubmittedDateDesc(id);
+    }
+
+    @Transactional
+    public void updateAchievement(Long detailId, AchievementRequestDTO dto) {
+        // 1. Find existing submission
+        ColorCodingDetails details = codingDetailRepository.findById(detailId)
+                .orElseThrow(() -> new RuntimeException("Submission not found"));
+
+        ColorCoding master = details.getColorCoding();
+
+        // 2. Adjust the Master "Achieved" count
+        // New Total = (Old Master Total - Old Batch Size) + New Batch Size
+        long oldBatchSize = details.getLocations().size();
+        long newBatchSize = dto.getLocations().size();
+        
+        long currentTotal = (master.getAchieved() == null) ? 0 : master.getAchieved();
+        master.setAchieved((currentTotal - oldBatchSize) + newBatchSize);
+
+        // 3. Update Detail fields
+        details.setSenderFeedback(dto.getSenderFeedback());
+        details.setReviewerFeedback(dto.getReviewerFeedback());
+
+        // 4. Update Locations (Clear old, add new)
+        // This is easier than trying to match existing IDs
+        details.getLocations().clear(); 
+        
+        List<AchievementLocation> newLocations = dto.getLocations().stream().map(locDto -> {
+            AchievementLocation loc = new AchievementLocation();
+            loc.setLatitude(locDto.getLatitude());
+            loc.setLongitude(locDto.getLongitude());
+            loc.setColorCodingDetails(details);
+            return loc;
+        }).collect(Collectors.toList());
+
+        details.getLocations().addAll(newLocations);
+
+        // 5. Security Context
+        String currentUsername = AuthUtility.getUserName();
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("The Updating User not found"));
+
+        // 6. Access control logic
+        SubCity userSubCity = user.getEmployee() != null ? user.getEmployee().getSubCity() : null;
+        if(userSubCity != null){
+            // details.setSubmittedBy(user);
+        }
+
+        // 7. Save changes
+        codingDetailRepository.save(details);
+        colorCodingRepository.save(master);
     }
 
 }

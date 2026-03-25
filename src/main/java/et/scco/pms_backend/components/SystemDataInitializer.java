@@ -142,7 +142,7 @@ public class SystemDataInitializer implements ApplicationRunner {
         createPosition("City Record Office Head", "City Office Head", "City Record Office");
 
         createPosition("City Design Team Leader", "City Building Director", "City Design Team Leader Office");
-        createPosition("City Monitoring Team Leader", "City Building Director", "City Design Team Leader Office");
+        createPosition("City Monitoring Team Leader", "City Building Director", "City Monitoring Team Leader Office");
 
         createPosition("City Team Leader 1", "City Water and Road Director", "City Team Leader 1 Office");
         createPosition("City Team Leader 2", "City Water and Road Director", "City Team Leader 2 Office");
@@ -256,7 +256,9 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_EDIT_COLOR_CODING", "Edit Color Coding"),
                         new PermissionData("CAN_DELETE_COLOR_CODING", "Delete Color Coding"),
                         new PermissionData("CAN_VIEW_COLOR_CODING", "View Color Coding"),
-                        new PermissionData("CAN_UPDATE_COLOR_CODING_ACHIEVEMENT", "Update Color Implementation")
+                        new PermissionData("CAN_UPDATE_COLOR_CODING_ACHIEVEMENT", "Update Color Implementation"),
+                        new PermissionData("CAN_SEND_COLOR_CODING_ACHIEVEMENT", "Send Color coding Achievement"),
+                        new PermissionData("CAN_REVEW_COLOR_CODING_ACHIEVEMENT", "Review Color coding Achievement")
                 )
         );
 
