@@ -17,6 +17,12 @@ const colorCodingApi = {
     SUBMIT_ACHIEVEMENT: (payload) => api.post('/colorCodes/submit-achievement', payload),
     // api/modules/colorCoding.js
     GET_ACHIEVEMENT_HISTORY: (id) => api.get(`/colorCodes/${id}/achievements`),
+
+    UPDATE_ACHIEVEMENT: (id, data) =>
+        api.put(`/colorCodes/achievement/${id}`, data),
+
+    
+    
 };
 
 export default colorCodingApi;

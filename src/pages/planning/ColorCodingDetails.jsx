@@ -4,16 +4,19 @@ import {
   ArrowBack, LocationCity, Description, InsertDriveFile, Search,
   GridView, List, Download, OpenInNew, Visibility,
   ChevronLeft, ChevronRight, FilterList,
-  PushPin, History as HistoryIcon
+  PushPin, History as HistoryIcon,
+  Edit
 } from '@mui/icons-material';
 
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import colorCodingApi from '../../api/modules/colorCoding';
 import adminApi from '../../api/modules/admin';
+import { useAuth } from '../../context/AuthContext';
 
 export default function ViewTarget() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { can } = useAuth();
 
   const [data, setData] = useState(null);
   const [parentCityName, setParentCityName] = useState('...');
@@ -21,6 +24,7 @@ export default function ViewTarget() {
   
   // State renamed to avoid window.history conflict
   const [achievementLogs, setAchievementLogs] = useState([]); 
+  const [editingLogId, setEditingLogId] = useState(null); // NEW: Tracks if we are editing
    
   const [viewMode, setViewMode] = useState('list');
   const [docSearch, setDocSearch] = useState('');
@@ -30,9 +34,13 @@ export default function ViewTarget() {
   const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
   const [isAchievementModalOpen, setIsAchievementModalOpen] = useState(false);
 
+  const canSendColorCodingAchievement = can('CAN_SEND_COLOR_CODING_ACHIEVEMENT');
+  const canReviewColorCodingAchievement = can('CAN_REVEW_COLOR_CODING_ACHIEVEMENT');
+
   const [achievementForm, setAchievementForm] = useState({
     achieved: 1,
     senderFeedback: '',
+    reviewerFeedback: '',
     locations: [{ latitude: '', longitude: '' }]
   });
 
@@ -105,6 +113,28 @@ export default function ViewTarget() {
 
   const getFileUrl = (fileName) => `http://localhost:8080/api/colorCodes/download/${fileName}`;
 
+  // NEW: Function to open modal in EDIT mode
+  const handleEditAchievement = (row) => {
+    setEditingLogId(row.id);
+    setAchievementForm({
+      achieved: row.locations?.length || 0,
+      senderFeedback: row.senderFeedback || '',
+      reviewerFeedback: row.reviewerFeedback || '',
+      locations: row.locations?.map(loc => ({
+        latitude: loc.latitude.toString(),
+        longitude: loc.longitude.toString()
+      })) || [{ latitude: '', longitude: '' }]
+    });
+    setIsAchievementModalOpen(true);
+  };
+
+  // NEW: Function to close modal and reset state
+  const closeModal = () => {
+    setIsAchievementModalOpen(false);
+    setEditingLogId(null);
+    setAchievementForm({ achieved: 1, senderFeedback: '', reviewerFeedback:'', locations: [{ latitude: '', longitude: '' }] });
+  };
+
   const handleSubmitAchievement = async () => {
     try {
       const invalid = achievementForm.locations.some(loc => !loc.latitude || !loc.longitude);
@@ -120,15 +150,22 @@ export default function ViewTarget() {
           longitude: Number(loc.longitude)
         })),
         senderFeedback: achievementForm.senderFeedback,
+        reviewerFeedback:achievementForm.reviewerFeedback,
       };
   
-      await colorCodingApi.SUBMIT_ACHIEVEMENT(payload);
-      setIsAchievementModalOpen(false);
-      setAlert({ show: true, type: 'success', message: 'Achievement submitted successfully' });
-      setAchievementForm({ achieved: 1, senderFeedback: '', locations: [{ latitude: '', longitude: '' }] });
+      if (editingLogId) {
+        // CALL UPDATE API
+        await colorCodingApi.UPDATE_ACHIEVEMENT(editingLogId, payload);
+      } else {
+        // CALL CREATE API
+        await colorCodingApi.SUBMIT_ACHIEVEMENT(payload);
+      }
+
+      closeModal();
+      setAlert({ show: true, type: 'success', message: editingLogId ? 'Achievement updated!' : 'Achievement submitted!' });
       loadData(); 
     } catch (err) {
-      setAlert({ show: true, type: 'error', message: 'Submission failed' });
+      setAlert({ show: true, type: 'error', message: 'Operation failed' });
     }
   };
 
@@ -237,7 +274,7 @@ export default function ViewTarget() {
             </div>
           </div>
 
-          {/* ACHIEVEMENT LOGS (ACTION BUTTON MOVED HERE) */}
+          {/* ACHIEVEMENT LOGS */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0 min-h-[350px]">
             <div className="p-5 border-b bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -245,7 +282,6 @@ export default function ViewTarget() {
                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Achievement Logs History</h3>
               </div>
 
-              {/* ACTION BUTTON CONTEXTUALLY PLACED */}
               <button
                 onClick={() => setIsAchievementModalOpen(true)}
                 className="bg-[#0284C7] hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-[11px] font-black shadow-lg shadow-sky-100 transition-all flex items-center gap-2 shrink-0"
@@ -259,14 +295,15 @@ export default function ViewTarget() {
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase">
                     <th className="px-6 py-4">Submission Date</th>
-                    <th className="px-6 py-4">Feedback Note</th>
+                    <th className="px-6 py-4">Sender Feedback</th>
                     <th className="px-6 py-4 text-center">Batch Vol</th>
                     <th className="px-6 py-4">GPS Coordinates</th>
+                    <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {!achievementLogs || achievementLogs.length === 0 ? (
-                    <tr><td colSpan="4" className="py-20 text-center text-slate-300 italic text-xs font-bold uppercase tracking-widest">No logs available</td></tr>
+                    <tr><td colSpan="5" className="py-20 text-center text-slate-300 italic text-xs font-bold uppercase tracking-widest">No logs available</td></tr>
                   ) : (
                     achievementLogs.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50 transition-colors text-xs">
@@ -280,7 +317,7 @@ export default function ViewTarget() {
                         <td className="px-6 py-4 text-center">
                           <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-black text-[10px]">+{row.locations?.length || 0}</span>
                         </td>
-                        <td className="px-6 py-4 align-top"> {/* align-top keeps the rest of the row data aligned to the top */}
+                        <td className="px-6 py-4 align-top">
                           <div className="max-h-[110px] overflow-y-auto pr-2 custom-scrollbar">
                             <div className="flex flex-wrap gap-2">
                               {row.locations?.map((loc, idx) => (
@@ -301,17 +338,15 @@ export default function ViewTarget() {
                               ))}
                             </div>
                           </div>
-                          
-                          {/* Optional: Small indicator if there are many points */}
-                          {row.locations?.length > 4 && (
-                            <div className="mt-1 text-center">
-                              <p className="text-[8px] text-slate-300 font-black uppercase tracking-widest">
-                                Scroll for more ({row.locations.length} total)
-                              </p>
-                            </div>
-                          )}
                         </td>
-                        
+                        <td className="px-6 py-4 text-right">
+                          <button 
+                            onClick={() => handleEditAchievement(row)}
+                            className="p-2 text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                          >
+                            <Edit style={{ fontSize: 16 }} />
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
@@ -323,13 +358,15 @@ export default function ViewTarget() {
         </div>
       </div>
 
-      {/* MODAL (UNCHANGED) */}
+      {/* MODAL */}
       {isAchievementModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
           <div className="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 space-y-6 shadow-2xl animate-slideUp max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-4">
-              <h2 className="text-xl font-black text-slate-800">New Achievement Entry</h2>
-              <button onClick={() => setIsAchievementModalOpen(false)} className="text-slate-400 hover:text-red-500">✕</button>
+              <h2 className="text-xl font-black text-slate-800">
+                {editingLogId ? 'Update Achievement Result' : 'New Achievement Entry'}
+              </h2>
+              <button onClick={closeModal} className="text-slate-400 hover:text-red-500">✕</button>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2">
@@ -348,12 +385,48 @@ export default function ViewTarget() {
                   ))}
                 </div>
               </div>
+              {/* SENDER FEEDBACK */}
               <div className="col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Field Feedback</label>
-                <textarea rows={3} value={achievementForm.senderFeedback} onChange={(e) => setAchievementForm({ ...achievementForm, senderFeedback: e.target.value })} className="w-full bg-slate-50 rounded-2xl px-5 py-3 mt-1 text-xs outline-none border-none" placeholder="Enter registration notes..." />
+                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">
+                  Sender Feedback {!canSendColorCodingAchievement && <span className="text-amber-500 font-bold">(Read Only)</span>}
+                </label>
+                <textarea 
+                  rows={3} 
+                  value={achievementForm.senderFeedback} 
+                  onChange={(e) => setAchievementForm({ ...achievementForm, senderFeedback: e.target.value })} 
+                  readOnly={!canSendColorCodingAchievement} // LOCKING LOGIC
+                  className={`w-full rounded-2xl px-5 py-3 mt-1 text-xs outline-none border-none transition-colors ${
+                    !canSendColorCodingAchievement ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-slate-50'
+                  }`} 
+                  placeholder={canSendColorCodingAchievement ? "Enter Sender notes..." : "No sender notes provided."} 
+                />
               </div>
+
+              {/* REVIEWER FEEDBACK (Visible only during Edit) */}
+              {editingLogId && (
+                <div className="col-span-2 animate-fadeIn">
+                  <label className="text-[10px] font-black text-emerald-600 uppercase ml-1">
+                    Reviewer Feedback {!canReviewColorCodingAchievement && <span className="text-amber-500 font-bold">(Read Only)</span>}
+                  </label>
+                  <textarea 
+                    rows={3} 
+                    value={achievementForm.reviewerFeedback} 
+                    onChange={(e) => setAchievementForm({ ...achievementForm, reviewerFeedback: e.target.value })} 
+                    readOnly={!canReviewColorCodingAchievement} // LOCKING LOGIC
+                    className={`w-full rounded-2xl px-5 py-3 mt-1 text-xs outline-none transition-colors ${
+                      !canReviewColorCodingAchievement 
+                        ? 'bg-slate-100 text-slate-500 border-none cursor-not-allowed' 
+                        : 'bg-emerald-50/50 border border-emerald-100 focus:ring-2 ring-emerald-200'
+                    }`} 
+                    placeholder={canReviewColorCodingAchievement ? "Enter Reviewer notes..." : "Waiting for review..."} 
+                  />
+                </div>
+              )}
+
             </div>
-            <button onClick={handleSubmitAchievement} className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-sky-700 transition-all">Submit Registration</button>
+            <button onClick={handleSubmitAchievement} className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-sky-700 transition-all">
+              {editingLogId ? 'Update Result' : 'Submit Registration'}
+            </button>
           </div>
         </div>
       )}
@@ -361,7 +434,7 @@ export default function ViewTarget() {
   );
 }
 
-// Helpers
+// Helpers (Remain unchanged)
 const SectionTitle = ({ icon, title }) => (
   <div className="flex items-center gap-2 border-b border-slate-50 pb-2 mb-2">
     <span className="text-[#0284C7]">{icon}</span>
