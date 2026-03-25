@@ -343,6 +343,7 @@ export default function CreateTarget() {
                 <input
                   name="achieved"
                   type="number"
+                  readOnly
                   value={formData.achieved}
                   onChange={handleInputChange}
                   placeholder="Current achievement"
