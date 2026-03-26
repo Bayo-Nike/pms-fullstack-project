@@ -147,17 +147,17 @@ public class SystemDataInitializer implements ApplicationRunner {
         createPosition("City Team Leader 1", "City Water and Road Director", "City Team Leader 1 Office");
         createPosition("City Team Leader 2", "City Water and Road Director", "City Team Leader 2 Office");
 
-        createPosition("City Site Engineer", "City Design Team Leader", "City Design Team Leader Office");
-        createPosition("City Site Engineer", "City Monitoring Team Leader", "City Monitoring Team Leader Office");
-        createPosition("City Site Engineer", "City Team Leader 1", "City Team Leader 1 Office");
-        createPosition("City Site Engineer", "City Team Leader 2", "City Team Leader 2 Office");
+        createPosition("City Design Site Engineer", "City Design Team Leader", "City Design Team Leader Office");
+        createPosition("City Monitoring Site Engineer", "City Monitoring Team Leader", "City Monitoring Team Leader Office");
+        createPosition("City Site 1 Engineer", "City Team Leader 1", "City Team Leader 1 Office");
+        createPosition("City Site 2 Engineer", "City Team Leader 2", "City Team Leader 2 Office");
 
         createPosition("Sub-City Building Team Leader", "Sub-City Office Head", "Sub-City Building Team Leader Office");
         createPosition("Sub-City Water and Road Team Leader", "Sub-City Office Head", "Sub-City Water and Road Team Leader Office");
         createPosition("Sub-City Record Office Head", "Sub-City Office Head", "Sub-City Record Office");
 
-        createPosition("Sub-City Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
-        createPosition("Sub-City Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
+        createPosition("Sub-City Building Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
+        createPosition("Sub-City Water and Road Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
         createPosition("City Record Office Head", "City Office Head", "City Record Office");
     }
 
