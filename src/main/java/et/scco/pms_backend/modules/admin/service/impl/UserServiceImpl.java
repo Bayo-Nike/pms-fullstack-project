@@ -98,16 +98,6 @@ public class UserServiceImpl  implements UserService{
         if (user.getUserType().equals(UserType.SYSTEM)){
             return;
         }
-        Employee employee = user.getEmployee();
-
-        if (employee.getAssignedProjects() != null && !employee.getAssignedProjects().isEmpty()) {
-            throw new IllegalStateException("Employee cannot be deleted. Projects are associated.");
-        }
-
-        if (employee.getTasks() != null && !employee.getTasks().isEmpty()) {
-            throw new IllegalStateException("Employee cannot be deleted. Tasks are associated.");
-        }
-
         userRepository.delete(user);
     }
 

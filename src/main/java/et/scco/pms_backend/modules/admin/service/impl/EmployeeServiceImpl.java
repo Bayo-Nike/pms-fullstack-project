@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,5 +119,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         
     auditLogService.auditLog("Deleted", employee.getFullName()+" has been deleted");
         employeeRepository.deleteById(id);
+    }
+
+    @Override
+    public List<EmployeeResponseDto> getEmployeesNoUser() {
+        return employeeRepository.findAllByUser(null)
+                .stream()
+                .map(EmployeeMapper::responseDto)
+                .collect(Collectors.toList());
     }
 }
