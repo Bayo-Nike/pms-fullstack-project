@@ -307,8 +307,8 @@ public class SystemDataInitializer implements ApplicationRunner {
     private void initSuperAdmin() {
 
         Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
-        getOrCreateRole("MAYOR", "City Mayor Role");
-        getOrCreateRole("CITY_OFFICE_HEAD", "City Office Head Role");
+        getOrCreateRole("ROLE_MAYOR", "City Mayor Role");
+        getOrCreateRole("ROLE_CITY_OFFICE_HEAD", "City Office Head Role");
 
         List<String> requiredPermissions = List.of(
                 "CAN_SEE_DASHBOARD",
