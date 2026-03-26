@@ -107,10 +107,10 @@ export default function CreateInspection() {
     };
 
     const handleSaveTrigger = () => {
-        const { projectId, inspectionTypeId, inspectionResult, inspectionLevel, weatherCondition, taskId } = formData;
+        const { projectId, inspectionTypeId, inspectionResult, inspectionLevel, weatherCondition, activeWorkers, taskId } = formData;
 
-        if (!projectId || !inspectionTypeId || !inspectionResult.trim()|| !weatherCondition.trim()) {
-            showAlert('error', 'Required validation failed: Project, Template Type, and Results must be filled.');
+        if (!projectId || !inspectionTypeId || !inspectionResult.trim() || !weatherCondition.trim() || !weatherCondition.trim() || !activeWorkers.trim()) {
+            showAlert('error', 'Required validation failed: Project, Template Type, Results, Weather Condition and Active Workers  must be filled.');
             return;
         }
         if (!formData.activeWorkers || Number(formData.activeWorkers) <= 0) {
@@ -253,7 +253,7 @@ export default function CreateInspection() {
                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Entry Date</label>
                                 <div className="relative">
                                     <EventNote className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" style={{ fontSize: 20 }} />
-                                    <input type="date" value={formData.inspectionDate} onChange={e => setFormData({ ...formData, inspectionDate: e.target.value })} className="w-full pl-12 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none" />
+                                    <input type="date" readOnly value={formData.inspectionDate} onChange={e => setFormData({ ...formData, inspectionDate: e.target.value })} className="w-full pl-12 pr-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold outline-none" />
                                 </div>
                             </div>
                         </div>

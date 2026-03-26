@@ -16,6 +16,7 @@ export default function ProjectReportPage() {
       const res = await projectApi.GET_PROJECTS({ page: 0, size: 1000 });
 
       const pageData = res.data.data;
+      console.log(pageData)
       
       setProjects(pageData.content || []);
 

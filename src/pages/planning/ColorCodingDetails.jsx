@@ -281,13 +281,15 @@ export default function ViewTarget() {
                 <div className="bg-emerald-500 p-2 rounded-xl text-white shadow-md shadow-emerald-100"><HistoryIcon fontSize="small" /></div>
                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Achievement Logs History</h3>
               </div>
-
-              <button
-                onClick={() => setIsAchievementModalOpen(true)}
-                className="bg-[#0284C7] hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-[11px] font-black shadow-lg shadow-sky-100 transition-all flex items-center gap-2 shrink-0"
-              >
-                <PushPin style={{ fontSize: 16 }} /> Submit New Achievement
-              </button>
+ 
+              {(canSendColorCodingAchievement) && (
+                <button
+                  onClick={() => setIsAchievementModalOpen(true)}
+                  className="bg-[#0284C7] hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-[11px] font-black shadow-lg shadow-sky-100 transition-all flex items-center gap-2 shrink-0"
+                >
+                  <PushPin style={{ fontSize: 16 }} /> Submit New Achievement
+                </button>
+                )}
             </div>
 
             <div className="overflow-x-auto">
@@ -374,13 +376,22 @@ export default function ViewTarget() {
                 <input type="number" value={achievementForm.achieved} readOnly className="w-full bg-slate-50 rounded-2xl px-5 py-3 mt-1 font-bold border-none" />
               </div>
               <div className="col-span-2 space-y-3">
-                <div className="flex justify-between items-center"><h3 className="text-xs font-black uppercase">GPS Location Logs</h3><button onClick={addLocation} className="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px]">+ Add Coordinate</button></div>
+              
+            <div className="flex justify-between items-center">
+              <h3 className="text-xs font-black uppercase">GPS Location Logs</h3>
+              {canSendColorCodingAchievement && (
+              <button onClick={addLocation} className="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px]">+ Add Coordinate</button>
+              )}
+            </div>
+                              
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                   {achievementForm.locations.map((loc, index) => (
                     <div key={index} className="flex gap-2 items-center bg-slate-50 p-2 rounded-2xl">
                       <input placeholder="Lat" value={loc.latitude} onChange={(e) => updateLocation(index, 'latitude', e.target.value)} className="bg-white rounded-xl px-3 py-2 text-xs w-full border-none" />
                       <input placeholder="Lng" value={loc.longitude} onChange={(e) => updateLocation(index, 'longitude', e.target.value)} className="bg-white rounded-xl px-3 py-2 text-xs w-full border-none" />
+                      {canSendColorCodingAchievement && (
                       <button onClick={() => removeLocation(index)} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-colors">✕</button>
+                      )}
                     </div>
                   ))}
                 </div>

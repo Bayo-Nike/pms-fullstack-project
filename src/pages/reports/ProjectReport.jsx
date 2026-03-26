@@ -43,8 +43,14 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
       header: "Status"
     },
     {
+      accessorKey: "budgetUsed",
+      header: "Used Budget",
+      cell: info =>
+        new Intl.NumberFormat("en-US").format(info.getValue())
+    },
+    {
       accessorKey: "budget",
-      header: "Budget",
+      header: "Total Budget",
       cell: info =>
         new Intl.NumberFormat("en-US").format(info.getValue())
     }
