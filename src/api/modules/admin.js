@@ -37,6 +37,7 @@ const adminApi = {
 
     //employee
     GET_EMPLOYEES: () => api.get("/admin/employees"),
+    GET_EMPLOYEES_NO_USER: () => api.get("/admin/employees/no-user"),
     GET_EMPLOYEE: (id) => api.get(`/admin/employees/${id}`),
     CREATE_EMPLOYEE: (data) => api.post("/admin/employees", data),
     UPDATE_EMPLOYEE: (id, data) => api.put(`/admin/employees/${id}`, data),
