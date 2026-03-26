@@ -4,4 +4,6 @@ public interface AuthService {
     AuthResponseDto login(LoginRequestDto loginRequest);
     void logout(String token);
     UserResponseLoginDto getProfile();
+
+    Boolean changePassword(ChangePasswordRequestDto dto);
 }
