@@ -51,8 +51,9 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        // Count methods with sub-city filter
        long countBySubCityId(Long subCityId);
 
-    boolean existsByProjectCode(String projectCode);
 
+    @Query("SELECT MAX(p.id) FROM Project p")
+    Long findMaxId();
 
        @Query("SELECT p FROM Project p WHERE " +
                "(:status IS NULL OR p.status = :status) AND " +

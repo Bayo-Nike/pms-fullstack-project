@@ -32,20 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
         if (authContext.getEmployee() == null) {
             return Page.empty();
         }
-
-        // Use the pageable object in the repository call
-        Page<Notification> notificationsPage =
-                repository.findAllByReceiver(authContext.getEmployee().getId(), pageable);
-
-        // Map Page<Entity> to Page<Dto>
-        return notificationsPage.map(not -> new NotificationResponseDto(
-                not.getId(),
-                not.getReceiver().toString(),
-                not.getMessage(),
-                not.getNotificationUrl(),
-                not.isSeen(), // Ensure this matches your DTo (isRead/seen)
-                not.getCreatedAt()
-        ));
+        return repository.findAllByReceiverWithName(authContext.getEmployee().getId(), pageable);
     }
 
     @Override
