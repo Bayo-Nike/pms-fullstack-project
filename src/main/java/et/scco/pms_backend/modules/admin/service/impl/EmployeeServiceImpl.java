@@ -10,7 +10,6 @@ import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Position;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
-import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.utility.AuthContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -89,9 +88,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee updated = employeeRepository.save(employee);
 
         if (type){
-            auditLogService.auditLog("Updated", updated.getFullName(), "Employee has been updated");
+            auditLogService.auditLog("Updated", updated.getFullName()+ " Employee has been updated");
         }else{
-            auditLogService.auditLog("Created", updated.getFullName(), "Employee has been updated");
+            auditLogService.auditLog("Created", updated.getFullName() +" Employee has been updated");
         }
 
         return EmployeeMapper.responseDto(updated);
@@ -117,7 +116,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             .orElseThrow(() ->
                     new ResourceNotFoundException("Employee is not Exist with given id:" + id));
         
-    auditLogService.auditLog("Deleted", employee.getFullName()+" has been deleted", "THis action has been done by username of "+AuthUtility.getUserName());
+    auditLogService.auditLog("Deleted", employee.getFullName()+" has been deleted");
         employeeRepository.deleteById(id);
     }
 }
