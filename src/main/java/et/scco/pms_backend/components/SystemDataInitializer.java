@@ -107,6 +107,7 @@ public class SystemDataInitializer implements ApplicationRunner {
         createDivision("Sub-City Building Team Leader Office", DivisionGroup.BLD, "Sub-City Office");
         createDivision("Sub-City Water and Road Team Leader Office", DivisionGroup.WAR, "Sub-City Office");
         createDivision("Sub-City Record Office", DivisionGroup.BTH, "Sub-City Office");
+        createDivision("Sub-City Finance Office", DivisionGroup.BTH, "Sub-City Office");
     }
 
     private void createDivision(String name, DivisionGroup divisionGroup, String parentName) {
@@ -158,7 +159,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("Sub-City Building Site Engineer", "Sub-City Building Team Leader", "Sub-City Building Team Leader Office");
         createPosition("Sub-City Water and Road Site Engineer", "Sub-City Water and Road Team Leader", "Sub-City Water and Road Team Leader Office");
-        createPosition("City Record Office Head", "City Office Head", "City Record Office");
+        
     }
 
 
