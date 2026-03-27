@@ -90,6 +90,7 @@ export default function Navbar({ onMenuClick }) {
       const res = await notificationApi.getNotifications(pageNum, 5);
       const pageData = res?.data?.data;
       const content = pageData?.content || [];
+      console.log(content)
       if (append) {
         setNotifications(prev => [...prev, ...content]);
       } else {

@@ -37,6 +37,18 @@ export default function ViewTarget() {
   const canSendColorCodingAchievement = can('CAN_SEND_COLOR_CODING_ACHIEVEMENT');
   const canReviewColorCodingAchievement = can('CAN_REVEW_COLOR_CODING_ACHIEVEMENT');
 
+  // BEGIND ACHIEVEMENT PAGINATION
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5;
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+  const currentRows = achievementLogs.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = Math.ceil(achievementLogs.length / rowsPerPage);
+  // END ACHIEVEMENT PAGINATION
+
+
   const [achievementForm, setAchievementForm] = useState({
     achieved: 1,
     senderFeedback: '',
@@ -292,8 +304,8 @@ export default function ViewTarget() {
                 )}
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
+            <div className="w-full overflow-x-auto">
+              <table className="min-w-max text-left whitespace-nowrap">
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase">
                     <th className="px-6 py-4">Submission Date</th>
@@ -321,7 +333,7 @@ export default function ViewTarget() {
                         </td>
                         <td className="px-6 py-4 align-top">
                           <div className="max-h-[110px] overflow-y-auto pr-2 custom-scrollbar">
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex gap-2 overflow-x-auto">
                               {row.locations?.map((loc, idx) => (
                                 <a 
                                   key={idx}
@@ -355,6 +367,36 @@ export default function ViewTarget() {
                 </tbody>
               </table>
             </div>
+            {/* PAGINATION */}
+            {achievementLogs.length > 0 && (
+              <div className="flex justify-between items-center mt-4 text-xs">
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.max(p - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                  className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50"
+                >
+                  Prev
+                </button>
+
+                <span className="text-slate-500">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) =>
+                      Math.min(p + 1, totalPages)
+                    )
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1 bg-slate-100 rounded disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
 
         </div>
