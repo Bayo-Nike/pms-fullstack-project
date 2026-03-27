@@ -58,6 +58,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 .orElseThrow();
 
         List<String> names = List.of(
+                "Koye Feche",
                 "Akaki",
                 "Bole Bulbula",
                 "Burayu",
@@ -85,9 +86,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initDivisions() {
-        if (divisionRepository.count() > 4){
-            return;
-        }
+//        if (divisionRepository.count() > 4){
+//            return;
+//        }
         createDivision("Mayor Office", DivisionGroup.BTH, null);
 
         createDivision("City Office", DivisionGroup.BTH, "Mayor Office");
@@ -129,9 +130,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
-        if (positionRepository.count() > 4){
-            return;
-        }
+//        if (positionRepository.count() > 4){
+//            return;
+//        }
         createPosition("Mayor", null, "Mayor Office");
 
         createPosition("City Office Head", "Mayor", "City Office");
@@ -308,8 +309,8 @@ public class SystemDataInitializer implements ApplicationRunner {
     private void initSuperAdmin() {
 
         Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
-        getOrCreateRole("MAYOR", "City Mayor Role");
-        getOrCreateRole("CITY_OFFICE_HEAD", "City Office Head Role");
+        getOrCreateRole("ROLE_MAYOR", "City Mayor Role");
+        getOrCreateRole("ROLE_CITY_OFFICE_HEAD", "City Office Head Role");
 
         List<String> requiredPermissions = List.of(
                 "CAN_SEE_DASHBOARD",

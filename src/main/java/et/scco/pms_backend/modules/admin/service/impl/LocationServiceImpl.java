@@ -68,7 +68,7 @@ public class LocationServiceImpl implements LocationService {
         location.setLng(dto.getLng());
         location.setSubCity(subCity);
 
-        auditLogService.auditLog("Created", dto.getName()+" Location has been created", AuthUtility.getUserName());
+        auditLogService.auditLog("Created", dto.getName()+" Location has been created");
 
         return mapToDTO(locationRepository.save(location));
     }
@@ -96,8 +96,7 @@ public class LocationServiceImpl implements LocationService {
         location.setSubCity(subCity);
 
         auditLogService.auditLog("Updated",
-                dto.getName()+" Location has been update",
-                "Location has been update by "+AuthUtility.getUserName()
+                dto.getName()+" Location has been update"
                 );
 
         return mapToDTO(locationRepository.save(location));
@@ -110,8 +109,7 @@ public class LocationServiceImpl implements LocationService {
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
         auditLogService.auditLog("Deleted",
-                location.getName()+" Location has been deleted",
-                "Location has been delete by "+AuthUtility.getUserName()
+                location.getName()+" Location has been deleted"
         );
 
         locationRepository.delete(location);

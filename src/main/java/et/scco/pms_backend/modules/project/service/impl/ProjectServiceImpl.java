@@ -105,17 +105,19 @@ public class ProjectServiceImpl implements ProjectService {
             throw new RuntimeException("Project already exists in this sub-city");
         }
 
-        if (projectRepository.existsByProjectCode(dto.getProjectCode())){
-            throw new RuntimeException("Project code exists");
-        }
+        //generate project code
+        Long maxId = projectRepository.findMaxId();
+        long nextNumber = (maxId != null ? maxId + 1 : 1);
+        String projectCode = "SCCO/PC/" + nextNumber;
 
         Project project = new Project();
 
         populateProject(project, dto);
+        project.setProjectCode(projectCode);
 
         Project saved = projectRepository.save(project);
 
-        //send notification to manager
+        //send notification to the manager
         if (dto.getProjectManagerId() != null){
             notificationService.sendNotification(
                     authContext.getEmployee().getId(),
@@ -275,7 +277,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     private void populateProject(Project project, CreateProjectRequestDTO dto) {
-        project.setProjectCode(dto.getProjectCode());
+
         project.setTitle(dto.getTitle());
         project.setDescription(dto.getDescription());
         project.setProjectType(dto.getProjectType());

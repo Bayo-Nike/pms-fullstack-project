@@ -17,7 +17,7 @@ public class AuditLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String action; //create, updated and deleted
+    private String action;
     private String performedBy;
     private LocalDateTime timestamp;
     private String details;

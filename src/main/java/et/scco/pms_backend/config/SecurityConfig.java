@@ -41,16 +41,27 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/admin/contractors/download/**").permitAll()
-                        .requestMatchers("/api/colorCodes/download/**").permitAll()
-                        .requestMatchers("/api/admin/consultancy/download/**").permitAll()
-                        .requestMatchers("/api/admin/client/download/**").permitAll()
-                        .requestMatchers("/api/auth/mobile/verify").permitAll()
-                        .anyRequest().authenticated()
-                );
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/auth/login").permitAll()
+//                        .requestMatchers("/api/admin/contractors/download/**").permitAll()
+//                        .requestMatchers("/api/colorCodes/download/**").permitAll()
+//                        .requestMatchers("/api/admin/consultancy/download/**").permitAll()
+//                        .requestMatchers("/api/admin/client/download/**").permitAll()
+//                        .requestMatchers("/api/auth/mobile/verify").permitAll()
+//                        .anyRequest().authenticated()
+//                );
 
+                .authorizeHttpRequests(auth -> auth
+                        // frontend accessible
+                        .requestMatchers("/", "/index.html", "/assets/**", "/**/*.js", "/**/*.css", "/**/*.svg").permitAll()
+
+                        // API authentication
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/**").authenticated()
+
+                        // any other paths
+                        .anyRequest().permitAll()
+                );
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

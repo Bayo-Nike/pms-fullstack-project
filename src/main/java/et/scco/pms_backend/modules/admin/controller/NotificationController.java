@@ -5,9 +5,10 @@ import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.modules.admin.dto.response.NotificationResponseDto;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.utility.ResponseUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -20,15 +21,21 @@ public class NotificationController {
     }
 
     @GetMapping
-    ApiResponse<List<NotificationResponseDto>> getMyNotifications(){
+    public ApiResponse<Page<NotificationResponseDto>> getMyNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ) {
         return ResponseUtil.success(
-                "Notification found",
-                notificationService.getMyNotifications()
+                "Notifications found",
+                notificationService.getMyNotifications(PageRequest.of(page, size, Sort.by("createdAt").descending()))
         );
     }
 
     @PostMapping("/{id}")
-    void markAsRead(@PathVariable Long id){
-        notificationService.markAsRead(id);
+    ApiResponse<Boolean> markAsRead(@PathVariable Long id){
+        return ResponseUtil.success(
+                "Set read",
+                notificationService.markAsRead(id)
+        );
     }
 }

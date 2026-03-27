@@ -9,7 +9,6 @@ import java.util.List;
 @Data
 public class CreateProjectRequestDTO {
 
-    private String projectCode;
     private String title;
     private String description;
     private String progress;

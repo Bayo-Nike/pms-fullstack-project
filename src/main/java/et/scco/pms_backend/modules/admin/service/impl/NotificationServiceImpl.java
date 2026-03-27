@@ -6,9 +6,9 @@ import et.scco.pms_backend.modules.admin.repository.NotificationRepository;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.utility.AuthContext;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -28,32 +28,19 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationResponseDto> getMyNotifications() {
-
+    public Page<NotificationResponseDto> getMyNotifications(Pageable pageable) {
         if (authContext.getEmployee() == null) {
-            return List.of();
+            return Page.empty();
         }
-
-        List<Notification> notifications =
-                repository.findAllByReceiver(authContext.getEmployee().getId());
-        return notifications
-                .stream()
-                .map(not -> new NotificationResponseDto(
-                        not.getId(),
-                        not.getReceiver().toString(),
-                        not.getMessage(),
-                        not.getNotificationUrl(),
-                        not.isSeen(),
-                        not.getCreatedAt()
-                ))
-                .toList();
+        return repository.findAllByReceiverWithName(authContext.getEmployee().getId(), pageable);
     }
 
     @Override
-    public void markAsRead(Long id) {
+    public Boolean markAsRead(Long id) {
         Notification notification = repository.findById(id)
                         .orElseThrow();
         notification.setSeen(true);
         repository.save(notification);
+        return notification.isSeen();
     }
 }

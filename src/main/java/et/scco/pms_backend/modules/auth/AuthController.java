@@ -26,4 +26,11 @@ public class AuthController {
         authService.logout(token);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Boolean> changePassword(@RequestBody ChangePasswordRequestDto dto){
+        return ResponseEntity.ok(
+                authService.changePassword(dto)
+        );
+    }
 }

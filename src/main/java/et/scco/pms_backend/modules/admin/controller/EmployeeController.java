@@ -20,6 +20,11 @@ public class EmployeeController {
         return employeeService.getEmployees();
     }
 
+    @GetMapping("/no-user")
+    public List<EmployeeResponseDto> getEmployeesNoUser(){
+        return employeeService.getEmployeesNoUser();
+    }
+
     @GetMapping("/{id}")
     public EmployeeResponseDto getEmployee(@PathVariable Long id){
         return employeeService.getEmployee(id);
