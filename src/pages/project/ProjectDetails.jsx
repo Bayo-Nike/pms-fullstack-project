@@ -690,6 +690,7 @@ const ProjectDetails = () => {
                     projectApi.GET_PROJECT(id),
                     taskApi.GET_TASKS_BY_PROJECT(id)
                 ]);
+                console.log(pRes.data.data);
                 setProject(pRes.data.data);
                 setTasks(tRes.data.data || []);
             } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); } finally { setLoading(false); }
@@ -805,6 +806,40 @@ const ProjectDetails = () => {
                 <div className="flex gap-4">
                     <div className="text-right border-r pr-4 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Status</p><span className="text-xs font-black text-[#0284C7] uppercase">{project.status}</span></div>
                     <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Priority</p><span className="text-xs font-black text-amber-500 uppercase">{project.priority}</span></div>
+                </div>
+                {/* ADD HERE 👇 */}
+                <div className="text-right border-l pl-4 border-slate-100">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Start Date</p>
+                    <span className="text-xs font-black text-slate-700">
+                        {project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}
+                    </span>
+                </div>
+
+                <div className="text-right">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">End Date</p>
+                    
+                    <span className="text-xs font-black text-slate-700 flex flex-col items-end">
+                        {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
+
+                        {project.endDate && (() => {
+                            const today = new Date();
+                            const end = new Date(project.endDate);
+
+                            // remove time part for accurate day diff
+                            today.setHours(0,0,0,0);
+                            end.setHours(0,0,0,0);
+
+                            const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+                            if (diffDays > 0) {
+                                return <span className="text-[9px] text-green-600 font-bold">{diffDays} days left</span>;
+                            } else if (diffDays === 0) {
+                                return <span className="text-[9px] text-amber-500 font-bold">Due today</span>;
+                            } else {
+                                return <span className="text-[9px] text-red-500 font-bold">{Math.abs(diffDays)} days overdue</span>;
+                            }
+                        })()}
+                    </span>
                 </div>
             </div>
 
