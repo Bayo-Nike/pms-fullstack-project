@@ -55,6 +55,12 @@ public class SecurityConfig {
                         // frontend accessible
                         .requestMatchers("/", "/index.html", "/assets/**", "/**/*.js", "/**/*.css", "/**/*.svg").permitAll()
 
+                        // Uploaded file/photo accessiblocationRepository
+                        .requestMatchers("/api/admin/contractors/download/**").permitAll()
+                        .requestMatchers("/api/colorCodes/download/**").permitAll()
+                        .requestMatchers("/api/admin/consultancy/download/**").permitAll()
+                        .requestMatchers("/api/admin/client/download/**").permitAll()
+
                         // API authentication
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/**").authenticated()

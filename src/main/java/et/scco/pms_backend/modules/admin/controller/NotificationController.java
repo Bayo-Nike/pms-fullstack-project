@@ -5,6 +5,8 @@ import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.modules.admin.dto.response.NotificationResponseDto;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.utility.ResponseUtil;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -12,13 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
 
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
-    }
 
     @GetMapping
     public ApiResponse<Page<NotificationResponseDto>> getMyNotifications(

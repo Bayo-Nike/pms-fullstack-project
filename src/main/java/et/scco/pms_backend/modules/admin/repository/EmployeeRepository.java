@@ -1,6 +1,5 @@
 package et.scco.pms_backend.modules.admin.repository;
 
-import et.scco.pms_backend.modules.admin.dto.response.EmployeeResponseDto;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

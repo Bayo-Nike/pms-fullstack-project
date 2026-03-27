@@ -1,8 +1,5 @@
 package et.scco.pms_backend.modules.planning.service.impl;
 
-import et.scco.pms_backend.modules.admin.controller.AuditLogController;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,21 +12,21 @@ import et.scco.pms_backend.enums.BuildingType;
 import et.scco.pms_backend.enums.PlanType;
 import et.scco.pms_backend.enums.Quarter;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
+import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
+import et.scco.pms_backend.modules.admin.service.impl.NotificationServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
+import et.scco.pms_backend.modules.admin.service.impl.UserServiceImpl;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingRequestDTO;
 import et.scco.pms_backend.modules.planning.dto.ColorCodingResponseDTO;
-import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
-import et.scco.pms_backend.modules.planning.dto.request.LocationDTO;
 import et.scco.pms_backend.modules.planning.mapper.ColorCodingMapper;
 import et.scco.pms_backend.modules.planning.model.ColorCoding;
-import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDocument;
-import et.scco.pms_backend.modules.planning.repository.ColorCodingDetailRepository;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.planning.service.ColorCodingService;
+import et.scco.pms_backend.utility.AuthContext;
 import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +38,9 @@ public class ColorCodingServiceImpl implements ColorCodingService{
     private final SubCityServiceImpl subCityServiceImpl;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final NotificationServiceImpl notificationServiceImpl;
+    private final AuthContext authContext;
+    private final UserServiceImpl userServiceImpl;
 
 
     @Override
@@ -92,6 +92,22 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         colorCoding.setCreatedBy(user); 
 
         ColorCoding savedColorCode = colorCodingRepository.save(colorCoding);
+
+        //send notification to City Office Head
+       String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
+       User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
+                .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
+
+        Employee employee = userCityHeadOffice.getEmployee();
+
+        if (userCityHeadOffice != null){
+            notificationServiceImpl.sendNotification(
+                    authContext.getEmployee().getId(),
+                    employee.getId(),
+                    savedColorCode.getSubCity().getSubCityName()+" has been Submitted Color Coding Plan to you",
+                    "planning/ColorCodings/details/"+savedColorCode.getId()
+            );
+        }
 
         return ColorCodingMapper.mapToColorCodingResponseDTO(savedColorCode);
     }
@@ -237,6 +253,22 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         }
 
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
+
+        //send notification to City Office Head
+       String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
+       User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
+                .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
+
+        Employee employee = userCityHeadOffice.getEmployee();
+
+        if (userCityHeadOffice != null){
+            notificationServiceImpl.sendNotification(
+                    authContext.getEmployee().getId(),
+                    employee.getId(),
+                    updatedColorCode.getSubCity().getSubCityName()+" has been Submitted Updated Color Coding Plan to you",
+                    "planning/ColorCodings/details/"+updatedColorCode.getId()
+            );
+        }
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);
     }
 

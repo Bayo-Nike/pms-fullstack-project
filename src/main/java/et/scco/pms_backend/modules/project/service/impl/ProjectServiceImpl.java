@@ -117,7 +117,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project saved = projectRepository.save(project);
 
-        //send notification to the manager
+        //send notification to the project manager
         if (dto.getProjectManagerId() != null){
             notificationService.sendNotification(
                     authContext.getEmployee().getId(),
@@ -138,9 +138,21 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
 
+        Long currentProjManagerId = project.getProjectManager().getId();
+
         populateProject(project, dto);
 
         Project updated = projectRepository.save(project);
+
+        //send notification to the new apponted Project manager
+        if ((dto.getProjectManagerId() != null) && (!currentProjManagerId.equals(dto.getProjectManagerId()))){
+            notificationService.sendNotification(
+                    authContext.getEmployee().getId(),
+                    dto.getProjectManagerId(),
+                    project.getTitle()+" Project has been Updated and assigned to you",
+                    "projects/"+updated.getId()
+            );
+        }
 
         return mapToDTO(updated);
     }

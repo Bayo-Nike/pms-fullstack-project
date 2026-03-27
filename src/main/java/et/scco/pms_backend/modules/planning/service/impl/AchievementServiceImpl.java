@@ -5,9 +5,12 @@ import java.util.stream.Collectors;
  
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
+import et.scco.pms_backend.modules.admin.service.impl.NotificationServiceImpl;
+import et.scco.pms_backend.modules.admin.service.impl.UserServiceImpl;
 import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.planning.dto.request.AchievementRequestDTO;
 import et.scco.pms_backend.modules.planning.model.AchievementLocation;
@@ -15,6 +18,7 @@ import et.scco.pms_backend.modules.planning.model.ColorCoding;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingDetailRepository;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
+import et.scco.pms_backend.utility.AuthContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -24,6 +28,9 @@ public class AchievementServiceImpl {
     private final ColorCodingRepository colorCodingRepository;
     private final ColorCodingDetailRepository codingDetailRepository;
     private final UserRepository userRepository;
+    private final NotificationServiceImpl notificationServiceImpl;
+    private final UserServiceImpl userServiceImpl;
+    private final AuthContext authContext;
 
     @Transactional
     public void submitAchievement(AchievementRequestDTO dto) {
@@ -69,6 +76,22 @@ public class AchievementServiceImpl {
         
         // Update the master record with the new total
         colorCodingRepository.save(colorCoding);
+
+        //send notification to City Office Head
+       String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
+       User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
+                .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
+
+        Employee employee = userCityHeadOffice.getEmployee();
+
+        if (colorCodingDetails != null){
+            notificationServiceImpl.sendNotification(
+                    authContext.getEmployee().getId(),
+                    employee.getId(),
+                    userSubCity.getSubCityName()+" has been Submitted Color Coding Achievement to you",
+                    "planning/ColorCodings/details/"+colorCoding.getId()
+            );
+        }
     }
 
     public List<ColorCodingDetails> findByColorCodingIdOrderBySubmittedDateDesc(Long id) {
@@ -123,6 +146,22 @@ public class AchievementServiceImpl {
         // 7. Save changes
         codingDetailRepository.save(details);
         colorCodingRepository.save(master);
+
+       //send notification to City Office Head
+       String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
+       User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
+                .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
+
+        Employee employee = userCityHeadOffice.getEmployee();
+
+        if (details != null){
+            notificationServiceImpl.sendNotification(
+                    authContext.getEmployee().getId(),
+                    employee.getId(),
+                    userSubCity.getSubCityName()+" has been Submitted Updated Color Coding Achievement to you",
+                    "planning/ColorCodings/details/"+master.getId()
+            );
+        }
     }
 
 }

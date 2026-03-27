@@ -8,7 +8,6 @@ import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.service.LocationService;
-import et.scco.pms_backend.modules.auth.AuthUtility;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

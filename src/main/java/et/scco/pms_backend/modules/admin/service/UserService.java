@@ -17,5 +17,5 @@ public interface UserService {
 
     void deleteUser(Long userId);
 
-    String getManagerUserName();
+    String getCityOfficeHeadUserName();
 }
