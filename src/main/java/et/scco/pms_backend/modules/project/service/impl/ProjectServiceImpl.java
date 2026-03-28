@@ -4,6 +4,7 @@ import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.enums.TaskStatus;
 import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
@@ -242,6 +243,22 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setBudget(project.getBudget());
         dto.setBudgetUsed(project.getBudgetUsed());
         dto.setProjectLevel(project.getProjectLevel());
+ 
+        // Project Progress calculation
+        int totalTasks = project.getTasks() != null ? project.getTasks().size() : 0;
+
+        long completedTasks = project.getTasks() != null
+                ? project.getTasks().stream()
+                    .filter(task -> task.getStatus() == TaskStatus.COMPLETED)
+                    .count()
+                : 0;
+
+        double projectProgress = 0.00;
+        if (totalTasks > 0) {
+            projectProgress = ((double) completedTasks / totalTasks) * 100;
+        }
+
+        dto.setProjectProgress(projectProgress);
 
         if (project.getCity() != null) {
             dto.setCityId(project.getCity().getId());

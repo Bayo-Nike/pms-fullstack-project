@@ -11,7 +11,6 @@ public class CreateProjectRequestDTO {
 
     private String title;
     private String description;
-    private String progress;
 
     private ProjectLevel projectLevel;
     private ProjectType projectType;

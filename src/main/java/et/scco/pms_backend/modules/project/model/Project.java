@@ -28,7 +28,6 @@ public class Project {
 
     private String title;
     private String description;
-    private String progress;
 
 
     @Enumerated(EnumType.STRING)

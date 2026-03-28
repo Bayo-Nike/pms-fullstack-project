@@ -16,7 +16,7 @@ public class ProjectResponseDTO {
     private String projectCode;
     private String title;
     private String description;
-    private String progress;
+    private Double projectProgress;
 
     private ProjectLevel projectLevel;
     private ProjectType projectType;
