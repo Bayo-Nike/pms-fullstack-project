@@ -30,7 +30,6 @@ export default function Login() {
         setLoading(true);
         try {
             const res = await authApi.LOGIN({ usernameOrEmail: username.trim(), password });
-            console.log(res.data);
             // 1. Update Context (State + LocalStorage)
             login(res.data);
 

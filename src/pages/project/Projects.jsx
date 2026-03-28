@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
   Search, Add, Assignment, Visibility, Edit, Delete,
   HelpOutline, CalendarMonth, LocationOn, ChevronLeft, ChevronRight,
-  FilterList, Apartment, Close, Person
+  FilterList, Apartment, Close, Person,
+  TrendingUp
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
@@ -59,6 +60,7 @@ export default function Projects() {
 
       const res = await projectApi.GET_PROJECTS(params);
       const pageData = res.data.data;
+      console.log(pageData.content);
 
       setProjects(pageData.content || []);
       setPageInfo(prev => ({
@@ -217,6 +219,7 @@ export default function Projects() {
               <th className="px-6 py-5">Sub-City Hub</th>
               <th className="px-6 py-5">Timeline</th>
               <th className="px-6 py-5 text-center">Status</th>
+              <th className="px-6 py-5">Project Progress</th>
               <th className="px-8 py-5 text-right">Operations</th>
             </tr>
           </thead>
@@ -255,6 +258,25 @@ export default function Projects() {
                     {proj.status?.replace(/_/g, ' ')}
                   </span>
                 </td>
+                <td className="px-6 py-5">
+                  <div className="flex flex-col gap-2">
+                    {/* Top row */}
+                    <div className="flex items-center gap-2 text-slate-600">
+                      <TrendingUp className="text-[#FBAF1E]" style={{ fontSize: 16 }} />
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-700">
+                        {Number(proj.projectProgress || 0).toFixed(2)}%
+                      </span>
+                    </div>
+                    {/* Progress bar */}
+                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#0284C7] transition-all duration-700"
+                        style={{ width: `${proj.projectProgress || 0}%` }}
+                      />
+                    </div>
+                  </div>
+                </td>
+                
                 <td className="px-8 py-5 text-right">
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     {can('CAN_VIEW_PROJECT_DETAIL') && (

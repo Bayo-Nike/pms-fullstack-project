@@ -20,7 +20,6 @@ export default function TaskReportPage() {
     try {
       const res = await taskApi.GET_TASKS({ page: 0, size: 1000 });
       const pageData = res.data.data;
-      console.log(pageData)
 
       // Transform for display/export
       const transformedTasks = (pageData?.content || []).map((task,index) => ({

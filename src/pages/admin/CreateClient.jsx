@@ -33,7 +33,6 @@ export default function CreateClient() {
             const loadData = async () => {
                 try {
                     const res = await adminApi.GET_CLIENT(id);
-                    console.log(res)
                     const data = res.data?.data || res.data || res;
 
                     setClientName(data.clientName || '');

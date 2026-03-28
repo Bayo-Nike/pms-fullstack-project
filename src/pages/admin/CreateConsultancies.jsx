@@ -33,7 +33,6 @@ export default function CreateConsultant() {
             const loadData = async () => {
                 try {
                     const res = await adminApi.GET_CONSULTANT(id);
-                    console.log(res)
                     const data = res.data?.data || res.data || res;
 
                     setConsultantName(data.consultantName || '');

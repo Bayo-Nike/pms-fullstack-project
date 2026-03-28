@@ -652,12 +652,16 @@ import {
     ArrowBack, Payments, CalendarMonth, LocationOn, Work, Badge,
     TrendingUp, Engineering, Info, Add, Edit, Delete,
     Assignment, Close, HelpOutline, Search, Explore, Schedule,
-    Visibility, AccessTime
+    Visibility, AccessTime,
+    Diversity3,
+    DateRange,
+    Payment
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import taskApi from '../../api/modules/task';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
+import ProgressPie from '../../utility/ProgressPie';
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -690,7 +694,6 @@ const ProjectDetails = () => {
                     projectApi.GET_PROJECT(id),
                     taskApi.GET_TASKS_BY_PROJECT(id)
                 ]);
-                console.log(pRes.data.data);
                 setProject(pRes.data.data);
                 setTasks(tRes.data.data || []);
             } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); } finally { setLoading(false); }
@@ -808,16 +811,15 @@ const ProjectDetails = () => {
                     <div className="text-right border-r pr-4 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Status</p><span className="text-xs font-black text-[#0284C7] uppercase">{project.status}</span></div>
                     <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Priority</p><span className="text-xs font-black text-amber-500 uppercase">{project.priority}</span></div>
                 </div>
-                {/* ADD HERE 👇 */}
                 <div className="text-right border-l pl-4 border-slate-100">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase">Start Date</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase"><DateRange fontSize="small" />Start Date</p>
                     <span className="text-xs font-black text-slate-700">
                         {project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}
                     </span>
                 </div>
 
                 <div className="text-right">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase">End Date</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase"><DateRange fontSize="small" />End Date</p>
                     
                     <span className="text-xs font-black text-slate-700 flex flex-col items-end">
                         {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
@@ -848,7 +850,7 @@ const ProjectDetails = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 <div className="lg:col-span-8 space-y-4">
                     <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
-                        <div className="flex items-center justify-between mb-4 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Payments fontSize="small" /> Financial Context</div>
+                        <div className="flex items-center justify-between mb-4 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Payment fontSize="small" /> Financial Context</div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center"><p className="text-[9px] font-bold text-slate-400 uppercase">Contract Sum</p><p className="text-lg font-black text-slate-900">{project.currencyType} {project.budget?.toLocaleString()}</p></div>
                             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center"><p className="text-[9px] font-bold text-slate-400 uppercase">Expenditure</p><p className="text-lg font-black text-[#0284C7]">{project.currencyType} {project.budgetUsed?.toLocaleString()}</p></div>
@@ -863,9 +865,17 @@ const ProjectDetails = () => {
                             <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100"><Badge className="text-sky-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Manager</p><p className="text-xs font-bold text-slate-700">{project.projectManagerName}</p></div></div>
                             <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100"><Work className="text-amber-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Contractor</p><p className="text-xs font-bold text-slate-700">{project.contractorName}</p></div></div>
                         </div>
-                        <div className="pt-2"><div className="flex items-center gap-2 mb-3 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><TrendingUp fontSize="small" /> Team</div>
+                        <div className="pt-2"><div className="flex items-center gap-2 mb-3 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Diversity3 fontSize="small" /> Team</div>
                             <div className="flex flex-wrap gap-1">{project.employeeNames?.map((n, i) => (<span key={i} className="px-1.5 py-0.5 bg-slate-100 text-[8px] font-bold text-slate-500 rounded uppercase border border-slate-200">{n}</span>))}</div></div>
                     </div>
+                </div>
+                {/* Progress Chart */}
+                <div className="lg:col-span-4">
+                <div className="flex items-center gap-2 mb-3 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
+                    <TrendingUp fontSize="small" /> Project Progress
+                </div>
+
+                <ProgressPie progress={project.projectProgress || 0} />
                 </div>
             </div>
 
