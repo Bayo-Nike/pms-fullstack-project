@@ -167,7 +167,6 @@ export default function ColorCodings() {
                             <th className="px-6 py-4">Plan Type</th>
                             <th className="px-6 py-4">Target</th>
                             <th className="px-6 py-4">Achieved</th>
-                            <th className='px-6 py-4'>Documents</th>
                             {(can('CAN_VIEW_COLOR_CODING') || can('CAN_EDIT_COLOR_CODING') || can('CAN_DELETE_COLOR_CODING')) && (
                             <th className="px-6 py-4 text-right">Operations</th>
                             )}
@@ -212,11 +211,6 @@ export default function ColorCodings() {
                                     <span className={`text-sm font-black ${Number(c.achieved) >= Number(c.target) ? 'text-emerald-600' : 'text-slate-700'}`}>
                                         {c.achieved || 0}
                                     </span>
-                                </td>
-                                
-                                {/* MODIFIED DOCUMENTS COLUMN */}
-                                <td className="px-6 py-4">
-                                    <DocumentSwitcher documents={c.performanceDocuments} />
                                 </td>
 
                                 {(can('CAN_VIEW_COLOR_CODING') || can('CAN_EDIT_COLOR_CODING') || can('CAN_DELETE_COLOR_CODING')) && (

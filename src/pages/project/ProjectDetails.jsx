@@ -675,7 +675,7 @@ const ProjectDetails = () => {
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, taskName: '' });
 
     const [taskFormData, setTaskFormData] = useState({
-        taskName: '', startDate: '', endDate: '', description: '',
+        taskName: '',taskCost: '', startDate: '', endDate: '', description: '',
         status: 'TO_DO', priority: 'LOW', weight: 0,
         latitude: '', longitude: '', locationIds: [], employeeIds: []
     });
@@ -722,6 +722,7 @@ const ProjectDetails = () => {
         e.preventDefault();
         const payload = {
             taskName: taskFormData.taskName.trim(),
+            taskCost: taskFormData.taskCost !== '' ? parseFloat(taskFormData.taskCost) : 0.0,
             projectId: Number(id),
             employeeIds: taskFormData.employeeIds.map(Number),
             locationIds: taskFormData.locationIds.map(Number),
@@ -873,7 +874,7 @@ const ProjectDetails = () => {
                 <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                     <div className="flex items-center gap-3"><div className="w-10 h-10 bg-[#0284C7] text-white rounded-2xl flex items-center justify-center shadow-lg"><Assignment /></div><div><h2 className="text-lg font-bold text-slate-900 leading-none">Task Registry</h2><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Lifecycle Tracking</p></div></div>
                     {can('CAN_CREATE_TASK') && (
-                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskName: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-all"><Add style={{ fontSize: 18 }} /> New Task</button>
+                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskName: '', taskCost: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-all"><Add style={{ fontSize: 18 }} /> New Task</button>
                     )}
                 </div>
                 <div className="overflow-x-auto">
@@ -945,13 +946,27 @@ const ProjectDetails = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-4">
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title *</label><input value={taskFormData.taskName} onChange={e => setTaskFormData({ ...taskFormData, taskName: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-[#0284C7] text-sm font-bold" required /></div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                                            Task Cost *
+                                        </label>
+                                        <input
+                                            type="number" step="0.01" value={taskFormData.taskCost}
+                                            onChange={e =>
+                                            setTaskFormData({
+                                                ...taskFormData,
+                                                taskCost: parseFloat(e.target.value) || 0
+                                            })}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-[#0284C7] text-sm font-bold"
+                                        />
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Weight (%)</label><input type="number" step="0.01" value={taskFormData.weight} onChange={e => setTaskFormData({ ...taskFormData, weight: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 outline-none" /></div>
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Priority</label><select value={taskFormData.priority} onChange={e => setTaskFormData({ ...taskFormData, priority: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option></select></div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Start Date</label><input type="date" value={taskFormData.startDate} onChange={e => setTaskFormData({ ...taskFormData, startDate: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-sm" /></div>
-                                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-sm" /></div>
+                                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Start Date</label><input type="date" value={taskFormData.startDate} onChange={e => setTaskFormData({ ...taskFormData, startDate: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
+                                        <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
                                     </div>
                                     <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
                                         <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase tracking-widest"><Explore style={{ fontSize: 16 }} /> Geo-Location (Optional)</div>

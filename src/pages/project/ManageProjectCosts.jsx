@@ -216,14 +216,39 @@ export default function ManageProjectCosts() {
                                 <input value={form.phase} onChange={e => setForm({ ...form, phase: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-[#0284C7] text-sm font-bold" required />
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Associated Task</label>
-                                <select value={form.taskId} onChange={e => setForm({ ...form, taskId: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none">
-                                    <option value="">No task association</option>
-                                    {tasks.map(t => <option key={t.id} value={t.id}>{t.taskName}</option>)}
-                                </select>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                                Associated Task
+                            </label>
+
+                            <select
+                                value={form.taskId}
+                                onChange={e => {
+                                const selectedTaskId = e.target.value;
+
+                                const selectedTask = tasks.find(
+                                    t => t.id.toString() === selectedTaskId
+                                );
+
+                                setForm({
+                                    ...form,
+                                    taskId: selectedTaskId,
+                                    amount: selectedTask
+                                    ? parseFloat(selectedTask.taskCost)
+                                    : ''
+                                });
+                                }}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none appearance-none"
+                            >
+                                <option value="">No task association</option>
+                                {tasks.map(t => (
+                                <option key={t.id} value={t.id}>
+                                    {t.taskName}
+                                </option>
+                                ))}
+                            </select>
                             </div>
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Update Amount (ETB) *</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Amount *</label>
                                 <input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none font-black text-lg text-[#0284C7]" placeholder="0.00" required />
                             </div>
                             <button type="submit" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] shadow-xl hover:bg-[#0284C7] transition-all">Commit Changes</button>

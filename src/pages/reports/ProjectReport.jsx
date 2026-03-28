@@ -35,6 +35,14 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
       header: "Type"
     },
     {
+      accessorKey: "startDate",
+      header: "Start Date"
+    },
+    {
+      accessorKey: "endDate",
+      header: "End Date"
+    },
+    {
       accessorKey: "projectManagerName",
       header: "project Manager"
     },
