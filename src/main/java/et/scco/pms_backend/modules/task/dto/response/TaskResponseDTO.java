@@ -32,6 +32,7 @@ public class TaskResponseDTO {
     private Double latitude;
 
     private Double longitude;
+    private double taskCost;
 
     private List<Long> locationIds;
     private List<String> locationNames;

@@ -7,6 +7,7 @@ import et.scco.pms_backend.modules.project.dto.response.ProjectCostResponseDto;
 import et.scco.pms_backend.modules.project.service.ProjectCostService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -38,5 +39,13 @@ public class ProjectCostController {
     public ApiResponse<Void> removeCost(@PathVariable Long id) {
         costService.deleteCost(id);
         return ResponseUtil.success("Financial record removed", null);
+    }
+
+    // Build Update Project Cost
+    @PutMapping(value = "/costs/{id}")
+    public ApiResponse<ProjectCostResponseDto>updateProjectCost(@PathVariable("id") Long id,@RequestBody ProjectCostRequestDto dto){
+       
+        ProjectCostResponseDto projectCost = costService.updateProjectCost(id, dto);
+        return ResponseUtil.success("Project Cost updated successfully", projectCost);
     }
 }

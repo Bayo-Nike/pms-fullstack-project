@@ -12,4 +12,6 @@ public interface ProjectCostService {
     List<ProjectCostResponseDto> getHistoryByProject(Long projectId);
 
     void deleteCost(Long id);
+
+    ProjectCostResponseDto updateProjectCost(Long id, ProjectCostRequestDto dto);
 }

@@ -30,6 +30,7 @@ public class CreateTaskRequestDTO {
     private Double latitude;
 
     private Double longitude;
+    private double taskCost;
 
     private List<Long> locationIds;
 

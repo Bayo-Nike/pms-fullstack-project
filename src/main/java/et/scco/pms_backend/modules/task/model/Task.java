@@ -45,6 +45,9 @@ public class Task {
 
     private Double latitude;
     private Double longitude;
+    
+    @Column(name = "task_cost")
+    private double taskCost;
 
     @ManyToMany
     @JoinTable(

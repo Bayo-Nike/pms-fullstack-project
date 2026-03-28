@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.service.impl;
 
 
 import et.scco.pms_backend.enums.UserType;
+import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.modules.project.dto.request.ProjectCostRequestDto;
 import et.scco.pms_backend.modules.project.dto.response.ProjectCostResponseDto;
 import et.scco.pms_backend.modules.project.model.Project;
@@ -26,6 +27,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final AuthContext authContext;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -91,5 +93,51 @@ public class ProjectCostServiceImpl implements ProjectCostService {
                 .updatedBy(entity.getCreatedBy() != null ? entity.getCreatedBy().getFullName(): UserType.SYSTEM.name())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    @Override
+    public ProjectCostResponseDto updateProjectCost(Long id, ProjectCostRequestDto dto) {
+        ProjectCost projectCost = costRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project Cost not found with id: " + id));
+
+        Project project = projectCost.getProject();
+        Long projectManagerId =projectCost.getProject().getProjectManager().getId();
+        Double currentTaskCost = projectCost.getAmount();
+
+        projectCost.setAmount(dto.getAmount());
+        projectCost.setPhase(dto.getPhase());
+        projectCost.setProject(project); 
+
+        if (!authContext.isSuperAdmin()) {
+            projectCost.setCreatedBy(authContext.getEmployee());
+        }
+
+        // Link Task if provided
+        if (dto.getTaskId() != null) {
+            Task task = taskRepository.findById(dto.getTaskId()).orElse(null);
+            projectCost.setTask(task);
+        }
+ 
+        ProjectCost updatedProjectCost = costRepository.save(projectCost);
+ 
+        // Update Project's budgetUsed field automatically
+        Double currentProjectBudgetUsed = project.getBudgetUsed();
+        
+        Double newProjectBudgetAdjustment = currentProjectBudgetUsed - (currentTaskCost - dto.getAmount());
+        
+        
+        project.setBudgetUsed(newProjectBudgetAdjustment);
+        //send payment notification to the Project manager
+        if (projectManagerId != null){
+            notificationService.sendNotification(
+                    authContext.getEmployee().getId(),
+                    projectManagerId,
+                    projectCost.getProject().getTitle()+" Project Cost Payment has been Updated",
+                    "projects/"+projectCost.getProject().getId()
+            );
+        }
+
+        return mapToDto(updatedProjectCost);
     }
 }

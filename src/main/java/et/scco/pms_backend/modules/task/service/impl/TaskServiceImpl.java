@@ -119,6 +119,7 @@ public class TaskServiceImpl implements TaskService {
             task.setEmployees(new ArrayList<>());
         }
 
+        task.setTaskCost(dto.getTaskCost());
         task.setStartDate(dto.getStartDate());
         task.setEndDate(dto.getEndDate());
         task.setDescription(dto.getDescription());
@@ -151,6 +152,7 @@ public class TaskServiceImpl implements TaskService {
             dto.setEmployeeNames(task.getEmployees().stream().map(Employee::getFullName).toList());
         }
 
+        dto.setTaskCost(task.getTaskCost());
         dto.setStartDate(task.getStartDate());
         dto.setEndDate(task.getEndDate());
         dto.setDescription(task.getDescription());
