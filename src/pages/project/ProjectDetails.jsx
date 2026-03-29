@@ -895,7 +895,31 @@ const ProjectDetails = () => {
                         <tbody className="divide-y divide-slate-50">
                             {tasks.length === 0 ? (<tr><td colSpan="4" className="px-8 py-12 text-center text-slate-300 text-xs italic font-bold">No tasks defined.</td></tr>) : tasks.map((task) => (
                                 <tr key={task.id} className="hover:bg-slate-50/50 transition-colors group">
-                                    <td className="px-8 py-4"><div className="flex flex-col"><span className="text-sm font-bold text-slate-700">{task.taskName}</span><span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mt-1"><Schedule style={{ fontSize: 10 }} /> {task.startDate || 'TBD'} &rarr; {task.endDate || 'TBD'}</span></div></td>
+                                    <td className="px-8 py-4">
+                                        <div className="flex flex-col"><span className="text-sm font-bold text-slate-700">{task.taskName}</span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1 mt-1">
+                                                <Schedule style={{ fontSize: 10 }} /> {task.startDate || 'TBD'} &rarr; {task.endDate || 'TBD'} 
+                                                &rarr; {task.endDate && (() => {
+                                                    const today = new Date();
+                                                    const end = new Date(task.endDate);
+
+                                                    // remove time part for accurate day diff
+                                                    today.setHours(0,0,0,0);
+                                                    end.setHours(0,0,0,0);
+
+                                                    const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+                                                    if (diffDays > 0) {
+                                                        return <span className="text-[9px] text-green-600 font-bold">{diffDays} days left</span>;
+                                                    } else if (diffDays === 0) {
+                                                        return <span className="text-[9px] text-amber-500 font-bold">Due today</span>;
+                                                    } else {
+                                                        return <span className="text-[9px] text-red-500 font-bold">{Math.abs(diffDays)} days overdue</span>;
+                                                    }
+                                                })()}
+                                            </span>
+                                            </div>
+                                        </td>
                                     <td className="px-6 py-4 text-center"><span className="text-xs font-black text-slate-900 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">{task.weight}%</span></td>
                                     <td className="px-6 py-4 text-center"><span className={`text-[9px] font-black px-2 py-1 rounded border uppercase ${getTaskStatusStyle(task.status)}`}>{task.status.replace(/_/g, ' ')}</span></td>
                                     <td className="px-8 py-4 text-right">
