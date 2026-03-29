@@ -5,12 +5,9 @@ import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 @Builder
-@Getter
-@Setter
+@Data
 public class DashboardSummaryDTO {
 
     private long employeeCount;
@@ -25,5 +22,11 @@ public class DashboardSummaryDTO {
     // Data for Charts
     private List<Map<String, Object>> projectsBySubCity; // [{name: "Bole", value: 10}, ...]
     private List<Map<String, Object>> budgetTrend;       // [{month: "Jan", amount: 4000}, ...]
+
+    private Long colorCodingCount;
+    // THE BAR CHART
+    private List<Map<String, Object>> performanceMetrics; // [{name: "Koye Fache", target: 100, achieved: 85}, ...]
+    
+    private List<Map<String, Object>> projectsByStatus; // [{name: "ONGOING", value: 12}, ...]
 
 }

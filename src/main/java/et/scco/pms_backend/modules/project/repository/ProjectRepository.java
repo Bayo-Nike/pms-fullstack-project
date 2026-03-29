@@ -52,19 +52,28 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        long countBySubCityId(Long subCityId);
 
 
-    @Query("SELECT MAX(p.id) FROM Project p")
-    Long findMaxId();
+        @Query("SELECT MAX(p.id) FROM Project p")
+        Long findMaxId();
 
-       @Query("SELECT p FROM Project p WHERE " +
+    @Query("SELECT p FROM Project p WHERE " +
                "(:status IS NULL OR p.status = :status) AND " +
                "(:subCityId IS NULL OR p.subCity.id = :subCityId) AND " +
                "(:projectType IS NULL OR p.projectType = :projectType) AND " +
                "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
                "OR LOWER(p.projectCode) LIKE LOWER(CONCAT('%', :search, '%')))")
-       Page<Project> findWithFilters(
+    Page<Project> findWithFilters(
                @Param("projectType") ProjectType projectType,
                @Param("search") String search,
                @Param("status") ProjectStatus status,
                @Param("subCityId") Long subCityId,
                Pageable pageable);
+
+        // For Admin: Count projects by status globally
+        @Query("SELECT p.status as name, COUNT(p) as value FROM Project p GROUP BY p.status")
+        List<Map<String, Object>> countProjectsByStatus();
+
+        // For Sub-City User: Count projects by status within their sub-city
+        @Query("SELECT p.status as name, COUNT(p) as value FROM Project p WHERE p.subCity.id = :subId GROUP BY p.status")
+        List<Map<String, Object>> countProjectsByStatusBySubCity(@Param("subId") Long subId);
+
 }
