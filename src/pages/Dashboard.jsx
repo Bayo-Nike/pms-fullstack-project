@@ -1,51 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
   Users, UserCheck, HardHat, Construction,
-  CheckSquare, Wallet, MapPin
+  CheckSquare, Wallet, MapPin, BarChart3
 } from 'lucide-react';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell
+  ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell,
+  BarChart, Bar, Legend
 } from 'recharts';
 import dashboardApi from '../api/modules/dashboard';
 
 const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
 
+const STATUS_COLORS = {
+  'NOT_STARTED': '#FBAF1E',   // Amber
+  'ON_GOING': '#0284C7',   // Blue
+  'COMPLETED': '#10B981', // Green
+  'CANCELLED': '#F43F5E', // Red
+  'ON_HOLD': '#8B5CF6',   // Purple
+  'DEFAULT': '#94a3b8'    // Slate
+};
+
 export default function ProfessionalDashboard() {
-  return (
-    // Responsive horizontal padding: px-4 on mobile, px-8 on large screens
-    <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 bg-[#F8FAFC] min-h-screen animate-fadeIn">
-
-      {/* 1. HEADER SECTION - Responsive Flex */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">System Overview</h1>
-          <p className="text-slate-500 text-xs sm:text-sm font-medium">Real-time SCCO performance analytics</p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="bg-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
-            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
-            <span className="text-[10px] sm:text-xs font-bold text-slate-600 uppercase">Live Status</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. STATS GRID - Highly Responsive Columns */}
-      <StatsGrid />
-
-      {/* 3. CHARTS SECTION - Stack on mobile, side-by-side on LG screens */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <BudgetUtilizationSection />
-        <ProjectDistributionSection />
-      </div>
-    </div>
-  );
-}
-
-// --- SUB-COMPONENTS ---
-
-function StatsGrid() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,10 +31,193 @@ function StatsGrid() {
       .finally(() => setLoading(false));
   }, []);
 
+  return (
+    <div className="p-4 sm:p-6 lg:p-8 space-y-6 lg:space-y-8 bg-[#F8FAFC] min-h-screen animate-fadeIn">
+
+      {/* 1. HEADER SECTION */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">System Overview</h1>
+          <p className="text-slate-500 text-xs sm:text-sm font-medium">Real-time SCCO System Dashboard</p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="bg-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+            <span className="text-[10px] sm:text-xs font-bold text-slate-600 uppercase">Live System Status</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. STATS GRID */}
+      <StatsGrid data={data} loading={loading} />
+
+      {/* 3. PERFORMANCE SECTION (Target vs Achieved) */}
+      <PerformanceAnalysisSection data={data?.performanceMetrics} loading={loading} />
+
+      {/* 4. CHARTS SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <BudgetUtilizationSection trendData={data?.budgetTrend} loading={loading} />
+        <ProjectDistributionSection pieData={data?.projectsBySubCity} loading={loading} />
+      </div>
+      {/* Project Status - Takes 1 column */}
+      <div className="lg:col-span-1">
+            <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
+      </div>
+    </div>
+  );
+}
+
+// ---TARGET VS ACHIEVED BAR CHART ---
+function PerformanceAnalysisSection({ data = [], loading }) {
+  // 1. FILTER STATES
+  const [filters, setFilters] = useState({
+    fiscalYear: 'All',
+    buildingType: 'All',
+    planType: 'All'
+  });
+
+  // 2. DYNAMICALLY GENERATE DROPDOWN OPTIONS
+  const uniqueYears = ['All', ...new Set(data.map(item => item.fiscalYear))];
+  const uniqueBuildingTypes = ['All', ...new Set(data.map(item => item.buildingType))];
+  const uniquePlanTypes = ['All', ...new Set(data.map(item => item.planType))];
+
+  // 3. FILTER & AGGREGATE DATA
+  const filteredData = React.useMemo(() => {
+    // A. Filter raw data based on dropdowns
+    const filtered = data.filter(item => {
+      return (filters.fiscalYear === 'All' || item.fiscalYear === filters.fiscalYear) &&
+             (filters.buildingType === 'All' || item.buildingType === filters.buildingType) &&
+             (filters.planType === 'All' || item.planType === filters.planType);
+    });
+
+    // B. Re-aggregate by Sub-City name (since one subcity might have multiple rows after filtering)
+    const aggregated = filtered.reduce((acc, curr) => {
+      const existing = acc.find(item => item.name === curr.name);
+      if (existing) {
+        existing.target += (curr.target || 0);
+        existing.achieved += (curr.achieved || 0);
+      } else {
+        acc.push({ 
+          name: curr.name, 
+          target: curr.target || 0, 
+          achieved: curr.achieved || 0 
+        });
+      }
+      return acc;
+    }, []);
+
+    return aggregated;
+  }, [data, filters]);
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length > 0) {
+      const target = payload.find(p => p.dataKey === 'target')?.value || 0;
+      const achieved = payload.find(p => p.dataKey === 'achieved')?.value || 0;
+      const efficiency = target > 0 ? ((achieved / target) * 100).toFixed(1) : 0;
+      
+      return (
+        <div className="bg-white p-4 shadow-2xl border border-slate-100 rounded-2xl">
+          <p className="font-bold text-slate-800 mb-2 border-b pb-1">{label}</p>
+          <div className="space-y-1 text-xs">
+            <p className="flex justify-between gap-6 text-slate-500">Target: <span className="font-bold text-slate-900">{target.toLocaleString()}</span></p>
+            <p className="flex justify-between gap-6 text-blue-600">Achieved: <span className="font-bold">{achieved.toLocaleString()}</span></p>
+            <div className={`mt-2 py-1 px-2 rounded-lg text-center font-black uppercase ${efficiency >= 90 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+               Efficiency: {efficiency}%
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
+      {/* HEADER & FILTERS */}
+      <div className="flex flex-col space-y-6 mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-xl font-black text-slate-800 tracking-tight">Performance Analysis</h3>
+            <p className="text-slate-500 text-xs font-medium uppercase">Drill down by FiscalYear, Building Type and Plan Mode</p>
+          </div>
+          
+          <div className="flex gap-4 bg-slate-50 p-2 rounded-xl">
+             <div className="flex items-center gap-2 px-2 border-r border-slate-200">
+                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Target</span>
+             </div>
+             <div className="flex items-center gap-2 px-2">
+                <div className="w-3 h-3 rounded-full bg-[#0284C7]"></div>
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Achieved</span>
+             </div>
+          </div>
+        </div>
+
+        {/* INTERACTIVE FILTERS */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+          <FilterSelect 
+            label="Fiscal Year" 
+            options={uniqueYears} 
+            value={filters.fiscalYear} 
+            onChange={(v) => setFilters(f => ({...f, fiscalYear: v}))} 
+          />
+          <FilterSelect 
+            label="Building Type" 
+            options={uniqueBuildingTypes} 
+            value={filters.buildingType} 
+            onChange={(v) => setFilters(f => ({...f, buildingType: v}))} 
+          />
+          <FilterSelect 
+            label="Plan Type" 
+            options={uniquePlanTypes} 
+            value={filters.planType} 
+            onChange={(v) => setFilters(f => ({...f, planType: v}))} 
+          />
+        </div>
+      </div>
+
+      {/* CHART */}
+      <div className="h-[400px] w-full">
+        {loading ? (
+          <div className="w-full h-full bg-slate-50 animate-pulse rounded-3xl" />
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={filteredData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={8}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
+              <Bar dataKey="target" fill="#E2E8F0" radius={[4, 4, 0, 0]} barSize={filteredData.length > 5 ? 25 : 45} />
+              <Bar dataKey="achieved" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={filteredData.length > 5 ? 25 : 45} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ATOMIC FILTER COMPONENT
+const FilterSelect = ({ label, options, value, onChange }) => (
+  <div className="flex flex-col space-y-1.5">
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{label}</label>
+    <select 
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-all outline-none"
+    >
+      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+    </select>
+  </div>
+);
+
+// --- UPDATED STATS GRID (receiving data from parent) ---
+function StatsGrid({ data, loading }) {
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-        {[...Array(7)].map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+        {[...Array(8)].map((_, i) => (
           <div key={i} className="h-24 sm:h-28 bg-white border border-slate-100 rounded-3xl animate-pulse" />
         ))}
       </div>
@@ -66,8 +225,7 @@ function StatsGrid() {
   }
 
   return (
-    // Responsive grid: 1 col (base), 2 col (sm), 3 col (md), 4 col (lg), 7 col (xl)
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
       <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount} color="blue" />
       <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount} color="indigo" />
       <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount} color="amber" />
@@ -75,24 +233,22 @@ function StatsGrid() {
       <StatCard icon={<CheckSquare size={18} />} label="Tasks" value={data?.taskCount} color="purple" />
       <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency} />
       <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount} color="rose" />
+      <StatCard icon={<BarChart3 size={18} />} label="ColorCodings" value={data?.colorCodingCount} color="rose" />
     </div>
   );
 }
 
-function BudgetUtilizationSection() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeCurrency, setActiveCurrency] = useState('ETB');
-
+function BudgetUtilizationSection({ trendData = [], loading }) {
+  const [activeCurrency, setActiveCurrency] = useState('');
+  
   useEffect(() => {
-    dashboardApi.getSummary().then(res => {
-      setData(res.data.budgetTrend || []);
-      setLoading(false);
-    });
-  }, []);
+    if (trendData.length > 0 && !activeCurrency) {
+      setActiveCurrency(trendData[0].currency);
+    }
+  }, [trendData]);
 
-  const availableCurrencies = [...new Set(data.map(item => item.currency))];
-  const filteredTrend = data.filter(item => item.currency === activeCurrency);
+  const availableCurrencies = [...new Set(trendData.map(item => item.currency))];
+  const filteredTrend = trendData.filter(item => item.currency === activeCurrency);
 
   return (
     <div className="lg:col-span-2 bg-white p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] shadow-sm border border-slate-100">
@@ -102,14 +258,13 @@ function BudgetUtilizationSection() {
           <p className="text-slate-400 text-xs font-medium">Monthly expenditure trend</p>
         </div>
 
-        {!loading && (
+        {!loading && availableCurrencies.length > 0 && (
           <div className="flex flex-wrap bg-slate-100 p-1 rounded-xl">
             {availableCurrencies.map((curr) => (
               <button
                 key={curr}
                 onClick={() => setActiveCurrency(curr)}
-                className={`px-3 sm:px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${activeCurrency === curr ? "bg-white text-[#0284C7] shadow-sm" : "text-slate-500"
-                  }`}
+                className={`px-3 sm:px-4 py-1.5 rounded-lg text-[10px] font-black transition-all ${activeCurrency === curr ? "bg-white text-[#0284C7] shadow-sm" : "text-slate-500"}`}
               >
                 {curr}
               </button>
@@ -143,17 +298,7 @@ function BudgetUtilizationSection() {
   );
 }
 
-function ProjectDistributionSection() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    dashboardApi.getSummary().then(res => {
-      setData(res.data.projectsBySubCity || []);
-      setLoading(false);
-    });
-  }, []);
-
+function ProjectDistributionSection({ pieData = [], loading }) {
   return (
     <div className="bg-white p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] shadow-sm border border-slate-100 flex flex-col">
       <h3 className="text-lg font-bold text-slate-800 mb-6">Project Distribution</h3>
@@ -166,8 +311,8 @@ function ProjectDistributionSection() {
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie data={data} innerRadius="65%" outerRadius="85%" paddingAngle={5} dataKey="value">
-                {data.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+              <Pie data={pieData} innerRadius="65%" outerRadius="85%" paddingAngle={5} dataKey="value">
+                {pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
               </Pie>
               <Tooltip />
             </PieChart>
@@ -176,13 +321,68 @@ function ProjectDistributionSection() {
       </div>
 
       <div className="mt-auto pt-6 space-y-2">
-        {!loading && data.map((item, i) => (
+        {!loading && pieData.map((item, i) => (
           <div key={i} className="flex justify-between items-center text-xs sm:text-sm">
             <span className="flex items-center gap-2 text-slate-500">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></span>
               {item.name}
             </span>
             <span className="font-bold text-slate-700">{item.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProjectStatusSection({ data = [], loading }) {
+  return (
+    <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col">
+      <h3 className="text-lg font-bold text-slate-800 mb-6">Project Status</h3>
+      
+      <div className="h-[250px] w-full relative">
+        {loading ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-20 h-20 rounded-full border-4 border-slate-100 border-t-blue-500 animate-spin" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie 
+                data={data} 
+                innerRadius="60%" 
+                outerRadius="80%" 
+                paddingAngle={8} 
+                dataKey="value"
+              >
+                {data.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={STATUS_COLORS[entry.name] || STATUS_COLORS.DEFAULT} 
+                  />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
+      </div>
+
+      <div className="mt-auto space-y-2 pt-4">
+        {!loading && data.map((item, i) => (
+          <div key={i} className="flex justify-between items-center text-xs">
+            <span className="flex items-center gap-2 text-slate-500">
+              <span 
+                className="w-2 h-2 rounded-full" 
+                style={{ backgroundColor: STATUS_COLORS[item.name] || STATUS_COLORS.DEFAULT }}
+              ></span>
+              <span className="font-medium">{item.name}</span>
+            </span>
+            <span className="font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded-md">
+                {item.value}
+            </span>
           </div>
         ))}
       </div>
@@ -206,7 +406,7 @@ const StatCard = ({ icon, label, value, color }) => {
     <div className="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm transition-all hover:border-blue-200">
       <div className={`p-2 rounded-xl w-fit mb-3 ${colorMap[color]}`}>{icon}</div>
       <p className="text-slate-400 text-[9px] sm:text-[10px] font-bold uppercase tracking-wider">{label}</p>
-      <p className="text-lg sm:text-xl font-black text-slate-800 mt-0.5">{value || 0}</p>
+      <p className="text-lg sm:text-xl font-black text-slate-800 mt-0.5">{value?.toLocaleString() || 0}</p>
     </div>
   );
 };

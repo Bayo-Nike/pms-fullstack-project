@@ -56,6 +56,11 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
       header: "Status"
     },
     {
+      accessorKey: "projectProgress",
+      header: "Project Progress"
+    },
+    
+    {
       accessorKey: "budgetUsed",
       header: "Used Budget",
       cell: info =>
