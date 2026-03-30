@@ -68,9 +68,14 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                @Param("subCityId") Long subCityId,
                Pageable pageable);
 
-        // For Admin: Count projects by status globally
-        @Query("SELECT p.status as name, COUNT(p) as value FROM Project p GROUP BY p.status")
-        List<Map<String, Object>> countProjectsByStatus();
+        // For Admin: Count projects by status globally, by subcity is optional
+       @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as subCity, " + 
+              "p.status as name, " + 
+              "COUNT(p) as value " +
+              "FROM Project p " +
+              "LEFT JOIN p.subCity sc " + // Explicit LEFT JOIN is the key
+              "GROUP BY sc.subCityName, p.status") 
+       List<Map<String, Object>> getProjectStatusDetailed();
 
         // For Sub-City User: Count projects by status within their sub-city
         @Query("SELECT p.status as name, COUNT(p) as value FROM Project p WHERE p.subCity.id = :subId GROUP BY p.status")

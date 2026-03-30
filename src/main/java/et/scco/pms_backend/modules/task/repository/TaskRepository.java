@@ -1,15 +1,13 @@
 package et.scco.pms_backend.modules.task.repository;
 
-import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.task.model.Task;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
@@ -51,4 +49,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 "JOIN t.employees e " +
                 "WHERE e.id = :employeeId")
         List<Task> findWithDetailsByEmployees_Id(@Param("employeeId") Long employeeId);
+ 
+
+        // For Admin: Group tasks by Project and Status
+        @Query("SELECT t.project.title as projectName, t.status as status, COUNT(t) as count " +
+        "FROM Task t GROUP BY t.project.title, t.status")
+        List<Map<String, Object>> getTaskStatusDetailed();
+
+        // For Sub-City User: Group tasks by Project and Status within their sub-city
+        @Query("SELECT t.project.title as projectName, t.status as status, COUNT(t) as count " +
+        "FROM Task t WHERE t.project.subCity.id = :subId GROUP BY t.project.title, t.status")
+        List<Map<String, Object>> getTaskStatusDetailedBySubCity(@Param("subId") Long subId);
 }

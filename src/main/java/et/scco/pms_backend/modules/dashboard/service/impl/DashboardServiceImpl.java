@@ -36,7 +36,8 @@ public class DashboardServiceImpl implements DashboardService {
 
         SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
         Long subId = (userSubCity != null) ? userSubCity.getId() : null;
-        List<Map<String, Object>> performanceMetrics = (subId == null) 
+
+        List<Map<String, Object>> colorCodePerformanceMetrics = (subId == null) 
         ? codingRepository.getPerformanceBySubCityDetailed() 
         : codingRepository.getPerformanceByBuildingType(subId);
  
@@ -55,10 +56,13 @@ public class DashboardServiceImpl implements DashboardService {
             .budgetByCurrency(projectRepository.sumBudgetByCurrency(subId)) // Use the new multi-currency method
             .projectsBySubCity(projectRepository.countProjectsBySubCity(subId))
             .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId))
-            .performanceMetrics(performanceMetrics)
+            .colorCodePerformanceMetrics(colorCodePerformanceMetrics)
             .projectsByStatus(subId == null 
-                ? projectRepository.countProjectsByStatus() 
-                : projectRepository.countProjectsByStatusBySubCity(subId))
+                    ? projectRepository.getProjectStatusDetailed() 
+                    : projectRepository.countProjectsByStatusBySubCity(subId))
+            .tasksByStatus(subId == null 
+                    ? taskRepository.getTaskStatusDetailed() 
+                    : taskRepository.getTaskStatusDetailedBySubCity(subId))
 
             .build();
     }

@@ -25,8 +25,9 @@ public class DashboardSummaryDTO {
 
     private Long colorCodingCount;
     // THE BAR CHART
-    private List<Map<String, Object>> performanceMetrics; // [{name: "Koye Fache", target: 100, achieved: 85}, ...]
+    private List<Map<String, Object>> colorCodePerformanceMetrics; // [{name: "Koye Fache", target: 100, achieved: 85}, ...]
     
     private List<Map<String, Object>> projectsByStatus; // [{name: "ONGOING", value: 12}, ...]
+    private List<Map<String, Object>> tasksByStatus;
 
 }
