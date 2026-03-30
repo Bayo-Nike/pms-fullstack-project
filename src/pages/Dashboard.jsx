@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Users, UserCheck, HardHat, Construction,
   CheckSquare, Wallet, MapPin, BarChart3
@@ -12,13 +12,21 @@ import dashboardApi from '../api/modules/dashboard';
 
 const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
 
-const STATUS_COLORS = {
+const PROJECT_STATUS_COLORS = {
   'NOT_STARTED': '#FBAF1E',   // Amber
   'ON_GOING': '#0284C7',   // Blue
   'COMPLETED': '#10B981', // Green
   'CANCELLED': '#F43F5E', // Red
   'ON_HOLD': '#8B5CF6',   // Purple
   'DEFAULT': '#94a3b8'    // Slate
+};
+
+const TASK_STATUS_COLORS = {
+  'TO_DO': '#FBAF1E',       // Amber (Attention needed)
+  'IN_PROGRESS': '#0284C7', // Sky Blue
+  'IN_REVIEW': '#6366F1',   // Indigo (Sophisticated Review color)
+  'COMPLETED': '#10B981',   // Emerald
+  'DEFAULT': '#94A3B8'
 };
 
 export default function ProfessionalDashboard() {
@@ -49,20 +57,22 @@ export default function ProfessionalDashboard() {
         </div>
       </div>
 
-      {/* 2. STATS GRID */}
+      {/* 2. STATS GRID (8 CARDS)*/}
       <StatsGrid data={data} loading={loading} />
 
-      {/* 3. PERFORMANCE SECTION (Target vs Achieved) */}
-      <PerformanceAnalysisSection data={data?.performanceMetrics} loading={loading} />
+      {/* 3. SUBCITY COLORCODING PERFORMANCE (Target vs Achieved) */}
+      <PerformanceAnalysisSection data={data?.colorCodePerformanceMetrics} loading={loading} />
 
-      {/* 4. CHARTS SECTION */}
+      {/* 4. BUDGET & PROJECT DISTRIBUTION */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <BudgetUtilizationSection trendData={data?.budgetTrend} loading={loading} />
         <ProjectDistributionSection pieData={data?.projectsBySubCity} loading={loading} />
       </div>
-      {/* Project Status - Takes 1 column */}
-      <div className="lg:col-span-1">
-            <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
+
+      {/* PROJECT STATUS & TASK PROGRESS */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
+        <TaskOverviewSection data={data?.tasksByStatus} loading={loading} />
       </div>
     </div>
   );
@@ -336,59 +346,193 @@ function ProjectDistributionSection({ pieData = [], loading }) {
 }
 
 function ProjectStatusSection({ data = [], loading }) {
-  return (
-    <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col">
-      <h3 className="text-lg font-bold text-slate-800 mb-6">Project Status</h3>
+  const [selectedSubCity, setSelectedSubCity] = useState('All');
+
+  // 1. Calculate Chart Data (SUM everything if 'All' is selected)
+  const chartData = useMemo(() => {
+    // A. Filter logic
+    const filtered = data.filter(item => {
+      if (selectedSubCity === 'All') return true; 
+      return item.subCity === selectedSubCity;
+    });
+
+    return filtered.reduce((acc, curr) => {
+      const statusName = curr.name;
+      const val = Number(curr.value || 0);
       
-      <div className="h-[250px] w-full relative">
-        {loading ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-20 h-20 rounded-full border-4 border-slate-100 border-t-blue-500 animate-spin" />
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius="60%" 
-                outerRadius="80%" 
-                paddingAngle={8} 
-                dataKey="value"
-              >
-                {data.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={STATUS_COLORS[entry.name] || STATUS_COLORS.DEFAULT} 
-                  />
-                ))}
-              </Pie>
-              <Tooltip 
-                contentStyle={{ borderRadius: '15px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
+      const existing = acc.find(item => item.name === statusName);
+      if (existing) {
+        existing.value += val;
+      } else {
+        acc.push({ name: statusName, value: val });
+      }
+      return acc;
+    }, []);
+  }, [data, selectedSubCity]);
+
+  // 2. Generate Dropdown Options
+  const subCityOptions = useMemo(() => {
+    const unique = [...new Set(data.map(item => item.subCity))].filter(Boolean);
+    return ['All', ...unique];
+  }, [data]);
+
+  return (
+    <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col h-full">
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800">Project Status</h3>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">
+             {selectedSubCity === 'All' ? 'Total Portfolio' : selectedSubCity}
+          </p>
+        </div>
+
+        {!loading && subCityOptions.length > 0 && (
+          <select 
+            value={selectedSubCity}
+            onChange={(e) => setSelectedSubCity(e.target.value)}
+            className="text-[10px] font-black bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 outline-none uppercase"
+          >
+            {subCityOptions.map(sc => (
+              <option key={sc} value={sc}>{sc}</option>
+            ))}
+          </select>
         )}
       </div>
 
-      <div className="mt-auto space-y-2 pt-4">
-        {!loading && data.map((item, i) => (
-          <div key={i} className="flex justify-between items-center text-xs">
-            <span className="flex items-center gap-2 text-slate-500">
-              <span 
-                className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: STATUS_COLORS[item.name] || STATUS_COLORS.DEFAULT }}
-              ></span>
-              <span className="font-medium">{item.name}</span>
+      <div className="h-[250px] w-full">
+        <ResponsiveContainer>
+          <PieChart>
+            <Pie data={chartData} innerRadius="65%" outerRadius="85%" paddingAngle={5} dataKey="value">
+              {chartData.map((entry, i) => (
+                <Cell key={i} fill={PROJECT_STATUS_COLORS[entry.name] || PROJECT_STATUS_COLORS.DEFAULT} stroke="none" />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="mt-4 space-y-2 border-t pt-4">
+        {chartData.map((item, i) => (
+          <div key={i} className="flex justify-between text-xs font-bold">
+            <span className="flex items-center gap-2 text-slate-500 uppercase">
+              <div className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: PROJECT_STATUS_COLORS[item.name]}}></div>
+              {item.name}
             </span>
-            <span className="font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded-md">
-                {item.value}
-            </span>
+            <span className="text-slate-800">{item.value}</span>
           </div>
         ))}
       </div>
     </div>
   );
 }
+ 
+
+function TaskOverviewSection({ data = [], loading }) {
+  const [selectedProject, setSelectedProject] = useState('All Projects');
+
+  // 1. Extract Unique Projects for the dropdown
+  const projectOptions = useMemo(() => {
+    const unique = [...new Set(data.map(item => item.projectName))].filter(Boolean);
+    return ['All Projects', ...unique];
+  }, [data]);
+
+  // 2. Filter and Aggregate Data based on selected project
+  const aggregatedData = useMemo(() => {
+    // A. Filter by project
+    const filtered = data.filter(item => 
+      selectedProject === 'All Projects' || item.projectName === selectedProject
+    );
+
+    // B. Re-aggregate by status (Summing counts from different projects if 'All' is selected)
+    return filtered.reduce((acc, curr) => {
+      const statusName = curr.status;
+      const count = Number(curr.count || 0);
+      
+      const existing = acc.find(item => item.name === statusName);
+      if (existing) {
+        existing.value += count;
+      } else {
+        acc.push({ name: statusName, value: count });
+      }
+      return acc;
+    }, []);
+  }, [data, selectedProject]);
+
+  // 3. Calculate Performance Metrics
+  const totalTasks = aggregatedData.reduce((sum, item) => sum + item.value, 0);
+  const completed = aggregatedData.find(item => item.name === 'COMPLETED')?.value || 0;
+  const rate = totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0;
+
+  return (
+    <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col h-full min-h-[420px]">
+      
+      {/* HEADER WITH PROJECT FILTER */}
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
+        <div>
+          <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Task Progress</h3>
+          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+            {selectedProject === 'All Projects' ? 'Operational Velocity' : 'Project Drill-down'}
+          </p>
+        </div>
+
+        {!loading && projectOptions.length > 1 && (
+          <select 
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            className="text-[10px] font-black bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 outline-none uppercase cursor-pointer max-w-[150px]"
+          >
+            {projectOptions.map(p => (
+              <option key={p} value={p}>{p}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      <div className="flex-grow flex flex-col justify-center space-y-10">
+        {/* Completion Gauge */}
+        <div className="space-y-4">
+            <div className="flex justify-between items-end">
+                <span className="text-xs font-bold text-slate-500 uppercase">
+                    {selectedProject === 'All Projects' ? 'Global Completion' : 'Project Status'}
+                </span>
+                <span className="text-3xl font-black text-slate-800">{rate}%</span>
+            </div>
+            
+            {/* Multi-color Progress Bar */}
+            <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+            {aggregatedData.map((item, i) => (
+                <div 
+                    key={i} 
+                    style={{ 
+                        width: `${totalTasks > 0 ? (item.value / totalTasks) * 100 : 0}%`, 
+                        backgroundColor: TASK_STATUS_COLORS[item.name] || TASK_STATUS_COLORS.DEFAULT 
+                    }} 
+                    className="h-full border-r border-white/20 last:border-0 transition-all duration-500" 
+                />
+            ))}
+            </div>
+        </div>
+
+        {/* Status Count Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          {aggregatedData.length > 0 ? aggregatedData.map((item, i) => (
+            <div key={i} className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 flex flex-col items-center text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase mb-1">{item.name}</p>
+              <p className="text-2xl font-black text-slate-700">{item.value}</p>
+              <div className="w-full h-1 mt-2 rounded-full" style={{backgroundColor: TASK_STATUS_COLORS[item.name]}}></div>
+            </div>
+          )) : (
+            <div className="col-span-2 py-10 text-center text-slate-400 text-xs italic">
+                No tasks found for this selection
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 // --- ATOMIC UI COMPONENTS ---
 
