@@ -17,6 +17,7 @@ export default function EmployeeReportPage() {
  
       const employeesData = res.data || [];
 
+      console.log(employeesData);
       const transformed = employeesData.map((emp, index) => ({
         sno: index + 1,
         fullName: emp.fullName,
@@ -25,8 +26,8 @@ export default function EmployeeReportPage() {
         position: emp.positionName || "N/A",
         location: `${emp.cityName || "N/A"}${emp.subCityName ? " / " + emp.subCityName : ""}`,
         status: emp.status,
-        projectCount: emp.assignedProjects?.length || 0,
-        taskCount: emp.tasks?.length || 0
+        projectCount: emp.projectCount || 0,
+        taskCount: emp.taskCount || 0
       }));
 
       setEmployees(transformed);
