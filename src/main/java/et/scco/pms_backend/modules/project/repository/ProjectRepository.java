@@ -30,12 +30,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        List<Map<String, Object>> sumBudgetByCurrency(@Param("subId") Long subId);
 
        // "Smart" Pie Chart Query:
-       // If subId is null (Admin), it groups ALL projects by sub-city.
+       // If subId is null (Admin), it groups ALL projects by sub-city including Unassigned if null.
        // If subId is provided (User), it only shows the count for that specific sub-city.
-       @Query("SELECT p.subCity.subCityName as name, COUNT(p) as value " +
-                     "FROM Project p " +
-                     "WHERE (:subId IS NULL OR p.subCity.id = :subId) " +
-                     "GROUP BY p.subCity.subCityName")
+       @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as name, COUNT(p) as value " +
+              "FROM Project p LEFT JOIN p.subCity sc " +
+              "WHERE (:subId IS NULL OR sc.id = :subId) " +
+              "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
        List<Map<String, Object>> countProjectsBySubCity(@Param("subId") Long subId);
 
        // Area Chart: SQL Server Format (MMM), filter if subId is provided

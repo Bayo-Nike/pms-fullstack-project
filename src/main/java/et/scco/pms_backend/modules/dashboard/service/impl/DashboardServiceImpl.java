@@ -1,5 +1,7 @@
 package et.scco.pms_backend.modules.dashboard.service.impl;
 
+import et.scco.pms_backend.modules.admin.repository.ClientRepository;
+import et.scco.pms_backend.modules.admin.repository.ConsultancyRepository;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DashboardServiceImpl implements DashboardService {
 
+    private final ClientRepository clientRepository;
+    private final ConsultancyRepository consultancyRepository;
     private final SubCityServiceImpl subCityServiceImpl;
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
@@ -45,7 +49,9 @@ public class DashboardServiceImpl implements DashboardService {
             // Counts: Ternary logic used for simple counts
             .employeeCount(subId == null ? employeeRepository.count() : employeeRepository.countBySubCityId(subId))
             .userCount(subId == null ? userRepository.count() : userRepository.countByEmployeeSubCityId(subId))
-            .contractorCount(contractorRepository.count()) 
+            .contractorCount(contractorRepository.count())
+            .consultantCount(consultancyRepository.count())
+            .clientCount(clientRepository.count()) 
             .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
             .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
             .subCityCount(subId == null ? subCityRepository.count() : 1)
