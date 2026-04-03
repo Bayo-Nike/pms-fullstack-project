@@ -170,7 +170,7 @@ export default function Roles() {
                                                         <Edit style={{ fontSize: 18 }} />
                                                     </button>
                                                     {
-                                                        (!(role.roleName === 'MAYOR' || role.roleName === 'MANAGER')) &&
+                                                        (!(role.roleName === 'ROLE_CITY_OFFICE_HEAD' || role.roleName === 'ROLE_MAYOR')) &&
                                                         (<button
                                                             onClick={() => handleDeleteClick(role)}
                                                             className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
