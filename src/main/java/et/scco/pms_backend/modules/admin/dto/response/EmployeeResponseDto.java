@@ -20,4 +20,6 @@ public class EmployeeResponseDto {
     private String subCityName;
     private String status;
     private String email;
+    private int projectCount;
+    private int taskCount;
 }

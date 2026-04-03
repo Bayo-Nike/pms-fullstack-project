@@ -13,6 +13,8 @@ public class DashboardSummaryDTO {
     private long employeeCount;
     private long userCount;
     private long contractorCount;
+    private long consultantCount;
+    private long clientCount;
     private long projectCount;
     private long taskCount;
     // private double totalBudget;
