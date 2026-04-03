@@ -23,6 +23,27 @@ export default function TaskReport({ data = [], loading, onRefresh }) {
       { accessorKey: "employees", header: "Employees", enableSorting: true },
       { accessorKey: "startDate", header: "Start Date", enableSorting: true },
       { accessorKey: "endDate", header: "End Date", enableSorting: true },
+      {
+        accessorKey: "deadlineStatus",
+        header: "Timeline Status",
+        cell: (info) => {
+          const row = info.row.original;
+          const isOverdue = row.isOverdue;
+          const isDueToday = info.getValue() === "Due today";
+      
+          return (
+            <span className={`font-bold text-[11px] uppercase tracking-tight px-2 py-1 rounded-md ${
+              isOverdue 
+                ? "bg-red-50 text-red-600 border border-red-100" 
+                : isDueToday 
+                ? "bg-amber-50 text-amber-600 border border-amber-100"
+                : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+            }`}>
+              {info.getValue()}
+            </span>
+          );
+        }
+      },
       { accessorKey: "status", header: "Status", enableSorting: true },
       { accessorKey: "priority", header: "Priority", enableSorting: true },
       { accessorKey: "weight", header: "Weight", enableSorting: true },

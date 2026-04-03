@@ -15,8 +15,53 @@ export default function ProjectReportPage() {
 
       const res = await projectApi.GET_PROJECTS({ page: 0, size: 1000 });
 
-      const pageData = res.data.data;
-      setProjects(pageData.content || []);
+      const projectData = res.data.data || [];
+      // const employeesData = res.data || [];
+
+      const transformed = projectData.content.map((proj, index) => {
+        let timelineStatus = "N/A";
+        let isOverdue = false; // 1. Initialize the flag
+        if (proj.endDate) {
+          const today = new Date();
+          const endDate = new Date(proj.endDate);
+      
+          today.setHours(0, 0, 0, 0);
+          endDate.setHours(0, 0, 0, 0);
+      
+          const diffTime = endDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+          if (diffDays > 0) {
+            timelineStatus = `${diffDays} days left`;
+          } else if (diffDays < 0) {
+            timelineStatus = `${Math.abs(diffDays)} days overdue`;
+            isOverdue = true; // 2. Set flag to true if overdue
+          } else {
+            timelineStatus = "Due today";
+          }
+        }
+        
+        return {
+          sno: index + 1,
+          projectCode: proj.projectCode,
+          title: proj.title,
+          subCityName: proj.subCityName || "N/A",
+          projectType: proj.projectType || "N/A",
+          startDate: `${proj.startDate || "N/A"}`,
+          endDate: `${proj.endDate || "N/A"}`,
+          projectManagerName: proj.projectManagerName,
+          employeeNames: proj.employeeNames,
+          status: proj.status,
+          projectProgress: proj.projectProgress != null ? Number(proj.projectProgress).toFixed(2) : "N/A",
+          budget: `${proj.budgetUsed || "N/A"} / ${proj.budget || "N/A"}`,
+          
+          // 3. Include both fields in the object
+          timelineStatus,
+          isOverdue, 
+        };
+      });
+      
+      setProjects(transformed);
 
 
     } catch (err) {

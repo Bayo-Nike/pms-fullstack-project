@@ -17,6 +17,7 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
   const [sorting, setSorting] = useState([]); // <--- Sorting state
 
   const columns = useMemo(() => [
+    { accessorKey: "sno", header: "S/No", enableSorting: false },
     {
       accessorKey: "projectCode",
       header: "Code",
@@ -43,13 +44,41 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
       header: "End Date"
     },
     {
+      accessorKey: "timelineStatus",
+      header: "Timeline Status",
+      cell: (info) => {
+        const row = info.row.original;
+        const status = info.getValue();
+        // If project is completed, show a neutral color
+        if (row.status === "COMPLETED" || row.status === "FINISHED") {
+           return <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 py-1 bg-slate-50 rounded-md border border-slate-100">Closed</span>
+        }
+        const isOverdue = row.isOverdue;
+        const isDueToday = status === "Due today";
+        return (
+          <span className={`font-bold text-[11px] uppercase tracking-tight px-2 py-1 rounded-md border ${
+            isOverdue 
+              ? "bg-red-50 text-red-600 border-red-100" 
+              : isDueToday 
+              ? "bg-amber-50 text-amber-600 border-amber-100"
+              : status === "N/A"
+              ? "bg-slate-50 text-slate-400 border-slate-100"
+              : "bg-emerald-50 text-emerald-600 border-emerald-100"
+          }`}>
+            {status}
+          </span>
+        );
+      }
+    },
+    
+    {
       accessorKey: "projectManagerName",
-      header: "project Manager"
+      header: "Project Manager"
     },
     
     {
       accessorKey: "employeeNames",
-      header: "Employee"
+      header: "Employees"
     },
     {
       accessorKey: "status",
@@ -61,17 +90,10 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     },
     
     {
-      accessorKey: "budgetUsed",
-      header: "Used Budget",
-      cell: info =>
-        new Intl.NumberFormat("en-US").format(info.getValue())
-    },
-    {
       accessorKey: "budget",
-      header: "Total Budget",
-      cell: info =>
-        new Intl.NumberFormat("en-US").format(info.getValue())
-    }
+      header: "Used Budget / Total Budget"
+    },
+    
   ], []);
 
   const table = useReactTable({

@@ -239,8 +239,10 @@ function StatsGrid({ data, loading }) {
       <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount} color="blue" />
       <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount} color="indigo" />
       <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount} color="amber" />
-      <StatCard icon={<Construction size={18} />} label="Projects" value={data?.projectCount} color="sky" />
-      <StatCard icon={<CheckSquare size={18} />} label="Tasks" value={data?.taskCount} color="purple" />
+      {/* <StatCard icon={<HardHat size={18} />} label="Consultants" value={data?.consultantCount} color="amber" />
+      <StatCard icon={<HardHat size={18} />} label="Clients" value={data?.clientCount} color="amber" /> */}
+      <StatCard icon={<Construction size={18} />} label="Total Projects" value={data?.projectCount} color="sky" />
+      <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount} color="purple" />
       <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency} />
       <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount} color="rose" />
       <StatCard icon={<BarChart3 size={18} />} label="ColorCodings" value={data?.colorCodingCount} color="rose" />
