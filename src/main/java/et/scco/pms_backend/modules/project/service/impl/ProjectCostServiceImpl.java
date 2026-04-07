@@ -57,6 +57,16 @@ public class ProjectCostServiceImpl implements ProjectCostService {
         project.setBudgetUsed(project.getBudgetUsed() + dto.getAmount());
         projectRepository.save(project);
 
+        //send payment notification to the Project manager
+        if (project.getProjectManager() != null){
+            notificationService.sendNotification(
+                    authContext.getEmployee().getId(),
+                    project.getProjectManager().getId(),
+                    project.getTitle()+" Project Cost Payment has been Added",
+                    "projects/"+project.getId()
+            );
+        }
+
         return mapToDto(saved);
     }
 
