@@ -17,7 +17,7 @@ export default function ProjectReportPage() {
 
       const projectData = res.data.data || [];
       // const employeesData = res.data || [];
-
+console.log(projectData.content);
       const transformed = projectData.content.map((proj, index) => {
         let timelineStatus = "N/A";
         let isOverdue = false; // 1. Initialize the flag
@@ -52,8 +52,8 @@ export default function ProjectReportPage() {
           projectManagerName: proj.projectManagerName,
           employeeNames: proj.employeeNames,
           status: proj.status,
-          projectProgress: proj.projectProgress != null ? Number(proj.projectProgress).toFixed(2) : "N/A",
-          budget: `${proj.budgetUsed || "N/A"} / ${proj.budget || "N/A"}`,
+          projectProgress: proj.projectProgress != null ? Number(proj.projectProgress).toFixed(2) +" %": "N/A",
+          budget: `${proj.budgetUsed || "-"} / ${proj.budget || "N/A"} ${proj.currencyType}`,
           
           // 3. Include both fields in the object
           timelineStatus,
