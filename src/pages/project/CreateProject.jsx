@@ -606,6 +606,7 @@ export default function CreateProject() {
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Formal Title *</label><input name="title" value={formData.title} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Summary</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="2" className="w-full text-sm font-medium bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Client Partner</label><select name="clientId" value={formData.clientId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.clients.map(c => <option key={c.id} value={String(c.id)}>{c.clientName}</option>)}</select></div>
 
                     </div>
                 </div>
@@ -636,6 +637,7 @@ export default function CreateProject() {
                                     return loc ? (<div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase">{loc.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer" style={{ fontSize: 14 }} /></div>) : null;
                                 })}
                             </div>
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultancy Partner</label><select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}</select></div>
                         </div>
                     </div>
                 </div>
@@ -651,6 +653,7 @@ export default function CreateProject() {
                                 {(finalPersonnelList || []).map(m => <option key={m.id} value={String(m.id)}>{m.fullName} {m.subCityName ? `(${m.subCityName})` : '(HQ)'}</option>)}
                             </select>
                         </div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Contractor Partner</label><select name="contractorId" value={formData.contractorId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer"><option value="">TBD</option>{lookups.contractors.map(c => <option key={c.id} value={String(c.id)}>{c.contractorName}</option>)}</select></div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Status</label><select name="status" value={formData.status} onChange={handleInputChange} className="w-full text-[11px] font-black bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none uppercase">{['NOT_STARTED', 'ON_GOING', 'COMPLETED', 'ON_HOLD', 'CANCELLED'].map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}</select></div>
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Priority</label><select name="priority" value={formData.priority} onChange={handleInputChange} className="w-full text-[11px] font-black bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none uppercase">{['LOW', 'MEDIUM', 'HIGH', 'URGENT'].map(p => <option key={p} value={p}>{p}</option>)}</select></div>
