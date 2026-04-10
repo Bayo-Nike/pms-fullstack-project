@@ -369,6 +369,7 @@ import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
+import { CalendarDays, LucideCalendarDays } from 'lucide-react';
 
 export default function CreateProject() {
     // 1. Extract positionId from AuthContext
@@ -400,6 +401,7 @@ export default function CreateProject() {
         currencyType: 'ETB',
         budget: '',
         budgetUsed: '0',
+        extendedDays:0,
         employeeIds: []
     });
 
@@ -531,6 +533,7 @@ export default function CreateProject() {
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
                 budget: formData.budget ? parseFloat(formData.budget) : 0,
+                extendedDays:formData.extendedDays !== undefined && formData.extendedDays !== null ? formData.extendedDays: 0,
                 employeeIds: formData.employeeIds
             };
 
@@ -723,9 +726,27 @@ export default function CreateProject() {
                 }
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-10">
                     <div className="flex items-center gap-4 mb-8 font-bold text-[12px] text-slate-400 uppercase tracking-[0.2em]"><CalendarMonth className="text-sky-500" /> Project Schedule</div>
-                    <div className="grid grid-cols-2 gap-8">
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Launch Date</label><input name="startDate" type="date" value={formData.startDate} onChange={handleInputChange} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[28px] px-8 py-5 outline-none focus:border-[#0284C7]" /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Handover Deadline</label><input name="endDate" type="date" value={formData.endDate} onChange={handleInputChange} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[28px] px-8 py-5 outline-none focus:border-[#0284C7]" /></div>
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Launch Date</label><input name="startDate" type="date" value={formData.startDate} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[28px] px-3 py-2 outline-none focus:border-[#0284C7]" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Handover Deadline</label><input name="endDate" type="date" value={formData.endDate} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[28px] px-3 py-2 outline-none focus:border-[#0284C7]" /></div>
+                        {isEdit && (
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">
+                                Extend Days (Optional)</label>
+                                <div className="flex items-center gap-2">
+                                <input
+                                    name="extendedDays" type="number"
+                                    value={formData.extendedDays}
+                                    onChange={handleInputChange}
+                                    className="w-20 text-sm font-bold bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 outline-none focus:border-[#0284C7]"
+                                    placeholder="0"/>
+                                <span className="text-[10px] px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg font-bold text-slate-500 uppercase">
+                                    Day(s)
+                                </span>
+                                </div>
+                            </div>
+                        )}
+                        
                     </div>
                 </div>
             </div>

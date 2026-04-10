@@ -251,6 +251,11 @@ export default function Projects() {
                   <div className="flex flex-col gap-1">
                     <span className="text-xs font-bold text-slate-700">{proj.startDate ? new Date(proj.startDate).toLocaleDateString() : 'TBD'}</span>
                     <span className="text-[10px] text-slate-400 uppercase font-medium">to {proj.endDate ? new Date(proj.endDate).toLocaleDateString() : 'TBD'}</span>
+                    {proj.extendedDays > 0 && (
+                      <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-600 border border-amber-200 rounded-md font-bold">
+                        +{proj.extendedDays}d
+                      </span>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-5 text-center">

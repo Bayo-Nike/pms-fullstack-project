@@ -41,36 +41,82 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     },
     {
       accessorKey: "endDate",
-      header: "End Date"
+      header: "End Date",
+      cell: (info) => {
+        const row = info.row.original;
+    
+        if (!row.endDate || row.endDate === "N/A") {
+          return <span className="text-slate-400 text-xs">N/A</span>;
+        }
+    
+        return (
+          <div className="flex flex-col text-[11px]">
+            {/* Original date */}
+            <span className="font-semibold text-slate-700">
+              {new Date(row.endDate).toLocaleDateString()}
+            </span>
+    
+            {/* Extension indicator */}
+            {row.extendedDays > 0 && (
+              <>
+                <span className="text-[10px] text-blue-600 font-medium">
+                  +{row.extendedDays}d
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  Extended: {row.finalEndDate}
+                </span>
+              </>
+            )}
+          </div>
+        );
+      }
     },
+    
     {
       accessorKey: "timelineStatus",
       header: "Timeline Status",
       cell: (info) => {
         const row = info.row.original;
         const status = info.getValue();
-        // If project is completed, show a neutral color
+    
         if (row.status === "COMPLETED" || row.status === "FINISHED") {
-           return <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 py-1 bg-slate-50 rounded-md border border-slate-100">Closed</span>
+          return (
+            <span className="text-[10px] font-bold text-slate-400 uppercase px-2 py-1 bg-slate-50 rounded-md border border-slate-100">
+              Closed
+            </span>
+          );
         }
+    
         const isOverdue = row.isOverdue;
         const isDueToday = status === "Due today";
+    
         return (
-          <span className={`font-bold text-[11px] uppercase tracking-tight px-2 py-1 rounded-md border ${
-            isOverdue 
-              ? "bg-red-50 text-red-600 border-red-100" 
-              : isDueToday 
-              ? "bg-amber-50 text-amber-600 border-amber-100"
-              : status === "N/A"
-              ? "bg-slate-50 text-slate-400 border-slate-100"
-              : "bg-emerald-50 text-emerald-600 border-emerald-100"
-          }`}>
-            {status}
-          </span>
+          <div className="flex flex-col items-start gap-[2px]">
+            {/* Main badge */}
+            <span
+              className={`font-bold text-[11px] uppercase px-2 py-1 rounded-md border ${
+                isOverdue
+                  ? "bg-red-50 text-red-600 border-red-100"
+                  : isDueToday
+                  ? "bg-amber-50 text-amber-600 border-amber-100"
+                  : status === "N/A"
+                  ? "bg-slate-50 text-slate-400 border-slate-100"
+                  : "bg-emerald-50 text-emerald-600 border-emerald-100"
+              }`}
+            >
+              {status}
+            </span>
+    
+            {/* Extension badge (subtle, professional) */}
+            {/* {row.extendedDays > 0 && (
+              <span className="text-[9px] text-blue-600 font-semibold">
+                Extended +{row.extendedDays}d
+              </span>
+            )} */}
+          </div>
         );
       }
     },
-    
     {
       accessorKey: "projectManagerName",
       header: "Project Manager"

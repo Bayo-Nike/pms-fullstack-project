@@ -819,30 +819,76 @@ const ProjectDetails = () => {
                 </div>
 
                 <div className="text-right">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase"><DateRange fontSize="small" />End Date</p>
-                    
-                    <span className="text-xs font-black text-slate-700 flex flex-col items-end">
-                        {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
+                <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1">
+                    <DateRange fontSize="small" />
+                    End Date
+                </p>
 
-                        {project.endDate && (() => {
-                            const today = new Date();
-                            const end = new Date(project.endDate);
+                <span className="text-xs font-black text-slate-700 flex flex-col items-end">
+                    {project.endDate ? (
+                    (() => {
+                        const today = new Date();
+                        const originalEnd = new Date(project.endDate);
 
-                            // remove time part for accurate day diff
-                            today.setHours(0,0,0,0);
-                            end.setHours(0,0,0,0);
+                        // normalize dates
+                        today.setHours(0, 0, 0, 0);
+                        originalEnd.setHours(0, 0, 0, 0);
 
-                            const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+                        // apply extension
+                        const extendedDays = project.extendedDays || 0;
+                        const finalEnd = new Date(originalEnd);
+                        finalEnd.setDate(finalEnd.getDate() + extendedDays);
 
-                            if (diffDays > 0) {
-                                return <span className="text-[9px] text-green-600 font-bold">{diffDays} days left</span>;
-                            } else if (diffDays === 0) {
-                                return <span className="text-[9px] text-amber-500 font-bold">Due today</span>;
-                            } else {
-                                return <span className="text-[9px] text-red-500 font-bold">{Math.abs(diffDays)} days overdue</span>;
-                            }
-                        })()}
-                    </span>
+                        const diffDays = Math.ceil(
+                        (finalEnd - today) / (1000 * 60 * 60 * 24)
+                        );
+
+                        return (
+                        <>
+                            {/* Original End Date */}
+                            <span>
+                            {originalEnd.toLocaleDateString()}
+                            </span>
+
+                            {/* Extension Info */}
+                            {extendedDays > 0 && (
+                            <span className="text-[9px] text-blue-500 font-semibold">
+                                Extended by {extendedDays} day{extendedDays > 1 ? "s" : ""}
+                            </span>
+                            )}
+
+                            {/* Final Deadline (only if extended) */}
+                            {extendedDays > 0 && (
+                            <span className="text-[10px] text-slate-500">
+                                New: {finalEnd.toLocaleDateString()}
+                            </span>
+                            )}
+
+                            {/* Status */}
+                            {diffDays > 0 && (
+                            <span className="text-[9px] text-green-600 font-bold">
+                                {diffDays} day{diffDays > 1 ? "s" : ""} left
+                            </span>
+                            )}
+
+                            {diffDays === 0 && (
+                            <span className="text-[9px] text-amber-500 font-bold">
+                                Due today
+                            </span>
+                            )}
+
+                            {diffDays < 0 && (
+                            <span className="text-[9px] text-red-500 font-bold">
+                                {Math.abs(diffDays)} day{Math.abs(diffDays) > 1 ? "s" : ""} overdue
+                            </span>
+                            )}
+                        </>
+                        );
+                    })()
+                    ) : (
+                    "N/A"
+                    )}
+                </span>
                 </div>
             </div>
 
