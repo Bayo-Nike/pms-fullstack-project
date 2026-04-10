@@ -44,6 +44,7 @@ public class ProjectResponseDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private int extendedDays;
 
     private ProjectStatus status;
     private ProjectPriority priority;

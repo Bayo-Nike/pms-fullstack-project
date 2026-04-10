@@ -25,6 +25,7 @@ public class CreateProjectRequestDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private int extendedDays;
 
     private ProjectStatus status;
     private ProjectPriority priority;

@@ -237,6 +237,7 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setProjectType(project.getProjectType());
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
+        dto.setExtendedDays(project.getExtendedDays());
         dto.setStatus(project.getStatus());
         dto.setPriority(project.getPriority());
         dto.setCurrencyType(project.getCurrencyType());
@@ -312,6 +313,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.setProjectType(dto.getProjectType());
         project.setStartDate(dto.getStartDate());
         project.setEndDate(dto.getEndDate());
+        project.setExtendedDays(dto.getExtendedDays());
+                
         project.setStatus(dto.getStatus());
         project.setPriority(dto.getPriority());
         project.setCurrencyType(dto.getCurrencyType());

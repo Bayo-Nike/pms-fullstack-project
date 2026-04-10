@@ -62,6 +62,8 @@ public class Project {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    @Column(name = "extended_days")
+    private int extendedDays;
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
