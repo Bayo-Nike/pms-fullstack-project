@@ -7,10 +7,17 @@ import et.scco.pms_backend.modules.task.service.TaskService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -26,8 +33,9 @@ public class TaskController {
         return ResponseUtil.success("Task fetched successfully", tasks);
     }
 
-    @PostMapping
-    public ApiResponse<TaskResponseDTO> createTask(@RequestBody CreateTaskRequestDTO dto) {
+    
+    @PostMapping(consumes = "multipart/form-data") //multipart/form-data cannot be parsed by @RequestBody else @ModelAttribute
+    public ApiResponse<TaskResponseDTO> createTask(@ModelAttribute CreateTaskRequestDTO dto) {
 
         return ResponseUtil.success(
                 "Task created successfully",
@@ -35,10 +43,34 @@ public class TaskController {
         );
     }
 
-    @PutMapping("/{id}")
+    @GetMapping("/download/{filename:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws Exception {
+        Path filePath = Paths.get("uploads").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found " + filename);
+        }
+
+        // Try to determine content type
+        String contentType = "application/octet-stream";
+        if (filename.endsWith(".png")) contentType = "image/png";
+        else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) contentType = "image/jpeg";
+        else if (filename.endsWith(".pdf")) contentType = "application/pdf";
+        else if (filename.endsWith(".docx")) contentType = "application/docx";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
+    // Build Update Contractor REST API
+    @PutMapping(value = "{id}", consumes = "multipart/form-data")
+    // @PutMapping("/{id}")
     public ApiResponse<TaskResponseDTO> updateTask(
             @PathVariable Long id,
-            @RequestBody CreateTaskRequestDTO dto) {
+            @ModelAttribute CreateTaskRequestDTO dto) {
 
         return ResponseUtil.success(
                 "Task updated successfully",

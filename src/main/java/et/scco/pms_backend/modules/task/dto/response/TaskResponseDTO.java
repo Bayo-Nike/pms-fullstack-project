@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 @Data
 public class TaskResponseDTO {
 
@@ -42,4 +44,6 @@ public class TaskResponseDTO {
     private Double weight;
 
     private LocalDateTime createdAt;
+    private String supportDocument;
+
 }

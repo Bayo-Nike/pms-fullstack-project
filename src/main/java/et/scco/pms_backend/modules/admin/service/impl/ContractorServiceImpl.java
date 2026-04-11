@@ -10,7 +10,6 @@ import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ContractorResponseDTO;
 import et.scco.pms_backend.modules.admin.mapper.ContractorMapper;
-import et.scco.pms_backend.modules.admin.model.Consultancy;
 import et.scco.pms_backend.modules.admin.model.Contractor;
 import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
 import et.scco.pms_backend.modules.admin.service.ContractorService;

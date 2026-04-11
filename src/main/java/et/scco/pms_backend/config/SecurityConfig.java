@@ -60,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/colorCodes/download/**").permitAll()
                         .requestMatchers("/api/admin/consultancy/download/**").permitAll()
                         .requestMatchers("/api/admin/client/download/**").permitAll()
+                        .requestMatchers("/api/tasks/download/**").permitAll()
 
                         // API authentication
                         .requestMatchers("/api/auth/login").permitAll()

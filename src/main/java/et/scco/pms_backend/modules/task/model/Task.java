@@ -49,6 +49,9 @@ public class Task {
     @Column(name = "task_cost")
     private double taskCost;
 
+    @Column(name = "support_document")
+    private String supportDocument; // file name or path
+
     @ManyToMany
     @JoinTable(
             name = "task_locations",

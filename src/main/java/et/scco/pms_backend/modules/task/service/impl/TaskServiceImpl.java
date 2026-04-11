@@ -11,6 +11,7 @@ import et.scco.pms_backend.modules.task.model.Task;
 import et.scco.pms_backend.modules.task.repository.TaskRepository;
 import et.scco.pms_backend.modules.task.service.TaskService;
 import et.scco.pms_backend.utility.AuthContext;
+import et.scco.pms_backend.utility.FileStorageService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -33,12 +34,22 @@ public class TaskServiceImpl implements TaskService {
     private final ProjectServiceImpl projectService;
     private final AuthContext authContext;
     // private final SubCityServiceImpl subCityServiceImpl;
+    private final FileStorageService fileStorageService;
 
     // ---------------- Create Task ----------------
     @Override
     public TaskResponseDTO createTask(CreateTaskRequestDTO dto) {
 
         Task task = mapToEntity(dto);
+        if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+            String fileName = null;
+            try {
+                fileName = fileStorageService.storeFile(dto.getSupportDocument());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            task.setSupportDocument(fileName);
+        }
         Task saved = taskRepository.save(task);
 
         return mapToDTO(saved);
@@ -49,6 +60,18 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
+
+        // Only update file if a new one is uploaded
+        if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+            String fileName = null;
+            try {
+                fileName = fileStorageService.storeFile(dto.getSupportDocument());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            task.setSupportDocument(fileName);
+        }
+        // else: keep the existing file
 
         Task updated = taskRepository.save(mapToEntity(dto, task));
 
@@ -152,6 +175,7 @@ public class TaskServiceImpl implements TaskService {
             dto.setEmployeeNames(task.getEmployees().stream().map(Employee::getFullName).toList());
         }
 
+        dto.setSupportDocument(task.getSupportDocument());
         dto.setTaskCost(task.getTaskCost());
         dto.setStartDate(task.getStartDate());
         dto.setEndDate(task.getEndDate());

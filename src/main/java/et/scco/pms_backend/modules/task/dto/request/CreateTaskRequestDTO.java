@@ -6,6 +6,8 @@ import et.scco.pms_backend.enums.TaskStatus;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,4 +39,5 @@ public class CreateTaskRequestDTO {
     private ProjectPriority priority; // HIGH, MEDIUM, LOW
 
     private Double weight;
+    private MultipartFile supportDocument;
 }
