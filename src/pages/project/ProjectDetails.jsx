@@ -655,7 +655,10 @@ import {
     Visibility, AccessTime,
     Diversity3,
     DateRange,
-    Payment
+    Payment,
+    Description,
+    UploadFile,
+    CloudDone
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import taskApi from '../../api/modules/task';
@@ -669,6 +672,8 @@ const ProjectDetails = () => {
     const { can } = useAuth();
 
     const [project, setProject] = useState(null);
+    const [supportDocument, setSupportDocument] = useState(null);
+    const [existingFile, setExistingFile] = useState('');
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
@@ -696,6 +701,7 @@ const ProjectDetails = () => {
                 ]);
                 setProject(pRes.data.data);
                 setTasks(tRes.data.data || []);
+                setExistingFile(tRes.data?.data.supportDocument || '');
             } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); } finally { setLoading(false); }
         };
         loadPageData();
@@ -723,31 +729,57 @@ const ProjectDetails = () => {
 
     const handleTaskAction = async (e) => {
         e.preventDefault();
-        const payload = {
-            taskName: taskFormData.taskName.trim(),
-            taskCost: taskFormData.taskCost !== '' ? parseFloat(taskFormData.taskCost) : 0.0,
-            projectId: Number(id),
-            employeeIds: taskFormData.employeeIds.map(Number),
-            locationIds: taskFormData.locationIds.map(Number),
-            startDate: taskFormData.startDate || null,
-            endDate: taskFormData.endDate || null,
-            description: taskFormData.description || null,
-            status: taskFormData.status,
-            priority: taskFormData.priority,
-            latitude: taskFormData.latitude !== '' ? parseFloat(taskFormData.latitude) : null,
-            longitude: taskFormData.longitude !== '' ? parseFloat(taskFormData.longitude) : null,
-            weight: taskFormData.weight !== '' ? parseFloat(taskFormData.weight) : 0.0
-        };
-
         try {
-            if (editingTask) await taskApi.UPDATE_TASK(editingTask.id, payload);
-            else await taskApi.CREATE_TASK(payload);
-
+            const formData = new FormData();
+    
+            // Basic fields
+            formData.append("taskName", taskFormData.taskName.trim());
+            formData.append("taskCost", taskFormData.taskCost ? parseFloat(taskFormData.taskCost) : 0.0);
+            formData.append("projectId", Number(id));
+    
+            // Arrays (IMPORTANT)
+            taskFormData.employeeIds.forEach(e =>
+                formData.append("employeeIds", Number(e))
+            );
+    
+            taskFormData.locationIds.forEach(l =>
+                formData.append("locationIds", Number(l))
+            );
+    
+            // Dates & optional fields
+            if (taskFormData.startDate) formData.append("startDate", taskFormData.startDate);
+            if (taskFormData.endDate) formData.append("endDate", taskFormData.endDate);
+            if (taskFormData.description) formData.append("description", taskFormData.description);
+    
+            formData.append("status", taskFormData.status);
+            formData.append("priority", taskFormData.priority);
+            formData.append("weight", taskFormData.weight ? parseFloat(taskFormData.weight) : 0.0);
+    
+            if (taskFormData.latitude) formData.append("latitude", parseFloat(taskFormData.latitude));
+            if (taskFormData.longitude) formData.append("longitude", parseFloat(taskFormData.longitude));
+    
+            // File
+            if (taskFormData.supportDocument) {
+                formData.append("supportDocument", taskFormData.supportDocument);
+            }
+    
+            // SEND
+            if (editingTask) {
+                await taskApi.UPDATE_TASK(editingTask.id, formData);
+            } else {
+                await taskApi.CREATE_TASK(formData);
+            }
+    
+            // reload
             const tRes = await taskApi.GET_TASKS_BY_PROJECT(id);
             setTasks(tRes.data.data || []);
+            setExistingFile(tRes.data?.data.supportDocument || '');
+    
             setIsTaskModalOpen(false);
             setAlert({ show: true, type: 'success', message: 'Task configuration synchronized.' });
+    
         } catch (err) {
+            console.error(err);
             setAlert({ show: true, type: 'error', message: 'Sync failed: Check inputs.' });
         }
     };
@@ -936,7 +968,7 @@ const ProjectDetails = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                            <tr><th className="px-8 py-4">Task Component</th><th className="px-6 py-4 text-center">Weight</th><th className="px-6 py-4 text-center">Status</th><th className="px-8 py-4 text-right">Actions</th></tr>
+                            <tr><th className="px-8 py-4">Task Component</th><th className="px-6 py-4 text-center">Weight</th><th className="px-6 py-4 text-center">Status</th><th className="px-6 py-4">Support Doc.</th><th className="px-8 py-4 text-right">Actions</th></tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {tasks.length === 0 ? (<tr><td colSpan="4" className="px-8 py-12 text-center text-slate-300 text-xs italic font-bold">No tasks defined.</td></tr>) : tasks.map((task) => (
@@ -968,6 +1000,16 @@ const ProjectDetails = () => {
                                         </td>
                                     <td className="px-6 py-4 text-center"><span className="text-xs font-black text-slate-900 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">{task.weight}%</span></td>
                                     <td className="px-6 py-4 text-center"><span className={`text-[9px] font-black px-2 py-1 rounded border uppercase ${getTaskStatusStyle(task.status)}`}>{task.status.replace(/_/g, ' ')}</span></td>
+                                    <td className="px-6 py-4">
+                                    {task.supportDocument ? (
+                                        <a href={`http://localhost:8080/api/tasks/download/${task.supportDocument}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#0284C7] hover:text-[#016da3] transition-colors">
+                                            <CloudDone style={{ fontSize: 16 }} />
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter border-b border-sky-200">View File</span>
+                                        </a>
+                                    ) : (
+                                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">No Artifact</span>
+                                    )}
+                                </td>
                                     <td className="px-8 py-4 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button onClick={() => setViewingTask(task)} className="p-1.5 text-slate-400 hover:text-emerald-600"><Visibility style={{ fontSize: 18 }} /></button>
@@ -1090,6 +1132,34 @@ const ProjectDetails = () => {
                                                     </span>
                                                 );
                                             })}
+                                        </div>
+                                    </div>
+
+                                    {/* Support Document Card */}
+                                    <div className="bg-white rounded-[16px] border border-slate-20 shadow-sm overflow-hidden h-fit">
+                                        <div className="p-1 border-b border-slate-50 bg-slate-50/30 flex items-center gap-1"><Description className="text-slate-200" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-300 tracking-widest">License & Artifacts</span></div>
+                                        <div className="p-6 space-y-4">
+                                            <div className="border-2 border-dashed border-slate-200 rounded-[28px] p-10 text-center hover:border-[#0284C7] transition-colors relative cursor-pointer group bg-slate-50/20">
+                                                <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onChange={(e) => {const file = e.target.files[0]; setSupportDocument(file);
+                                                            setTaskFormData(prev => ({...prev, supportDocument: file}));
+                                                        }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                                <UploadFile className="text-slate-100 group-hover:text-[#0284C7] mb-3" style={{ fontSize: 28 }} />
+                                                <p className="text-xs font-bold text-slate-500 group-hover:text-[#0284C7]">Upload Verification Document</p>
+                                                <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-tighter">Supported: PDF, Images, Word</p>
+                                            </div>
+
+                                            {(supportDocument || existingFile) && (
+                                                <div className={`flex items-center gap-1 p-2 rounded-2xl border ${supportDocument ? 'bg-sky-50 border-sky-100' : 'bg-slate-50 border-slate-100'}`}>
+                                                    <Description className={supportDocument ? 'text-[#0284C7]' : 'text-slate-400'} />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-bold text-slate-700 truncate">{supportDocument ? supportDocument.name : existingFile}</p>
+                                                        <p className="text-[9px] font-black uppercase text-[#0284C7]">
+                                                            {supportDocument ? 'Ready to sync' : 'Stored in cloud'}
+                                                        </p>
+                                                    </div>
+                                                    {supportDocument && <Close onClick={() => setSupportDocument(null)} className="cursor-pointer text-slate-400 hover:text-red-500" style={{ fontSize: 16 }} />}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 
