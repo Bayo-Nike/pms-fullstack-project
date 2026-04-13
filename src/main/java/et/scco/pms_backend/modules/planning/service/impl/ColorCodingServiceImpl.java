@@ -220,22 +220,22 @@ public class ColorCodingServiceImpl implements ColorCodingService{
             
         }
 
-    // 1. HANDLE DELETIONS
-    if (colorCodingRequestDTO.getDeletedFileIds() != null && !colorCodingRequestDTO.getDeletedFileIds().isEmpty()) {
-         
-        List<String> fileNamesToDelete = colorCoding.getPerformanceDocuments().stream()
-                .filter(doc -> colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId()))
-                .map(ColorCodingDocument::getFileName)
-                .collect(Collectors.toList());
+        // 1. HANDLE DELETIONS
+        if (colorCodingRequestDTO.getDeletedFileIds() != null && !colorCodingRequestDTO.getDeletedFileIds().isEmpty()) {
+            
+            List<String> fileNamesToDelete = colorCoding.getPerformanceDocuments().stream()
+                    .filter(doc -> colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId()))
+                    .map(ColorCodingDocument::getFileName)
+                    .collect(Collectors.toList());
 
-        colorCoding.getPerformanceDocuments().removeIf(doc -> 
-            colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId())
-        );
-         
-        if (!fileNamesToDelete.isEmpty()) {
-            fileStorageService.deletePhysicalFiles(fileNamesToDelete); 
+            colorCoding.getPerformanceDocuments().removeIf(doc -> 
+                colorCodingRequestDTO.getDeletedFileIds().contains(doc.getId())
+            );
+            
+            if (!fileNamesToDelete.isEmpty()) {
+                fileStorageService.deletePhysicalFiles(fileNamesToDelete); 
+            }
         }
-    }
 
         // Handle multiple files
         if (colorCodingRequestDTO.getPerformanceDocuments() != null && !colorCodingRequestDTO.getPerformanceDocuments().isEmpty()) {
@@ -255,19 +255,22 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         ColorCoding updatedColorCode = colorCodingRepository.save(colorCoding);
 
         //send notification to City Office Head
-       String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
-       User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
-                .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
+        if (userSubCity != null && updatedColorCode.getSubCity() != null) {
+            String cityOfficeHeadUserName = userServiceImpl.getCityOfficeHeadUserName();
+            User userCityHeadOffice = userRepository.findByUsername(cityOfficeHeadUserName)
+                    .orElseThrow(() -> new RuntimeException("City Office Head User not found"));
 
-        Employee employee = userCityHeadOffice.getEmployee();
+            Employee employee = userCityHeadOffice.getEmployee();
 
-        if (userCityHeadOffice != null){
-            notificationServiceImpl.sendNotification(
-                    authContext.getEmployee().getId(),
-                    employee.getId(),
-                    updatedColorCode.getSubCity().getSubCityName()+" has been Submitted Updated Color Coding Plan to you",
-                    "planning/ColorCodings/details/"+updatedColorCode.getId()
-            );
+            if (userCityHeadOffice != null){
+                notificationServiceImpl.sendNotification(
+                        authContext.getEmployee().getId(),
+                        employee.getId(),
+                        updatedColorCode.getSubCity().getSubCityName()+" has been Submitted Updated Color Coding Plan to you",
+                        "planning/ColorCodings/details/"+updatedColorCode.getId()
+                );
+            }
+
         }
         return ColorCodingMapper.mapToColorCodingResponseDTO(updatedColorCode);
     }
