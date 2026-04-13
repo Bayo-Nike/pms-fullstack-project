@@ -600,7 +600,26 @@ const ProjectDetails = () => {
                     taskApi.GET_TASKS_BY_PROJECT(id),
                     adminApi.GET_TASK_TYPES() // Load global registry
                 ]);
-                setProject(pRes.data.data);
+                // setProject(pRes.data.data);
+                const rawProject = pRes.data.data;
+            
+                // Calculate total days on the fly
+                const extensions = rawProject.extensions || [];
+                const totalDays = extensions.reduce((sum, ext) => sum + (Number(ext.extendedDays) || 0), 0);
+
+                // Calculate the actual Final Date
+                let finalDate = rawProject.endDate;
+                if (totalDays > 0 && rawProject.endDate) {
+                    const dateObj = new Date(rawProject.endDate);
+                    dateObj.setDate(dateObj.getDate() + totalDays);
+                    finalDate = dateObj.toISOString().split('T')[0]; // Format back to YYYY-MM-DD
+                }
+
+                setProject({
+                    ...rawProject,
+                    totalExtendedDays: totalDays,
+                    finalEndDate: finalDate // Use this for all UI displays
+                });
                 setTasks(tRes.data.data || []);
                 setExistingFile(tRes.data?.data.supportDocument || '');
                 setTaskTypeRegistry(regRes.data?.data || []);
@@ -747,28 +766,40 @@ const ProjectDetails = () => {
                     <span className="text-xs font-black text-slate-700">{project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}</span>
                 </div>
                 <div className="text-right">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1"><DateRange fontSize="small" />End Date</p>
-                    <span className="text-xs font-black text-slate-700 flex flex-col items-end">
-                        {project.endDate ? (
-                            (() => {
-                                const today = new Date(); today.setHours(0, 0, 0, 0);
-                                const originalEnd = new Date(project.endDate); originalEnd.setHours(0, 0, 0, 0);
-                                const extendedDays = project.extendedDays || 0;
-                                const finalEnd = new Date(originalEnd); finalEnd.setDate(finalEnd.getDate() + extendedDays);
-                                const diffDays = Math.ceil((finalEnd - today) / (1000 * 60 * 60 * 24));
-                                return (
-                                    <>
-                                        <span>{originalEnd.toLocaleDateString()}</span>
-                                        {extendedDays > 0 && <span className="text-[9px] text-blue-500 font-semibold">Extended {extendedDays} Days</span>}
-                                        {diffDays > 0 ? <span className="text-[9px] text-green-600 font-bold">{diffDays} days left</span> :
-                                            diffDays === 0 ? <span className="text-[9px] text-amber-500 font-bold">Due today</span> :
-                                                <span className="text-[9px] text-red-500 font-bold">{Math.abs(diffDays)} days overdue</span>}
-                                    </>
-                                );
-                            })()
-                        ) : "N/A"}
-                    </span>
+                <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1">
+                    <AccessTime fontSize="small" /> Project Deadline
+                </p>
+                
+                <div className="flex flex-col items-end">
+                    {project.finalEndDate ? (
+                        <>
+                            {/* The Adjusted Date */}
+                            <span className={`text-sm font-black ${project.totalExtendedDays > 0 ? 'text-amber-600' : 'text-slate-700'}`}>
+                                {new Date(project.finalEndDate).toLocaleDateString()}
+                            </span>
+
+                            {/* The Status Badge */}
+                            <div className="flex items-center gap-2 mt-1">
+                                {project.totalExtendedDays > 0 && (
+                                    <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100 uppercase">
+                                        +{project.totalExtendedDays} days Extension
+                                    </span>
+                                )}
+                                
+                                {(() => {
+                                    const today = new Date(); today.setHours(0,0,0,0);
+                                    const end = new Date(project.finalEndDate); end.setHours(0,0,0,0);
+                                    const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+                                    
+                                    if (diff > 0) return <span className="text-[9px] text-green-600 font-bold uppercase tracking-tighter">{diff} Days Left</span>;
+                                    if (diff === 0) return <span className="text-[9px] text-amber-500 font-bold uppercase tracking-tighter">Due Today</span>;
+                                    return <span className="text-[9px] text-red-500 font-bold uppercase tracking-tighter">{Math.abs(diff)}d Overdue</span>;
+                                })()}
+                            </div>
+                        </>
+                    ) : "N/A"}
                 </div>
+            </div>
             </div>
 
             {/* Panels */}

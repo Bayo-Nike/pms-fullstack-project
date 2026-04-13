@@ -13,6 +13,7 @@ const projectApi = {
     ASSIGN_EMPLOYEES: (id, employeeIds) => api.patch(`/projects/${id}/employees`, employeeIds),
     UPDATE_BUDGET: (id, budget, budgetUsed) => api.patch(`/projects/${id}/budget`, null, { params: { budget, budgetUsed } }),
     UPDATE_TIMELINE: (id, startDate, endDate) => api.patch(`/projects/${id}/timeline`, null, { params: { startDate, endDate } }),
+    EXTEND_PROJECT: (id, data) => api.post(`/projects/${id}/extend`, data),
 
 
 
