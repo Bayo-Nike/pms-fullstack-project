@@ -10,7 +10,6 @@ import java.util.List;
 import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.utility.ResponseUtil;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
