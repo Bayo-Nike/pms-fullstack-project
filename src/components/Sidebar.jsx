@@ -90,6 +90,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/locations', name: 'Locations', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/task-types', name: 'Task Types', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_SYS_ADMIN' },

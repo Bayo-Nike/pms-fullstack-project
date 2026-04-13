@@ -50,6 +50,7 @@ import CreateConsultant from './pages/admin/CreateConsultancies';
 import Clients from './pages/admin/Clients';
 import CreateClient from './pages/admin/CreateClient';
 import Reportees from './pages/admin/Reportees';
+import TaskTypes from './pages/admin/TaskTypes';
 
 
 export default function AppRoutes() {
@@ -151,6 +152,8 @@ export default function AppRoutes() {
         <Route path="admin/inspection-types" element={protect(<InspectionTypes />, "CAN_SEE_SYS_ADMIN")} />
         <Route path="admin/inspection-types/create" element={protect(<CreateInspectionType />, "CAN_SEE_SYS_ADMIN")} />
         <Route path="admin/inspection-types/edit/:id" element={protect(<CreateInspectionType />, "CAN_SEE_SYS_ADMIN")} />
+
+        <Route path='admin/task-types' element={protect(<TaskTypes />, "CAN_SEE_SYS_ADMIN")} />
 
         {/* 404 */}
       </Route>

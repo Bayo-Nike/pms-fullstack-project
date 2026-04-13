@@ -112,6 +112,11 @@ const adminApi = {
     UPDATE_INSPECTION_TYPE: (id, data) => api.put(`/admin/inspection-types/${id}`, data),
     DELETE_INSPECTION_TYPE: (id) => api.delete(`/admin/inspection-types/${id}`),
 
+    GET_TASK_TYPES: () => api.get("/admin/task-types"),
+    GET_TASK_TYPE: (id) => api.get(`/admin/task-types/${id}`),
+    CREATE_TASK_TYPE: (data) => api.post("/admin/task-types", data),
+    UPDATE_TASK_TYPE: (id, data) => api.put(`/admin/task-types/${id}`, data),
+    DELETE_TASK_TYPE: (id) => api.delete(`/admin/task-types/${id}`),
 
     // Mobile User Management
     GET_MOBILE_USERS: () => api.get("/admin/mobile-users"),
