@@ -62,8 +62,10 @@ public class Project {
 
     private LocalDate startDate;
     private LocalDate endDate;
-    @Column(name = "extended_days")
-    private int extendedDays;
+    // @Column(name = "extended_days")
+    // private int extendedDays;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectExtension> extensions = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;

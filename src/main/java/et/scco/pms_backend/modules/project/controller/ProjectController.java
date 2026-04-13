@@ -3,12 +3,14 @@ package et.scco.pms_backend.modules.project.controller;
 import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
+import et.scco.pms_backend.modules.project.dto.request.ExtendProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -91,5 +93,14 @@ public class ProjectController {
                                                           @RequestParam LocalDate endDate) {
         ProjectResponseDTO project = projectService.updateTimeline(id, startDate, endDate);
         return ResponseUtil.success("Project timeline updated", project);
+    }
+
+    @PostMapping("/{id}/extend")
+    public ResponseEntity<?> extendProject(
+            @PathVariable Long id,
+            @RequestBody ExtendProjectRequestDTO request
+    ) {
+        ProjectResponseDTO response = projectService.extendProject(id, request);
+        return ResponseEntity.ok(response);
     }
 }

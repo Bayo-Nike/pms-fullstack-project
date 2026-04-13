@@ -44,7 +44,10 @@ public class ProjectResponseDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
-    private int extendedDays;
+    // for project extension
+    private int totalExtendedDays; // computed
+    private LocalDate finalEndDate; // computed
+    private List<ProjectExtensionDTO> extensions;
 
     private ProjectStatus status;
     private ProjectPriority priority;

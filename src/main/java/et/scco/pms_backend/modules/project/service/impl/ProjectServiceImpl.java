@@ -17,8 +17,12 @@ import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.LocationServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
+import et.scco.pms_backend.modules.project.dto.request.ExtendProjectRequestDTO;
+import et.scco.pms_backend.modules.project.dto.response.ProjectExtensionDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
+import et.scco.pms_backend.modules.project.model.ProjectExtension;
+import et.scco.pms_backend.modules.project.repository.ProjectExtensionRepository;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.modules.project.service.ProjectService;
 import et.scco.pms_backend.utility.AuthContext;
@@ -30,7 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,11 +52,12 @@ public class ProjectServiceImpl implements ProjectService {
     private final EmployeeServiceImpl employeeServiceImpl;
     private final NotificationService notificationService;
     private final AuthContext authContext;
-
+    private final ProjectExtensionRepository projectExtensionRepository;
 
     @Transactional(readOnly = true)
     @Override
-    public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
+    public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId,
+            Pageable pageable) {
 
         Employee employee = employeeServiceImpl.findEmployeeWithDivision();
 
@@ -85,8 +92,7 @@ public class ProjectServiceImpl implements ProjectService {
                 search,
                 status,
                 finalSubCityId,
-                pageable
-        );
+                pageable);
 
         return projectPage.map(this::mapToDTO);
     }
@@ -106,7 +112,7 @@ public class ProjectServiceImpl implements ProjectService {
             throw new RuntimeException("Project already exists in this sub-city");
         }
 
-        //generate project code
+        // generate project code
         Long maxId = projectRepository.findMaxId();
         long nextNumber = (maxId != null ? maxId + 1 : 1);
         String projectCode = "SCCO/PC/" + nextNumber;
@@ -118,19 +124,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project saved = projectRepository.save(project);
 
-        //send notification to the project manager
-        if (dto.getProjectManagerId() != null){
+        // send notification to the project manager
+        if (dto.getProjectManagerId() != null) {
             notificationService.sendNotification(
                     authContext.getEmployee().getId(),
                     dto.getProjectManagerId(),
                     "A new project has been create and assigned to you",
-                    "projects/"+saved.getId()
-            );
+                    "projects/" + saved.getId());
         }
 
         return mapToDTO(saved);
     }
-
 
     @Transactional
     @Override
@@ -145,19 +149,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project updated = projectRepository.save(project);
 
-        //send notification to the new apponted Project manager
-        if ((dto.getProjectManagerId() != null) && (!currentProjManagerId.equals(dto.getProjectManagerId()))){
+        // send notification to the new apponted Project manager
+        if ((dto.getProjectManagerId() != null) && (!currentProjManagerId.equals(dto.getProjectManagerId()))) {
             notificationService.sendNotification(
                     authContext.getEmployee().getId(),
                     dto.getProjectManagerId(),
-                    project.getTitle()+" Project has been Updated and assigned to you",
-                    "projects/"+updated.getId()
-            );
+                    project.getTitle() + " Project has been Updated and assigned to you",
+                    "projects/" + updated.getId());
         }
 
         return mapToDTO(updated);
     }
-
 
     @Transactional
     @Override
@@ -182,7 +184,6 @@ public class ProjectServiceImpl implements ProjectService {
         project.setPriority(ProjectPriority.valueOf(priority));
         return mapToDTO(project);
     }
-
 
     @Transactional
     @Override
@@ -210,7 +211,7 @@ public class ProjectServiceImpl implements ProjectService {
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectId));
     }
 
-    //used for inspection only
+    // used for inspection only
     @Override
     public Page<ProjectResponseDTO> getMyProjects(Pageable pageable) {
 
@@ -227,7 +228,8 @@ public class ProjectServiceImpl implements ProjectService {
 
 
     private ProjectResponseDTO mapToDTO(Project project) {
-        if (project == null) return null;
+        if (project == null)
+            return null;
 
         ProjectResponseDTO dto = new ProjectResponseDTO();
         dto.setId(project.getId());
@@ -237,21 +239,38 @@ public class ProjectServiceImpl implements ProjectService {
         dto.setProjectType(project.getProjectType());
         dto.setStartDate(project.getStartDate());
         dto.setEndDate(project.getEndDate());
-        dto.setExtendedDays(project.getExtendedDays());
+        // dto.setExtendedDays(project.getExtendedDays());
         dto.setStatus(project.getStatus());
         dto.setPriority(project.getPriority());
         dto.setCurrencyType(project.getCurrencyType());
         dto.setBudget(project.getBudget());
         dto.setBudgetUsed(project.getBudgetUsed());
         dto.setProjectLevel(project.getProjectLevel());
- 
+
+        // 1. Project EXTENSIONS history list
+        if (project.getExtensions() != null && !project.getExtensions().isEmpty()) {
+            List<ProjectExtensionDTO> extensionDTOs = project.getExtensions().stream()
+                .map(ext -> {
+                    ProjectExtensionDTO extDto = new ProjectExtensionDTO();
+                    extDto.setExtendedDays(ext.getExtendedDays());
+                    extDto.setReason(ext.getReason());
+                    extDto.setPreviousEndDate(ext.getPreviousEndDate());
+                    extDto.setNewEndDate(ext.getNewEndDate());
+                    return extDto;
+                })
+                .collect(Collectors.toList());
+            dto.setExtensions(extensionDTOs);
+        } else {
+            dto.setExtensions(new ArrayList<>()); // Return empty list [], not null
+        }
+
         // Project Progress calculation
         int totalTasks = project.getTasks() != null ? project.getTasks().size() : 0;
 
         long completedTasks = project.getTasks() != null
                 ? project.getTasks().stream()
-                    .filter(task -> task.getStatus() == TaskStatus.COMPLETED)
-                    .count()
+                        .filter(task -> task.getStatus() == TaskStatus.COMPLETED)
+                        .count()
                 : 0;
 
         double projectProgress = 0.00;
@@ -313,8 +332,8 @@ public class ProjectServiceImpl implements ProjectService {
         project.setProjectType(dto.getProjectType());
         project.setStartDate(dto.getStartDate());
         project.setEndDate(dto.getEndDate());
-        project.setExtendedDays(dto.getExtendedDays());
-                
+        // project.setExtendedDays(dto.getExtendedDays());
+
         project.setStatus(dto.getStatus());
         project.setPriority(dto.getPriority());
         project.setCurrencyType(dto.getCurrencyType());
@@ -322,26 +341,102 @@ public class ProjectServiceImpl implements ProjectService {
         project.setBudgetUsed(dto.getBudgetUsed());
         project.setProjectLevel(dto.getProjectLevel());
 
-        project.setContractor(dto.getContractorId() != null ?
-                contractorServiceImpl.getContractorEntityById(dto.getContractorId()) : null);
+        project.setContractor(
+                dto.getContractorId() != null ? contractorServiceImpl.getContractorEntityById(dto.getContractorId())
+                        : null);
 
-        project.setConsultancy(dto.getConsultantId() != null ?
-                consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId()) : null);
-        project.setClient(dto.getClientId() != null ?
-                clientServiceImpl.getClientEntityById(dto.getClientId()) : null);
+        project.setConsultancy(
+                dto.getConsultantId() != null ? consultancyServiceImpl.getConsultantEntityById(dto.getConsultantId())
+                        : null);
+        project.setClient(dto.getClientId() != null ? clientServiceImpl.getClientEntityById(dto.getClientId()) : null);
 
-        project.setSubCity(dto.getSubCityId() != null ?
-                subCityServiceImpl.getSubCityEntity(dto.getSubCityId()) : null);
+        project.setSubCity(dto.getSubCityId() != null ? subCityServiceImpl.getSubCityEntity(dto.getSubCityId()) : null);
 
-        project.setProjectManager(dto.getProjectManagerId() != null ?
-                employeeServiceImpl.findEmployee(dto.getProjectManagerId()) : null);
+        project.setProjectManager(
+                dto.getProjectManagerId() != null ? employeeServiceImpl.findEmployee(dto.getProjectManagerId()) : null);
 
-        project.setEmployees(dto.getEmployeeIds() != null && !dto.getEmployeeIds().isEmpty() ?
-                employeeServiceImpl.findEmpsByEmployeeIds(dto.getEmployeeIds()) : new ArrayList<>());
+        project.setEmployees(dto.getEmployeeIds() != null && !dto.getEmployeeIds().isEmpty()
+                ? employeeServiceImpl.findEmpsByEmployeeIds(dto.getEmployeeIds())
+                : new ArrayList<>());
 
-        project.setLocations(dto.getLocationIds() != null && !dto.getLocationIds().isEmpty() ?
-                locationServiceImpl.getLocationsByIds(dto.getLocationIds()) : new ArrayList<>());
+        project.setLocations(dto.getLocationIds() != null && !dto.getLocationIds().isEmpty()
+                ? locationServiceImpl.getLocationsByIds(dto.getLocationIds())
+                : new ArrayList<>());
 
         project.setCity(subCityServiceImpl.getCity());
+    }
+
+    public ProjectResponseDTO extendProject(Long id, ExtendProjectRequestDTO request) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+        // Validation
+        if (request.getExtendedDays() <= 0) {
+            throw new IllegalArgumentException("Extended days must be greater than 0");
+        }
+        // Get current effective end date
+        LocalDate currentEndDate = getFinalEndDate(project);
+        // Create extension
+        ProjectExtension extension = new ProjectExtension();
+        extension.setExtendedDays(request.getExtendedDays());
+        extension.setPreviousEndDate(currentEndDate);
+        extension.setNewEndDate(currentEndDate.plusDays(request.getExtendedDays()));
+        extension.setReason(request.getReason());
+        extension.setProject(project);
+
+        projectExtensionRepository.save(extension);
+        // Optional: attach to project list (if using bidirectional)
+        project.getExtensions().add(extension);
+        // Return updated project
+        return mapToResponse(project);
+    }
+
+    private LocalDate getFinalEndDate(Project project) {
+        if (project.getExtensions() == null || project.getExtensions().isEmpty()) {
+            return project.getEndDate();
+        }
+
+        return project.getExtensions()
+                .stream()
+                .max(Comparator.comparing(ProjectExtension::getExtendedAt))
+                .map(ProjectExtension::getNewEndDate)
+                .orElse(project.getEndDate());
+    }
+
+    private ProjectResponseDTO mapToResponse(Project project) {
+        ProjectResponseDTO dto = new ProjectResponseDTO();
+        dto.setId(project.getId());
+        dto.setProjectCode(project.getProjectCode());
+        dto.setTitle(project.getTitle());
+        dto.setDescription(project.getDescription());
+
+        dto.setStartDate(project.getStartDate());
+        dto.setEndDate(project.getEndDate());
+
+        // Extensions mapping
+        List<ProjectExtensionDTO> extensionDTOs = project.getExtensions()
+                .stream()
+                .map(ext -> {
+                    ProjectExtensionDTO e = new ProjectExtensionDTO();
+                    e.setExtendedDays(ext.getExtendedDays());
+                    e.setPreviousEndDate(ext.getPreviousEndDate());
+                    e.setNewEndDate(ext.getNewEndDate());
+                    e.setReason(ext.getReason());
+                    e.setExtendedAt(ext.getExtendedAt());
+                    return e;
+                })
+                .toList();
+
+        dto.setExtensions(extensionDTOs);
+        // Total extended days
+        int totalDays = extensionDTOs.stream()
+                .mapToInt(ProjectExtensionDTO::getExtendedDays)
+                .sum();
+        dto.setTotalExtendedDays(totalDays);
+        // Final end date
+        LocalDate finalEndDate = extensionDTOs.isEmpty()
+                ? project.getEndDate()
+                : extensionDTOs.get(extensionDTOs.size() - 1).getNewEndDate();
+        dto.setFinalEndDate(finalEndDate);
+        return dto;
     }
 }
