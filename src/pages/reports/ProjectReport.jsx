@@ -1,45 +1,45 @@
 import React, { useMemo, useState } from "react";
 import {
-  flexRender, getCoreRowModel, getFilteredRowModel,
-  getPaginationRowModel, getSortedRowModel, useReactTable,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import {
-  Search, FileText, Table, ChevronLeft, ChevronRight,
-  Calendar, Clock, ArrowUpDown, RefreshCw, CheckCircle2,
-  Users, MapPin, DollarSign, Target, UserCheck
-} from "lucide-react";
+
+import { Search, FileText, Table, ChevronLeft, ChevronRight, Clock, Calendar, MapPin, AlertCircle, XCircle } from "lucide-react";
 import { exportToExcel, exportToPDF } from "../../utility/exportUtils";
+import { CheckCircle, LocationOn, PauseCircle, TrendingUp } from "@mui/icons-material";
 
 export default function ProjectReport({ data = [], loading, onRefresh }) {
+
   const [globalFilter, setGlobalFilter] = useState("");
-  const [sorting, setSorting] = useState([]);
+  const [sorting, setSorting] = useState([]); // <--- Sorting state
 
   const columns = useMemo(() => [
-    { accessorKey: "sno", header: "S/N" },
+    { accessorKey: "sno", header: "S/No", enableSorting: false },
     {
       accessorKey: "projectCode",
       header: "Code",
-      cell: info => <span className="font-bold text-[#0284C7] bg-sky-50 px-2 py-1 rounded text-[10px] border border-sky-100 uppercase">{info.getValue()}</span>
+      enableSorting: false,
     },
     {
       accessorKey: "title",
-      header: "Project Title",
-      cell: info => <div className="min-w-[180px] font-bold text-slate-700 uppercase text-[11px] leading-tight">{info.getValue()}</div>
+      header: "Project Title"
     },
     {
       accessorKey: "subCityName",
       header: "Location",
-      cell: info => <div className="flex items-center gap-1.5 text-slate-500 font-medium"><MapPin size={12} /> {info.getValue()}</div>
+      cell: info => <div className="flex items-center gap-1.5 text-slate-500 font-medium"><LocationOn className="text-[#FBAF1E]" style={{ fontSize: 16 }} /> {info.getValue()}</div>
     },
     {
       accessorKey: "projectType",
-      header: "Type",
-      cell: info => <span className="text-[9px] font-black text-slate-400 border px-1.5 py-0.5 rounded uppercase">{info.getValue().replace(/_/g, ' ')}</span>
+      header: "Type"
     },
     {
       accessorKey: "startDate",
-      header: "Start Date",
-      cell: info => <span className="text-slate-500 font-semibold">{info.getValue() || "N/A"}</span>
+      header: "Start Date"
     },
     {
       // 1. TanStack Table uses this for Excel/PDF and Search
@@ -91,6 +91,7 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
         );
       }
     },
+    
     {
       // 1. for Excel/PDF
       accessorKey: "timelineExport",
@@ -124,37 +125,76 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
           </span>
         );
       }
+    
     },
     {
       accessorKey: "projectManagerName",
-      header: "Project Manager",
-      cell: info => <div className="flex items-center gap-2 text-slate-700 font-bold text-[11px] min-w-[140px]"><UserCheck size={12} className="text-sky-500" /> {info.getValue()}</div>
+      header: "Project Manager"
     },
+    
     {
       accessorKey: "employeeNames",
-      header: "Assigned Team",
-      cell: info => (
-        <div className="max-w-[200px] flex flex-wrap gap-1">
-          {info.getValue().slice(0, 2).map((name, i) => (
-            <span key={i} className="text-[8px] bg-slate-50 border px-1 py-0.5 rounded font-bold text-slate-500">{name}</span>
-          ))}
-          {info.getValue().length > 2 && <span className="text-[8px] text-[#0284C7] font-black">+{info.getValue().length - 2} more</span>}
-        </div>
-      )
+      header: "Employees"
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ getValue }) => {
+        const rawStatus = getValue();
+        const status = rawStatus?.toUpperCase();
+    
+        const statusConfig = {
+          NOT_STARTED: {
+            label: "Not Started",
+            className: "bg-red-100 text-red-700",
+            icon: AlertCircle,
+          },
+          ON_GOING: {
+            label: "On Going",
+            className: "bg-blue-100 text-blue-700",
+            icon: Clock,
+          },
+          COMPLETED: {
+            label: "Completed",
+            className: "bg-green-100 text-green-700",
+            icon: CheckCircle,
+          },
+          ON_HOLD: {
+            label: "On Hold",
+            className: "bg-yellow-100 text-yellow-700",
+            icon: PauseCircle,
+          },
+          CANCELLED: {
+            label: "Cancelled",
+            className: "bg-slate-200 text-slate-700",
+            icon: XCircle,
+          },
+        };
+    
+        const current = statusConfig[status] || {
+          label: rawStatus || "Unknown",
+          className: "bg-slate-100 text-slate-600",
+          icon: null,
+        };
+    
+        const Icon = current.icon;
+    
+        return (
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${current.className}`}
+          >
+            {Icon && <Icon size={14} className="flex-shrink-0" />}
+            {current.label}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "projectProgress",
       header: "Project Progress",
-      cell: info => {
-        const val = parseFloat(info.getValue());
-        return (
-          <div className="min-w-[120px]">
-            <div className="flex justify-between text-[9px] font-black text-slate-400 mb-1 uppercase"><span>Progress</span><span>{val}%</span></div>
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full bg-[#0284C7] transition-all" style={{ width: `${val}%` }} /></div>
-          </div>
-        );
-      }
+      cell: info => <div className="flex items-center gap-1 text-slate-500 font-medium"><TrendingUp className="text-[#FBAF1E]" style={{ fontSize: 16 }} /> {info.getValue()}</div>
     },
+    
     {
       // 1. For Excel compatibility
       accessorKey: "financialSummary",
@@ -195,18 +235,15 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
         );
       }
     },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: info => <span className="text-[9px] font-black text-slate-500 uppercase">{info.getValue().replace(/_/g, ' ')}</span>
-    }
+    
   ], []);
 
   const table = useReactTable({
-    data, columns,
+    data,
+    columns,
     state: { globalFilter, sorting },
     onGlobalFilterChange: setGlobalFilter,
-    onSortingChange: setSorting,
+    onSortingChange:setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -214,78 +251,174 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     initialState: { pagination: { pageSize: 10 } }
   });
 
-  if (loading) return <div className="h-96 flex flex-col items-center justify-center text-slate-400 gap-4 italic animate-pulse"><RefreshCw className="animate-spin" /> Synchronizing Data Registry...</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-[400px] text-slate-500">
+        Synchronizing Report Engine...
+      </div>
+    );
+  }
+
+  if (!data.length) {
+    return (
+      <div className="flex justify-center items-center h-[400px] text-slate-400">
+        No report data available
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 lg:p-8 max-w-[1600px] mx-auto animate-fadeIn bg-[#F8FAFC]">
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-2xl overflow-hidden">
 
-        {/* ACTION BAR */}
-        <div className="p-8 border-b border-slate-50 flex flex-col xl:flex-row justify-between items-center gap-6 bg-slate-50/50">
+    <div className="p-6 max-w-[1400px] mx-auto">
+
+      <div className="bg-white rounded-xl border shadow-sm">
+
+        {/* HEADER */}
+        <div className="p-5 border-b flex justify-between items-center">
+
           <div>
-            <h1 className="text-2xl font-black text-slate-800 tracking-tight leading-none uppercase">Project Master Report</h1>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-2 flex items-center gap-2">
-              <Target size={12} className="text-[#0284C7]" /> Comprehensive Enterprise Resource Audit
+            <h1 className="text-lg font-bold">Project Master Report</h1>
+            <p className="text-xs text-slate-400">
+              Enterprise Resource Planning
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex gap-3">
+
             <div className="relative">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
-              <input value={globalFilter ?? ""} onChange={e => setGlobalFilter(e.target.value)} placeholder="Filter registry data..." className="pl-12 pr-6 py-3 border border-slate-200 rounded-2xl text-xs font-bold focus:border-[#0284C7] outline-none transition-all min-w-[300px] shadow-sm" />
+
+              <Search size={16} className="absolute left-3 top-2.5 text-slate-400"/>
+
+              <input
+                value={globalFilter ?? ""}
+                onChange={e => setGlobalFilter(e.target.value)}
+                placeholder="Search..."
+                className="pl-8 pr-3 py-2 border rounded-md text-sm"
+              />
+
             </div>
-            <div className="flex bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
-              <button onClick={() => exportToExcel(columns, data, "Project_Audit_Report")} className="flex items-center gap-2 px-5 py-2 hover:bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 uppercase transition-colors border-r border-slate-100"><Table size={14} className="text-emerald-500" /> Excel</button>
-              <button onClick={() => exportToPDF(columns, data, "Project_Audit_Report")} className="flex items-center gap-2 px-5 py-2 hover:bg-slate-50 rounded-xl text-[10px] font-black text-slate-500 uppercase transition-colors"><FileText size={14} className="text-red-500" /> PDF</button>
-            </div>
-            <button onClick={onRefresh} className="p-3 bg-white border border-slate-200 rounded-2xl hover:shadow-md transition-all text-slate-400 hover:rotate-180 duration-500"><RefreshCw size={18} /></button>
+
+            <button
+              onClick={() => exportToExcel(columns, data, "Projects_Report")}
+              className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm"
+            >
+              <Table size={16}/> Excel
+            </button>
+
+            <button
+              onClick={() => exportToPDF(columns, data, "Projects_Report")}
+              className="flex items-center gap-2 px-3 py-2 bg-black text-white rounded-md text-sm"
+            >
+              <FileText size={16}/> PDF
+            </button>
+
+            <button
+            onClick={onRefresh}
+            className="flex items-center gap-2 px-3 py-2 bg-gray-600 text-white rounded-md text-sm"
+          >
+            Refresh
+          </button>
+
           </div>
+
         </div>
 
-        {/* SCROLLABLE TABLE AREA */}
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full border-collapse min-w-[1800px]"> {/* MIN-WIDTH FORCES SCROLLING */}
-            <thead>
+        {/* TABLE */}
+        <div className="overflow-x-auto">
+
+          <table className="w-full text-sm">
+
+            <thead className="bg-slate-50 text-slate-500">
+
               {table.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id} className="bg-slate-50/80 border-b border-slate-100">
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id} onClick={header.column.getToggleSortingHandler()} className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] cursor-pointer hover:bg-slate-100 transition-colors">
-                      <div className="flex items-center gap-2">
+
+                <tr key={headerGroup.id}>
+
+                  {headerGroup.headers.map((header) => {
+                    const canSort = header.column.getCanSort();
+                    const sortState = header.column.getIsSorted();
+  
+                    return (
+                      <th
+                        key={header.id}
+                        onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+                        className="px-4 py-2 text-left font-semibold cursor-pointer select-none"
+                      >
                         {flexRender(header.column.columnDef.header, header.getContext())}
-                        <ArrowUpDown size={12} className="opacity-30" />
-                      </div>
-                    </th>
-                  ))}
+                        {sortState === "asc" ? " 🔼" : sortState === "desc" ? " 🔽" : ""}
+                      </th>
+                    );
+                  })}
+
                 </tr>
+
               ))}
+
             </thead>
-            <tbody className="divide-y divide-slate-50">
+
+            <tbody>
+
               {table.getRowModel().rows.map(row => (
-                <tr key={row.id} className="hover:bg-sky-50/40 transition-all border-b border-slate-50/50">
+
+                <tr key={row.id} className="border-t hover:bg-slate-50">
+
                   {row.getVisibleCells().map(cell => (
-                    <td key={cell.id} className="px-6 py-4 whitespace-nowrap">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+
+                    <td key={cell.id} className="px-5 py-3">
+
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+
                     </td>
+
                   ))}
+
                 </tr>
+
               ))}
+
             </tbody>
+
           </table>
+
         </div>
 
         {/* PAGINATION */}
-        <div className="flex justify-between items-center p-6 bg-slate-50/30 border-t border-slate-100">
-          <div className="flex items-center gap-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            <span>Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}</span>
-            <div className="h-4 w-[1px] bg-slate-200" />
-            <span>Total Registry: {data.length} Records</span>
-          </div>
+
+        <div className="flex justify-between items-center p-4 border-t">
+
+          <span className="text-xs text-slate-500">
+            Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          </span>
+
           <div className="flex gap-2">
-            <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} className="p-3 border bg-white rounded-xl shadow-sm disabled:opacity-30 hover:bg-white transition-all"><ChevronLeft size={18} /></button>
-            <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} className="p-3 border bg-white rounded-xl shadow-sm disabled:opacity-30 hover:bg-white transition-all"><ChevronRight size={18} /></button>
+
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="p-2 border rounded"
+            >
+              <ChevronLeft size={16}/>
+            </button>
+
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="p-2 border rounded"
+            >
+              <ChevronRight size={16}/>
+            </button>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
+
   );
+
 }

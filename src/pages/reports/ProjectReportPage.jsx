@@ -69,7 +69,7 @@ export default function ProjectReportPage() {
           sno: index + 1,
           projectCode: proj.projectCode,
           title: proj.title,
-          subCityName: proj.subCityName || "Global",
+          subCityName: proj.subCityName || "N/A",
           projectType: proj.projectType || "N/A",
           startDate: proj.startDate,
           originalEndDate: proj.endDate,

@@ -400,6 +400,7 @@ export default function CreateProject() {
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [teamSearch, setTeamSearch] = useState('');
     const [isTeamDropdownOpen, setIsTeamDropdownOpen] = useState(false);
+    const isEndDateEditable = (formData.extensions?.length || 0) <= 0;
     
     // Extension specific state
     const [extensionData, setExtensionData] = useState({ extendedDays: '', reason: '' });
@@ -731,6 +732,12 @@ export default function CreateProject() {
                                     return loc ? (<div key={locId} className="flex items-center gap-2 bg-slate-800 text-white pl-3 pr-1.5 py-1.5 rounded-xl text-[9px] font-bold uppercase tracking-widest">{loc.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: (p.locationIds || []).filter(i => i !== locId) }))} className="cursor-pointer" style={{ fontSize: 14 }} /></div>) : null;
                                 })}
                             </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Consultancy Partner</label>
+                                <select name="consultantId" value={formData.consultantId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer">
+                                    <option value="">TBD</option>{lookups.consultancies.map(c => <option key={c.id} value={String(c.id)}>{c.consultantName}</option>)}
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -744,6 +751,12 @@ export default function CreateProject() {
                             <select name="projectManagerId" value={formData.projectManagerId || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 appearance-none cursor-pointer">
                                 <option value="">Unassigned</option>
                                 {lookups.employees.map(m => <option key={m.id} value={String(m.id)}>{m.fullName}</option>)}
+                            </select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Contractor Partner</label>
+                            <select name="contractorId" value={formData.contractorId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer">
+                                <option value="">TBD</option>{lookups.contractors.map(c => <option key={c.id} value={String(c.id)}>{c.contractorName}</option>)}
                             </select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -825,10 +838,10 @@ export default function CreateProject() {
                         )}
                     </div>
                     <div className="grid grid-cols-2 gap-6 flex-1">
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Launch Date</label><input name="startDate" type="date" value={formData.startDate || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Launch Date</label><input name="startDate" type="date" value={formData.startDate || ""} onChange={handleInputChange} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" /></div>
                         <div className="space-y-2">
                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Planned Deadline</label>
-                            <input name="endDate" type="date" value={formData.endDate || ""} onChange={handleInputChange} className={`w-full text-sm font-black rounded-[24px] px-6 py-4 outline-none border ${formData.totalExtendedDays > 0 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-200 text-slate-700'}`} />
+                            <input name="endDate" type="date" value={formData.endDate || ""} onChange={handleInputChange} required disabled={!isEndDateEditable} className={`w-full text-sm font-black rounded-[24px] px-6 py-4 outline-none border ${formData.totalExtendedDays > 0 ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-slate-50 border-slate-200 text-slate-700'}`} />
                             {/* The "+ Days" Indicator (Only shows if totalExtendedDays > 0) */}
                             {formData.totalExtendedDays > 0 && (
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 pointer-events-none">
