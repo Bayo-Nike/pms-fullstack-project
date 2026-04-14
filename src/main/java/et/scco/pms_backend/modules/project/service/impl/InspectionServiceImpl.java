@@ -1,10 +1,15 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.InspectionLevel;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.InspectionType;
+import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.InspectionTypesRepository;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
+import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.project.dto.request.InspectionRequestDto;
 import et.scco.pms_backend.modules.project.dto.response.InspectionResponseDto;
 import et.scco.pms_backend.modules.project.model.Inspection;
@@ -36,16 +41,42 @@ public class InspectionServiceImpl implements InspectionService {
     private final TaskRepository taskRepository;
     private final AuthContext authContext;
     private final NotificationService notificationService;
+    private final EmployeeServiceImpl employeeServiceImpl;
 
+    @Transactional(readOnly = true)
     @Override
-    public Page<InspectionResponseDto> getAllInspections(Pageable pageable) {
-        if (authContext.isMayor() || authContext.isSuperAdmin()) {
-            return inspectionRepository.findAll(pageable)
-                    .map(this::mapToResponseDto);
+    public Page<InspectionResponseDto> getAllInspections(String search, Long subCityId, Pageable pageable) {
+
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+
+        if (employee == null) {
+            return inspectionRepository.findAll(pageable).map(this::mapToResponseDto);
         }
-        return inspectionRepository
-                .findAllByEmployee(authContext.getEmployee(), pageable)
-                .map(this::mapToResponseDto);
+
+        SubCity restrictedSubCity = employee.getSubCity();
+        Division division = employee.getDivision();
+
+        if (division == null) {
+            return Page.empty(pageable);
+        }
+
+        DivisionGroup divisionGroup = division.getDivisionGroup();
+        Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+        ProjectType projectType = null;
+        if (divisionGroup.equals(DivisionGroup.BLD)) {
+            projectType = ProjectType.BUILDING;
+        } else if (!divisionGroup.equals(DivisionGroup.BTH)) {
+            projectType = ProjectType.WATER_AND_ROAD;
+        }
+
+        Page<Inspection> inspectionPage = inspectionRepository.findWithFilters(
+                projectType,
+                finalSubCityId,
+                search,
+                pageable);
+
+        return inspectionPage.map(this::mapToResponseDto);
     }
 
     @Override

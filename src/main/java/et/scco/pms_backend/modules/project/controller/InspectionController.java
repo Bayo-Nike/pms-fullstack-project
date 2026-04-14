@@ -23,10 +23,14 @@ public class InspectionController {
     private final InspectionService inspectionService;
 
     @GetMapping
-    public ApiResponse<Page<InspectionResponseDto>> getAllInspections(Pageable pageable) {
+    public ApiResponse<Page<InspectionResponseDto>> getAllInspections(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long subCityId,
+            Pageable pageable) {
+
         return ResponseUtil.success(
-                "Inspection records fetched successfully",
-                inspectionService.getAllInspections(pageable)
+                "Inspections fetched successfully",
+                inspectionService.getAllInspections(search, subCityId, pageable)
         );
     }
 
@@ -38,13 +42,6 @@ public class InspectionController {
         );
     }
 
-//    @PostMapping
-//    public ApiResponse<InspectionResponseDto> createInspection(@RequestBody InspectionRequestDto dto) {
-//        return ResponseUtil.success(
-//                "Inspection recorded successfully",
-//                inspectionService.createInspection(dto)
-//        );
-//    }
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

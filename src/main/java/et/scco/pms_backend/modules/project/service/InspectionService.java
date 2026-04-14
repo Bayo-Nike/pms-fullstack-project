@@ -10,7 +10,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface InspectionService {
-    Page<InspectionResponseDto> getAllInspections(Pageable pageable);
+//    Page<InspectionResponseDto> getAllInspections(Pageable pageable);
+//
+//    @Transactional(readOnly = true)
+//    List<InspectionResponseDto> getAllInspections(String search, Long subCityId);
+
+    @Transactional(readOnly = true)
+    Page<InspectionResponseDto> getAllInspections(String search, Long subCityId, Pageable pageable);
 
     InspectionResponseDto getInspection(Long id);
 
