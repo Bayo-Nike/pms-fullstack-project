@@ -68,22 +68,26 @@ export default function CreateInspection() {
                 if (isEdit) {
                     const logRes = await projectApi.GET_INSPECTION_LOG(id);
                     const d = logRes.data?.data || logRes.data;
+
                     setFormData({
-                        ...d,
+                        inspectionTypeId: String(d.inspectionTypeId || ''),
+                        inspectionLevel: d.inspectionLevel || 'PROJECT',
                         projectId: String(d.projectId || ''),
                         taskId: String(d.taskId || ''),
-                        inspectionTypeId: String(d.inspectionTypeId || ''),
+                        inspectionDate: d.inspectionDate || new Date().toISOString().split('T')[0],
+                        inspectionResult: d.inspectionResult || '',
+                        weatherCondition: d.weatherCondition || '',
                         activeWorkers: String(d.activeWorkers || ''),
                         latitude: String(d.latitude || ''),
                         longitude: String(d.longitude || ''),
-                        inspectionDocumentUrl: d.inspectionDocumentUrl || '',
-                        inspectionDate: new Date().toISOString().split('T')[0]
+                        inspectionDocumentUrl: d.inspectionDocumentUrl || ''
                     });
-                    const context = projects.find(p => p.id === d.projectId);
-                    setSelectedProject(context);
+
+                    const context = projects.find(p => String(p.id) === String(d.projectId));
+                    if (context) setSelectedProject(context);
                 }
             } catch (err) {
-                showAlert('error', 'Initialization error: Context unavailable.');
+                showAlert('error', 'Failed to load registry context.');
             } finally {
                 setLoading(false);
             }
@@ -118,12 +122,13 @@ export default function CreateInspection() {
 
     const handleSaveTrigger = () => {
         const { projectId, inspectionTypeId, inspectionResult, weatherCondition, activeWorkers, inspectionLevel, taskId } = formData;
+
         if (!projectId || !inspectionTypeId || !inspectionResult.trim() || !weatherCondition || !activeWorkers) {
-            showAlert('error', 'Required validation failed: All fields marked with * must be filled.');
+            showAlert('error', 'Required fields (*) must be completed.');
             return;
         }
         if (inspectionLevel === 'TASK' && !taskId) {
-            showAlert('error', 'Please select a specific Task.');
+            showAlert('error', 'Please select the specific Task Component.');
             return;
         }
         setShowConfirm(true);
@@ -148,14 +153,12 @@ export default function CreateInspection() {
 
             const bodyFormData = new FormData();
             bodyFormData.append('data', JSON.stringify(payload));
-            selectedFiles.forEach(file => {
-                bodyFormData.append('files', file);
-            });
+            selectedFiles.forEach(file => bodyFormData.append('files', file));
 
             if (isEdit) await projectApi.UPDATE_INSPECTION_LOG(id, bodyFormData);
             else await projectApi.CREATE_INSPECTION_LOG(bodyFormData);
 
-            showAlert('success', `Success: Inspection log has been ${isEdit ? 'updated' : 'created'} successfully.`);
+            showAlert('success', `Registry entry ${isEdit ? 'updated' : 'recorded'} successfully.`);
             setTimeout(() => navigate('/inspections'), 2000);
         } catch (err) {
             showAlert('error', err.response?.data?.message || 'Transaction rejected by server.');
@@ -163,39 +166,32 @@ export default function CreateInspection() {
         }
     };
 
-    if (loading) return <div className="p-20 text-center text-slate-400 italic animate-pulse">Establishing QA Context...</div>;
+    if (loading) return <div className="p-20 text-center text-slate-400 italic animate-pulse">Establishing Context...</div>;
 
     return (
-        <div className="w-full space-y-6 pb-12 px-4 relative animate-fadeIn">
-            {/* Save Confirmation */}
+        <div className="w-full space-y-6 pb-12 px-4 relative animate-fadeIn text-slate-700">
             {showConfirm && (
                 <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full mx-4 text-center border">
                         <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
                         <h3 className="text-xl font-bold uppercase tracking-tight">Save Entry</h3>
-                        <p className="text-sm text-slate-500 mt-2">Commit log and upload documents to registry?</p>
+                        <p className="text-sm text-slate-500 mt-2 leading-relaxed">Commit this inspection record and files to the registry?</p>
                         <div className="flex gap-4 mt-10">
-                            <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-bold uppercase hover:bg-slate-50">Cancel</button>
-                            <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white rounded-2xl font-bold text-[11px] uppercase shadow-lg hover:bg-[#0369a1]">Confirm</button>
+                            <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-bold uppercase tracking-widest hover:bg-slate-50">Cancel</button>
+                            <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white rounded-2xl font-bold text-[11px] uppercase shadow-lg hover:bg-[#0369a1] transition-all">Confirm</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Document Preview Modal */}
             {showPreview && (
-                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md animate-fadeIn p-4 sm:p-10">
-                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden relative border animate-scaleUp">
+                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md animate-fadeIn p-6">
+                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-scaleUp border relative">
                         <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                            <div className="flex items-center gap-3">
-                                <AttachFile className="text-[#0284C7]" />
-                                <h3 className="text-sm font-black uppercase tracking-widest text-slate-700">Document Registry Preview</h3>
-                            </div>
-                            <button onClick={() => setShowPreview(false)} className="p-2 bg-slate-200 text-slate-600 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Close style={{ fontSize: 20 }} /></button>
+                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-700">Document Registry Preview</h3>
+                            <button onClick={() => setShowPreview(false)} className="p-2 bg-slate-200 text-slate-600 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Close /></button>
                         </div>
-                        <div className="flex-1 bg-slate-100">
-                            <iframe src={formData.inspectionDocumentUrl} title="Document Preview" className="w-full h-full border-none" />
-                        </div>
+                        <iframe src={formData.inspectionDocumentUrl} title="Registry Preview" className="flex-1 w-full border-none" />
                     </div>
                 </div>
             )}
@@ -206,7 +202,7 @@ export default function CreateInspection() {
                 <div className="flex items-center gap-4">
                     <button onClick={() => navigate('/inspections')} className="p-2.5 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
                     <div>
-                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Entry' : 'New Quality Check'}</h1>
+                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Log' : 'New Quality Check'}</h1>
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-widest font-bold">Standardized QC Entry</p>
                     </div>
                 </div>
@@ -219,7 +215,7 @@ export default function CreateInspection() {
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-4 space-y-6">
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
+                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit overflow-hidden">
                         <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><Layers className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Target Scope</span></div>
                         <div className="p-6 space-y-5">
                             <div className="space-y-2">
@@ -239,7 +235,7 @@ export default function CreateInspection() {
                             </div>
                             {formData.inspectionLevel === 'TASK' && (
                                 <div className="space-y-2 animate-fadeIn">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task *</label>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Component Task *</label>
                                     <select value={formData.taskId} onChange={e => setFormData({ ...formData, taskId: e.target.value })} disabled={!formData.projectId} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold outline-none disabled:opacity-50">
                                         <option value="">-- Select Task --</option>
                                         {filteredTasks.map(t => <option key={t.id} value={t.id}>{t.taskName}</option>)}
@@ -249,57 +245,56 @@ export default function CreateInspection() {
                             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
                                 <LocationCity className="text-slate-300" style={{ fontSize: 20 }} />
                                 <div>
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase">Registry Location</p>
-                                    <p className="text-xs font-black text-slate-600 uppercase">{cityName}</p>
+                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Registry Location</p>
+                                    <p className="text-xs font-black text-slate-600 uppercase tracking-tighter">{cityName}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
-                        <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><EventNote className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Entry Metrics</span></div>
+                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit overflow-hidden">
+                        <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><EventNote className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Execution Metrics</span></div>
                         <div className="p-6 space-y-5">
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Weather *</label>
-                                <select value={formData.weatherCondition} onChange={(e) => setFormData({ ...formData, weatherCondition: e.target.value })} className="w-full text-sm font-bold px-4 py-3 border border-slate-200 rounded-xl bg-slate-50">
-                                    <option value="">-- Select Weather --</option>
+                                <select value={formData.weatherCondition} onChange={(e) => setFormData({ ...formData, weatherCondition: e.target.value })} className="w-full text-sm font-bold px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 outline-none">
+                                    <option value="">-- Select Status --</option>
                                     {['SUNNY', 'CLOUD', 'RAIN', 'WINDY', 'STORM', 'SNOW', 'UNKNOWN'].map(w => <option key={w} value={w}>{w}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Active Workers *</label>
-                                <input type="number" value={formData.activeWorkers} onChange={(e) => setFormData({ ...formData, activeWorkers: e.target.value })} className="w-full text-sm font-bold px-4 py-3 border border-slate-200 rounded-xl bg-slate-50" placeholder="Number" />
+                                <input type="number" value={formData.activeWorkers} onChange={(e) => setFormData({ ...formData, activeWorkers: e.target.value })} className="w-full text-sm font-bold px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 outline-none" placeholder="0" />
                             </div>
                             <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Log Date (Locked)</label>
-                                <input type="date" value={formData.inspectionDate} readOnly className="w-full text-sm font-bold px-4 py-3 border border-slate-100 rounded-xl bg-slate-100 text-slate-500 cursor-not-allowed" />
+                                <input type="date" value={formData.inspectionDate} readOnly className="w-full text-sm font-bold px-4 py-3 border border-slate-100 bg-slate-100 text-slate-500 cursor-not-allowed rounded-xl outline-none" />
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div className="lg:col-span-8 space-y-6">
-                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit">
+                    <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit overflow-hidden">
                         <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Observations</span></div>
                         <div className="p-8 space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Template Type *</label>
                                 <select value={formData.inspectionTypeId} onChange={e => setFormData({ ...formData, inspectionTypeId: e.target.value })} disabled={!selectedProject} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none disabled:opacity-50">
-                                    <option value="">-- Select Template --</option>
+                                    <option value="">-- Choose Template --</option>
                                     {filteredTemplates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Result Findings *</label>
-                                <textarea rows="6" value={formData.inspectionResult} onChange={e => setFormData({ ...formData, inspectionResult: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-[28px] px-6 py-5 text-sm font-medium outline-none" placeholder="Enter formal findings..."></textarea>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Result Summary *</label>
+                                <textarea rows="6" value={formData.inspectionResult} onChange={e => setFormData({ ...formData, inspectionResult: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-[28px] px-6 py-5 text-sm font-medium outline-none resize-none focus:border-[#0284C7] transition-all" placeholder="Enter findings, compliance status..."></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* GPS Coordinate Form */}
-                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit">
-                            <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><MyLocation className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">GPS Entry</span></div>
+                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit overflow-hidden">
+                            <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><MyLocation className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">GPS Coordinates</span></div>
                             <div className="p-6 space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1">
@@ -314,40 +309,47 @@ export default function CreateInspection() {
                             </div>
                         </div>
 
-                        {/* Document Uploading Form */}
-                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit">
-                            <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CloudUpload className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Documents</span></div>
+                        <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm h-fit overflow-hidden">
+                            <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CloudUpload className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Evidence Registry</span></div>
                             <div className="p-6">
                                 {formData.inspectionDocumentUrl && (
-                                    <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between group animate-fadeIn">
+                                    <div className="mb-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between group animate-fadeIn transition-all">
                                         <div className="flex items-center gap-3 overflow-hidden">
                                             <AttachFile className="text-blue-400 shrink-0" style={{ fontSize: 20 }} />
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-blue-800 uppercase">Registry File</span>
-                                                <span className="text-[11px] text-blue-600 truncate">Reference Document</span>
+                                                <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Registry File</span>
+                                                <span className="text-[11px] text-blue-600 truncate font-medium">Internal Reference File</span>
                                             </div>
                                         </div>
-                                        <button onClick={() => setShowPreview(true)} className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-md active:scale-90 flex items-center gap-2 px-4">
-                                            <Visibility style={{ fontSize: 16 }} />
-                                            <span className="text-[9px] font-bold uppercase">View</span>
-                                        </button>
+                                        <button onClick={() => setShowPreview(true)} className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-md active:scale-90 flex items-center gap-2 px-4"><Visibility style={{ fontSize: 16 }} /><span className="text-[9px] font-bold uppercase">View</span></button>
                                     </div>
                                 )}
                                 <div className="relative border-2 border-dashed border-slate-100 rounded-2xl p-4 text-center hover:bg-slate-50 transition-all cursor-pointer group">
                                     <input type="file" multiple onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                                     <AttachFile className="text-slate-300 group-hover:text-[#0284C7] mb-1" />
-                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Select Evidence Files</p>
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Add Attachments</p>
                                 </div>
                                 <div className="mt-3 space-y-1 max-h-24 overflow-y-auto">
                                     {selectedFiles.map((file, idx) => (
-                                        <div key={idx} className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                        <div key={idx} className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100 transition-all">
                                             <span className="text-[9px] font-bold text-slate-600 truncate max-w-[120px]">{file.name}</span>
-                                            <button onClick={() => removeFile(idx)} className="text-red-400"><DeleteOutline style={{ fontSize: 16 }} /></button>
+                                            <button onClick={() => removeFile(idx)} className="text-red-400 hover:text-red-600"><DeleteOutline style={{ fontSize: 16 }} /></button>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="p-6 bg-[#0284C7]/5 rounded-[32px] border border-[#0284C7]/10 flex items-center justify-between text-[#0284C7]">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-white border border-[#0284C7]/20 flex items-center justify-center shadow-sm"><Person /></div>
+                            <div>
+                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Registered Inspector</span>
+                                <span className="text-xs font-black uppercase tracking-wider">@{currentUser?.username || 'user'}</span>
+                            </div>
+                        </div>
+                        <FactCheck className="text-[#0284C7]/20" fontSize="large" />
                     </div>
                 </div>
             </div>
