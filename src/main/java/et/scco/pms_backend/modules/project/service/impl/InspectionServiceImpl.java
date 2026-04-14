@@ -15,11 +15,14 @@ import et.scco.pms_backend.modules.project.service.InspectionService;
 import et.scco.pms_backend.modules.task.model.Task;
 import et.scco.pms_backend.modules.task.repository.TaskRepository;
 import et.scco.pms_backend.utility.AuthContext;
+import et.scco.pms_backend.utility.FileStorageService;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -34,16 +37,12 @@ public class InspectionServiceImpl implements InspectionService {
     private final AuthContext authContext;
     private final NotificationService notificationService;
 
-
     @Override
     public Page<InspectionResponseDto> getAllInspections(Pageable pageable) {
-
         if (authContext.isMayor() || authContext.isSuperAdmin()) {
             return inspectionRepository.findAll(pageable)
                     .map(this::mapToResponseDto);
         }
-
-        // Find only my inspections with pagination
         return inspectionRepository
                 .findAllByEmployee(authContext.getEmployee(), pageable)
                 .map(this::mapToResponseDto);
@@ -56,37 +55,35 @@ public class InspectionServiceImpl implements InspectionService {
         return mapToResponseDto(inspection);
     }
 
-    @Override
+    private final FileStorageService fileStorageService;
+
+
     @Transactional
-    public InspectionResponseDto createInspection(InspectionRequestDto dto) {
+    @Override
+    public InspectionResponseDto createInspection(InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = new Inspection();
-
-        updateInspectionEntity(inspection, dto);
-
-        Inspection saved = inspectionRepository.save(inspection);
-
-        // //send inspection notification to the Project manager
-        // if (inspection.getEmployee() != null){
-        //     notificationService.sendNotification(
-        //             authContext.getEmployee().getId(),
-        //             inspection.getEmployee().getDivision().getId(),
-        //             inspection.getInspectionLevel()+" Inspection has been Done",
-        //             "admin/inspections/"+inspection.getId()
-        //     );
-        // }
-
-
-        return mapToResponseDto(saved);
+        return getInspectionResponseDto(dto, files, inspection);
     }
 
-    @Override
     @Transactional
-    public InspectionResponseDto updateInspection(Long id, InspectionRequestDto dto) {
+    @Override
+    public InspectionResponseDto updateInspection(Long id, InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
+        return getInspectionResponseDto(dto, files, inspection);
+    }
+
+    @NonNull
+    private InspectionResponseDto getInspectionResponseDto(InspectionRequestDto dto, List<MultipartFile> files, Inspection inspection) {
         updateInspectionEntity(inspection, dto);
 
+        try {
+            String fileName = fileStorageService.storeFile(files.getFirst());
+            inspection.setInspectionDocumentUrl(fileName);
+        }catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         Inspection updated = inspectionRepository.save(inspection);
 
         return mapToResponseDto(updated);
@@ -109,8 +106,7 @@ public class InspectionServiceImpl implements InspectionService {
                 .toList();
     }
 
-    private void updateInspectionEntity(Inspection inspection, InspectionRequestDto dto)
-    {
+    private void updateInspectionEntity(Inspection inspection, InspectionRequestDto dto) {
         if (authContext.isSuperAdmin()) {
             throw new RuntimeException("Super Admin cannot update Inspection");
         }
@@ -134,6 +130,8 @@ public class InspectionServiceImpl implements InspectionService {
         inspection.setInspectionDate(dto.getInspectionDate());
         inspection.setInspectionResult(dto.getInspectionResult());
         inspection.setActiveWorkers(dto.getActiveWorkers());
+        inspection.setLatitude(dto.getLatitude());
+        inspection.setLongitude(dto.getLongitude());
 
         if (dto.getInspectionLevel() == InspectionLevel.TASK && dto.getTaskId() != null) {
             Task task = taskRepository.findById(dto.getTaskId())
@@ -147,13 +145,10 @@ public class InspectionServiceImpl implements InspectionService {
     private InspectionResponseDto mapToResponseDto(Inspection inspection) {
         InspectionResponseDto dto = new InspectionResponseDto();
         dto.setId(inspection.getId());
-
         dto.setInspectionTypeId(inspection.getInspectionType().getId());
         dto.setInspectionTypeName(inspection.getInspectionType().getName());
-
         dto.setInspectionLevel(inspection.getInspectionLevel());
         dto.setWeatherCondition(inspection.getWeatherCondition());
-
         dto.setProjectId(inspection.getProject().getId());
         dto.setProjectTitle(inspection.getProject().getTitle());
 
@@ -164,10 +159,12 @@ public class InspectionServiceImpl implements InspectionService {
 
         dto.setEmployeeId(inspection.getEmployee().getId());
         dto.setEmployeeName(inspection.getEmployee().getFullName());
-
         dto.setInspectionDate(inspection.getInspectionDate());
         dto.setInspectionResult(inspection.getInspectionResult());
         dto.setActiveWorkers(inspection.getActiveWorkers());
+        dto.setLatitude(inspection.getLatitude());
+        dto.setLongitude(inspection.getLongitude());
+        dto.setInspectionDocumentUrl(inspection.getInspectionDocumentUrl());
 
         return dto;
     }
