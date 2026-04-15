@@ -310,8 +310,8 @@ export default function ViewTarget() {
                   <tr className="bg-slate-50/50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase">
                     <th className="px-6 py-4">Submission Date</th>
                     <th className="px-6 py-4">Sender Feedback</th>
-                    <th className="px-6 py-4 text-center">Batch Vol</th>
-                    <th className="px-6 py-4">GPS Coordinates</th>
+                    <th className="px-6 py-4 text-center">Batch Volume</th>
+                    <th className="px-6 py-4">Location Coordinates</th>
                     <th className="px-6 py-4 text-right">Actions</th>
                   </tr>
                 </thead>

@@ -192,7 +192,38 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     {
       accessorKey: "projectProgress",
       header: "Project Progress",
-      cell: info => <div className="flex items-center gap-1 text-slate-500 font-medium"><TrendingUp className="text-[#FBAF1E]" style={{ fontSize: 16 }} /> {info.getValue()}</div>
+      cell: ({ getValue }) => {
+        const rawValue = getValue();
+        const value =
+          typeof rawValue === "number"
+            ? rawValue
+            : parseFloat(rawValue);
+    
+        const safeValue = isNaN(value) ? 0 : value;
+    
+        return (
+          <div className="flex flex-col gap-2 min-w-[120px]">
+            {/* Top row */}
+            <div className="flex items-center gap-2 text-slate-600">
+              <TrendingUp
+                className="text-amber-500 flex-shrink-0"
+                size={16}
+              />
+              <span className="text-xs font-bold uppercase tracking-wide text-slate-700 tabular-nums">
+                {safeValue.toFixed(2)}%
+              </span>
+            </div>
+    
+            {/* Progress bar */}
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-sky-600 transition-all duration-500 rounded-full"
+                style={{ width: `${safeValue}%` }}
+              />
+            </div>
+          </div>
+        );
+      },
     },
     
     {

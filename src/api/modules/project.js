@@ -14,6 +14,7 @@ const projectApi = {
     UPDATE_BUDGET: (id, budget, budgetUsed) => api.patch(`/projects/${id}/budget`, null, { params: { budget, budgetUsed } }),
     UPDATE_TIMELINE: (id, startDate, endDate) => api.patch(`/projects/${id}/timeline`, null, { params: { startDate, endDate } }),
     EXTEND_PROJECT: (id, data) => api.post(`/projects/${id}/extend`, data),
+    DELETE_EXTENSION: (projectId, extensionId) => api.delete(`/projects/${projectId}/extensions/${extensionId}`),
 
 
 

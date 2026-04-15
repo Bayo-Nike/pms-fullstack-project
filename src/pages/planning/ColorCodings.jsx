@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     Edit, Delete, Search, Add, HelpOutline, CorporateFare,
     ChevronLeft, ChevronRight, Description, Visibility,
-    NavigateBefore, NavigateNext
+    NavigateBefore, NavigateNext,
+    LocationOn
 } from '@mui/icons-material';
 import colorCodingApi from '../../api/modules/colorCoding';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -185,7 +186,7 @@ export default function ColorCodings() {
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 bg-sky-50 text-[#0284C7] rounded-lg flex items-center justify-center group-hover:bg-[#0284C7] group-hover:text-white transition-all">
-                                            <CorporateFare style={{ fontSize: 18 }} />
+                                            <LocationOn className="text-[#FBAF1E]" style={{ fontSize: 18 }} />
                                         </div>
                                         <span className="text-sm font-semibold text-slate-700">{c.subCity?.subCityName}</span>
                                     </div>

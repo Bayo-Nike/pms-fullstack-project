@@ -365,9 +365,10 @@ import {
     Payments, Groups, HelpOutline, PinDrop,
     LocationCity, Close, Search, Add
 } from '@mui/icons-material';
-import { 
-    History, Timer, Calendar, ClipboardList, 
-    TrendingUp, CalendarPlus, AlertCircle, ChevronRight, CheckCircle2
+import {
+    History, Timer, Calendar, ClipboardList,
+    TrendingUp, CalendarPlus, AlertCircle, ChevronRight, CheckCircle2,
+    Trash2
 } from 'lucide-react';
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
@@ -389,7 +390,7 @@ export default function CreateProject() {
         clientId: '', projectManagerId: '', startDate: '', endDate: '',
         status: 'NOT_STARTED', priority: 'MEDIUM', currencyType: 'ETB',
         budget: '', budgetUsed: '0', totalExtendedDays: 0,
-        employeeIds: [], extensions: [] 
+        employeeIds: [], extensions: []
     });
 
     const [lookups, setLookups] = useState({ subCities: [], locations: [], employees: [], contractors: [], consultancies: [], clients: [] });
@@ -401,7 +402,7 @@ export default function CreateProject() {
     const [teamSearch, setTeamSearch] = useState('');
     const [isTeamDropdownOpen, setIsTeamDropdownOpen] = useState(false);
     const isEndDateEditable = (formData.extensions?.length || 0) <= 0;
-    
+
     // Extension specific state
     const [extensionData, setExtensionData] = useState({ extendedDays: '', reason: '' });
     const [showExtendModal, setShowExtendModal] = useState(false);
@@ -436,10 +437,10 @@ export default function CreateProject() {
 
     useEffect(() => {
         if (!isEdit && authDivisionGroup === 'BTH') {
-            setFormData(prev => ({ 
-                ...prev, 
-                projectLevel: authSubCityId ? 'SUB_CITY' : 'CITY', 
-                subCityId: authSubCityId ? String(authSubCityId) : '' 
+            setFormData(prev => ({
+                ...prev,
+                projectLevel: authSubCityId ? 'SUB_CITY' : 'CITY',
+                subCityId: authSubCityId ? String(authSubCityId) : ''
             }));
         }
     }, [authSubCityId, authDivisionGroup, isEdit]);
@@ -474,10 +475,10 @@ export default function CreateProject() {
 
     const teamOptions = useMemo(() => {
         const list = lookups.employees || [];
-        const selectedIds = formData.employeeIds || []; 
+        const selectedIds = formData.employeeIds || [];
         return list.filter(emp =>
-            emp && 
-            !selectedIds.includes(emp.id) && 
+            emp &&
+            !selectedIds.includes(emp.id) &&
             emp.fullName?.toLowerCase().includes(teamSearch.toLowerCase()) &&
             (Number(emp.positionParentId) === Number(authPositionId))
         );
@@ -504,7 +505,7 @@ export default function CreateProject() {
                 reason: extensionData.reason
             });
             showAlert('success', 'Project timeline adjusted successfully');
-            
+
             // Refetch and reset form
             const res = await projectApi.GET_PROJECT(id);
             setFormData(normalizeData(res.data?.data || res.data));
@@ -513,12 +514,32 @@ export default function CreateProject() {
         } catch (err) { showAlert('error', 'Extension failed'); } finally { setSaving(false); }
     };
 
+    const handleDeleteLastExtension = async (extensionId) => {
+        //Confirmation Request
+        if (!window.confirm("System Warning: This will revert the project deadline to the previous date. Continue?")) return;
+
+        try {
+            setSaving(true);
+            console.log(id, extensionId);
+            await projectApi.DELETE_EXTENSION(id, extensionId);
+            showAlert('success', 'Timeline reverted to previous state');
+            // Refresh project data to sync the End Date and Registry
+            const res = await projectApi.GET_PROJECT(id);
+            setFormData(normalizeData(res.data?.data || res.data));
+        } catch (err) {
+            showAlert('error', 'Reversion failed: Only the most recent record can be removed.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const executeSave = async () => {
         setShowConfirm(false);
         setSaving(true);
         try {
             const { projectCode, extensions, totalExtendedDays, ...rest } = formData;
-            const payload = { ...rest, 
+            const payload = {
+                ...rest,
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
                 budget: formData.budget ? parseFloat(formData.budget) : 0
             };
@@ -533,12 +554,12 @@ export default function CreateProject() {
 
     return (
         <div className="w-full space-y-8 pb-12 px-6 relative animate-fadeIn bg-[#F8FAFC]">
-            
+
             {/* Modal: Dual-Pane Extension Dashboard */}
             {showExtendModal && (
                 <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md px-4 py-6">
                     <div className="bg-white rounded-[40px] w-full max-w-6xl max-h-[90vh] shadow-2xl border border-white overflow-hidden flex flex-col animate-slideUp">
-                        
+
                         {/* Modal Header */}
                         <div className="p-8 border-b flex justify-between items-center bg-slate-50/50">
                             <div className="flex items-center gap-4">
@@ -553,7 +574,7 @@ export default function CreateProject() {
 
                         {/* Dual-Pane Body */}
                         <div className="flex-1 overflow-hidden flex flex-col lg:flex-row">
-                            
+
                             {/* Left Pane: History Registry */}
                             <div className="lg:w-2/5 border-r bg-slate-50/30 overflow-y-auto p-8 custom-scrollbar">
                                 <div className="flex items-center justify-between mb-8">
@@ -568,73 +589,104 @@ export default function CreateProject() {
                                     </div>
                                 ) : (
                                     <div className="space-y-6 relative border-l-2 border-slate-200 ml-2">
-                                        {formData.extensions.map((ext, i) => (
-                                            <div key={i} className="relative pl-8 pb-2">
-                                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 border-amber-400 shadow-sm" />
-                                                <div className="bg-white p-5 rounded-[24px] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 uppercase">+{ext.extendedDays} Days</span>
-                                                        <span className="text-[8px] font-bold text-slate-300 uppercase">{ext.createdAt || 'Approved'}</span>
-                                                    </div>
-                                                    <p className="text-[12px] text-slate-600 font-medium leading-relaxed mb-4 italic">"{ext.reason}"</p>
-                                                    <div className="flex items-center gap-3 pt-3 border-t border-slate-50 text-[10px]">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-slate-300 font-bold uppercase text-[7px]">From</span>
-                                                            <span className="font-bold text-slate-500">{ext.previousEndDate}</span>
+                                        {formData.extensions.map((ext, i) => {
+                                            // IMPORTANT: Identify the absolute latest record (Last item in array)
+                                            const isLatest = i === (formData.extensions.length - 1);
+
+                                            return (
+                                                <div key={i} className="relative pl-8 pb-2 animate-fadeIn">
+                                                    {/* Dynamic Timeline Dot */}
+                                                    <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-white border-2 shadow-sm ${isLatest ? 'border-amber-500 animate-pulse' : 'border-slate-300'}`} />
+
+                                                    <div className={`bg-white p-5 rounded-[24px] border transition-all ${isLatest ? 'border-amber-200 shadow-md ring-2 ring-amber-50' : 'border-slate-100 shadow-sm'}`}>
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100 uppercase tracking-tighter">+{ext.extendedDays} Days</span>
+                                                                {isLatest && (
+                                                                    <span className="text-[7px] font-black bg-slate-900 text-white px-2 py-1 rounded-lg tracking-widest uppercase shadow-sm">Latest</span>
+                                                                )}
+                                                            </div>
+
+                                                            {/* REVERT BUTTON: Only visible for the most recent record */}
+                                                            {isLatest && can('CAN_UPDATE_PROJECT') && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleDeleteLastExtension(ext.id)}
+                                                                    className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all group"
+                                                                    title="Revert timeline adjustment"
+                                                                >
+                                                                    <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
+                                                                </button>
+                                                            )}
                                                         </div>
-                                                        <ChevronRight size={12} className="text-slate-200" />
-                                                        <div className="flex flex-col">
-                                                            <span className="text-sky-400 font-bold uppercase text-[7px]">Target</span>
-                                                            <span className="font-black text-[#0284C7]">{ext.newEndDate}</span>
+
+                                                        <p className="text-[12px] text-slate-600 font-medium leading-relaxed mb-4 italic">"{ext.reason}"</p>
+
+                                                        <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                                                            <div className="flex items-center gap-3 text-[10px]">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-slate-300 font-bold uppercase text-[7px]">From</span>
+                                                                    <span className="font-bold text-slate-500">{ext.previousEndDate}</span>
+                                                                </div>
+                                                                <ChevronRight size={12} className="text-slate-200" />
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-sky-400 font-bold uppercase text-[7px]">Target</span>
+                                                                    <span className="font-black text-[#0284C7]">{ext.newEndDate}</span>
+                                                                </div>
+                                                            </div>
+                                                            <span className="text-[8px] font-bold text-slate-300 uppercase italic">
+                                                                {ext.extendedAt || 'TimeExtension Entry'}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
 
                             {/* Right Pane: New Extension Form */}
-                            <div className="lg:w-3/5 p-10 overflow-y-auto">
-                                <div className="max-w-md mx-auto h-full flex flex-col">
+                            <div className="lg:w-3/5 p-10 overflow-y-auto bg-white">
+                                <div className="max-w-md mx-auto h-full flex flex-col justify-center">
                                     <div className="mb-10 text-center">
-                                        <div className="w-16 h-16 bg-blue-50 text-[#0284C7] rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-100">
+                                        <div className="w-16 h-16 bg-blue-50 text-[#0284C7] rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-100 shadow-inner">
                                             <CalendarPlus size={32} />
                                         </div>
-                                        <h4 className="text-xl font-black text-slate-800 tracking-tight">New Extension Request</h4>
+                                        <h4 className="text-2xl font-black text-slate-800 tracking-tight">New Extension Request</h4>
                                         <p className="text-xs text-slate-400 font-medium mt-1">Authorized personnel only. This action is immutable.</p>
                                     </div>
 
                                     <div className="space-y-8 flex-1">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Extension Duration</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest tracking-[0.2em]">Extension Duration</label>
                                             <div className="relative">
                                                 <input
                                                     type="number"
-                                                    placeholder="Enter number of days"
+                                                    placeholder="0"
                                                     value={extensionData.extendedDays}
                                                     onChange={(e) => setExtensionData(p => ({ ...p, extendedDays: e.target.value }))}
-                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-[28px] px-8 py-5 text-2xl font-black outline-none focus:border-[#0284C7] focus:bg-white transition-all pr-24"
+                                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-[28px] px-8 py-5 text-2xl font-black outline-none focus:border-[#0284C7] focus:bg-white transition-all pr-24 shadow-sm"
                                                 />
                                                 <span className="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-300 uppercase tracking-widest">Days</span>
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Formal Justification</label>
+                                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest tracking-[0.2em]">Formal Justification</label>
                                             <textarea
-                                                rows="5"
-                                                placeholder="Provide the technical or administrative reason for this timeline adjustment..."
+                                                rows="4"
+                                                placeholder="Provide detailed technical reason..."
                                                 value={extensionData.reason}
                                                 onChange={(e) => setExtensionData(p => ({ ...p, reason: e.target.value }))}
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-[28px] px-8 py-5 text-sm font-medium outline-none focus:border-[#0284C7] focus:bg-white transition-all resize-none"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-[28px] px-8 py-5 text-sm font-medium outline-none focus:border-[#0284C7] focus:bg-white transition-all resize-none shadow-sm"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="mt-12 flex flex-col gap-3">
-                                        <button 
+                                        <button
                                             onClick={handleExtendProject}
                                             disabled={saving}
                                             className="w-full bg-slate-900 text-white rounded-[24px] py-5 font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-black active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-3"
@@ -642,7 +694,7 @@ export default function CreateProject() {
                                             <CheckCircle2 size={18} className="text-green-400" /> {saving ? 'PROCESSING...' : 'AUTHORIZE & LOG REGISTRY'}
                                         </button>
                                         <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest italic leading-relaxed">
-                                            By authorizing, you acknowledge this revision will be permanently logged <br/> against project {formData.projectCode}
+                                            By authorizing, you acknowledge this revision will be permanently logged <br /> against project {formData.projectCode}
                                         </p>
                                     </div>
                                 </div>
@@ -702,7 +754,7 @@ export default function CreateProject() {
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Type *</label><select name="projectType" value={formData.projectType || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none"><option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option></select></div>
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Formal Title *</label><input name="title" value={formData.title || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Client Partner</label><select name="clientId" value={formData.clientId || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none"><option value="">TBD / Global</option>{lookups.clients.map(c => <option key={c.id} value={String(c.id)}>{c.clientName}</option>)}</select></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Client Partner</label><select name="clientId" value={formData.clientId || ""} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none"><option value="">TBD</option>{lookups.clients.map(c => <option key={c.id} value={String(c.id)}>{c.clientName}</option>)}</select></div>
                     </div>
                 </div>
 

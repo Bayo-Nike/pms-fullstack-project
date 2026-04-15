@@ -534,14 +534,6 @@
 
 
 
-
-
-
-
-
-
-
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -602,7 +594,7 @@ const ProjectDetails = () => {
                 ]);
                 // setProject(pRes.data.data);
                 const rawProject = pRes.data.data;
-            
+
                 // Calculate total days on the fly
                 const extensions = rawProject.extensions || [];
                 const totalDays = extensions.reduce((sum, ext) => sum + (Number(ext.extendedDays) || 0), 0);
@@ -660,44 +652,122 @@ const ProjectDetails = () => {
         }));
     }, [project]);
 
+//     const handleTaskAction = async (e) => {
+//         e.preventDefault();
+//         try {
+//             const formData = new FormData();
+//             formData.append("taskName", taskFormData.taskName.trim());
+//             formData.append("taskCost", taskFormData.taskCost ? parseFloat(taskFormData.taskCost) : 0.0);
+//             formData.append("projectId", Number(id));
+
+//             taskFormData.employeeIds.forEach(e => formData.append("employeeIds", Number(e)));
+//             taskFormData.locationIds.forEach(l => formData.append("locationIds", Number(l)));
+
+//             if (taskFormData.startDate) formData.append("startDate", taskFormData.startDate);
+//             if (taskFormData.endDate) formData.append("endDate", taskFormData.endDate);
+//             if (taskFormData.description) formData.append("description", taskFormData.description);
+
+//             formData.append("status", taskFormData.status);
+//             formData.append("priority", taskFormData.priority);
+//             formData.append("weight", taskFormData.weight ? parseFloat(taskFormData.weight) : 0.0);
+
+//             if (taskFormData.latitude) formData.append("latitude", parseFloat(taskFormData.latitude));
+//             if (taskFormData.longitude) formData.append("longitude", parseFloat(taskFormData.longitude));
+
+//             // if (taskFormData.supportDocument) {
+//             //     formData.append("supportDocument", taskFormData.supportDocument);
+//             // }
+//             if (supportDocument instanceof File) {
+//                 formData.append("supportDocument", supportDocument);
+//             }
+
+//             console.log("===== FORMDATA DEBUG =====");
+
+// for (let [key, value] of formData.entries()) {
+//     console.log(key, value);
+// }
+
+// console.log("supportDocument state:", supportDocument);
+// console.log("editingTask:", editingTask);
+
+//             if (editingTask?.id) {
+//                 await taskApi.UPDATE_TASK(editingTask.id, formData);
+//             } else {
+//                 await taskApi.CREATE_TASK(formData);
+//             }
+
+//             const tRes = await taskApi.GET_TASKS_BY_PROJECT(id);
+//             setTasks(tRes.data.data || []);
+//             setIsTaskModalOpen(false);
+//             setAlert({ show: true, type: 'success', message: 'Task configuration synchronized.' });
+//         } catch (err) {
+//             setAlert({ show: true, type: 'error', message: 'Sync failed: Check inputs.' });
+//         }
+//     };
+
     const handleTaskAction = async (e) => {
         e.preventDefault();
+
         try {
             const formData = new FormData();
-            formData.append("taskName", taskFormData.taskName.trim());
-            formData.append("taskCost", taskFormData.taskCost ? parseFloat(taskFormData.taskCost) : 0.0);
-            formData.append("projectId", Number(id));
 
-            taskFormData.employeeIds.forEach(e => formData.append("employeeIds", Number(e)));
-            taskFormData.locationIds.forEach(l => formData.append("locationIds", Number(l)));
+            // BUILD DTO OBJECT (THIS IS WHAT BACKEND EXPECTS)
+            const dto = {
+                taskName: taskFormData.taskName.trim(),
+                taskCost: taskFormData.taskCost ? parseFloat(taskFormData.taskCost) : 0.0,
+                projectId: Number(id),
+                employeeIds: taskFormData.employeeIds || [],
+                locationIds: taskFormData.locationIds || [],
+                startDate: taskFormData.startDate || null,
+                endDate: taskFormData.endDate || null,
+                description: taskFormData.description || "",
+                status: taskFormData.status,
+                priority: taskFormData.priority,
+                weight: taskFormData.weight ? parseFloat(taskFormData.weight) : 0.0,
+                latitude: taskFormData.latitude ? parseFloat(taskFormData.latitude) : null,
+                longitude: taskFormData.longitude ? parseFloat(taskFormData.longitude) : null
+            };
 
-            if (taskFormData.startDate) formData.append("startDate", taskFormData.startDate);
-            if (taskFormData.endDate) formData.append("endDate", taskFormData.endDate);
-            if (taskFormData.description) formData.append("description", taskFormData.description);
+            // SEND DTO AS JSON BLOB (MANDATORY FOR @RequestPart)
+            formData.append(
+                "data",
+                new Blob([JSON.stringify(dto)], {
+                    type: "application/json"
+                })
+            );
 
-            formData.append("status", taskFormData.status);
-            formData.append("priority", taskFormData.priority);
-            formData.append("weight", taskFormData.weight ? parseFloat(taskFormData.weight) : 0.0);
-
-            if (taskFormData.latitude) formData.append("latitude", parseFloat(taskFormData.latitude));
-            if (taskFormData.longitude) formData.append("longitude", parseFloat(taskFormData.longitude));
-
-            if (taskFormData.supportDocument) {
-                formData.append("supportDocument", taskFormData.supportDocument);
+            // OPTIONAL FILE
+            if (supportDocument instanceof File) {
+                formData.append("supportDocument", supportDocument);
             }
 
-            if (editingTask) {
+            // API CALL
+            if (editingTask?.id) {
                 await taskApi.UPDATE_TASK(editingTask.id, formData);
             } else {
                 await taskApi.CREATE_TASK(formData);
             }
 
+            // REFRESH LIST
             const tRes = await taskApi.GET_TASKS_BY_PROJECT(id);
             setTasks(tRes.data.data || []);
+
             setIsTaskModalOpen(false);
-            setAlert({ show: true, type: 'success', message: 'Task configuration synchronized.' });
+
+            setAlert({
+                show: true,
+                type: "success",
+                message: "Task configuration synchronized."
+            });
+
         } catch (err) {
-            setAlert({ show: true, type: 'error', message: 'Sync failed: Check inputs.' });
+            console.error("ERROR:", err?.response?.data || err);
+
+            setAlert({
+                show: true,
+                type: "error",
+                message: err?.response?.data?.message || "Sync failed"
+            });
         }
     };
 
@@ -766,40 +836,40 @@ const ProjectDetails = () => {
                     <span className="text-xs font-black text-slate-700">{project.startDate ? new Date(project.startDate).toLocaleDateString() : 'N/A'}</span>
                 </div>
                 <div className="text-right">
-                <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1">
-                    <AccessTime fontSize="small" /> Project Deadline
-                </p>
-                
-                <div className="flex flex-col items-end">
-                    {project.finalEndDate ? (
-                        <>
-                            {/* The Adjusted Date */}
-                            <span className={`text-sm font-black ${project.totalExtendedDays > 0 ? 'text-amber-600' : 'text-slate-700'}`}>
-                                {new Date(project.finalEndDate).toLocaleDateString()}
-                            </span>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1">
+                        <AccessTime fontSize="small" /> Project Deadline
+                    </p>
 
-                            {/* The Status Badge */}
-                            <div className="flex items-center gap-2 mt-1">
-                                {project.totalExtendedDays > 0 && (
-                                    <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100 uppercase">
-                                        +{project.totalExtendedDays} days Extension
-                                    </span>
-                                )}
-                                
-                                {(() => {
-                                    const today = new Date(); today.setHours(0,0,0,0);
-                                    const end = new Date(project.finalEndDate); end.setHours(0,0,0,0);
-                                    const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-                                    
-                                    if (diff > 0) return <span className="text-[9px] text-green-600 font-bold uppercase tracking-tighter">{diff} Days Left</span>;
-                                    if (diff === 0) return <span className="text-[9px] text-amber-500 font-bold uppercase tracking-tighter">Due Today</span>;
-                                    return <span className="text-[9px] text-red-500 font-bold uppercase tracking-tighter">{Math.abs(diff)}d Overdue</span>;
-                                })()}
-                            </div>
-                        </>
-                    ) : "N/A"}
+                    <div className="flex flex-col items-end">
+                        {project.finalEndDate ? (
+                            <>
+                                {/* The Adjusted Date */}
+                                <span className={`text-sm font-black ${project.totalExtendedDays > 0 ? 'text-amber-600' : 'text-slate-700'}`}>
+                                    {new Date(project.finalEndDate).toLocaleDateString()}
+                                </span>
+
+                                {/* The Status Badge */}
+                                <div className="flex items-center gap-2 mt-1">
+                                    {project.totalExtendedDays > 0 && (
+                                        <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100 uppercase">
+                                            +{project.totalExtendedDays} days Extension
+                                        </span>
+                                    )}
+
+                                    {(() => {
+                                        const today = new Date(); today.setHours(0, 0, 0, 0);
+                                        const end = new Date(project.finalEndDate); end.setHours(0, 0, 0, 0);
+                                        const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+                                        if (diff > 0) return <span className="text-[9px] text-green-600 font-bold uppercase tracking-tighter">{diff} Days Left</span>;
+                                        if (diff === 0) return <span className="text-[9px] text-amber-500 font-bold uppercase tracking-tighter">Due Today</span>;
+                                        return <span className="text-[9px] text-red-500 font-bold uppercase tracking-tighter">{Math.abs(diff)}d Overdue</span>;
+                                    })()}
+                                </div>
+                            </>
+                        ) : "N/A"}
+                    </div>
                 </div>
-            </div>
             </div>
 
             {/* Panels */}
@@ -863,9 +933,9 @@ const ProjectDetails = () => {
                                                     const today = new Date(); today.setHours(0, 0, 0, 0);
                                                     const end = new Date(task.endDate); end.setHours(0, 0, 0, 0);
                                                     const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-                                                    return diffDays > 0 ? <span className="text-green-600">{diffDays}d left</span> :
+                                                    return diffDays > 0 ? <span className="text-green-600">{diffDays} days left</span> :
                                                         diffDays === 0 ? <span className="text-amber-500">Today</span> :
-                                                            <span className="text-red-500">{Math.abs(diffDays)}d overdue</span>;
+                                                            <span className="text-red-500">{Math.abs(diffDays)} days overdue</span>;
                                                 })()}
                                             </span>
                                         </div>
@@ -883,7 +953,13 @@ const ProjectDetails = () => {
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button onClick={() => setViewingTask(task)} className="p-1.5 text-slate-400 hover:text-emerald-600"><Visibility style={{ fontSize: 18 }} /></button>
                                             {(can('CAN_EDIT_TASK') || can('CAN_UPDATE_TASK')) && (
-                                                <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task }); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7]"><Edit style={{ fontSize: 18 }} /></button>
+                                                <button onClick={() => {
+                                                    setEditingTask(task); setTaskFormData({
+                                                        ...task, employeeIds: task.employeeIds || [],
+                                                        locationIds: task.locationIds || [],
+                                                        
+                                                    }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true);
+                                                }} className="p-1.5 text-slate-400 hover:text-[#0284C7]"><Edit style={{ fontSize: 18 }} /></button>
                                             )}
                                             {can('CAN_DELETE_TASK') && (
                                                 <button onClick={() => setDeleteConfig({ show: true, id: task.id, taskName: task.taskName })} className="p-1.5 text-slate-400 hover:text-red-500"><Delete style={{ fontSize: 18 }} /></button>
@@ -959,8 +1035,8 @@ const ProjectDetails = () => {
                                     <div className="p-4 bg-slate-50 rounded-2xl border space-y-3">
                                         <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase"><Explore style={{ fontSize: 16 }} /> Coordinates (Optional)</div>
                                         <div className="grid grid-cols-2 gap-3">
-                                            <input placeholder="LAT" value={taskFormData.latitude} onChange={e => setTaskFormData({ ...taskFormData, latitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono" />
-                                            <input placeholder="LNG" value={taskFormData.longitude} onChange={e => setTaskFormData({ ...taskFormData, longitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono" />
+                                            <input placeholder="LAT" value={taskFormData.latitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, latitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono" />
+                                            <input placeholder="LNG" value={taskFormData.longitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, longitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono" />
                                         </div>
                                     </div>
                                 </div>
@@ -983,7 +1059,7 @@ const ProjectDetails = () => {
                                     <div className="bg-white rounded-2xl border p-6 space-y-4">
                                         <div className="flex items-center gap-1 text-[11px] font-bold uppercase text-slate-400"><Description fontSize="small" /> Verification Artifact</div>
                                         <div className="border-2 border-dashed rounded-[28px] p-8 text-center relative cursor-pointer group bg-slate-50/20">
-                                            <input type="file" onChange={(e) => { const f = e.target.files[0]; setSupportDocument(f); setTaskFormData(p => ({ ...p, supportDocument: f })); }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                            <input type="file" onChange={(e) => {const f = e.target.files[0]; setSupportDocument(f);}} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <UploadFile className="text-slate-100 group-hover:text-[#0284C7] mb-2" style={{ fontSize: 32 }} />
                                             <p className="text-[10px] font-bold text-slate-500 group-hover:text-[#0284C7] uppercase">Upload Verification Doc</p>
                                         </div>
@@ -998,7 +1074,7 @@ const ProjectDetails = () => {
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Detailed Scope</label><textarea rows="4" value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-sm font-medium resize-none" placeholder="Explain the execution plan..."></textarea></div>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-bold uppercase text-[10px] shadow-xl hover:bg-[#016da3] transition-all">Synchronize Task Registry</button>
+                            <button type="submit" className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-bold uppercase text-[10px] shadow-xl hover:bg-[#016da3] transition-all">Update Task</button>
                         </form>
                     </div>
                 </div>

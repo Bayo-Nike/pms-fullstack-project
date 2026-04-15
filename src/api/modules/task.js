@@ -14,6 +14,7 @@ const taskApi = {
             "Content-Type": "multipart/form-data",
         },
     }),
+    
     DELETE_TASK: (id) => api.delete(`/tasks/${id}`),
     GET_TASKS: (params) => api.get("/tasks", { params }),
 };
