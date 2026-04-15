@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class ProjectExtensionDTO {
 
+    private Long id;
     private int extendedDays;
     private LocalDate previousEndDate;
     private LocalDate newEndDate;

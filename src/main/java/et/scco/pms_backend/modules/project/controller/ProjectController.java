@@ -103,4 +103,20 @@ public class ProjectController {
         ProjectResponseDTO response = projectService.extendProject(id, request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{projectId}/extensions/{extensionId}")
+    public ResponseEntity<?> deleteLastExtension(@PathVariable Long projectId, @PathVariable Long extensionId) {
+        
+        try {
+            projectService.deleteLastExtension(projectId, extensionId);
+            return ResponseEntity.ok("Timeline reverted successfully");
+        } catch (IllegalStateException e) {
+            // This happens if the user tries to delete a record that isn't the latest
+            return ResponseEntity.status(400).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal server error during reversion");
+        }
+    }
+
+    
 }

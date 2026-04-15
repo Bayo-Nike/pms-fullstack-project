@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,11 +36,12 @@ public class TaskController {
 
     
     @PostMapping(consumes = "multipart/form-data") //multipart/form-data cannot be parsed by @RequestBody else @ModelAttribute
-    public ApiResponse<TaskResponseDTO> createTask(@ModelAttribute CreateTaskRequestDTO dto) {
+    public ApiResponse<TaskResponseDTO> createTask(@RequestPart("data") CreateTaskRequestDTO dto,
+    @RequestPart(value = "supportDocument", required = false) MultipartFile file) {
 
         return ResponseUtil.success(
                 "Task created successfully",
-                taskService.createTask(dto)
+                taskService.createTask(dto, file)
         );
     }
 
@@ -66,15 +68,28 @@ public class TaskController {
     }
 
     // Build Update Contractor REST API
+    // @PutMapping(value = "{id}", consumes = "multipart/form-data")
+    // // @PutMapping("/{id}")
+    // public ApiResponse<TaskResponseDTO> updateTask(
+    //         @PathVariable Long id,
+    //         @ModelAttribute CreateTaskRequestDTO dto) {
+    //             System.out.println("Edit Time");
+
+    //     return ResponseUtil.success(
+    //             "Task updated successfully",
+    //             taskService.updateTask(id, dto)
+    //     );
+    // }
+
     @PutMapping(value = "{id}", consumes = "multipart/form-data")
-    // @PutMapping("/{id}")
     public ApiResponse<TaskResponseDTO> updateTask(
             @PathVariable Long id,
-            @ModelAttribute CreateTaskRequestDTO dto) {
-
+            @RequestPart("data") CreateTaskRequestDTO dto,
+            @RequestPart(value = "supportDocument", required = false) MultipartFile file
+    ) {
         return ResponseUtil.success(
                 "Task updated successfully",
-                taskService.updateTask(id, dto)
+                taskService.updateTask(id, dto,file)
         );
     }
 

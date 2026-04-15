@@ -18,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,13 +39,14 @@ public class TaskServiceImpl implements TaskService {
 
     // ---------------- Create Task ----------------
     @Override
-    public TaskResponseDTO createTask(CreateTaskRequestDTO dto) {
+    public TaskResponseDTO createTask(CreateTaskRequestDTO dto, MultipartFile file) {
 
         Task task = mapToEntity(dto);
-        if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+        // if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             String fileName = null;
             try {
-                fileName = fileStorageService.storeFile(dto.getSupportDocument());
+                fileName = fileStorageService.storeFile(file);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -57,15 +59,17 @@ public class TaskServiceImpl implements TaskService {
 
     // ---------------- Update Task ----------------
     @Override
-    public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto) {
+    // public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto) {
+    public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto, MultipartFile file){
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId)); 
 
         // Only update file if a new one is uploaded
-        if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+        // if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
+            if (file != null && !file.isEmpty()) {
             String fileName = null;
             try {
-                fileName = fileStorageService.storeFile(dto.getSupportDocument());
+                fileName = fileStorageService.storeFile(file);
             } catch (Exception e) {
                 e.printStackTrace();
             }

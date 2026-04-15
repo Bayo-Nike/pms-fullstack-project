@@ -252,6 +252,7 @@ public class ProjectServiceImpl implements ProjectService {
             List<ProjectExtensionDTO> extensionDTOs = project.getExtensions().stream()
                 .map(ext -> {
                     ProjectExtensionDTO extDto = new ProjectExtensionDTO();
+                    extDto.setId(ext.getId());
                     extDto.setExtendedDays(ext.getExtendedDays());
                     extDto.setReason(ext.getReason());
                     extDto.setPreviousEndDate(ext.getPreviousEndDate());
@@ -388,6 +389,23 @@ public class ProjectServiceImpl implements ProjectService {
         project.getExtensions().add(extension);
         // Return updated project
         return mapToResponse(project);
+    }
+
+    @Transactional
+    public void deleteLastExtension(Long projectId, Long extensionId) {
+        Project project = projectRepository.findById(projectId).orElseThrow();
+        // 1. Get the latest extension
+        ProjectExtension lastExtension = projectExtensionRepository.findTopByProjectIdOrderByIdDesc(projectId)
+            .orElseThrow(() -> new RuntimeException("No extensions found"));
+        // 2. Security Check: Only allow deleting the actual last record
+        if (!lastExtension.getId().equals(extensionId)) {
+            throw new RuntimeException("Only the most recent extension can be reverted for data integrity.");
+        }
+        // 3. Revert Project End Date to what it was BEFORE this extension
+        project.setEndDate(lastExtension.getPreviousEndDate());
+        // 4. Delete the record and save project
+        projectExtensionRepository.delete(lastExtension);
+        projectRepository.save(project);
     }
 
     private LocalDate getFinalEndDate(Project project) {

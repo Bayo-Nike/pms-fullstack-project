@@ -7,12 +7,14 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface TaskService {
 
-    TaskResponseDTO createTask(CreateTaskRequestDTO dto);
+    TaskResponseDTO createTask(CreateTaskRequestDTO dto, MultipartFile file);
 
-    TaskResponseDTO updateTask(Long id, CreateTaskRequestDTO dto);
+    // TaskResponseDTO updateTask(Long id, CreateTaskRequestDTO dto);
+    TaskResponseDTO updateTask(Long id, CreateTaskRequestDTO dto, MultipartFile file);
 
     TaskResponseDTO getTask(Long id);
 
