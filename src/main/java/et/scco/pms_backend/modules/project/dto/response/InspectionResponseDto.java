@@ -33,4 +33,9 @@ public class InspectionResponseDto {
     private String inspectionResult;
 
     private Long activeWorkers;
+
+    private String latitude;
+    private String longitude;
+
+    private String inspectionDocumentUrl;
 }

@@ -8,7 +8,10 @@ import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -20,10 +23,14 @@ public class InspectionController {
     private final InspectionService inspectionService;
 
     @GetMapping
-    public ApiResponse<Page<InspectionResponseDto>> getAllInspections(Pageable pageable) {
+    public ApiResponse<Page<InspectionResponseDto>> getAllInspections(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long subCityId,
+            Pageable pageable) {
+
         return ResponseUtil.success(
-                "Inspection records fetched successfully",
-                inspectionService.getAllInspections(pageable)
+                "Inspections fetched successfully",
+                inspectionService.getAllInspections(search, subCityId, pageable)
         );
     }
 
@@ -35,22 +42,25 @@ public class InspectionController {
         );
     }
 
-    @PostMapping
-    public ApiResponse<InspectionResponseDto> createInspection(@RequestBody InspectionRequestDto dto) {
-        return ResponseUtil.success(
-                "Inspection recorded successfully",
-                inspectionService.createInspection(dto)
-        );
+    private final ObjectMapper objectMapper;
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<InspectionResponseDto> createInspection(
+            @RequestPart("data") String dataJson,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
+        InspectionRequestDto dto = objectMapper.readValue(dataJson, InspectionRequestDto.class);
+        return ResponseUtil.success("Inspection recorded", inspectionService.createInspection(dto, files));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<InspectionResponseDto> updateInspection(
             @PathVariable Long id,
-            @RequestBody InspectionRequestDto dto) {
-        return ResponseUtil.success(
-                "Inspection updated successfully",
-                inspectionService.updateInspection(id, dto)
-        );
+            @RequestPart("data") String dataJson,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
+        InspectionRequestDto dto = objectMapper.readValue(dataJson, InspectionRequestDto.class);
+        return ResponseUtil.success("Inspection updated", inspectionService.updateInspection(id, dto, files));
     }
 
     @DeleteMapping("/{id}")

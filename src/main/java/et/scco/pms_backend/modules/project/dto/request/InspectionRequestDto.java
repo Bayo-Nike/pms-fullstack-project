@@ -6,6 +6,19 @@ import lombok.Data;
 
 import java.time.LocalDate;
 
+//@Data
+//public class InspectionRequestDto {
+//    private Long inspectionTypeId;
+//    private InspectionLevel inspectionLevel;
+//    private WeatherCondition weatherCondition;
+//    private Long projectId;
+//    private Long taskId;
+//    private LocalDate inspectionDate;
+//    private String inspectionResult;
+//    private Long activeWorkers;
+//}
+
+
 @Data
 public class InspectionRequestDto {
     private Long inspectionTypeId;
@@ -16,4 +29,6 @@ public class InspectionRequestDto {
     private LocalDate inspectionDate;
     private String inspectionResult;
     private Long activeWorkers;
+    private String latitude;
+    private String longitude;
 }

@@ -20,7 +20,6 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "inspections")
 public class Inspection {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,6 +35,7 @@ public class Inspection {
     @Enumerated(EnumType.STRING)
     @Column(name = "weather_condition")
     private WeatherCondition weatherCondition;
+
     @Column(name = "active_workers")
     private Long activeWorkers;
 
@@ -55,4 +55,10 @@ public class Inspection {
 
     @Column(length = 1000)
     private String inspectionResult;
+
+    private String latitude;
+
+    private String longitude;
+
+    private String inspectionDocumentUrl;
 }
