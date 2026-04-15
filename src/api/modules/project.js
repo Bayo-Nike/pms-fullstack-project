@@ -18,15 +18,24 @@ const projectApi = {
 
 
 
-    // Additional endpoints for project-specific data
     GET_INSPECTION_LOGS: (params) => api.get("/admin/inspections", { params }),
+
     GET_INSPECTION_LOG: (id) => api.get(`/admin/inspections/${id}`),
-    CREATE_INSPECTION_LOG: (data) => api.post("/admin/inspections", data),
-    UPDATE_INSPECTION_LOG: (id, data) => api.put(`/admin/inspections/${id}`, data),
+
+    CREATE_INSPECTION_LOG: (formData) => api.post("/admin/inspections", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    }),
+
+    UPDATE_INSPECTION_LOG: (id, formData) => api.put(`/admin/inspections/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+    }),
+
+    DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
+
+
+
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
-
-
 
     // Project Cost Transactional APIs
     // Project Cost History
