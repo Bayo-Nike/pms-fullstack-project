@@ -20,6 +20,7 @@ public class ProjectResponseDTO {
 
     private ProjectLevel projectLevel;
     private ProjectType projectType;
+    private Category category;
 
     private Long cityId;
     private String cityName;
@@ -58,5 +59,4 @@ public class ProjectResponseDTO {
 
     private List<Long> employeeIds;
     private List<String> employeeNames;
-
 }

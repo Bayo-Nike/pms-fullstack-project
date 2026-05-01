@@ -46,11 +46,11 @@ public class ProjectController {
         return ResponseUtil.success("Project fetched successfully", project);
     }
 
-    @PostMapping
-    public ApiResponse<ProjectResponseDTO> createProject(@RequestBody CreateProjectRequestDTO dto) {
-        ProjectResponseDTO project = projectService.createProject(dto);
-        return ResponseUtil.success("Project created successfully", project);
-    }
+//    @PostMapping
+//    public ApiResponse<ProjectResponseDTO> createProject(@RequestBody CreateProjectRequestDTO dto) {
+//        ProjectResponseDTO project = projectService.createProject(dto);
+//        return ResponseUtil.success("Project created successfully", project);
+//    }
 
     @PutMapping("/{id}")
     public ApiResponse<ProjectResponseDTO> updateProject(@PathVariable Long id,
@@ -65,35 +65,35 @@ public class ProjectController {
         return ResponseUtil.success("Project deleted successfully", null);
     }
 
-    @PatchMapping("/{id}/status")
-    public ApiResponse<ProjectResponseDTO> updateStatus(@PathVariable Long id,
-                                                        @RequestParam String status) {
-        ProjectResponseDTO project = projectService.updateStatus(id, status);
-        return ResponseUtil.success("Project status updated", project);
-    }
+//    @PatchMapping("/{id}/status")
+//    public ApiResponse<ProjectResponseDTO> updateStatus(@PathVariable Long id,
+//                                                        @RequestParam String status) {
+//        ProjectResponseDTO project = projectService.updateStatus(id, status);
+//        return ResponseUtil.success("Project status updated", project);
+//    }
+//
+//    @PatchMapping("/{id}/priority")
+//    public ApiResponse<ProjectResponseDTO> updatePriority(@PathVariable Long id,
+//                                                          @RequestParam String priority) {
+//        ProjectResponseDTO project = projectService.updatePriority(id, priority);
+//        return ResponseUtil.success("Project priority updated", project);
+//    }
 
-    @PatchMapping("/{id}/priority")
-    public ApiResponse<ProjectResponseDTO> updatePriority(@PathVariable Long id,
-                                                          @RequestParam String priority) {
-        ProjectResponseDTO project = projectService.updatePriority(id, priority);
-        return ResponseUtil.success("Project priority updated", project);
-    }
+//    @PatchMapping("/{id}/budget")
+//    public ApiResponse<ProjectResponseDTO> updateBudget(@PathVariable Long id,
+//                                                        @RequestParam Double budget,
+//                                                        @RequestParam Double budgetUsed) {
+//        ProjectResponseDTO project = projectService.updateBudget(id, budget, budgetUsed);
+//        return ResponseUtil.success("Project budget updated", project);
+//    }
 
-    @PatchMapping("/{id}/budget")
-    public ApiResponse<ProjectResponseDTO> updateBudget(@PathVariable Long id,
-                                                        @RequestParam Double budget,
-                                                        @RequestParam Double budgetUsed) {
-        ProjectResponseDTO project = projectService.updateBudget(id, budget, budgetUsed);
-        return ResponseUtil.success("Project budget updated", project);
-    }
-
-    @PatchMapping("/{id}/timeline")
-    public ApiResponse<ProjectResponseDTO> updateTimeline(@PathVariable Long id,
-                                                          @RequestParam LocalDate startDate,
-                                                          @RequestParam LocalDate endDate) {
-        ProjectResponseDTO project = projectService.updateTimeline(id, startDate, endDate);
-        return ResponseUtil.success("Project timeline updated", project);
-    }
+//    @PatchMapping("/{id}/timeline")
+//    public ApiResponse<ProjectResponseDTO> updateTimeline(@PathVariable Long id,
+//                                                          @RequestParam LocalDate startDate,
+//                                                          @RequestParam LocalDate endDate) {
+//        ProjectResponseDTO project = projectService.updateTimeline(id, startDate, endDate);
+//        return ResponseUtil.success("Project timeline updated", project);
+//    }
 
     @PostMapping("/{id}/extend")
     public ResponseEntity<?> extendProject(

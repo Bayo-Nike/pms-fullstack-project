@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.admin.model;
 
 import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.enums.TaskTypeProjectStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,9 @@ public class TaskType {
 
     @Enumerated(EnumType.STRING)
     private ProjectType projectType;
+
+    @Enumerated(EnumType.STRING)
+    private TaskTypeProjectStatus taskTypeProjectStatus;
 
     private String description;
 }
