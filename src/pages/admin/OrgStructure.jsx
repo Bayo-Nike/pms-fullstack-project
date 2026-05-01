@@ -88,12 +88,25 @@
 
 //     useEffect(() => {
 //         const fetchAll = async () => {
+//             setLoading(true);
 //             try {
-//                 const [cityRes, subRes, divRes, posRes, locRes, empRes, projRes] = await Promise.all([
+//                 // 1. Fetch Admin Data (These usually work fine)
+//                 const [cityRes, subRes, divRes, posRes, locRes, empRes] = await Promise.all([
 //                     adminApi.GET_CITY(), adminApi.GET_SUB_CITIES(), adminApi.GET_DIVISIONS(),
-//                     adminApi.GET_POSITIONS(), adminApi.GET_LOCATIONS(), adminApi.GET_EMPLOYEES(),
-//                     projectApi.GET_PROJECTS({ size: 5000 })
+//                     adminApi.GET_POSITIONS(), adminApi.GET_LOCATIONS(), adminApi.GET_EMPLOYEES()
 //                 ]);
+
+//                 // 2. Fetch Projects SEPARATELY with a very small size to test
+//                 let projects = [];
+//                 try {
+//                     // Try with a very small size first to see if it's a backend limit
+//                     const projRes = await projectApi.GET_PROJECTS({ size: 100, page: 0 });
+//                     projects = projRes.data?.data?.content || projRes.data?.content || [];
+//                 } catch (projErr) {
+//                     console.error("Project fetch failed specifically:", projErr);
+//                     // If it fails, projects remains an empty array so UI doesn't crash
+//                 }
+
 //                 setData({
 //                     city: cityRes.data?.data || cityRes.data,
 //                     subCities: subRes.data?.data || subRes.data || [],
@@ -101,18 +114,15 @@
 //                     positions: posRes.data?.data || posRes.data || [],
 //                     locations: locRes.data?.data || locRes.data || [],
 //                     employees: empRes.data?.data || empRes.data || [],
-//                     projects: projRes.data?.data?.content || []
+//                     projects: projects
 //                 });
 
-//                 // --- INITIAL SCROLL POSITION ---
-//                 // Wait for render, then scroll down a bit to allow "Up" dragging
-//                 setTimeout(() => {
-//                     if (viewportRef.current) {
-//                         viewportRef.current.scrollTop = 150;
-//                     }
-//                 }, 500);
-
-//             } catch (err) { console.error(err); } finally { setLoading(false); }
+//             } catch (err) {
+//                 console.error("Critical Data Fetch Error:", err);
+//             } finally {
+//                 setLoading(false);
+//                 setTimeout(() => { if (viewportRef.current) viewportRef.current.scrollTop = 150; }, 500);
+//             }
 //         };
 //         fetchAll();
 //     }, []);
@@ -143,7 +153,7 @@
 //         switch (activeTab) {
 //             case 'GEO':
 //                 return {
-//                     label: city.name || city, type: "Capital City", icon: LocationCity, color: "bg-slate-900",
+//                     label: "Construction Office" || city, type: "Shaggar City", icon: LocationCity, color: "bg-slate-900",
 //                     empCount: employees.length, projCount: projects.length,
 //                     children: subCities.map(s => ({
 //                         label: s.name, type: "Sub-City", icon: Apartment, color: "bg-[#FBAF1E]",
@@ -153,19 +163,19 @@
 //                 };
 //             case 'DIV':
 //                 return {
-//                     label: "Organizational Units", type: "City Admin", icon: Business, color: "bg-purple-900",
+//                     label: "Construction Office", type: "Shaggar City", icon: Business, color: "bg-purple-900",
 //                     empCount: employees.length, projCount: projects.length,
 //                     children: buildTree(divisions, null, "Division", Business, "bg-purple-600")
 //                 };
 //             case 'POS':
 //                 return {
-//                     label: "Professional Hierarchy", type: "Reporting Line", icon: Hub, color: "bg-blue-900",
+//                     label: "Construction Office", type: "Shaggar City", icon: Hub, color: "bg-blue-900",
 //                     empCount: employees.length,
 //                     children: buildTree(positions, null, "Position", Work, "bg-blue-600")
 //                 };
 //             case 'LOC':
 //                 return {
-//                     label: city.name || city, type: "Jurisdiction", icon: LocationCity, color: "bg-slate-900",
+//                     label: "Construction Office", type: "Shaggar City", icon: LocationCity, color: "bg-slate-900",
 //                     empCount: employees.length, projCount: projects.length,
 //                     children: subCities.map(s => ({
 //                         label: s.name, type: "Sub-City Hub", icon: Apartment, color: "bg-[#FBAF1E]",
@@ -215,7 +225,6 @@
 //                 onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={stopDragging} onMouseLeave={stopDragging}
 //                 className={`flex-1 overflow-auto no-scrollbar ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
 //             >
-//                 {/* --- THE FIX: Large Vertical Padding (py-80) creates space to drag UP --- */}
 //                 <div
 //                     style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
 //                     className="flex justify-center min-w-max transition-transform duration-200 py-80 px-96"
@@ -241,6 +250,10 @@
 
 
 
+
+
+
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
     LocationCity, Apartment, AccountTree, Work, PinDrop,
@@ -252,12 +265,14 @@ import projectApi from '../../api/modules/project';
 
 // --- Micro Node Component ---
 const TreeNode = ({ label, empCount, projCount, type, children, color, icon: Icon }) => {
-    const [isOpen, setIsOpen] = useState(true);
+    // 1. Start collapsed
+    const [isOpen, setIsOpen] = useState(false);
     const hasChildren = children && children.length > 0;
 
     return (
         <div className="flex flex-col items-center">
-            <div className={`relative flex flex-col items-center p-2 rounded-xl border bg-white shadow-sm transition-all w-36 z-10 ${isOpen ? 'border-slate-200' : 'border-slate-100 opacity-60'}`}>
+            {/* 2. Removed opacity/conditional border - kept standard border for full focus */}
+            <div className={`relative flex flex-col items-center p-2 rounded-xl border bg-white shadow-sm transition-all w-36 z-10 border-slate-200`}>
                 <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-1 shadow-sm ${color}`}>
                     <Icon style={{ fontSize: 14, color: '#fff' }} />
                 </div>
@@ -333,21 +348,17 @@ export default function OrgStructure() {
         const fetchAll = async () => {
             setLoading(true);
             try {
-                // 1. Fetch Admin Data (These usually work fine)
                 const [cityRes, subRes, divRes, posRes, locRes, empRes] = await Promise.all([
                     adminApi.GET_CITY(), adminApi.GET_SUB_CITIES(), adminApi.GET_DIVISIONS(),
                     adminApi.GET_POSITIONS(), adminApi.GET_LOCATIONS(), adminApi.GET_EMPLOYEES()
                 ]);
 
-                // 2. Fetch Projects SEPARATELY with a very small size to test
                 let projects = [];
                 try {
-                    // Try with a very small size first to see if it's a backend limit
                     const projRes = await projectApi.GET_PROJECTS({ size: 100, page: 0 });
                     projects = projRes.data?.data?.content || projRes.data?.content || [];
                 } catch (projErr) {
                     console.error("Project fetch failed specifically:", projErr);
-                    // If it fails, projects remains an empty array so UI doesn't crash
                 }
 
                 setData({
@@ -370,11 +381,6 @@ export default function OrgStructure() {
         fetchAll();
     }, []);
 
-    // Reset scroll when changing tabs
-    useEffect(() => {
-        if (viewportRef.current) viewportRef.current.scrollTop = 150;
-    }, [activeTab]);
-
     const buildTree = (items, parentId, type, icon, color) => {
         return items
             .filter(item => item.parentId === parentId)
@@ -389,57 +395,54 @@ export default function OrgStructure() {
             }));
     };
 
-    const treeData = useMemo(() => {
+    // Prepare all tree structures independently
+    const trees = useMemo(() => {
         const { city, subCities, divisions, positions, locations, employees, projects } = data;
-        if (!city) return null;
+        if (!city) return {};
 
-        switch (activeTab) {
-            case 'GEO':
-                return {
-                    label: city.name || city, type: "Capital City", icon: LocationCity, color: "bg-slate-900",
-                    empCount: employees.length, projCount: projects.length,
-                    children: subCities.map(s => ({
-                        label: s.name, type: "Sub-City", icon: Apartment, color: "bg-[#FBAF1E]",
-                        empCount: employees.filter(e => e.subCityId === s.id).length,
-                        projCount: projects.filter(p => p.subCityId === s.id).length
+        return {
+            GEO: {
+                label: "Construction Office", type: "Shaggar City", icon: LocationCity, color: "bg-slate-900",
+                empCount: employees.length, projCount: projects.length,
+                children: subCities.map(s => ({
+                    label: s.name, type: "Sub-City", icon: Apartment, color: "bg-[#FBAF1E]",
+                    empCount: employees.filter(e => e.subCityId === s.id).length,
+                    projCount: projects.filter(p => p.subCityId === s.id).length
+                }))
+            },
+            DIV: {
+                label: "Construction Office", type: "Shaggar City", icon: Business, color: "bg-purple-900",
+                empCount: employees.length, projCount: projects.length,
+                children: buildTree(divisions, null, "Division", Business, "bg-purple-600")
+            },
+            POS: {
+                label: "Construction Office", type: "Shaggar City", icon: Hub, color: "bg-blue-900",
+                empCount: employees.length,
+                children: buildTree(positions, null, "Position", Work, "bg-blue-600")
+            },
+            LOC: {
+                label: "Construction Office", type: "Shaggar City", icon: LocationCity, color: "bg-slate-900",
+                empCount: employees.length, projCount: projects.length,
+                children: subCities.map(s => ({
+                    label: s.name, type: "Sub-City Hub", icon: Apartment, color: "bg-[#FBAF1E]",
+                    empCount: employees.filter(e => e.subCityId === s.id).length,
+                    projCount: projects.filter(p => p.subCityId === s.id).length,
+                    children: locations.filter(l => l.subCityId === s.id).map(loc => ({
+                        label: loc.name, type: "Project Site", icon: PinDrop, color: "bg-green-600",
+                        empCount: 0,
+                        projCount: projects.filter(p => p.locationIds?.includes(loc.id)).length
                     }))
-                };
-            case 'DIV':
-                return {
-                    label: "Organizational Units", type: "City Admin", icon: Business, color: "bg-purple-900",
-                    empCount: employees.length, projCount: projects.length,
-                    children: buildTree(divisions, null, "Division", Business, "bg-purple-600")
-                };
-            case 'POS':
-                return {
-                    label: "Professional Hierarchy", type: "Reporting Line", icon: Hub, color: "bg-blue-900",
-                    empCount: employees.length,
-                    children: buildTree(positions, null, "Position", Work, "bg-blue-600")
-                };
-            case 'LOC':
-                return {
-                    label: city.name || city, type: "Jurisdiction", icon: LocationCity, color: "bg-slate-900",
-                    empCount: employees.length, projCount: projects.length,
-                    children: subCities.map(s => ({
-                        label: s.name, type: "Sub-City Hub", icon: Apartment, color: "bg-[#FBAF1E]",
-                        empCount: employees.filter(e => e.subCityId === s.id).length,
-                        projCount: projects.filter(p => p.subCityId === s.id).length,
-                        children: locations.filter(l => l.subCityId === s.id).map(loc => ({
-                            label: loc.name, type: "Project Site", icon: PinDrop, color: "bg-green-600",
-                            empCount: 0,
-                            projCount: projects.filter(p => p.locationIds?.includes(loc.id)).length
-                        }))
-                    }))
-                };
-            default: return null;
-        }
-    }, [activeTab, data]);
+                }))
+            }
+        };
+    }, [data]);
 
     if (loading) return <div className="h-[60vh] flex items-center justify-center text-slate-400 italic animate-pulse">Establishing Hierarchical Context...</div>;
 
     return (
         <div className="w-full h-[calc(100vh-140px)] flex flex-col relative overflow-hidden bg-white rounded-[40px] border border-slate-200">
 
+            {/* Tabs */}
             <div className="absolute top-6 left-6 z-[100] flex bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-white shadow-xl">
                 {[
                     { id: 'GEO', label: 'Regional', icon: Apartment },
@@ -457,12 +460,14 @@ export default function OrgStructure() {
                 ))}
             </div>
 
+            {/* Controls */}
             <div className="absolute top-6 right-6 z-[100] flex flex-col gap-2 bg-white/90 backdrop-blur-md p-1.5 rounded-2xl border shadow-xl">
                 <button onClick={() => setZoom(prev => Math.min(prev + 0.1, 2))} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50"><ZoomIn fontSize="small" /></button>
                 <button onClick={() => setZoom(prev => Math.max(prev - 0.1, 0.2))} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50"><ZoomOut fontSize="small" /></button>
                 <button onClick={() => setZoom(0.8)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-50"><RestartAlt fontSize="small" /></button>
             </div>
 
+            {/* Viewport */}
             <div
                 ref={viewportRef}
                 onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={stopDragging} onMouseLeave={stopDragging}
@@ -472,10 +477,16 @@ export default function OrgStructure() {
                     style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}
                     className="flex justify-center min-w-max transition-transform duration-200 py-80 px-96"
                 >
-                    {treeData && <TreeNode {...treeData} />}
+                    {/* Render all trees but only show the active one. 
+                        This preserves the collapse/expand state for each tab independently. */}
+                    <div className={activeTab === 'GEO' ? 'block' : 'hidden'}><TreeNode {...trees.GEO} /></div>
+                    <div className={activeTab === 'DIV' ? 'block' : 'hidden'}><TreeNode {...trees.DIV} /></div>
+                    <div className={activeTab === 'POS' ? 'block' : 'hidden'}><TreeNode {...trees.POS} /></div>
+                    <div className={activeTab === 'LOC' ? 'block' : 'hidden'}><TreeNode {...trees.LOC} /></div>
                 </div>
             </div>
 
+            {/* Legend */}
             <div className="p-3 bg-white border-t border-slate-200 flex justify-center gap-10">
                 <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#0284C7]"></div><span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Total Staff</span></div>
                 <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-[#FBAF1E]"></div><span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Active Projects</span></div>

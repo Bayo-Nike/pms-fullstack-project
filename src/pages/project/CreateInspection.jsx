@@ -340,17 +340,6 @@ export default function CreateInspection() {
                             </div>
                         </div>
                     </div>
-
-                    <div className="p-6 bg-[#0284C7]/5 rounded-[32px] border border-[#0284C7]/10 flex items-center justify-between text-[#0284C7]">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-white border border-[#0284C7]/20 flex items-center justify-center shadow-sm"><Person /></div>
-                            <div>
-                                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Registered Inspector</span>
-                                <span className="text-xs font-black uppercase tracking-wider">@{currentUser?.username || 'user'}</span>
-                            </div>
-                        </div>
-                        <FactCheck className="text-[#0284C7]/20" fontSize="large" />
-                    </div>
                 </div>
             </div>
         </div>

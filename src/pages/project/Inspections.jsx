@@ -4,7 +4,8 @@ import {
     Search, Add, FactCheck, Person,
     ChevronLeft, ChevronRight, Edit, Delete, HelpOutline,
     Visibility, Close, Description, Assignment, Layers, EventNote,
-    MyLocation, WbSunny, Engineering, AttachFile, OpenInNew, Apartment
+    MyLocation, WbSunny, Engineering, AttachFile, OpenInNew, Apartment,
+    CloudDone
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
@@ -215,6 +216,7 @@ export default function Inspections() {
                             <th className="px-8 py-5">Template Type</th>
                             <th className="px-8 py-5">Environment</th>
                             <th className="px-8 py-5 text-right">Date</th>
+                            <th className="px-8 py-5 text-right">File</th>
                             <th className="px-8 py-5 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -241,6 +243,16 @@ export default function Inspections() {
                                     </div>
                                 </td>
                                 <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
+                                <td className="px-6 py-4">
+                                    {log.inspectionDocumentUrl ? (
+                                        <a href={`http://localhost:8080/api/admin/contractors/download/${log.inspectionDocumentUrl}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[#0284C7] hover:text-[#016da3] transition-colors">
+                                            <CloudDone style={{ fontSize: 16 }} />
+                                            <span className="text-[10px] font-bold uppercase tracking-tighter border-b border-sky-200">View File</span>
+                                        </a>
+                                    ) : (
+                                        <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">No Artifact</span>
+                                    )}
+                                </td>
                                 <td className="px-8 py-5 text-right">
                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         {can('CAN_VIEW_INSPECTION') && <button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Details"><Visibility style={{ fontSize: 20 }} /></button>}
