@@ -38,6 +38,7 @@ public class TaskTypeServiceImpl implements TaskTypeService {
         taskType.setName(taskTypeDTO.getName());
         taskType.setProjectType(taskTypeDTO.getProjectType());
         taskType.setDescription(taskTypeDTO.getDescription());
+        taskType.setTaskTypeProjectStatus(taskTypeDTO.getTaskTypeProjectStatus());
 
         return convertToDTO(taskTypeRepository.save(taskType));
     }

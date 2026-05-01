@@ -15,7 +15,7 @@ import lombok.Setter;
 @Setter
 public class CreateTaskRequestDTO {
 
-    private String taskName;
+    private Long taskTypeId;
 
     private Long projectId;
 

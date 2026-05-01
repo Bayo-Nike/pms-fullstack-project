@@ -20,8 +20,9 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "task_name", nullable = false)
-    private String taskName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_type_id", nullable = false)
+    private TaskType taskType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
