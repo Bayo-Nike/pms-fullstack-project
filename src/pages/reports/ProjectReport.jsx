@@ -30,7 +30,7 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     },
     {
       accessorKey: "subCityName",
-      header: "Location",
+      header: "Site",
       cell: info => <div className="flex items-center gap-1.5 text-slate-500 font-medium"><LocationOn className="text-[#FBAF1E]" style={{ fontSize: 16 }} /> {info.getValue()}</div>
     },
     {

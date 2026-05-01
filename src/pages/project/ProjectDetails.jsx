@@ -863,7 +863,7 @@ const ProjectDetails = () => {
 
                                         if (diff > 0) return <span className="text-[9px] text-green-600 font-bold uppercase tracking-tighter">{diff} Days Left</span>;
                                         if (diff === 0) return <span className="text-[9px] text-amber-500 font-bold uppercase tracking-tighter">Due Today</span>;
-                                        return <span className="text-[9px] text-red-500 font-bold uppercase tracking-tighter">{Math.abs(diff)}d Overdue</span>;
+                                        return <span className="text-[9px] text-red-500 font-bold uppercase tracking-tighter">{Math.abs(diff)} days Overdue</span>;
                                     })()}
                                 </div>
                             </>
@@ -1011,7 +1011,7 @@ const ProjectDetails = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 <div className="space-y-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title (Registry Suggestions)</label>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title (Task Name Suggestions)</label>
                                         <div className="relative">
                                             <input list="task-suggestions" value={taskFormData.taskName} onChange={e => {
                                                 const v = e.target.value; setTaskFormData({ ...taskFormData, taskName: v });
@@ -1019,7 +1019,7 @@ const ProjectDetails = () => {
                                                 if (selected) setTaskFormData(prev => ({ ...prev, description: selected.description || prev.description }));
                                             }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 outline-none focus:border-[#0284C7] text-sm font-bold" required />
                                             <datalist id="task-suggestions">
-                                                {filteredSuggestions.map(t => <option key={t.id} value={t.name}>{t.projectType} Registry</option>)}
+                                                {filteredSuggestions.map(t => <option key={t.id} value={t.name}>{t.projectType} Task</option>)}
                                             </datalist>
                                         </div>
                                     </div>

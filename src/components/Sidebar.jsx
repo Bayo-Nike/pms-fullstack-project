@@ -76,7 +76,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/reports/employee', name: 'Employee Report', permission: 'CAN_SEE_EMPLOYEE_REPORT' },
         { path: '/reports/user', name: 'User Report', permission: 'CAN_SEE_USER_REPORT' },
         { path: '/reports/contractor', name: 'Contractor Report', permission: 'CAN_SEE_CONTRACTORS_REPORT' },
-        { path: '/reports/location', name: 'Location Report', permission: 'CAN_SEE_LOCATION_REPORT' },
+        { path: '/reports/location', name: 'Site Report', permission: 'CAN_SEE_LOCATION_REPORT' },
         { path: '/reports/division', name: 'Division Report', permission: 'CAN_SEE_DIVISION_REPORT' },
       ]
     },
@@ -88,7 +88,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/locations', name: 'Locations', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/locations', name: 'Sites', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/task-types', name: 'Task Types', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_SYS_ADMIN' },

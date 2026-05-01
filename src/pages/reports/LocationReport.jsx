@@ -17,7 +17,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
 
   const columns = useMemo(() => [
     { accessorKey: "sno", header: "S/No" },
-    { accessorKey: "locationName", header: "Location Name" },
+    { accessorKey: "locationName", header: "Site Name" },
     { accessorKey: "subCity", header: "Sub-city" },
     { accessorKey: "lat", header: "Latitude" },
     { accessorKey: "lng", header: "Longitude" }
@@ -39,7 +39,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-[400px] text-slate-500">
-        Synchronizing Location Report Engine...
+        Synchronizing Site Report Engine...
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
   if (!data.length) {
     return (
       <div className="flex justify-center items-center h-[400px] text-slate-400">
-        No locations available
+        No sites available
       </div>
     );
   }
@@ -58,7 +58,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
       {/* HEADER */}
       <div className="p-5 border-b flex justify-between items-center">
         <div>
-          <h1 className="text-lg font-bold">Location Master Report</h1>
+          <h1 className="text-lg font-bold">Site Master Report</h1>
           <p className="text-xs text-slate-400">Enterprise GIS Data</p>
         </div>
 
@@ -70,7 +70,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
             <input
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
-              placeholder="Search location..."
+              placeholder="Search site..."
               className="pl-8 pr-3 py-2 border rounded-md text-sm"
             />
           </div>

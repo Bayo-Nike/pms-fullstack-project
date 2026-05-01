@@ -105,7 +105,7 @@ export default function SubCities() {
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-base font-bold text-slate-900 leading-none">Sub-Cities</h1>
-                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Geographic Jurisdiction Settings</p>
+                    <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Geographic Level Settings</p>
                 </div>
                 {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => navigate('/admin/sub-cities/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
@@ -142,7 +142,7 @@ export default function SubCities() {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
-                            <th className="px-6 py-3">Jurisdiction Name</th>
+                            <th className="px-6 py-3">Level Name</th>
                             <th className="px-6 py-3">Municipality</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>

@@ -23,7 +23,7 @@ export default function LocationReportPage() {
 
       setLocations(transformed);
     } catch (err) {
-      console.error("Location fetch error:", err);
+      console.error("Site fetch error:", err);
     } finally {
       setLoading(false);
     }

@@ -47,7 +47,7 @@ export default function TaskReport({ data = [], loading, onRefresh }) {
       { accessorKey: "status", header: "Status", enableSorting: true },
       { accessorKey: "priority", header: "Priority", enableSorting: true },
       { accessorKey: "weight", header: "Weight", enableSorting: true },
-      { accessorKey: "locations", header: "Locations", enableSorting: true },
+      { accessorKey: "locations", header: "Site", enableSorting: true },
     ],
     []
   );

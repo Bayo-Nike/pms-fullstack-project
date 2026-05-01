@@ -94,7 +94,7 @@ export default function Locations() {
 
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
-                    <h1 className="text-base font-bold text-slate-900">Project Locations</h1>
+                    <h1 className="text-base font-bold text-slate-900">Project Sites</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">Geographic Mapping</p>
                 </div>
                 {can('CAN_SEE_SYS_ADMIN') && (

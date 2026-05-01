@@ -90,7 +90,7 @@
 //                 });
 
 //                 const cityValue = cityRes.data !== undefined ? cityRes.data : cityRes;
-//                 setCityName(typeof cityValue === 'string' ? cityValue : "Jurisdiction");
+//                 setCityName(typeof cityValue === 'string' ? cityValue : "Level");
 
 //                 if (isEdit) {
 //                     const res = await projectApi.GET_PROJECT(id);
@@ -462,7 +462,7 @@ export default function CreateProject() {
                     clients: clientRes.data?.data || clientRes.data || [],
                 });
 
-                setCityName(cityRes.data !== undefined ? cityRes.data : "Jurisdiction");
+                setCityName(cityRes.data !== undefined ? cityRes.data : "Level");
 
                 if (isEdit) {
                     const res = await projectApi.GET_PROJECT(id);
@@ -728,7 +728,7 @@ export default function CreateProject() {
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{isEdit ? 'Update Project' : 'Launch Project'}</h1>
                         <div className="flex items-center gap-2 mt-2">
                             <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-tighter border ${formData.projectLevel === 'CITY' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                {formData.projectLevel} JURISDICTION
+                                {formData.projectLevel} LEVEL
                             </span>
                         </div>
                     </div>
@@ -773,10 +773,10 @@ export default function CreateProject() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400">Locations</label>
+                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400">Sites</label>
                             <div className="relative">
                                 <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
-                                <select disabled={!formData.subCityId} onChange={(e) => { const v = Number(e.target.value); if (v && !(formData.locationIds || []).includes(v)) setFormData(p => ({ ...p, locationIds: [...(p.locationIds || []), v] })); }} className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:bg-slate-50/50"><option value="">-- Tag Locations --</option>{(availableLocations || []).filter(l => !(formData.locationIds || []).includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}</select>
+                                <select disabled={!formData.subCityId} onChange={(e) => { const v = Number(e.target.value); if (v && !(formData.locationIds || []).includes(v)) setFormData(p => ({ ...p, locationIds: [...(p.locationIds || []), v] })); }} className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:bg-slate-50/50"><option value="">-- Tag Sites --</option>{(availableLocations || []).filter(l => !(formData.locationIds || []).includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}</select>
                             </div>
                             <div className="flex flex-wrap gap-2 pt-2">
                                 {(formData.locationIds || []).map(locId => {

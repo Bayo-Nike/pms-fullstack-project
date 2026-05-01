@@ -28,7 +28,7 @@ export default function UserReport({ data = [], loading, onRefresh }) {
 
     { accessorKey: "employeeName", header: "Employee Name" },
 
-    { accessorKey: "location", header: "Location" },
+    { accessorKey: "location", header: "Site" },
 
     {
       accessorKey: "status",

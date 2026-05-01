@@ -54,7 +54,7 @@ const Reportees = () => {
                         <AccountTree fontSize="small" />
                     </div>
                     <div>
-                        <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase">Jurisdiction</h1>
+                        <h1 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase">Level</h1>
                         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Personnel Hierarchy</p>
                     </div>
                 </div>
