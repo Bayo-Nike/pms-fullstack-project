@@ -75,7 +75,7 @@ export default function Clients() {
                 </div>
                 {can('CAN_REGISTER_CONSULTANT') && (
                     <button onClick={() => navigate('/client/create')} className="bg-[#FBAF1E] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-100 hover:bg-[#e09a15] transition-all uppercase tracking-widest">
-                        <Add style={{ fontSize: 18 }} /> Register Firm
+                        <Add style={{ fontSize: 18 }} /> Register Client
                     </button>
                 )}
             </div>
@@ -83,7 +83,7 @@ export default function Clients() {
             <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center">
                 <div className="relative max-w-sm w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
-                    <input type="text" placeholder="Search firm..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input type="text" placeholder="Search client..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
                 </div>
             </div>
 
@@ -91,7 +91,8 @@ export default function Clients() {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
-                            <th className="px-6 py-4">Client Firm</th>
+                            <th className="px-6 py-4">Client Name</th>
+                            <th className="px-6 py-4">Client Category</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Verification</th>
                             {(can('CAN_EDIT_CONSULTANT') || can('CAN_DELETE_CONSULTANT')) && (
@@ -109,6 +110,11 @@ export default function Clients() {
                                         <div className="w-8 h-8 bg-sky-50 text-[#0284C7] rounded-lg flex items-center justify-center group-hover:bg-[#0284C7] group-hover:text-white transition-all"><CorporateFare style={{ fontSize: 18 }} /></div>
                                         <span className="text-sm font-semibold text-slate-700">{c.clientName}</span>
                                     </div>
+                                </td>
+                                <td className="px-6 py-4">
+                                    <span className={`text-[9px] font-black px-2 py-1 rounded border uppercase tracking-tighter ${c.category === 'GOVERNMENT' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-slate-100 text-slate-400'}`}>
+                                        {c.category}
+                                    </span>
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`text-[9px] font-black px-2 py-1 rounded border uppercase tracking-tighter ${c.status === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-100' : 'bg-slate-100 text-slate-400'}`}>

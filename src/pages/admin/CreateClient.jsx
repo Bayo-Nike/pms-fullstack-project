@@ -15,6 +15,8 @@ export default function CreateClient() {
     // Form States
     const [clientName, setClientName] = useState('');
     const [status, setStatus] = useState('ACTIVE');
+    const [category, setCategory] = useState('');
+    const [registeredDate, setRegisteredDate] = useState('');
     const [document, setDocument] = useState(null);
     const [existingFile, setExistingFile] = useState('');
 
@@ -37,6 +39,8 @@ export default function CreateClient() {
 
                     setClientName(data.clientName || '');
                     setStatus(data.status || 'ACTIVE');
+                    setCategory(data.category || '');
+                    setRegisteredDate(data.registeredDate || '');
                     setExistingFile(data.document || '');
                 } catch (err) {
                     showAlert('error', 'Failed to synchronize partner dossier.');
@@ -60,6 +64,8 @@ export default function CreateClient() {
             const formData = new FormData();
             formData.append("clientName", clientName.trim());
             formData.append("status", status);
+            formData.append("category", category);
+            formData.append("registeredDate", registeredDate);
             if (document) {
                 formData.append("document", document);
             }
@@ -89,7 +95,7 @@ export default function CreateClient() {
                     <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full mx-4 text-center border border-slate-100">
                         <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
                         <h3 className="text-xl font-bold uppercase tracking-tight">Confirm Save</h3>
-                        <p className="text-sm text-slate-500 mt-2 leading-relaxed">Save configuration for <b>{clientName}</b>?</p>
+                        <p className="text-sm text-slate-500 mt-2 leading-relaxed">Save client for <b>{clientName}</b>?</p>
                         <div className="flex gap-4 mt-8">
                             <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3.5 rounded-2xl border text-[11px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-all">Cancel</button>
                             <button onClick={executeSave} className="flex-1 px-4 py-3.5 rounded-2xl bg-[#0284C7] text-white font-bold text-[11px] uppercase tracking-widest shadow-lg shadow-sky-100 hover:bg-[#016da3] transition-all">Confirm</button>
@@ -107,23 +113,34 @@ export default function CreateClient() {
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
-                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Firm' : 'Register Firm'}</h1>
+                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Client' : 'Register Client'}</h1>
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Partner Configuration</p>
                     </div>
                 </div>
                 <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase">
-                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CONFIGURATION'}
+                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CLIENT'}
                 </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Identity Card */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
-                    <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CorporateFare className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Firm Identity</span></div>
+                    <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CorporateFare className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Client Identity</span></div>
                     <div className="p-8 space-y-6">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Client Legal Name *</label>
                             <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-[#0284C7] transition-all text-sm font-semibold" placeholder="e.g. ABC Client" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Client Category</label>
+                            <div className="relative">
+                                <ToggleOn className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-[#0284C7] appearance-none cursor-pointer text-sm font-bold">
+                                    <option value="">--- Select Category ---</option>
+                                    <option value="GOVERNMENT">GOVERNMENT</option>
+                                    <option value="NON_GOVERNMENT">NON GOVERNMENT</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Partnership Status</label>
@@ -141,6 +158,7 @@ export default function CreateClient() {
 
                 {/* Document Card */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
+                
                     <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">License & Artifacts</span></div>
                     <div className="p-8 space-y-6">
                         <div className="border-2 border-dashed border-slate-200 rounded-[28px] p-10 text-center hover:border-[#0284C7] transition-colors relative cursor-pointer group bg-slate-50/20">
@@ -162,7 +180,13 @@ export default function CreateClient() {
                                 {document && <Close onClick={() => setDocument(null)} className="cursor-pointer text-slate-400 hover:text-red-500" style={{ fontSize: 16 }} />}
                             </div>
                         )}
+                        
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Registeration Date</label>
+                            <input name="registeredDate" type="date" value={registeredDate} onChange={(e) => setRegisteredDate(e.target.value)} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                        </div>
                     </div>
+                    
                 </div>
             </div>
         </div>

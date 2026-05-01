@@ -14,7 +14,10 @@ export default function CreateConsultant() {
 
     // Form States
     const [consultantName, setConsultantName] = useState('');
+    const [category, setCategory] = useState('');
     const [status, setStatus] = useState('ACTIVE');
+    const [registeredDate, setRegisteredDate] = useState('');
+    const [licenseExpiryDate, setlicenseExpiryDate] = useState('');
     const [document, setDocument] = useState(null);
     const [existingFile, setExistingFile] = useState('');
 
@@ -36,6 +39,9 @@ export default function CreateConsultant() {
                     const data = res.data?.data || res.data || res;
 
                     setConsultantName(data.consultantName || '');
+                    setCategory(data.category || '');
+                    setRegisteredDate(data.registeredDate || '');
+                    setlicenseExpiryDate(data.licenseExpiryDate || '');
                     setStatus(data.status || 'ACTIVE');
                     setExistingFile(data.document || '');
                 } catch (err) {
@@ -59,6 +65,9 @@ export default function CreateConsultant() {
         try {
             const formData = new FormData();
             formData.append("consultantName", consultantName.trim());
+            formData.append("category", category);
+            formData.append("registeredDate", registeredDate);
+            formData.append("licenseExpiryDate",licenseExpiryDate);
             formData.append("status", status);
             if (document) {
                 formData.append("document", document);
@@ -107,23 +116,34 @@ export default function CreateConsultant() {
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
-                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Firm' : 'Register Firm'}</h1>
+                        <h1 className="text-xl font-bold text-slate-900 leading-none">{isEdit ? 'Update Consultant' : 'Register Consultant'}</h1>
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Partner Configuration</p>
                     </div>
                 </div>
                 <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase">
-                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CONFIGURATION'}
+                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CONSULTANT'}
                 </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Identity Card */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
-                    <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CorporateFare className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Firm Identity</span></div>
+                    <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><CorporateFare className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Consultant Identity</span></div>
                     <div className="p-8 space-y-6">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Consultant Legal Name *</label>
                             <input type="text" value={consultantName} onChange={(e) => setConsultantName(e.target.value)} className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-[#0284C7] transition-all text-sm font-semibold" placeholder="e.g. ABC Consultant" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Consultant Category</label>
+                            <div className="relative">
+                                <ToggleOn className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" />
+                                <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full pl-12 pr-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-[#0284C7] appearance-none cursor-pointer text-sm font-bold">
+                                    <option value="">--- Select Category ---</option>
+                                    <option value="GOVERNMENT">GOVERNMENT</option>
+                                    <option value="NON_GOVERNMENT">NON GOVERNMENT</option>
+                                </select>
+                            </div>
                         </div>
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold uppercase text-slate-400 tracking-widest ml-1">Partnership Status</label>
@@ -141,6 +161,10 @@ export default function CreateConsultant() {
 
                 {/* Document Card */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-3">License Expiry Date</label>
+                        <input name="licenseExpiryDate" type="date" value={licenseExpiryDate} onChange={(e) => setlicenseExpiryDate(e.target.value)} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                    </div>
                     <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">License & Artifacts</span></div>
                     <div className="p-8 space-y-6">
                         <div className="border-2 border-dashed border-slate-200 rounded-[28px] p-10 text-center hover:border-[#0284C7] transition-colors relative cursor-pointer group bg-slate-50/20">
@@ -162,6 +186,11 @@ export default function CreateConsultant() {
                                 {document && <Close onClick={() => setDocument(null)} className="cursor-pointer text-slate-400 hover:text-red-500" style={{ fontSize: 16 }} />}
                             </div>
                         )}
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Registeration Date</label>
+                            <input name="registeredDate" type="date" value={registeredDate} onChange={(e) => setRegisteredDate(e.target.value)} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                        </div>
                     </div>
                 </div>
             </div>
