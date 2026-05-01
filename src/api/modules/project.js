@@ -1,6 +1,14 @@
 import api from "../api";
 
 const projectApi = {
+
+    CREATE_PROJECT_INITIATION: (data) => api.post("/projects/initiations", data),
+    GET_PROJECT_INITIATIONS: (params) => api.get("/projects/initiations", { params }),
+    GET_PROJECT_INITIATION: (id) => api.get(`/projects/initiations/${id}`),
+    UPDATE_PROJECT_INITIATION: (id, data) => api.put(`/projects/initiations/${id}`, data),
+    DELETE_PROJECT_INITIATION: (id) => api.delete(`/projects/initiations/${id}`),
+
+
     GET_PROJECTS: (params) => api.get("/projects", { params }),
     GET_MY_PROJECTS: (params) => api.get("/projects/my", { params }),
     GET_PROJECT: (id) => api.get(`/projects/${id}`),

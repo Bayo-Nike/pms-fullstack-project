@@ -1,0 +1,749 @@
+// import React, { useState, useEffect, useMemo } from 'react';
+// import { useNavigate, useParams } from 'react-router-dom';
+// import {
+//     ArrowBack, Save, Info, LocationOn, PinDrop,
+//     Close, AssignmentTurnedIn, HelpOutline
+// } from '@mui/icons-material';
+// import projectApi from '../../api/modules/project';
+// import adminApi from '../../api/modules/admin';
+// import AlertMessage from '../../components/Reusable/AlertMessage';
+
+// export default function CreateProjectInitiation() {
+//     const navigate = useNavigate();
+//     const { id } = useParams();
+//     const isEdit = Boolean(id);
+
+//     const [formData, setFormData] = useState({
+//         projectCode: '', title: '', description: '', projectType: 'BUILDING',
+//         category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '',
+//         locationIds: [], status: 'INITIATED'
+//     });
+
+//     const [lookups, setLookups] = useState({ subCities: [], locations: [] });
+//     const [loading, setLoading] = useState(true);
+//     const [saving, setSaving] = useState(false);
+//     const [showConfirm, setShowConfirm] = useState(false);
+//     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+
+//     useEffect(() => {
+//         const init = async () => {
+//             try {
+//                 const [subRes, locRes] = await Promise.all([
+//                     adminApi.GET_SUB_CITIES(), adminApi.GET_LOCATIONS()
+//                 ]);
+//                 setLookups({
+//                     subCities: subRes.data?.data || subRes.data || [],
+//                     locations: locRes.data?.data || locRes.data || []
+//                 });
+
+//                 if (isEdit) {
+//                     const res = await projectApi.GET_PROJECT_INITIATION(id);
+//                     const d = res.data?.data || res.data;
+//                     setFormData({ ...d, subCityId: d.subCityId ? String(d.subCityId) : '', locationIds: d.locationIds || [] });
+//                 }
+//             } catch (err) { setAlert({ show: true, type: 'error', message: 'Registry sync failed.' }); }
+//             finally { setLoading(false); }
+//         };
+//         init();
+//     }, [id, isEdit]);
+
+//     const handleInputChange = (e) => {
+//         const { name, value } = e.target;
+//         setFormData(prev => ({ ...prev, [name]: value, ...(name === 'subCityId' ? { locationIds: [] } : {}) }));
+//     };
+
+//     const availableLocations = useMemo(() => {
+//         if (!formData.subCityId) return [];
+//         return (lookups.locations || []).filter(l => String(l.subCityId) === String(formData.subCityId));
+//     }, [formData.subCityId, lookups.locations]);
+
+//     const executeSave = async () => {
+//         if (formData.projectLevel === 'SUB_CITY' && !formData.subCityId) {
+//             setShowConfirm(false);
+//             return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
+//         }
+
+//         setSaving(true);
+//         setShowConfirm(false);
+//         try {
+//             const payload = { ...formData, subCityId: formData.subCityId ? Number(formData.subCityId) : null };
+//             if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
+//             else await projectApi.CREATE_PROJECT_INITIATION(payload);
+
+//             setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Synced.' });
+//             setTimeout(() => navigate('/projects/initiations'), 1500);
+//         } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
+//         finally { setSaving(false); }
+//     };
+
+//     if (loading) return <div className="p-20 text-center italic animate-pulse text-slate-400 text-xs tracking-widest uppercase font-black">Syncing Parameters...</div>;
+
+//     return (
+//         <div className="w-full space-y-8 pb-12 px-6 animate-fadeIn">
+//             <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+
+//             {/* Save/Update Confirmation Dialog */}
+//             {showConfirm && (
+//                 <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+//                     <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full text-center border animate-scaleIn">
+//                         <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
+//                         <h3 className="text-xl font-black uppercase tracking-tight">Registry Update</h3>
+//                         <p className="text-sm text-slate-500 mt-3 leading-relaxed">Commit initiation record <b>{formData.title || 'New Entry'}</b> to the central registry?</p>
+//                         <div className="flex gap-4 mt-10">
+//                             <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-black uppercase hover:bg-slate-50 transition-all">Cancel</button>
+//                             <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white font-black text-[11px] uppercase shadow-lg hover:bg-sky-700 transition-all">Confirm</button>
+//                         </div>
+//                     </div>
+//                 </div>
+//             )}
+
+//             {/* Top Action Bar */}
+//             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+//                 <div className="flex items-center gap-5">
+//                     <button onClick={() => navigate('/projects/initiations')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+//                     <div>
+//                         <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">{isEdit ? 'Modify Initiation' : 'Project Initiation'}</h1>
+//                         <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic tracking-[0.2em]">Registry Form</p>
+//                     </div>
+//                 </div>
+//                 <button onClick={() => setShowConfirm(true)} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-[#0369a1] transition-all">
+//                     <Save /> {saving ? 'PROCESSING...' : 'SAVE INITIATION'}
+//                 </button>
+//             </div>
+
+//             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+//                 {/* Identification Card */}
+//                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+//                     <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><Info className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Identification</span></div>
+//                     <div className="p-8 space-y-6">
+//                         <div className="grid grid-cols-2 gap-4">
+//                             <div className="space-y-2">
+//                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Code</label>
+//                                 <input name="projectCode" value={formData.projectCode || ""} placeholder="AUTO-GEN" disabled className="w-full text-sm font-bold bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-500 cursor-not-allowed" />
+//                             </div>
+//                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
+//                                 <select name="category" value={formData.category} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                     <option value="GOVERNMENT">Government</option>
+//                                     <option value="NONE_GOVERNMENT">Non-Government</option>
+//                                 </select>
+//                             </div>
+//                         </div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Type</label>
+//                             <select name="projectType" value={formData.projectType} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                 <option value="BUILDING">Building</option>
+//                                 <option value="WATER_AND_ROAD">Water & Road</option>
+//                             </select>
+//                         </div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Initiation Title *</label><input name="title" value={formData.title} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} rows="4" className="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+//                     </div>
+//                 </div>
+
+//                 {/* Scope Assignment Card */}
+//                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+//                     <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><LocationOn className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Hub Assignment</span></div>
+//                     <div className="p-8 space-y-6 flex-1">
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Level</label>
+//                             <select name="projectLevel" value={formData.projectLevel} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                 <option value="CITY">City Hub (HQ)</option>
+//                                 <option value="SUB_CITY">Sub-City Hub (Region)</option>
+//                             </select>
+//                         </div>
+
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Assigned Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
+//                             <select
+//                                 name="subCityId" value={formData.subCityId} onChange={handleInputChange}
+//                                 className={`w-full text-sm font-semibold bg-slate-50 border rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer ${formData.projectLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300' : 'border-slate-200'}`}
+//                             >
+//                                 <option value="">-- Select Sub-City --</option>
+//                                 {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+//                             </select>
+//                         </div>
+
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites (Locations) - Optional</label>
+//                             <div className="relative">
+//                                 <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
+//                                 <select
+//                                     disabled={!formData.subCityId}
+//                                     onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }}
+//                                     className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
+//                                 >
+//                                     <option value="">{formData.subCityId ? '-- Select Site --' : '-- Select Sub-City First --'}</option>
+//                                     {availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
+//                                 </select>
+//                             </div>
+//                             <div className="flex flex-wrap gap-2 pt-2">
+//                                 {formData.locationIds.map(locId => {
+//                                     const loc = lookups.locations.find(l => l.id === locId);
+//                                     return loc ? (<div key={locId} className="flex items-center gap-3 bg-slate-800 text-white pl-4 pr-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest animate-scaleIn">{loc.name}<Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:bg-white/10 rounded-full p-0.5" style={{ fontSize: 14 }} /></div>) : null;
+//                                 })}
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Registry Status Section - Bottom */}
+//             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-8 flex items-center justify-between">
+//                 <div className="flex items-center gap-4">
+//                     <div className="p-3 bg-sky-50 rounded-2xl text-[#0284C7]"><AssignmentTurnedIn /></div>
+//                     <div>
+//                         <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry Status</h3>
+//                         <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Finalize the current lifecycle phase</p>
+//                     </div>
+//                 </div>
+//                 <div className="w-64">
+//                     <select name="status" value={formData.status} onChange={handleInputChange} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
+//                         <option value="INITIATED">Initiated</option>
+//                         <option value="STARTED">Started</option>
+//                     </select>
+//                 </div>
+//             </div>
+//         </div>
+//     );
+// }
+
+
+
+
+
+
+// import React, { useState, useEffect, useMemo } from 'react';
+// import { useNavigate, useParams, useLocation } from 'react-router-dom';
+// import {
+//     ArrowBack, Save, Info, LocationOn, PinDrop,
+//     Close, AssignmentTurnedIn, HelpOutline, CalendarMonth, Visibility
+// } from '@mui/icons-material';
+// import projectApi from '../../api/modules/project';
+// import adminApi from '../../api/modules/admin';
+// import AlertMessage from '../../components/Reusable/AlertMessage';
+
+// export default function CreateProjectInitiation() {
+//     const navigate = useNavigate();
+//     const location = useLocation();
+//     const { id } = useParams();
+
+//     const isEdit = Boolean(id) && location.pathname.includes('/edit');
+//     const isView = Boolean(id) && location.pathname.includes('/view');
+//     const isCreate = !isEdit && !isView;
+
+//     const [formData, setFormData] = useState({
+//         projectCode: '', title: '', description: '', projectType: 'BUILDING',
+//         category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '',
+//         locationIds: [], status: 'INITIATED', startDate: '', endDate: ''
+//     });
+
+//     const [lookups, setLookups] = useState({ subCities: [], locations: [] });
+//     const [loading, setLoading] = useState(true);
+//     const [saving, setSaving] = useState(false);
+//     const [showConfirm, setShowConfirm] = useState(false);
+//     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+
+//     useEffect(() => {
+//         const init = async () => {
+//             try {
+//                 const [subRes, locRes] = await Promise.all([
+//                     adminApi.GET_SUB_CITIES(), adminApi.GET_LOCATIONS()
+//                 ]);
+//                 setLookups({
+//                     subCities: subRes.data?.data || subRes.data || [],
+//                     locations: locRes.data?.data || locRes.data || []
+//                 });
+
+//                 if (id) {
+//                     const res = await projectApi.GET_PROJECT_INITIATION(id);
+//                     const d = res.data?.data || res.data;
+//                     setFormData({
+//                         ...d,
+//                         subCityId: d.subCityId ? String(d.subCityId) : '',
+//                         locationIds: d.locationIds || [],
+//                         startDate: d.startDate || '',
+//                         endDate: d.endDate || ''
+//                     });
+//                 }
+//             } catch (err) { setAlert({ show: true, type: 'error', message: 'Registry sync failed.' }); }
+//             finally { setLoading(false); }
+//         };
+//         init();
+//     }, [id]);
+
+//     const handleInputChange = (e) => {
+//         if (isView) return; // Prevent changes in view mode
+//         const { name, value } = e.target;
+//         setFormData(prev => ({ ...prev, [name]: value, ...(name === 'subCityId' ? { locationIds: [] } : {}) }));
+//     };
+
+//     const availableLocations = useMemo(() => {
+//         if (!formData.subCityId) return [];
+//         return (lookups.locations || []).filter(l => String(l.subCityId) === String(formData.subCityId));
+//     }, [formData.subCityId, lookups.locations]);
+
+//     const executeSave = async () => {
+//         if (formData.projectLevel === 'SUB_CITY' && !formData.subCityId) {
+//             setShowConfirm(false);
+//             return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
+//         }
+//         if (formData.status === 'STARTED' && (!formData.startDate || !formData.endDate)) {
+//             setShowConfirm(false);
+//             return setAlert({ show: true, type: 'error', message: 'Dates are mandatory for STARTED status.' });
+//         }
+
+//         setSaving(true);
+//         setShowConfirm(false);
+//         try {
+//             const payload = {
+//                 ...formData,
+//                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
+//                 startDate: formData.status === 'STARTED' ? formData.startDate : null,
+//                 endDate: formData.status === 'STARTED' ? formData.endDate : null
+//             };
+//             if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
+//             else await projectApi.CREATE_PROJECT_INITIATION(payload);
+
+//             setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Synced.' });
+//             setTimeout(() => navigate('/projects/initiations'), 1500);
+//         } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
+//         finally { setSaving(false); }
+//     };
+
+//     if (loading) return <div className="p-20 text-center italic animate-pulse text-slate-400 text-xs tracking-widest uppercase font-black">Syncing Parameters...</div>;
+
+//     return (
+//         <div className="w-full space-y-8 pb-12 px-6 animate-fadeIn">
+//             <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+
+//             {/* Confirmation Dialog (Only for Edit/Create) */}
+//             {showConfirm && !isView && (
+//                 <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+//                     <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full text-center border animate-scaleIn">
+//                         <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
+//                         <h3 className="text-xl font-black uppercase tracking-tight">Registry Update</h3>
+//                         <p className="text-sm text-slate-500 mt-3 leading-relaxed">Commit initiation record <b>{formData.title || 'New Entry'}</b>?</p>
+//                         <div className="flex gap-4 mt-10">
+//                             <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-black uppercase hover:bg-slate-50 transition-all">Cancel</button>
+//                             <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white font-black text-[11px] uppercase shadow-lg hover:bg-sky-700 transition-all">Confirm</button>
+//                         </div>
+//                     </div>
+//                 </div>
+//             )}
+
+//             {/* Top Action Bar */}
+//             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+//                 <div className="flex items-center gap-5">
+//                     <button onClick={() => navigate('/projects/initiations')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+//                     <div>
+//                         <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+//                             {isView ? 'View Initiation' : isEdit ? 'Modify Initiation' : 'Project Initiation'}
+//                         </h1>
+//                         <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic tracking-[0.2em]">
+//                             {isView ? 'Read-Only Mode' : 'Registry Form'}
+//                         </p>
+//                     </div>
+//                 </div>
+//                 {!isView && (
+//                     <button onClick={() => setShowConfirm(true)} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-[#0369a1] transition-all">
+//                         <Save /> {saving ? 'PROCESSING...' : 'SAVE INITIATION'}
+//                     </button>
+//                 )}
+//             </div>
+
+//             <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${isView ? 'pointer-events-none' : ''}`}>
+//                 {/* Identification Card */}
+//                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+//                     <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><Info className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Identification</span></div>
+//                     <div className="p-8 space-y-6">
+//                         <div className="grid grid-cols-2 gap-4">
+//                             <div className="space-y-2">
+//                                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Code</label>
+//                                 <input name="projectCode" value={formData.projectCode || ""} placeholder="AUTO-GEN" disabled className="w-full text-sm font-bold bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-500 cursor-not-allowed" />
+//                             </div>
+//                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
+//                                 <select name="category" value={formData.category} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                     <option value="GOVERNMENT">Government</option>
+//                                     <option value="NONE_GOVERNMENT">Non-Government</option>
+//                                 </select>
+//                             </div>
+//                         </div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Type</label>
+//                             <select name="projectType" value={formData.projectType} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                 <option value="BUILDING">Building</option>
+//                                 <option value="WATER_AND_ROAD">Water & Road</option>
+//                             </select>
+//                         </div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Initiation Title *</label><input name="title" value={formData.title} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
+//                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} disabled={isView} rows="4" className="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+//                     </div>
+//                 </div>
+
+//                 {/* Scope Card */}
+//                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+//                     <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><LocationOn className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Hub Assignment</span></div>
+//                     <div className="p-8 space-y-6 flex-1">
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Level</label>
+//                             <select name="projectLevel" value={formData.projectLevel} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+//                                 <option value="CITY">City Hub (HQ)</option>
+//                                 <option value="SUB_CITY">Sub-City Hub (Region)</option>
+//                             </select>
+//                         </div>
+
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Assigned Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
+//                             <select
+//                                 name="subCityId" value={formData.subCityId} onChange={handleInputChange} disabled={isView}
+//                                 className={`w-full text-sm font-semibold bg-slate-50 border rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer ${formData.projectLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300' : 'border-slate-200'}`}
+//                             >
+//                                 <option value="">-- Select Sub-City --</option>
+//                                 {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+//                             </select>
+//                         </div>
+
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites (Locations)</label>
+//                             <div className="relative">
+//                                 <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
+//                                 <select
+//                                     disabled={!formData.subCityId || isView}
+//                                     onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }}
+//                                     className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
+//                                 >
+//                                     <option value="">{formData.subCityId ? '-- Select Site --' : '-- Select Sub-City First --'}</option>
+//                                     {availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
+//                                 </select>
+//                             </div>
+//                             <div className="flex flex-wrap gap-2 pt-2">
+//                                 {formData.locationIds.map(locId => {
+//                                     const loc = lookups.locations.find(l => l.id === locId);
+//                                     return loc ? (
+//                                         <div key={locId} className="flex items-center gap-3 bg-slate-800 text-white pl-4 pr-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+//                                             {loc.name}
+//                                             {!isView && <Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:bg-white/10 rounded-full p-0.5" style={{ fontSize: 14 }} />}
+//                                         </div>
+//                                     ) : null;
+//                                 })}
+//                             </div>
+//                         </div>
+//                     </div>
+//                 </div>
+//             </div>
+
+//             {/* Registry Status Section */}
+//             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-8 flex flex-col gap-8">
+//                 <div className="flex items-center justify-between">
+//                     <div className="flex items-center gap-4">
+//                         <div className="p-3 bg-sky-50 rounded-2xl text-[#0284C7]"><AssignmentTurnedIn /></div>
+//                         <div>
+//                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry Status</h3>
+//                             <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Current lifecycle phase</p>
+//                         </div>
+//                     </div>
+//                     <div className="w-64">
+//                         <select name="status" value={formData.status} onChange={handleInputChange} disabled={isView} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
+//                             <option value="INITIATED">Initiated</option>
+//                             <option value="STARTED">Started</option>
+//                         </select>
+//                     </div>
+//                 </div>
+
+//                 {formData.status === 'STARTED' && (
+//                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-slate-50 animate-fadeIn">
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
+//                                 <CalendarMonth style={{ fontSize: 16 }} className="text-sky-500" /> Launch Date
+//                             </label>
+//                             <input name="startDate" type="date" value={formData.startDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+//                         </div>
+//                         <div className="space-y-2">
+//                             <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
+//                                 <CalendarMonth style={{ fontSize: 16 }} className="text-rose-500" /> Handover Deadline
+//                             </label>
+//                             <input name="endDate" type="date" value={formData.endDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+//                         </div>
+//                     </div>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// }
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import {
+    ArrowBack, Save, Info, LocationOn, PinDrop,
+    Close, AssignmentTurnedIn, HelpOutline, CalendarMonth, Visibility
+} from '@mui/icons-material';
+import projectApi from '../../api/modules/project';
+import adminApi from '../../api/modules/admin';
+import AlertMessage from '../../components/Reusable/AlertMessage';
+
+export default function CreateProjectInitiation() {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { id } = useParams();
+
+    const isEdit = Boolean(id) && location.pathname.includes('/edit');
+    const isView = Boolean(id) && location.pathname.includes('/view');
+
+    const [formData, setFormData] = useState({
+        projectCode: '', title: '', description: '', projectType: 'BUILDING',
+        category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '',
+        locationIds: [], status: 'INITIATED', startDate: '', endDate: ''
+    });
+
+    const [lookups, setLookups] = useState({ subCities: [], locations: [] });
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+
+    useEffect(() => {
+        const init = async () => {
+            try {
+                const [subRes, locRes] = await Promise.all([
+                    adminApi.GET_SUB_CITIES(), adminApi.GET_LOCATIONS()
+                ]);
+                setLookups({
+                    subCities: subRes.data?.data || subRes.data || [],
+                    locations: locRes.data?.data || locRes.data || []
+                });
+
+                if (id) {
+                    const res = await projectApi.GET_PROJECT_INITIATION(id);
+                    const d = res.data?.data || res.data;
+                    setFormData({
+                        ...d,
+                        subCityId: d.subCityId ? String(d.subCityId) : '',
+                        locationIds: d.locationIds || [],
+                        startDate: d.startDate || '',
+                        endDate: d.endDate || ''
+                    });
+                }
+            } catch (err) { setAlert({ show: true, type: 'error', message: 'Registry sync failed.' }); }
+            finally { setLoading(false); }
+        };
+        init();
+    }, [id]);
+
+    const handleInputChange = (e) => {
+        if (isView) return;
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value, ...(name === 'subCityId' ? { locationIds: [] } : {}) }));
+    };
+
+    const availableLocations = useMemo(() => {
+        if (!formData.subCityId) return [];
+        return (lookups.locations || []).filter(l => String(l.subCityId) === String(formData.subCityId));
+    }, [formData.subCityId, lookups.locations]);
+
+    const executeSave = async () => {
+        // 1. Level Validation
+        if (formData.projectLevel === 'SUB_CITY' && !formData.subCityId) {
+            setShowConfirm(false);
+            return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
+        }
+
+        // 2. Date Validation for STARTED status
+        if (formData.status === 'STARTED') {
+            if (!formData.startDate || !formData.endDate) {
+                setShowConfirm(false);
+                return setAlert({ show: true, type: 'error', message: 'Dates are mandatory for STARTED status.' });
+            }
+
+            // Logic: Start Date <= End Date
+            const start = new Date(formData.startDate);
+            const end = new Date(formData.endDate);
+            if (start > end) {
+                setShowConfirm(false);
+                return setAlert({ show: true, type: 'error', message: 'Launch Date cannot be later than the Handover Deadline.' });
+            }
+        }
+
+        setSaving(true);
+        setShowConfirm(false);
+        try {
+            const payload = {
+                ...formData,
+                subCityId: formData.subCityId ? Number(formData.subCityId) : null,
+                startDate: formData.status === 'STARTED' ? formData.startDate : null,
+                endDate: formData.status === 'STARTED' ? formData.endDate : null
+            };
+            if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
+            else await projectApi.CREATE_PROJECT_INITIATION(payload);
+
+            setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Synced.' });
+            setTimeout(() => navigate('/projects/initiations'), 1500);
+        } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
+        finally { setSaving(false); }
+    };
+
+    if (loading) return <div className="p-20 text-center italic animate-pulse text-slate-400 text-xs tracking-widest uppercase font-black">Syncing Parameters...</div>;
+
+    return (
+        <div className="w-full space-y-8 pb-12 px-6 animate-fadeIn">
+            <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+
+            {showConfirm && !isView && (
+                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+                    <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full text-center border animate-scaleIn">
+                        <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
+                        <h3 className="text-xl font-black uppercase tracking-tight">Registry Update</h3>
+                        <p className="text-sm text-slate-500 mt-3 leading-relaxed">Commit initiation record <b>{formData.title || 'New Entry'}</b>?</p>
+                        <div className="flex gap-4 mt-10">
+                            <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-black uppercase hover:bg-slate-50 transition-all">Cancel</button>
+                            <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white font-black text-[11px] uppercase shadow-lg hover:bg-sky-700 transition-all">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="flex items-center gap-5">
+                    <button onClick={() => navigate('/projects/initiations')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+                    <div>
+                        <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
+                            {isView ? 'View Initiation' : isEdit ? 'Modify Initiation' : 'Project Initiation'}
+                        </h1>
+                        <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic tracking-[0.2em]">
+                            {isView ? 'Read-Only Mode' : 'Registry Form'}
+                        </p>
+                    </div>
+                </div>
+                {!isView && (
+                    <button onClick={() => setShowConfirm(true)} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-[#0369a1] transition-all">
+                        <Save /> {saving ? 'PROCESSING...' : 'SAVE INITIATION'}
+                    </button>
+                )}
+                {isView && (
+                    <button onClick={() => navigate(`/projects/initiations/edit/${id}`)} className="bg-[#FBAF1E] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-amber-600 transition-all">
+                        Edit Mode
+                    </button>
+                )}
+            </div>
+
+            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${isView ? 'opacity-90' : ''}`}>
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                    <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><Info className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Identification</span></div>
+                    <div className="p-8 space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Code</label>
+                                <input name="projectCode" value={formData.projectCode || ""} placeholder="AUTO-GEN" disabled className="w-full text-sm font-bold bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-500 cursor-not-allowed" />
+                            </div>
+                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
+                                <select name="category" value={formData.category} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+                                    <option value="GOVERNMENT">Government</option>
+                                    <option value="NONE_GOVERNMENT">Non-Government</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Type</label>
+                            <select name="projectType" value={formData.projectType} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+                                <option value="BUILDING">Building</option>
+                                <option value="WATER_AND_ROAD">Water & Road</option>
+                            </select>
+                        </div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Initiation Title *</label><input name="title" value={formData.title} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
+                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} disabled={isView} rows="4" className="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                    <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><LocationOn className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Hub Assignment</span></div>
+                    <div className="p-8 space-y-6 flex-1">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Level</label>
+                            <select name="projectLevel" value={formData.projectLevel} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
+                                <option value="CITY">City Hub (HQ)</option>
+                                <option value="SUB_CITY">Sub-City Hub (Region)</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Assigned Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
+                            <select
+                                name="subCityId" value={formData.subCityId} onChange={handleInputChange} disabled={isView}
+                                className={`w-full text-sm font-semibold bg-slate-50 border rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer ${formData.projectLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300' : 'border-slate-200'}`}
+                            >
+                                <option value="">-- Select Sub-City --</option>
+                                {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites (Locations)</label>
+                            <div className="relative">
+                                <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
+                                <select
+                                    disabled={!formData.subCityId || isView}
+                                    onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }}
+                                    className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
+                                >
+                                    <option value="">{formData.subCityId ? '-- Select Site --' : '-- Select Sub-City First --'}</option>
+                                    {availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
+                                </select>
+                            </div>
+                            <div className="flex flex-wrap gap-3 pt-2">
+                                {formData.locationIds.map(locId => {
+                                    const loc = lookups.locations.find(l => l.id === locId);
+                                    return loc ? (
+                                        <div key={locId} className="flex items-center gap-3 bg-slate-800 text-white pl-4 pr-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                            {loc.name}
+                                            {!isView && <Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:bg-white/10 rounded-full p-0.5" style={{ fontSize: 14 }} />}
+                                        </div>
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-8 flex flex-col gap-8 transition-all">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-sky-50 rounded-2xl text-[#0284C7]"><AssignmentTurnedIn /></div>
+                        <div>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry Status</h3>
+                            <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Current lifecycle phase</p>
+                        </div>
+                    </div>
+                    <div className="w-64">
+                        <select name="status" value={formData.status} onChange={handleInputChange} disabled={isView} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
+                            <option value="INITIATED">Initiated</option>
+                            <option value="STARTED">Started</option>
+                        </select>
+                    </div>
+                </div>
+
+                {formData.status === 'STARTED' && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pt-8 border-t border-slate-50 animate-fadeIn">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
+                                <CalendarMonth style={{ fontSize: 16 }} className="text-sky-500" /> Launch Date
+                            </label>
+                            <input name="startDate" type="date" value={formData.startDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
+                                <CalendarMonth style={{ fontSize: 16 }} className="text-rose-500" /> Handover Deadline
+                            </label>
+                            <input name="endDate" type="date" value={formData.endDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}

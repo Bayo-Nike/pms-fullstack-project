@@ -26,7 +26,6 @@ import CreateEmployee from './pages/admin/CreateEmployee';
 import Locations from './pages/admin/Locations';
 import CreateLocation from './pages/admin/CreateLocation';
 import AuditLog from './pages/admin/AuditLog';
-import CreateProject from './pages/project/CreateProject';
 import ColorCodings from './pages/planning/ColorCodings';
 import ColorCodingDetails from './pages/planning/ColorCodingDetails';
 import InspectionTypes from './pages/admin/InspectionTypes';
@@ -51,6 +50,11 @@ import Clients from './pages/admin/Clients';
 import CreateClient from './pages/admin/CreateClient';
 import Reportees from './pages/admin/Reportees';
 import TaskTypes from './pages/admin/TaskTypes';
+import ProjectInitiations from './pages/project/ProjectInitiations';
+import CreateProjectInitiation from './pages/project/CreateProjectInitiation';
+import ProjectInitiationDetails from './pages/project/ProjectInitiationDetails';
+import { Edit } from 'lucide-react';
+import EditProject from './pages/project/EditProject';
 
 
 export default function AppRoutes() {
@@ -72,10 +76,14 @@ export default function AppRoutes() {
         <Route path="my-reportees" element={protect(<Reportees />, "CAN_SEE_MY_REPORTEES")} />
 
         {/* 2. Projects */}
+        <Route path='projects/initiations' element={protect(<ProjectInitiations />, "CAN_SEE_PROJECT_LIST")} />
+        <Route path='projects/initiations/create' element={protect(<CreateProjectInitiation />, "CAN_SEE_PROJECT_LIST")} />
+        <Route path='projects/initiations/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_SEE_PROJECT_LIST")} />
+        <Route path='projects/initiations/view/:id' element={protect(<ProjectInitiationDetails />, "CAN_SEE_PROJECT_LIST")} />
         <Route path="projects" element={protect(<Projects />, "CAN_SEE_PROJECT_LIST")} />
-        <Route path="projects/create" element={protect(<CreateProject />, "CAN_CREATE_PROJECT")} />
+        {/* <Route path="projects/create" element={protect(<EditProject />, "CAN_CREATE_PROJECT")} /> */}
         <Route path="projects/:id" element={protect(<ProjectDetails />, "CAN_VIEW_PROJECT_DETAIL")} />
-        <Route path="projects/edit/:id" element={protect(<CreateProject />, "CAN_EDIT_PROJECT")} />
+        <Route path="projects/edit/:id" element={protect(<EditProject />, "CAN_EDIT_PROJECT")} />
 
         {/* Inspections */}
         <Route path="inspections" element={protect(<Inspections />, "CAN_SEE_INSPECTIONS")} />
