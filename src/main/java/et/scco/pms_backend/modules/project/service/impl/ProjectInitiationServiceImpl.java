@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,13 +36,17 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
     public ProjectInitiationResponseDTO createInitiation(CreateProjectInitiationRequestDTO dto) {
         Project project = new Project();
 
-        // Generate a unique project code (Example logic)
-        project.setProjectCode("INI-" + System.currentTimeMillis());
-
         mapDtoToEntity(dto, project);
-
         Project saved = projectRepository.save(project);
-        return mapToResponseDTO(saved);
+
+        String code = String.format(
+                "SCCO-PR-%s-%03d",
+                LocalDate.now(),
+                saved.getId()
+        );
+        saved.setProjectCode(code);
+
+        return mapToResponseDTO(projectRepository.save(saved));
     }
 
     @Override
@@ -92,10 +97,9 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         if (dto.getStatus().equals(ProjectStatus.STARTED)) {
             project.setStartDate(dto.getStartDate());
             project.setEndDate(dto.getEndDate());
-        }else{
-            project.setStartDate(null);
-            project.setEndDate(null);
+            project.setAgreementDate(dto.getAgreementDate());
         }
+
 
         // Map SubCity (Hub)
         if (dto.getSubCityId() != null) {
@@ -130,6 +134,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         res.setStatus(p.getStatus());
         res.setStartDate(p.getStartDate());
         res.setEndDate(p.getEndDate());
+        res.setAgreementDate(p.getAgreementDate());
 
         if (p.getSubCity() != null) {
             res.setSubCityId(p.getSubCity().getId());

@@ -25,4 +25,6 @@ public class CreateProjectInitiationRequestDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
+
+    private LocalDate agreementDate;
 }

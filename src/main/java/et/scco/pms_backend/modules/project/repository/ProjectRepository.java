@@ -59,23 +59,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        // Count methods with sub-city filter
        long countBySubCityId(Long subCityId);
 
-
-        @Query("SELECT MAX(p.id) FROM Project p")
-        Long findMaxId();
-
-//    @Query("SELECT p FROM Project p WHERE " +
-//               "(:status IS NULL OR p.status = :status) AND " +
-//               "(:subCityId IS NULL OR p.subCity.id = :subCityId) AND " +
-//               "(:projectType IS NULL OR p.projectType = :projectType) AND " +
-//               "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
-//               "OR LOWER(p.projectCode) LIKE LOWER(CONCAT('%', :search, '%')))")
-//    Page<Project> findWithFilters(
-//               @Param("projectType") ProjectType projectType,
-//               @Param("search") String search,
-//               @Param("status") ProjectStatus status,
-//               @Param("subCityId") Long subCityId,
-//               Pageable pageable);
-
     @Query("SELECT p FROM Project p WHERE " +
             "(:status IS NULL OR p.status = :status) AND " +
             "(p.status <> ProjectStatus.INITIATED) AND " +

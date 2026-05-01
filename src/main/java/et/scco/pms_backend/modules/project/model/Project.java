@@ -23,7 +23,6 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
     private String projectCode;
 
     private String title;
@@ -37,6 +36,9 @@ public class Project {
 
     @Enumerated(EnumType.STRING)
     private ProjectType projectType;
+
+    @Column(name = "agreement_date")
+    private LocalDate agreementDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")

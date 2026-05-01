@@ -33,4 +33,6 @@ public class ProjectInitiationResponseDTO {
     // Added Date Fields
     private LocalDate startDate;
     private LocalDate endDate;
+
+    private LocalDate agreementDate;
 }
