@@ -1,7 +1,9 @@
 package et.scco.pms_backend.modules.admin.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ContractorStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,8 +31,17 @@ public class Contractor {
     @Enumerated(EnumType.STRING)
     private ContractorStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
     @Column(name = "document")
     private String document; // file name or path
+
+    @Column(name = "license_expiry_date")
+    private LocalDate licenseExpiryDate;
+
+    @Column(name = "registered_date")
+    private LocalDateTime registeredDate;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

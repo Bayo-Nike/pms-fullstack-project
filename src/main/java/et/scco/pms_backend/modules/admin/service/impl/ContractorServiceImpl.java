@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ContractorStatus;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
@@ -61,8 +62,10 @@ public class ContractorServiceImpl implements ContractorService{
 
         // Update contractorName and status
         contractor.setContractorName(contractorRequestDTO.getContractorName());
-        // contractor.setStatus(contractorRequestDTO.getStatus());
+        contractor.setCategory(Category.valueOf(contractorRequestDTO.getCategory()));
         contractor.setStatus(ContractorStatus.valueOf(contractorRequestDTO.getStatus()));
+        contractor.setLicenseExpiryDate(contractorRequestDTO.getLicenseExpiryDate());
+        contractor.setRegisteredDate(contractorRequestDTO.getRegisteredDate().atStartOfDay());
 
         // Only update file if a new one is uploaded
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {

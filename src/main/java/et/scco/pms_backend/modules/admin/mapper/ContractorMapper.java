@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.admin.mapper;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ContractorStatus;
 import et.scco.pms_backend.modules.admin.dto.request.ContractorRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ContractorResponseDTO;
@@ -15,9 +16,13 @@ public class ContractorMapper {
 
         dto.setId(contractor.getId());
         dto.setContractorName(contractor.getContractorName());
+        dto.setCategory(contractor.getCategory());
+        dto.setLicenseExpiryDate(contractor.getLicenseExpiryDate());
         dto.setStatus(contractor.getStatus());
         dto.setCreatedDate(contractor.getCreatedDate());
         dto.setDocument(contractor.getDocument());
+        dto.setRegisteredDate(contractor.getRegisteredDate());
+
 
         return dto;
     }
@@ -28,7 +33,12 @@ public class ContractorMapper {
 
         Contractor contractor = new Contractor();
         contractor.setContractorName(dto.getContractorName());
+        contractor.setCategory(Category.valueOf(dto.getCategory()));
+        contractor.setLicenseExpiryDate(dto.getLicenseExpiryDate());
         contractor.setStatus(ContractorStatus.valueOf(dto.getStatus()));
+        if (dto.getRegisteredDate()!=null) {
+            contractor.setRegisteredDate(dto.getRegisteredDate().atStartOfDay());
+        }
         
 
         return contractor;

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ConsultantStatus;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.ConsultancyRequestDTO;
@@ -61,8 +62,10 @@ public class ConsultancyServiceImpl implements ConsultancyService{
 
         // Update contractorName and status
         consultancy.setConsultantName(consultancyRequestDTO.getConsultantName());
-        // contractor.setStatus(contractorRequestDTO.getStatus());
+        consultancy.setCategory(Category.valueOf(consultancyRequestDTO.getCategory()));
         consultancy.setStatus(ConsultantStatus.valueOf(consultancyRequestDTO.getStatus()));
+        consultancy.setLicenseExpiryDate(consultancyRequestDTO.getLicenseExpiryDate());
+        consultancy.setRegisteredDate(consultancyRequestDTO.getRegisteredDate().atStartOfDay());
 
         // Only update file if a new one is uploaded
         if (consultancyRequestDTO.getDocument() != null && !consultancyRequestDTO.getDocument().isEmpty()) {

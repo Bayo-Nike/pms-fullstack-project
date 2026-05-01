@@ -77,9 +77,10 @@ public class ClientController {
 
     // Build Update Client REST API
     @PutMapping(value = "{id}", consumes = "multipart/form-data")
-    public ResponseEntity<ClientResponseDTO>updateClient(@PathVariable("id") Long ClientId,@ModelAttribute ClientRequestDTO ClientRequestDTO) throws Exception{
-        ClientResponseDTO ClientResponseDTO =clientService.updateClient(ClientId,ClientRequestDTO);
-        return ResponseEntity.ok(ClientResponseDTO);
+    public ResponseEntity<ClientResponseDTO>updateClient(@PathVariable("id") Long clientId,@ModelAttribute ClientRequestDTO clientRequestDTO) throws Exception{
+        
+        ClientResponseDTO clientResponseDTO =clientService.updateClient(clientId,clientRequestDTO);
+        return ResponseEntity.ok(clientResponseDTO);
     }
     // Build Delete Client REST API
     @DeleteMapping("{id}")

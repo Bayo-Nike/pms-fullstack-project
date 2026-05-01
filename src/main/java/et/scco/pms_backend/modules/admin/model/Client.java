@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.admin.model;
 
 import java.time.LocalDateTime;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ClientStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,6 +32,9 @@ public class Client {
     @Enumerated(EnumType.STRING)
     private ClientStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
     @Column(name = "document")
     private String document; // file name or path
  
@@ -38,6 +42,9 @@ public class Client {
     @ManyToOne()
     @JoinColumn(name = "created_by")
     private User createdBy;
+
+    @Column(name = "registered_date")
+    private LocalDateTime registeredDate;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

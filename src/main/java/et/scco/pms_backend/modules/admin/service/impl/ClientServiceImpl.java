@@ -5,15 +5,13 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ClientStatus;
-import et.scco.pms_backend.enums.ConsultantStatus;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.dto.request.ClientRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.ClientResponseDTO;
 import et.scco.pms_backend.modules.admin.mapper.ClientMapper;
-import et.scco.pms_backend.modules.admin.mapper.ConsultancyMapper;
 import et.scco.pms_backend.modules.admin.model.Client;
-import et.scco.pms_backend.modules.admin.model.Consultancy;
 import et.scco.pms_backend.modules.admin.repository.ClientRepository;
 import et.scco.pms_backend.modules.admin.service.ClientService;
 import et.scco.pms_backend.utility.FileStorageService;
@@ -63,8 +61,9 @@ public class ClientServiceImpl implements ClientService{
 
         // Update clientName and status
         client.setClientName(clientRequestDTO.getClientName());
-        // contractor.setStatus(contractorRequestDTO.getStatus());
+        client.setCategory(Category.valueOf(clientRequestDTO.getCategory()));
         client.setStatus(ClientStatus.valueOf(clientRequestDTO.getStatus()));
+        client.setRegisteredDate(clientRequestDTO.getRegisteredDate().atStartOfDay());
 
         // Only update file if a new one is uploaded
         if (clientRequestDTO.getDocument() != null && !clientRequestDTO.getDocument().isEmpty()) {
