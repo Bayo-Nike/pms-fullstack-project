@@ -17,19 +17,19 @@ public interface ProjectService {
 
     ProjectResponseDTO getProject(Long id);
 
-    ProjectResponseDTO createProject(CreateProjectRequestDTO dto);
+//    ProjectResponseDTO createProject(CreateProjectRequestDTO dto);
 
     ProjectResponseDTO updateProject(Long id, CreateProjectRequestDTO dto);
 
     void deleteProject(Long id);
 
-    ProjectResponseDTO updateStatus(Long id, String status);
+//    ProjectResponseDTO updateStatus(Long id, String status);
 
-    ProjectResponseDTO updatePriority(Long id, String priority);
+//    ProjectResponseDTO updatePriority(Long id, String priority);
 
-    ProjectResponseDTO updateBudget(Long projectId, Double budget, Double budgetUsed);
+//    ProjectResponseDTO updateBudget(Long projectId, Double budget, Double budgetUsed);
 
-    ProjectResponseDTO updateTimeline(Long projectId, LocalDate startDate, LocalDate endDate);
+//    ProjectResponseDTO updateTimeline(Long projectId, LocalDate startDate, LocalDate endDate);
 
     Project getProjectById(Long projectId);
 

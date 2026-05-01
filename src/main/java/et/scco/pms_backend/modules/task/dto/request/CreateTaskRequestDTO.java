@@ -36,7 +36,7 @@ public class CreateTaskRequestDTO {
 
     private List<Long> locationIds;
 
-    private ProjectPriority priority; // HIGH, MEDIUM, LOW
+    private ProjectPriority priority;
 
     private Double weight;
     private MultipartFile supportDocument;

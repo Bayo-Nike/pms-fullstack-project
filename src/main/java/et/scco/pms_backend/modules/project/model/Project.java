@@ -29,6 +29,8 @@ public class Project {
     private String title;
     private String description;
 
+    @Enumerated(EnumType.STRING)
+    private Category category;
 
     @Enumerated(EnumType.STRING)
     private ProjectLevel projectLevel;
