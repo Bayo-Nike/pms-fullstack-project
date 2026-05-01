@@ -2,6 +2,8 @@ package et.scco.pms_backend.modules.task.service.impl;
 
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
+import et.scco.pms_backend.modules.admin.model.TaskType;
+import et.scco.pms_backend.modules.admin.repository.TaskTypeRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
 import et.scco.pms_backend.modules.admin.service.LocationService;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
@@ -34,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
     private final LocationService locationServiceImpl;    // optional location
     private final ProjectServiceImpl projectService;
     private final AuthContext authContext;
-    // private final SubCityServiceImpl subCityServiceImpl;
+    private final TaskTypeRepository taskTypeRepository;
     private final FileStorageService fileStorageService;
 
     // ---------------- Create Task ----------------
@@ -134,7 +136,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private Task mapToEntity(CreateTaskRequestDTO dto, Task task) {
-        task.setTaskName(dto.getTaskName());
+
+        TaskType taskType = taskTypeRepository.findById(dto.getTaskTypeId())
+                        .orElseThrow();
+        task.setTaskType(taskType);
 
         if (dto.getProjectId() != null) {
             task.setProject(projectService.getProjectById(dto.getProjectId()));
@@ -170,7 +175,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskResponseDTO mapToDTO(Task task) {
         TaskResponseDTO dto = new TaskResponseDTO();
         dto.setId(task.getId());
-        dto.setTaskName(task.getTaskName());
+        dto.setTaskName(task.getTaskType().getName());
         dto.setProjectId(task.getProject() != null ? task.getProject().getId() : null);
         dto.setProjectTitle(task.getProject() != null ? task.getProject().getTitle() : null);
 
@@ -189,6 +194,8 @@ public class TaskServiceImpl implements TaskService {
         dto.setWeight(task.getWeight());
         dto.setLatitude(task.getLatitude());
         dto.setLongitude(task.getLongitude());
+
+        dto.setTaskTypeProjectStatus(task.getTaskType().getTaskTypeProjectStatus());
 
         // 🔹 multiple locations
         dto.setLocationIds(task.getLocations().stream().map(Location::getId).toList());

@@ -121,31 +121,6 @@ public class InspectionServiceImpl implements InspectionService {
         }
         Inspection updated = inspectionRepository.save(inspection);
 
-//        List<Long>allSuper = jurisdictionUtility.myHierarchyUp();
-//
-//        if (!allSuper.isEmpty())
-//        {
-//            allSuper.forEach(sup ->{
-//                notificationService.sendNotification(
-//                        authContext.getEmployee().getId(),
-//                        sup,
-//                        "Inspection updates for project",
-//                        "nspections/edit/"+updated.getId()
-//                );
-//            });
-//        }
-//
-//        Long sup = jurisdictionUtility.mySupervisor();
-//
-//        if (sup != null)
-//        {
-//                notificationService.sendNotification(
-//                        authContext.getEmployee().getId(),
-//                        sup,
-//                        "Inspection updates for project",
-//                        "nspections/edit/"+updated.getId()
-//                );
-//        }
         return mapToResponseDto(updated);
     }
 
@@ -214,7 +189,7 @@ public class InspectionServiceImpl implements InspectionService {
 
         if (inspection.getTask() != null) {
             dto.setTaskId(inspection.getTask().getId());
-            dto.setTaskName(inspection.getTask().getTaskName());
+            dto.setTaskName(inspection.getTask().getTaskType().getName());
         }
 
         dto.setEmployeeId(inspection.getEmployee().getId());

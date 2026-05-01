@@ -97,7 +97,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
                 .id(entity.getId())
                 .projectId(entity.getProject().getId())
                 .taskId(entity.getTask() != null ? entity.getTask().getId() : null)
-                .taskName(entity.getTask() != null ? entity.getTask().getTaskName() : null)
+                .taskName(entity.getTask() != null ? entity.getTask().getTaskType().getName() : null)
                 .phase(entity.getPhase())
                 .amount(entity.getAmount())
                 .updatedBy(entity.getCreatedBy() != null ? entity.getCreatedBy().getFullName(): UserType.SYSTEM.name())
