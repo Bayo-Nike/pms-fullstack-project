@@ -21,6 +21,7 @@ import et.scco.pms_backend.modules.task.model.Task;
 import et.scco.pms_backend.modules.task.repository.TaskRepository;
 import et.scco.pms_backend.utility.AuthContext;
 import et.scco.pms_backend.utility.FileStorageService;
+import et.scco.pms_backend.utility.JurisdictionUtility;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,8 @@ public class InspectionServiceImpl implements InspectionService {
     private final AuthContext authContext;
     private final NotificationService notificationService;
     private final EmployeeServiceImpl employeeServiceImpl;
+    private final JurisdictionUtility jurisdictionUtility;
+    private final FileStorageService fileStorageService;
 
     @Transactional(readOnly = true)
     @Override
@@ -86,8 +89,6 @@ public class InspectionServiceImpl implements InspectionService {
         return mapToResponseDto(inspection);
     }
 
-    private final FileStorageService fileStorageService;
-
 
     @Transactional
     @Override
@@ -109,14 +110,42 @@ public class InspectionServiceImpl implements InspectionService {
     private InspectionResponseDto getInspectionResponseDto(InspectionRequestDto dto, List<MultipartFile> files, Inspection inspection) {
         updateInspectionEntity(inspection, dto);
 
-        try {
-            String fileName = fileStorageService.storeFile(files.getFirst());
-            inspection.setInspectionDocumentUrl(fileName);
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
+        if (files != null)
+        {
+            try {
+                String fileName = fileStorageService.storeFile(files.getFirst());
+                inspection.setInspectionDocumentUrl(fileName);
+            }catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
         Inspection updated = inspectionRepository.save(inspection);
 
+//        List<Long>allSuper = jurisdictionUtility.myHierarchyUp();
+//
+//        if (!allSuper.isEmpty())
+//        {
+//            allSuper.forEach(sup ->{
+//                notificationService.sendNotification(
+//                        authContext.getEmployee().getId(),
+//                        sup,
+//                        "Inspection updates for project",
+//                        "nspections/edit/"+updated.getId()
+//                );
+//            });
+//        }
+//
+//        Long sup = jurisdictionUtility.mySupervisor();
+//
+//        if (sup != null)
+//        {
+//                notificationService.sendNotification(
+//                        authContext.getEmployee().getId(),
+//                        sup,
+//                        "Inspection updates for project",
+//                        "nspections/edit/"+updated.getId()
+//                );
+//        }
         return mapToResponseDto(updated);
     }
 
