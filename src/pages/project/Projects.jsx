@@ -592,7 +592,7 @@ export default function Projects() {
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl" title="View"><Visibility style={{ fontSize: 20 }} /></button>
                     <button onClick={() => navigate(`/projects/edit/${proj.id}`)} className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl" title="Update Initiation"><Edit style={{ fontSize: 20 }} /></button>
-                    <button onClick={() => setDeleteConfig({ show: true, id: proj.id, title: proj.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl" title="Delete"><Delete style={{ fontSize: 20 }} /></button>
+                    {/* <button onClick={() => setDeleteConfig({ show: true, id: proj.id, title: proj.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl" title="Delete"><Delete style={{ fontSize: 20 }} /></button> */}
                   </div>
                 </td>
               </tr>
