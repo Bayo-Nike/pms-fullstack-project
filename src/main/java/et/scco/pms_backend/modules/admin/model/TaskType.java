@@ -3,12 +3,10 @@ package et.scco.pms_backend.modules.admin.model;
 import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.enums.TaskTypeProjectStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 @Entity
-@Getter
-@Setter
+@Data
 @Table(name = "task_types")
 public class TaskType {
     @Id
