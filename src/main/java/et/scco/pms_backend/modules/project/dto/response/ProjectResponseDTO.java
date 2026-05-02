@@ -45,6 +45,8 @@ public class ProjectResponseDTO {
 
     private LocalDate startDate;
     private LocalDate endDate;
+    private LocalDate agreementDate;
+
     // for project extension
     private int totalExtendedDays; // computed
     private LocalDate finalEndDate; // computed
