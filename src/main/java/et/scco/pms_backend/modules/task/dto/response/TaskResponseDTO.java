@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.web.multipart.MultipartFile;
-
 @Data
 public class TaskResponseDTO {
 
