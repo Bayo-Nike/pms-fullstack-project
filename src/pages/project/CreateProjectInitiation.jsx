@@ -75,11 +75,11 @@ export default function CreateProjectInitiation() {
             return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
         }
 
-        // 2. Data Validation for STARTED status (Mandatory Agreement, Start and End dates)
-        if (formData.status === 'STARTED') {
+        // 2. Data Validation for ON_PROGRESS status (Mandatory Agreement, Start and End dates)
+        if (formData.status === 'ON_PROGRESS') {
             if (!formData.agreementDate || !formData.startDate || !formData.endDate) {
                 setShowConfirm(false);
-                return setAlert({ show: true, type: 'error', message: 'Agreement Date, Launch Date, and Deadline are mandatory for STARTED status.' });
+                return setAlert({ show: true, type: 'error', message: 'Agreement Date, Launch Date, and Deadline are mandatory for ON_PROGRESS status.' });
             }
 
             // Logic: Start Date <= End Date
@@ -97,10 +97,11 @@ export default function CreateProjectInitiation() {
             const payload = {
                 ...formData,
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
-                agreementDate: formData.status === 'STARTED' ? formData.agreementDate : null,
-                startDate: formData.status === 'STARTED' ? formData.startDate : null,
-                endDate: formData.status === 'STARTED' ? formData.endDate : null
+                agreementDate: formData.status === 'ON_PROGRESS' ? formData.agreementDate : null,
+                startDate: formData.status === 'ON_PROGRESS' ? formData.startDate : null,
+                endDate: formData.status === 'ON_PROGRESS' ? formData.endDate : null
             };
+
             if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
             else await projectApi.CREATE_PROJECT_INITIATION(payload);
 
@@ -166,7 +167,7 @@ export default function CreateProjectInitiation() {
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
                                 <select name="category" value={formData.category} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
                                     <option value="GOVERNMENT">Government</option>
-                                    <option value="NONE_GOVERNMENT">Non-Government</option>
+                                    <option value="NON_GOVERNMENT">Non-Government</option>
                                 </select>
                             </div>
                         </div>
@@ -244,12 +245,12 @@ export default function CreateProjectInitiation() {
                     <div className="w-64">
                         <select name="status" value={formData.status} onChange={handleInputChange} disabled={isView} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
                             <option value="INITIATED">Initiated</option>
-                            <option value="STARTED">Started</option>
+                            <option value="ON_PROGRESS">On Progress</option>
                         </select>
                     </div>
                 </div>
 
-                {formData.status === 'STARTED' && (
+                {formData.status === 'ON_PROGRESS' && (
                     <div className="space-y-8 pt-8 border-t border-slate-50 animate-fadeIn">
                         {/* New Requirement: Agreement Date */}
                         <div className="space-y-2">

@@ -70,7 +70,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* PROJECT STATUS & TASK PROGRESS */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
         <TaskOverviewSection data={data?.tasksByStatus} loading={loading} />
       </div>
@@ -97,8 +97,8 @@ function PerformanceAnalysisSection({ data = [], loading }) {
     // A. Filter raw data based on dropdowns
     const filtered = data.filter(item => {
       return (filters.fiscalYear === 'All' || item.fiscalYear === filters.fiscalYear) &&
-             (filters.buildingType === 'All' || item.buildingType === filters.buildingType) &&
-             (filters.planType === 'All' || item.planType === filters.planType);
+        (filters.buildingType === 'All' || item.buildingType === filters.buildingType) &&
+        (filters.planType === 'All' || item.planType === filters.planType);
     });
 
     // B. Re-aggregate by Sub-City name (since one subcity might have multiple rows after filtering)
@@ -108,10 +108,10 @@ function PerformanceAnalysisSection({ data = [], loading }) {
         existing.target += (curr.target || 0);
         existing.achieved += (curr.achieved || 0);
       } else {
-        acc.push({ 
-          name: curr.name, 
-          target: curr.target || 0, 
-          achieved: curr.achieved || 0 
+        acc.push({
+          name: curr.name,
+          target: curr.target || 0,
+          achieved: curr.achieved || 0
         });
       }
       return acc;
@@ -125,15 +125,15 @@ function PerformanceAnalysisSection({ data = [], loading }) {
       const target = payload.find(p => p.dataKey === 'target')?.value || 0;
       const achieved = payload.find(p => p.dataKey === 'achieved')?.value || 0;
       const efficiency = target > 0 ? ((achieved / target) * 100).toFixed(1) : 0;
-      
+
       return (
         <div className="bg-white p-4 shadow-2xl border border-slate-100 rounded-2xl">
           <p className="font-bold text-slate-800 mb-2 border-b pb-1">{label}</p>
           <div className="space-y-1 text-xs">
-            <p className="flex justify-between gap-6 text-slate-500">Target: <span className="font-bold text-slate-900">{target.toLocaleString()}</span></p>
-            <p className="flex justify-between gap-6 text-blue-600">Achieved: <span className="font-bold">{achieved.toLocaleString()}</span></p>
+            <p className="flex justify-between gap-6 text-slate-500">Target: <span className="font-bold text-slate-900">{target?.toLocaleString()}</span></p>
+            <p className="flex justify-between gap-6 text-blue-600">Achieved: <span className="font-bold">{achieved?.toLocaleString()}</span></p>
             <div className={`mt-2 py-1 px-2 rounded-lg text-center font-black uppercase ${efficiency >= 90 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
-               Efficiency: {efficiency}%
+              Efficiency: {efficiency}%
             </div>
           </div>
         </div>
@@ -151,38 +151,38 @@ function PerformanceAnalysisSection({ data = [], loading }) {
             <h3 className="text-xl font-black text-slate-800 tracking-tight">Performance Analysis</h3>
             <p className="text-slate-500 text-xs font-medium uppercase">Drill down by FiscalYear, Building Type and Plan Mode</p>
           </div>
-          
+
           <div className="flex gap-4 bg-slate-50 p-2 rounded-xl">
-             <div className="flex items-center gap-2 px-2 border-r border-slate-200">
-                <div className="w-3 h-3 rounded-full bg-slate-200"></div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Target</span>
-             </div>
-             <div className="flex items-center gap-2 px-2">
-                <div className="w-3 h-3 rounded-full bg-[#0284C7]"></div>
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Achieved</span>
-             </div>
+            <div className="flex items-center gap-2 px-2 border-r border-slate-200">
+              <div className="w-3 h-3 rounded-full bg-slate-200"></div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Target</span>
+            </div>
+            <div className="flex items-center gap-2 px-2">
+              <div className="w-3 h-3 rounded-full bg-[#0284C7]"></div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase">Achieved</span>
+            </div>
           </div>
         </div>
 
         {/* INTERACTIVE FILTERS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
-          <FilterSelect 
-            label="Fiscal Year" 
-            options={uniqueYears} 
-            value={filters.fiscalYear} 
-            onChange={(v) => setFilters(f => ({...f, fiscalYear: v}))} 
+          <FilterSelect
+            label="Fiscal Year"
+            options={uniqueYears}
+            value={filters.fiscalYear}
+            onChange={(v) => setFilters(f => ({ ...f, fiscalYear: v }))}
           />
-          <FilterSelect 
-            label="Building Type" 
-            options={uniqueBuildingTypes} 
-            value={filters.buildingType} 
-            onChange={(v) => setFilters(f => ({...f, buildingType: v}))} 
+          <FilterSelect
+            label="Building Type"
+            options={uniqueBuildingTypes}
+            value={filters.buildingType}
+            onChange={(v) => setFilters(f => ({ ...f, buildingType: v }))}
           />
-          <FilterSelect 
-            label="Plan Type" 
-            options={uniquePlanTypes} 
-            value={filters.planType} 
-            onChange={(v) => setFilters(f => ({...f, planType: v}))} 
+          <FilterSelect
+            label="Plan Type"
+            options={uniquePlanTypes}
+            value={filters.planType}
+            onChange={(v) => setFilters(f => ({ ...f, planType: v }))}
           />
         </div>
       </div>
@@ -197,7 +197,7 @@ function PerformanceAnalysisSection({ data = [], loading }) {
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#64748b' }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#94a3b8' }} />
-              <Tooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8fafc' }} />
               <Bar dataKey="target" fill="#E2E8F0" radius={[4, 4, 0, 0]} barSize={filteredData.length > 5 ? 25 : 45} />
               <Bar dataKey="achieved" fill="#0284C7" radius={[4, 4, 0, 0]} barSize={filteredData.length > 5 ? 25 : 45} />
             </BarChart>
@@ -212,7 +212,7 @@ function PerformanceAnalysisSection({ data = [], loading }) {
 const FilterSelect = ({ label, options, value, onChange }) => (
   <div className="flex flex-col space-y-1.5">
     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">{label}</label>
-    <select 
+    <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-all outline-none"
@@ -252,7 +252,7 @@ function StatsGrid({ data, loading }) {
 
 function BudgetUtilizationSection({ trendData = [], loading }) {
   const [activeCurrency, setActiveCurrency] = useState('');
-  
+
   useEffect(() => {
     if (trendData.length > 0 && !activeCurrency) {
       setActiveCurrency(trendData[0].currency);
@@ -354,14 +354,14 @@ function ProjectStatusSection({ data = [], loading }) {
   const chartData = useMemo(() => {
     // A. Filter logic
     const filtered = data.filter(item => {
-      if (selectedSubCity === 'All') return true; 
+      if (selectedSubCity === 'All') return true;
       return item.subCity === selectedSubCity;
     });
 
     return filtered.reduce((acc, curr) => {
       const statusName = curr.name;
       const val = Number(curr.value || 0);
-      
+
       const existing = acc.find(item => item.name === statusName);
       if (existing) {
         existing.value += val;
@@ -384,12 +384,12 @@ function ProjectStatusSection({ data = [], loading }) {
         <div>
           <h3 className="text-lg font-bold text-slate-800">Project Status</h3>
           <p className="text-[10px] font-bold text-slate-400 uppercase">
-             {selectedSubCity === 'All' ? 'Total Portfolio' : selectedSubCity}
+            {selectedSubCity === 'All' ? 'Total Portfolio' : selectedSubCity}
           </p>
         </div>
 
         {!loading && subCityOptions.length > 0 && (
-          <select 
+          <select
             value={selectedSubCity}
             onChange={(e) => setSelectedSubCity(e.target.value)}
             className="text-[10px] font-black bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 outline-none uppercase"
@@ -418,7 +418,7 @@ function ProjectStatusSection({ data = [], loading }) {
         {chartData.map((item, i) => (
           <div key={i} className="flex justify-between text-xs font-bold">
             <span className="flex items-center gap-2 text-slate-500 uppercase">
-              <div className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: PROJECT_STATUS_COLORS[item.name]}}></div>
+              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: PROJECT_STATUS_COLORS[item.name] }}></div>
               {item.name}
             </span>
             <span className="text-slate-800">{item.value}</span>
@@ -428,7 +428,7 @@ function ProjectStatusSection({ data = [], loading }) {
     </div>
   );
 }
- 
+
 
 function TaskOverviewSection({ data = [], loading }) {
   const [selectedProject, setSelectedProject] = useState('All Projects');
@@ -442,7 +442,7 @@ function TaskOverviewSection({ data = [], loading }) {
   // 2. Filter and Aggregate Data based on selected project
   const aggregatedData = useMemo(() => {
     // A. Filter by project
-    const filtered = data.filter(item => 
+    const filtered = data.filter(item =>
       selectedProject === 'All Projects' || item.projectName === selectedProject
     );
 
@@ -450,7 +450,7 @@ function TaskOverviewSection({ data = [], loading }) {
     return filtered.reduce((acc, curr) => {
       const statusName = curr.status;
       const count = Number(curr.count || 0);
-      
+
       const existing = acc.find(item => item.name === statusName);
       if (existing) {
         existing.value += count;
@@ -468,7 +468,7 @@ function TaskOverviewSection({ data = [], loading }) {
 
   return (
     <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col h-full min-h-[420px]">
-      
+
       {/* HEADER WITH PROJECT FILTER */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
         <div>
@@ -479,7 +479,7 @@ function TaskOverviewSection({ data = [], loading }) {
         </div>
 
         {!loading && projectOptions.length > 1 && (
-          <select 
+          <select
             value={selectedProject}
             onChange={(e) => setSelectedProject(e.target.value)}
             className="text-[10px] font-black bg-slate-50 border border-slate-100 rounded-lg px-2 py-1 outline-none uppercase cursor-pointer max-w-[150px]"
@@ -494,26 +494,26 @@ function TaskOverviewSection({ data = [], loading }) {
       <div className="flex-grow flex flex-col justify-center space-y-10">
         {/* Completion Gauge */}
         <div className="space-y-4">
-            <div className="flex justify-between items-end">
-                <span className="text-xs font-bold text-slate-500 uppercase">
-                    {selectedProject === 'All Projects' ? 'Global Completion' : 'Project Status'}
-                </span>
-                <span className="text-3xl font-black text-slate-800">{rate}%</span>
-            </div>
-            
-            {/* Multi-color Progress Bar */}
-            <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+          <div className="flex justify-between items-end">
+            <span className="text-xs font-bold text-slate-500 uppercase">
+              {selectedProject === 'All Projects' ? 'Global Completion' : 'Project Status'}
+            </span>
+            <span className="text-3xl font-black text-slate-800">{rate}%</span>
+          </div>
+
+          {/* Multi-color Progress Bar */}
+          <div className="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
             {aggregatedData.map((item, i) => (
-                <div 
-                    key={i} 
-                    style={{ 
-                        width: `${totalTasks > 0 ? (item.value / totalTasks) * 100 : 0}%`, 
-                        backgroundColor: TASK_STATUS_COLORS[item.name] || TASK_STATUS_COLORS.DEFAULT 
-                    }} 
-                    className="h-full border-r border-white/20 last:border-0 transition-all duration-500" 
-                />
+              <div
+                key={i}
+                style={{
+                  width: `${totalTasks > 0 ? (item.value / totalTasks) * 100 : 0}%`,
+                  backgroundColor: TASK_STATUS_COLORS[item.name] || TASK_STATUS_COLORS.DEFAULT
+                }}
+                className="h-full border-r border-white/20 last:border-0 transition-all duration-500"
+              />
             ))}
-            </div>
+          </div>
         </div>
 
         {/* Status Count Grid */}
@@ -522,11 +522,11 @@ function TaskOverviewSection({ data = [], loading }) {
             <div key={i} className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 flex flex-col items-center text-center">
               <p className="text-[10px] font-black text-slate-400 uppercase mb-1">{item.name}</p>
               <p className="text-2xl font-black text-slate-700">{item.value}</p>
-              <div className="w-full h-1 mt-2 rounded-full" style={{backgroundColor: TASK_STATUS_COLORS[item.name]}}></div>
+              <div className="w-full h-1 mt-2 rounded-full" style={{ backgroundColor: TASK_STATUS_COLORS[item.name] }}></div>
             </div>
           )) : (
             <div className="col-span-2 py-10 text-center text-slate-400 text-xs italic">
-                No tasks found for this selection
+              No tasks found for this selection
             </div>
           )}
         </div>
@@ -567,7 +567,7 @@ const BudgetStatCard = ({ icon, label, budgets }) => (
           {budgets.slice(0, 2).map((b, i) => (
             <div key={i} className="flex items-baseline gap-1">
               <span className="text-base sm:text-lg font-black text-slate-800">
-                {b.amount >= 1000000 ? `${(b.amount / 1000000).toFixed(1)}M` : b.amount.toLocaleString()}
+                {b.amount >= 1000000 ? `${(b.amount / 1000000).toFixed(1)}M` : b.amount?.toLocaleString()}
               </span>
               <span className="text-[9px] font-bold text-slate-400 uppercase">{b.currency}</span>
             </div>
