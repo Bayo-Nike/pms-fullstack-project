@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public class ProjectInitiationServiceImpl implements ProjectInitiationService {
 
     private final ProjectRepository projectRepository;
-    private final SubCityRepository subCityRepository; // Needed for Hub assignment
-    private final LocationRepository locationRepository; // Needed for Site assignment
+    private final SubCityRepository subCityRepository;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -37,6 +37,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         Project project = new Project();
 
         mapDtoToEntity(dto, project);
+
         Project saved = projectRepository.save(project);
 
         String code = String.format(
@@ -94,7 +95,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         project.setProjectLevel(dto.getProjectLevel());
         project.setStatus(dto.getStatus());
 
-        if (dto.getStatus().equals(ProjectStatus.STARTED)) {
+        if (dto.getStatus().equals(ProjectStatus.ON_PROGRESS)) {
             project.setStartDate(dto.getStartDate());
             project.setEndDate(dto.getEndDate());
             project.setAgreementDate(dto.getAgreementDate());
