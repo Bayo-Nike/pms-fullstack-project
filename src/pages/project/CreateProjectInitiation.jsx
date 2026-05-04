@@ -44,6 +44,7 @@ export default function CreateProjectInitiation() {
                     const d = res.data?.data || res.data;
                     setFormData({
                         ...d,
+                        category: d.category || 'GOVERNMENT',
                         subCityId: d.subCityId ? String(d.subCityId) : '',
                         locationIds: d.locationIds || [],
                         agreementDate: d.agreementDate || '',
