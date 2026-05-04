@@ -44,6 +44,7 @@ export default function CreateProjectInitiation() {
                     const d = res.data?.data || res.data;
                     setFormData({
                         ...d,
+                        category: d.category || 'GOVERNMENT',
                         subCityId: d.subCityId ? String(d.subCityId) : '',
                         locationIds: d.locationIds || [],
                         agreementDate: d.agreementDate || '',
@@ -166,7 +167,7 @@ export default function CreateProjectInitiation() {
                             <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
                                 <select name="category" value={formData.category} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
                                     <option value="GOVERNMENT">Government</option>
-                                    <option value="NONE_GOVERNMENT">Non-Government</option>
+                                    <option value="NON_GOVERNMENT">Non-Government</option>
                                 </select>
                             </div>
                         </div>
