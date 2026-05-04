@@ -91,7 +91,7 @@ export default function ProjectInitiations() {
                         <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black">Regional Proposal Registry</p>
                     </div>
                 </div>
-                <button onClick={() => navigate('/projects/initiations/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                <button onClick={() => navigate('/initiations/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                     <Add /> New Initiation
                 </button>
             </div>
@@ -158,13 +158,13 @@ export default function ProjectInitiations() {
                                 <td className="px-8 py-5 text-right">
                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
-                                            onClick={() => navigate(`/projects/initiations/view/${init.id}`)}
+                                            onClick={() => navigate(`/initiations/view/${init.id}`)}
                                             className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
                                             title="View Details"
                                         >
                                             <Visibility style={{ fontSize: 20 }} />
                                         </button>
-                                        <button onClick={() => navigate(`/projects/initiations/edit/${init.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
+                                        <button onClick={() => navigate(`/initiations/edit/${init.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
                                         <button onClick={() => setDeleteConfig({ show: true, id: init.id, title: init.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete fontSize="small" /></button>
                                     </div>
                                 </td>

@@ -35,7 +35,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Projects',
       icon: <Assignment />,
       children: [
-        { path: '/projects/initiations', name: 'Project Initiation', permission: 'CAN_SEE_PROJECT_LIST' },
+        { path: '/initiations', name: 'Project Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' },
         { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
         { path: '/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
       ]

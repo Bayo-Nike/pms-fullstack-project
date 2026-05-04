@@ -152,7 +152,7 @@ const ProjectInitiationDetails = () => {
             {/* Header: Read Only Profile */}
             <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex items-center justify-between">
                 <div className="flex items-center gap-5">
-                    <button onClick={() => navigate('/projects/initiations')} className="p-3 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-all"><ArrowBack fontSize="small" /></button>
+                    <button onClick={() => navigate('/initiations')} className="p-3 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-all"><ArrowBack fontSize="small" /></button>
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-[10px] font-black bg-sky-50 text-[#0284C7] px-2 py-0.5 rounded border border-sky-100 uppercase">{project.projectCode}</span>

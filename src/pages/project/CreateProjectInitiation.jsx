@@ -106,7 +106,7 @@ export default function CreateProjectInitiation() {
             else await projectApi.CREATE_PROJECT_INITIATION(payload);
 
             setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Synced.' });
-            setTimeout(() => navigate('/projects/initiations'), 1500);
+            setTimeout(() => navigate('/initiations'), 1500);
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
         finally { setSaving(false); }
     };
@@ -133,7 +133,7 @@ export default function CreateProjectInitiation() {
 
             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-5">
-                    <button onClick={() => navigate('/projects/initiations')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+                    <button onClick={() => navigate('/initiations')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
                     <div>
                         <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
                             {isView ? 'View Initiation' : isEdit ? 'Modify Initiation' : 'Project Initiation'}
@@ -149,7 +149,7 @@ export default function CreateProjectInitiation() {
                     </button>
                 )}
                 {isView && (
-                    <button onClick={() => navigate(`/projects/initiations/edit/${id}`)} className="bg-[#FBAF1E] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-amber-600 transition-all">
+                    <button onClick={() => navigate(`/initiations/edit/${id}`)} className="bg-[#FBAF1E] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-amber-600 transition-all">
                         Edit Mode
                     </button>
                 )}

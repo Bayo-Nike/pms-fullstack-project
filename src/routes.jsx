@@ -76,12 +76,12 @@ export default function AppRoutes() {
         <Route path="my-reportees" element={protect(<Reportees />, "CAN_SEE_MY_REPORTEES")} />
 
         {/* 2. Projects */}
-        <Route path='projects/initiations' element={protect(<ProjectInitiations />, "CAN_SEE_PROJECT_LIST")} />
-        <Route path='projects/initiations/create' element={protect(<CreateProjectInitiation />, "CAN_SEE_PROJECT_LIST")} />
-        <Route path='projects/initiations/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_SEE_PROJECT_LIST")} />
-        <Route path='projects/initiations/view/:id' element={protect(<ProjectInitiationDetails />, "CAN_SEE_PROJECT_LIST")} />
+        {/* CAN_DELETE_PROJECT_INITIATION */}
+        <Route path='initiations' element={protect(<ProjectInitiations />, "CAN_SEE_PROJECT_INITIATION")} />
+        <Route path='initiations/create' element={protect(<CreateProjectInitiation />, "CAN_CREATE_PROJECT_INITIATION")} />
+        <Route path='initiations/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_EDIT_PROJECT_INITIATION")} />
+        <Route path='initiations/view/:id' element={protect(<ProjectInitiationDetails />, "CAN_SEE_PROJECT_INITIATION_DETAILS")} />
         <Route path="projects" element={protect(<Projects />, "CAN_SEE_PROJECT_LIST")} />
-        {/* <Route path="projects/create" element={protect(<EditProject />, "CAN_CREATE_PROJECT")} /> */}
         <Route path="projects/:id" element={protect(<ProjectDetails />, "CAN_VIEW_PROJECT_DETAIL")} />
         <Route path="projects/edit/:id" element={protect(<EditProject />, "CAN_EDIT_PROJECT")} />
 
