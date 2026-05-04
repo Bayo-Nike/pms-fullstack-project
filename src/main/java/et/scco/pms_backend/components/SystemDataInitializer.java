@@ -58,18 +58,18 @@ public class SystemDataInitializer implements ApplicationRunner {
                 .orElseThrow();
 
         List<String> names = List.of(
-                "Koye Feche",
-                "Akaki",
-                "Bole Bulbula",
+                "Kura Jida",
+                "Laga Tafo",
                 "Burayu",
-                "Dukem",
-                "Gelan",
-                "Legedadi",
-                "Lemi Kura",
-                "Nefas Silk",
-                "Sebeta",
-                "Sululta",
-                "Tulu Dimtu"
+                "Koye Fache",
+                "Galan",
+                "Furi",
+                "Galan Guda",
+                "Sabata",
+                "Malka Nono",
+                "Gafarsa Guje",
+                "Mana Abichu",
+                "Sululta"
         );
 
         List<SubCity> subCities = names.stream()
@@ -96,14 +96,17 @@ public class SystemDataInitializer implements ApplicationRunner {
         createDivision("City Record Office", DivisionGroup.BTH, "City Office");
         createDivision("City Building Director Office", DivisionGroup.BLD, "City Office");
         createDivision("City Water and Road Director Office", DivisionGroup.WAR, "City Office");
+        createDivision("City Industry Construction Director Office", DivisionGroup.BTH, "City Office");
         createDivision("Sub-City Office", DivisionGroup.BTH, "City Office");
         createDivision("City Finance Office", DivisionGroup.BTH, "City Office");
 
         createDivision("City Design Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
         createDivision("City Monitoring Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
-        
-        createDivision("City Team Leader 1 Office", DivisionGroup.WAR, "City Water and Road Director Office");
-        createDivision("City Team Leader 2 Office", DivisionGroup.WAR, "City Water and Road Director Office");
+
+        createDivision("City Road Design Approval Team Leader Office", DivisionGroup.WAR, "City Water and Road Director Office");
+        createDivision("City Road Monitoring and Supervision Team Leader Office", DivisionGroup.WAR, "City Water and Road Director Office");
+        createDivision("City Water and Irrigation Design Approval Team Leader Office", DivisionGroup.WAR, "City Water and Road Director Office");
+        createDivision("City Water and Irrigation Monitoring and Supervision Team Leader Office", DivisionGroup.WAR, "City Water and Road Director Office");
 
         createDivision("Sub-City Building Team Leader Office", DivisionGroup.BLD, "Sub-City Office");
         createDivision("Sub-City Water and Road Team Leader Office", DivisionGroup.WAR, "Sub-City Office");
@@ -130,7 +133,7 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
-        if (positionRepository.count() > 2){
+        if (positionRepository.count() > 4){
             return;
         }
         createPosition("Mayor", null, "Mayor Office");
@@ -139,6 +142,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("City Building Director", "City Office Head", "City Building Director Office");
         createPosition("City Water and Road Director", "City Office Head", "City Water and Road Director Office");
+        createPosition("City Industry Construction Director", "City Office Head", "City Industry Construction Director Office");
         createPosition("Sub-City Office Head", "City Office Head", "Sub-City Office");
         createPosition("Finance Officer", "City Office Head", "City Finance Office");
         createPosition("City Record Office Head", "City Office Head", "City Record Office");
@@ -146,8 +150,10 @@ public class SystemDataInitializer implements ApplicationRunner {
         createPosition("City Design Team Leader", "City Building Director", "City Design Team Leader Office");
         createPosition("City Monitoring Team Leader", "City Building Director", "City Monitoring Team Leader Office");
 
-        createPosition("City Team Leader 1", "City Water and Road Director", "City Team Leader 1 Office");
-        createPosition("City Team Leader 2", "City Water and Road Director", "City Team Leader 2 Office");
+        createPosition("City Road Design Approval Team Leader", "City Water and Road Director", "City Road Design Approval Team Leader Office");
+        createPosition("City Road Monitoring and Supervision Team Leader", "City Water and Road Director", "City Road Monitoring and Supervision Team Leader Office");
+        createPosition("City Water and Irrigation Design Approval Team Leader", "City Water and Road Director", "City Water and Irrigation Design Approval Team Leader Office");
+        createPosition("City Water and Irrigation Monitoring and Supervision Team Leader", "City Water and Road Director", "City Water and Irrigation Monitoring and Supervision Team Leader Office");
 
         createPosition("City Design Site Engineer", "City Design Team Leader", "City Design Team Leader Office");
         createPosition("City Monitoring Site Engineer", "City Monitoring Team Leader", "City Monitoring Team Leader Office");
