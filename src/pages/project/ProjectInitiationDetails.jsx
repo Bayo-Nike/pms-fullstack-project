@@ -162,7 +162,7 @@ const ProjectInitiationDetails = () => {
                     </div>
                 </div>
                 <div className="flex gap-8">
-                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.status === 'STARTED' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.status}</span></div>
+                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.status === 'ON_PROGRESS' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.status}</span></div>
                     <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Category</p><span className="text-xs font-black text-amber-600 uppercase">{project.category}</span></div>
                     <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Window</p><span className="text-xs font-black text-slate-700">{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
                 </div>

@@ -28,7 +28,7 @@ export default function TaskTypes() {
             name: '',
             description: '',
             projectType: 'BUILDING',
-            taskTypeProjectStatus: 'INITIATED'
+            taskTypeProjectStatus: 'INITIATION'
         }
     });
 
@@ -61,7 +61,7 @@ export default function TaskTypes() {
                 name: '',
                 description: '',
                 projectType: 'BUILDING',
-                taskTypeProjectStatus: 'INITIATED'
+                taskTypeProjectStatus: 'INITIATION'
             }
         });
     };
@@ -145,8 +145,8 @@ export default function TaskTypes() {
                                     <label className="text-[9px] font-black text-slate-400 uppercase ml-1 tracking-widest">Phase</label>
                                     <select disabled={isReadOnly} value={dialog.formData.taskTypeProjectStatus} onChange={(e) => setDialog({ ...dialog, formData: { ...dialog.formData, taskTypeProjectStatus: e.target.value } })}
                                         className="w-full px-4 py-3.5 bg-sky-50 border-2 border-sky-100 text-[#0284C7] rounded-2xl text-[11px] font-black uppercase outline-none">
-                                        <option value="INITIATED">Initiation</option>
-                                        <option value="OTHERS">Others</option>
+                                        <option value="INITIATION">Initiation</option>
+                                        <option value="ON_PROGRESS">ON_PROGRESS</option>
                                     </select>
                                 </div>
                             </div>
@@ -228,7 +228,7 @@ export default function TaskTypes() {
                                         </span>
                                     </td>
                                     <td className="px-6 py-5 text-center">
-                                        <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border uppercase tracking-tighter ${item.taskTypeProjectStatus === 'INITIATED' ? 'bg-sky-50 text-[#0284C7] border-sky-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+                                        <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border uppercase tracking-tighter ${item.taskTypeProjectStatus === 'INITIATION' ? 'bg-sky-50 text-[#0284C7] border-sky-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
                                             {item.taskTypeProjectStatus}
                                         </span>
                                     </td>
