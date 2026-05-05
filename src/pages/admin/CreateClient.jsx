@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     ArrowBack, Save, UploadFile, HelpOutline,
-    CorporateFare, ToggleOn, Description, CheckCircle, Close
+    CorporateFare, ToggleOn, Description, CheckCircle, Close, CalendarMonth
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -16,7 +16,8 @@ export default function CreateClient() {
     const [clientName, setClientName] = useState('');
     const [status, setStatus] = useState('ACTIVE');
     const [category, setCategory] = useState('');
-    const [registeredDate, setRegisteredDate] = useState('');
+    // Default registration date to today
+    const [registeredDate, setRegisteredDate] = useState(new Date().toISOString().split('T')[0]);
     const [document, setDocument] = useState(null);
     const [existingFile, setExistingFile] = useState('');
 
@@ -156,11 +157,23 @@ export default function CreateClient() {
                     </div>
                 </div>
 
-                {/* Document Card */}
+                {/* Document Card - Reorganized */}
                 <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden h-fit">
-                
-                    <div className="p-5 border-b border-slate-50 bg-slate-50/30 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">License & Artifacts</span></div>
+                    <div className="p-5 border-b border-slate-50 bg-slate-50/40 flex items-center gap-3">
+                        <Description className="text-slate-400" fontSize="small" />
+                        <span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Compliance & Artifacts</span>
+                    </div>
+
                     <div className="p-8 space-y-6">
+                        {/* Registration Date */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-1">
+                                <CalendarMonth fontSize="inherit" /> Registration Date
+                            </label>
+                            <input name="registeredDate" type="date" value={registeredDate} onChange={(e) => setRegisteredDate(e.target.value)} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-[#0284C7]" />
+                        </div>
+
+                        {/* Upload Section */}
                         <div className="border-2 border-dashed border-slate-200 rounded-[28px] p-10 text-center hover:border-[#0284C7] transition-colors relative cursor-pointer group bg-slate-50/20">
                             <input type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" onChange={(e) => setDocument(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                             <UploadFile className="text-slate-300 group-hover:text-[#0284C7] mb-3" style={{ fontSize: 48 }} />
@@ -168,6 +181,7 @@ export default function CreateClient() {
                             <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-tighter">Supported: PDF, Images, Word</p>
                         </div>
 
+                        {/* File Preview */}
                         {(document || existingFile) && (
                             <div className={`flex items-center gap-3 p-4 rounded-2xl border ${document ? 'bg-sky-50 border-sky-100' : 'bg-slate-50 border-slate-100'}`}>
                                 <Description className={document ? 'text-[#0284C7]' : 'text-slate-400'} />
@@ -180,13 +194,7 @@ export default function CreateClient() {
                                 {document && <Close onClick={() => setDocument(null)} className="cursor-pointer text-slate-400 hover:text-red-500" style={{ fontSize: 16 }} />}
                             </div>
                         )}
-                        
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Registeration Date</label>
-                            <input name="registeredDate" type="date" value={registeredDate} onChange={(e) => setRegisteredDate(e.target.value)} required className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-4 outline-none focus:border-[#0284C7]" />
-                        </div>
                     </div>
-                    
                 </div>
             </div>
         </div>

@@ -40,7 +40,10 @@ const projectApi = {
 
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
 
-
+    // projectApi.js
+    COMMENT_INSPECTION: (id, comment) => api.put(`/admin/inspections/comment/${id}`, comment, {
+        headers: { 'Content-Type': 'text/plain' }
+    }),
 
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
