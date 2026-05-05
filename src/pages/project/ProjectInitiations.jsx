@@ -101,7 +101,7 @@ export default function ProjectInitiations() {
                 <div className="relative max-w-xs w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
                     <input
-                        type="text" placeholder="Search proposals..." value={searchTerm}
+                        type="text" placeholder="Search initiations..." value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && fetchInitiations(0)}
                         className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-[#0284C7] transition-all"
