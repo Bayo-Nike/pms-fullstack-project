@@ -16,7 +16,7 @@ public class ContractorResponseDTO {
     private String document;
     private LocalDateTime createdDate;
     private Category category;
-    private LocalDateTime registeredDate;
+    private LocalDate registeredDate;
     private LocalDate licenseExpiryDate;
 
 

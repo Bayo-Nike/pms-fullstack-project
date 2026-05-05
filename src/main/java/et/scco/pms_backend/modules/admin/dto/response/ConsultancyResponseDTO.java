@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ConsultantStatus;
-import et.scco.pms_backend.modules.admin.model.User;
 import lombok.Data;
 
 @Data
@@ -14,10 +13,11 @@ public class ConsultancyResponseDTO {
     private String consultantName;
     private ConsultantStatus status;
     private String document;
-    private User createdBy;
+    // private EmployeeResponseDto createdBy;
+    private EmployeeSimpleDto createdBy;
     private LocalDateTime createdDate;
     private Category category;
-    private LocalDateTime registeredDate;
+    private LocalDate registeredDate;
     private LocalDate licenseExpiryDate;
 
 }
