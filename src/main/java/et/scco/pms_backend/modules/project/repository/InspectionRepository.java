@@ -15,15 +15,15 @@ import java.util.List;
 @Repository
 public interface InspectionRepository extends JpaRepository<Inspection, Long> {
     List<Inspection> findByProjectId(Long projectId);
-    Page<Inspection> findAllByEmployee(Employee employee, Pageable pageable);
-
 
     @Query("SELECT i FROM Inspection i WHERE " +
             "(:projectType IS NULL OR i.project.projectType = :projectType) AND " +
             "(:subCityId IS NULL OR i.project.subCity.id = :subCityId) AND " +
             "(:search IS NULL OR LOWER(i.project.title) LIKE LOWER(CONCAT('%', :search, '%')) " +
             "OR LOWER(i.inspectionType.name) LIKE LOWER(CONCAT('%', :search, '%')) " +
-            "OR LOWER(i.employee.fullName) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "OR LOWER(i.employee.fullName) LIKE LOWER(CONCAT('%', :search, '%')))" +
+            "ORDER BY i.inspectionDate DESC"
+    )
     Page<Inspection> findWithFilters(
             @Param("projectType") ProjectType projectType,
             @Param("subCityId") Long subCityId,

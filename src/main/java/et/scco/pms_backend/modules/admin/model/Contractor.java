@@ -29,7 +29,7 @@ public class Contractor {
     private String contractorName;
 
     @Enumerated(EnumType.STRING)
-    private ContractorStatus status;
+    private ContractorStatus status = ContractorStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     private Category category;

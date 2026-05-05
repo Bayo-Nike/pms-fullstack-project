@@ -10,19 +10,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface InspectionService {
-//    Page<InspectionResponseDto> getAllInspections(Pageable pageable);
-//
-//    @Transactional(readOnly = true)
-//    List<InspectionResponseDto> getAllInspections(String search, Long subCityId);
 
     @Transactional(readOnly = true)
     Page<InspectionResponseDto> getAllInspections(String search, Long subCityId, Pageable pageable);
 
     InspectionResponseDto getInspection(Long id);
-
-//    InspectionResponseDto createInspection(InspectionRequestDto dto);
-
-//    InspectionResponseDto updateInspection(Long id, InspectionRequestDto dto);
 
     @Transactional
     InspectionResponseDto createInspection(InspectionRequestDto dto, List<MultipartFile> files);
@@ -34,4 +26,5 @@ public interface InspectionService {
 
     List<InspectionResponseDto> getInspectionsByProject(Long projectId);
 
+    InspectionResponseDto commentInspection(Long inspectionId, String comment);
 }

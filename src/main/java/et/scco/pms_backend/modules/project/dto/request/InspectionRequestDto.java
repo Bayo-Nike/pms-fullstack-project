@@ -4,21 +4,7 @@ import et.scco.pms_backend.enums.InspectionLevel;
 import et.scco.pms_backend.enums.WeatherCondition;
 import lombok.Data;
 
-import java.time.LocalDate;
-
-//@Data
-//public class InspectionRequestDto {
-//    private Long inspectionTypeId;
-//    private InspectionLevel inspectionLevel;
-//    private WeatherCondition weatherCondition;
-//    private Long projectId;
-//    private Long taskId;
-//    private LocalDate inspectionDate;
-//    private String inspectionResult;
-//    private Long activeWorkers;
-//}
-
-
+import java.time.LocalDateTime;
 @Data
 public class InspectionRequestDto {
     private Long inspectionTypeId;
@@ -26,7 +12,7 @@ public class InspectionRequestDto {
     private WeatherCondition weatherCondition;
     private Long projectId;
     private Long taskId;
-    private LocalDate inspectionDate;
+    private LocalDateTime inspectionDate;
     private String inspectionResult;
     private Long activeWorkers;
     private String latitude;

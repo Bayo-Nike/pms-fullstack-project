@@ -30,7 +30,7 @@ public class Consultancy {
     private String consultantName;
 
     @Enumerated(EnumType.STRING)
-    private ConsultantStatus status;
+    private ConsultantStatus status = ConsultantStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     private Category category;

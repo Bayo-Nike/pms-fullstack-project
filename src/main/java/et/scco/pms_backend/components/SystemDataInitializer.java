@@ -133,7 +133,7 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initPositions() {
-        if (positionRepository.count() > 4){
+        if (positionRepository.count() > 2){
             return;
         }
         createPosition("Mayor", null, "Mayor Office");
@@ -157,8 +157,6 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("City Design Site Engineer", "City Design Team Leader", "City Design Team Leader Office");
         createPosition("City Monitoring Site Engineer", "City Monitoring Team Leader", "City Monitoring Team Leader Office");
-        createPosition("City Site 1 Engineer", "City Team Leader 1", "City Team Leader 1 Office");
-        createPosition("City Site 2 Engineer", "City Team Leader 2", "City Team Leader 2 Office");
 
         createPosition("Sub-City Building Team Leader", "Sub-City Office Head", "Sub-City Building Team Leader Office");
         createPosition("Sub-City Water and Road Team Leader", "Sub-City Office Head", "Sub-City Water and Road Team Leader Office");
@@ -228,7 +226,8 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
                         new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
                         new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection"),
-                        new PermissionData("CAN_UPDATE_INSPECTION", "Can Updated Inspection")
+                        new PermissionData("CAN_UPDATE_INSPECTION", "Can Updated Inspection"),
+                        new PermissionData("CAN_COMMENT_INSPECTION", "Can Comment on Inspection")
                 )
         );
 

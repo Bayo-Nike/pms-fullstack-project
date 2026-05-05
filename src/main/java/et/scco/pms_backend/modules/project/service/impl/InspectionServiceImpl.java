@@ -141,6 +141,23 @@ public class InspectionServiceImpl implements InspectionService {
                 .toList();
     }
 
+    @Override
+    public InspectionResponseDto commentInspection(Long inspectionId, String comment) {
+        Inspection inspection = inspectionRepository.findById(inspectionId)
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
+        if (inspection.getComment1() == null) {
+            inspection.setComment1(comment);
+            inspection.setCommentedBy1(authContext.getEmployee().getFullName());
+        } else {
+            if (inspection.getComment2() == null){
+                inspection.setComment2(comment);
+                inspection.setCommentedBy2(authContext.getEmployee().getFullName());
+            }
+        }
+
+        return mapToResponseDto(inspectionRepository.save(inspection));
+    }
+
     private void updateInspectionEntity(Inspection inspection, InspectionRequestDto dto) {
         if (authContext.isSuperAdmin()) {
             throw new RuntimeException("Super Admin cannot update Inspection");
@@ -200,6 +217,10 @@ public class InspectionServiceImpl implements InspectionService {
         dto.setLatitude(inspection.getLatitude());
         dto.setLongitude(inspection.getLongitude());
         dto.setInspectionDocumentUrl(inspection.getInspectionDocumentUrl());
+        dto.setComment1(inspection.getComment1());
+        dto.setComment2(inspection.getComment2());
+        dto.setCommentedBy1(inspection.getCommentedBy1());
+        dto.setCommentedBy2(inspection.getCommentedBy2());
 
         return dto;
     }

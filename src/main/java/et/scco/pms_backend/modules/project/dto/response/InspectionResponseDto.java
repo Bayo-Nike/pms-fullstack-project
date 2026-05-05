@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -29,7 +30,7 @@ public class InspectionResponseDto {
     private Long employeeId;
     private String employeeName;
 
-    private LocalDate inspectionDate;
+    private LocalDateTime inspectionDate;
     private String inspectionResult;
 
     private Long activeWorkers;
@@ -38,4 +39,9 @@ public class InspectionResponseDto {
     private String longitude;
 
     private String inspectionDocumentUrl;
+
+    private String comment1;
+    private String commentedBy1;
+    private String comment2;
+    private String commentedBy2;
 }

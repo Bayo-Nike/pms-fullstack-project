@@ -4,5 +4,4 @@ public enum ClientStatus {
     ACTIVE,
     INACTIVE,
     SUSPENDED
-
 }

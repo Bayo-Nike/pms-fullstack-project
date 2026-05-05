@@ -53,6 +53,14 @@ public class InspectionController {
         return ResponseUtil.success("Inspection recorded", inspectionService.createInspection(dto, files));
     }
 
+    @PutMapping("/comment/{id}")
+    public ApiResponse<InspectionResponseDto> commentInspection(@RequestBody String comment, @PathVariable Long id){
+        return ResponseUtil.success(
+                "Comment saved",
+                inspectionService.commentInspection(id, comment)
+        );
+    }
+
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<InspectionResponseDto> updateInspection(
             @PathVariable Long id,

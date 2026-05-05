@@ -9,7 +9,6 @@ import java.util.List;
 
 
 @Data
-// @AllArgsConstructor
 public class ProjectResponseDTO {
 
     private Long id;
@@ -48,8 +47,8 @@ public class ProjectResponseDTO {
     private LocalDate agreementDate;
 
     // for project extension
-    private int totalExtendedDays; // computed
-    private LocalDate finalEndDate; // computed
+    private int totalExtendedDays;
+    private LocalDate finalEndDate;
     private List<ProjectExtensionDTO> extensions;
 
     private ProjectStatus status;

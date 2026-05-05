@@ -30,7 +30,7 @@ public class Client {
     private String clientName;
 
     @Enumerated(EnumType.STRING)
-    private ClientStatus status;
+    private ClientStatus status = ClientStatus.ACTIVE;
 
     @Enumerated(EnumType.STRING)
     private Category category;

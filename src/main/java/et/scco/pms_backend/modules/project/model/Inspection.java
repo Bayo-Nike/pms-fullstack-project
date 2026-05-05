@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -51,7 +52,7 @@ public class Inspection {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    private LocalDate inspectionDate;
+    private LocalDateTime inspectionDate;
 
     @Column(length = 1000)
     private String inspectionResult;
@@ -61,4 +62,10 @@ public class Inspection {
     private String longitude;
 
     private String inspectionDocumentUrl;
+
+    private String comment1;
+    private String commentedBy1;
+
+    private String comment2;
+    private String commentedBy2;
 }
