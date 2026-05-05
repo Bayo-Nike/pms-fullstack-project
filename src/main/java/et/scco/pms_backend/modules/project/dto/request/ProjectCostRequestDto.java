@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class ProjectCostRequestDto {
     private Long projectId;
-    private Long taskId; // Optional
+    private Long taskId;
     private String phase;
     private Double amount;
 }
