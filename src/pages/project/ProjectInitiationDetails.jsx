@@ -33,8 +33,8 @@ const ProjectInitiationDetails = () => {
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, taskName: '' });
     const [supportDocument, setSupportDocument] = useState(null);
 
-    // Lifecycle Lock: Modification only allowed if status is INITIATED
-    const canModifyTasks = useMemo(() => project?.status === 'INITIATED', [project]);
+    // Lifecycle Lock: Modification only allowed if phase is INITIATED
+    const canModifyTasks = useMemo(() => project?.phase === 'INITIATION', [project]);
 
     const [taskFormData, setTaskFormData] = useState({
         taskTypeId: '', // Requirement: Use ID for payload
@@ -68,7 +68,7 @@ const ProjectInitiationDetails = () => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
             const filtered = taskTypeRegistry.filter(t =>
                 t.projectType === project.projectType &&
-                t.taskTypeProjectStatus === 'INITIATED'
+                t.taskTypeProjectPhase === 'INITIATION'
             );
             setFilteredTaskTypes(filtered);
         }
@@ -162,7 +162,7 @@ const ProjectInitiationDetails = () => {
                     </div>
                 </div>
                 <div className="flex gap-8">
-                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.status === 'ON_PROGRESS' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.status}</span></div>
+                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.phase === 'EXECUTION' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.phase}</span></div>
                     <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Category</p><span className="text-xs font-black text-amber-600 uppercase">{project.category}</span></div>
                     <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Window</p><span className="text-xs font-black text-slate-700">{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
                 </div>

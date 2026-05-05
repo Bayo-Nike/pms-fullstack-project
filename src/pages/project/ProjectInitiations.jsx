@@ -16,7 +16,7 @@ export default function ProjectInitiations() {
     const [subCities, setSubCities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
+    const [phaseFilter, setPhaseFilter] = useState('');
     const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8, totalElements: 0 });
 
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
@@ -29,7 +29,7 @@ export default function ProjectInitiations() {
                 page: page,
                 size: pageInfo.size,
                 search: searchTerm.trim() || null,
-                status: statusFilter || null
+                phase: phaseFilter || null
             };
             const res = await projectApi.GET_PROJECT_INITIATIONS(params);
             const pageData = res.data.data;
@@ -39,9 +39,9 @@ export default function ProjectInitiations() {
             }));
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); }
         finally { setLoading(false); }
-    }, [pageInfo.size, searchTerm, statusFilter]);
+    }, [pageInfo.size, searchTerm, phaseFilter]);
 
-    useEffect(() => { fetchInitiations(0); }, [fetchInitiations, statusFilter]);
+    useEffect(() => { fetchInitiations(0); }, [fetchInitiations, phaseFilter]);
 
     const executeDelete = async () => {
         try {
@@ -52,8 +52,8 @@ export default function ProjectInitiations() {
         finally { setDeleteConfig({ show: false, id: null, title: '' }); }
     };
 
-    const getStatusStyle = (s) => {
-        return s === 'INITIATED'
+    const getPhaseStyle = (s) => {
+        return s === 'INITIATION'
             ? 'bg-sky-50 text-[#0284C7] border-sky-100'
             : 'bg-emerald-50 text-emerald-700 border-emerald-100';
     };
@@ -107,10 +107,10 @@ export default function ProjectInitiations() {
                         className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-[#0284C7] transition-all"
                     />
                 </div>
-                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-slate-50 border px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 outline-none cursor-pointer">
-                    <option value="">All Status</option>
-                    <option value="INITIATED">Initiated</option>
-                    <option value="STARTED">Started</option>
+                <select value={phaseFilter} onChange={(e) => setPhaseFilter(e.target.value)} className="bg-slate-50 border px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 outline-none cursor-pointer">
+                    <option value="">All Phases</option>
+                    <option value="INITIATION">Initiation</option>
+                    <option value="EXECUTION">Execution</option>
                 </select>
             </div>
 
@@ -122,7 +122,7 @@ export default function ProjectInitiations() {
                             <th className="px-8 py-5">Initiation ID & Title</th>
                             <th className="px-6 py-5">Category</th>
                             <th className="px-6 py-5">Origin / Hub</th>
-                            <th className="px-6 py-5 text-center">Status</th>
+                            <th className="px-6 py-5 text-center">Phase</th>
                             <th className="px-8 py-5 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -151,8 +151,8 @@ export default function ProjectInitiations() {
                                     {init.subCityName || 'City Level (HQ)'}
                                 </td>
                                 <td className="px-6 py-5 text-center">
-                                    <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border uppercase tracking-tighter ${getStatusStyle(init.status)}`}>
-                                        {init.status}
+                                    <span className={`text-[9px] font-black px-3 py-1.5 rounded-full border uppercase tracking-tighter ${getPhaseStyle(init.phase)}`}>
+                                        {init.phase}
                                     </span>
                                 </td>
                                 <td className="px-8 py-5 text-right">

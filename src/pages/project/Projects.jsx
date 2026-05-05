@@ -499,6 +499,8 @@ export default function Projects() {
               <option value="NOT_STARTED">Not Started</option>
               <option value="ON_GOING">On Going</option>
               <option value="COMPLETED">Completed</option>
+              <option value="ON_HOLD">On Hold</option>
+              <option value="CANCELLED">Cancelled</option>
             </select>
           </div>
 
@@ -520,7 +522,7 @@ export default function Projects() {
               <th className="px-8 py-5">Project Identification</th>
               <th className="px-6 py-5">Classification</th>
               <th className="px-6 py-5">Level & Jurisdiction</th>
-              <th className="px-6 py-5">Initiation Timeline</th>
+              <th className="px-6 py-5">Project Timeline</th>
               <th className="px-6 py-5 text-center">Status</th>
               <th className="px-8 py-5 text-right">Actions</th>
             </tr>
@@ -529,7 +531,7 @@ export default function Projects() {
             {loading ? (
               <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic animate-pulse">Syncing Registry...</td></tr>
             ) : projects.length === 0 ? (
-              <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic">No initiation records found.</td></tr>
+              <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic">No Project records found.</td></tr>
             ) : projects.map((proj) => (
               <tr key={proj.id} className="hover:bg-slate-50/50 transition-colors group">
                 {/* Identification */}

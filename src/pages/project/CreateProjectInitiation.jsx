@@ -19,7 +19,7 @@ export default function CreateProjectInitiation() {
     const [formData, setFormData] = useState({
         projectCode: '', title: '', description: '', projectType: 'BUILDING',
         category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '',
-        locationIds: [], status: 'INITIATED', agreementDate: '', startDate: '', endDate: ''
+        locationIds: [], phase: 'INITIATION', agreementDate: '', startDate: '', endDate: ''
     });
 
     const [lookups, setLookups] = useState({ subCities: [], locations: [] });
@@ -47,6 +47,7 @@ export default function CreateProjectInitiation() {
                         category: d.category || 'GOVERNMENT',
                         subCityId: d.subCityId ? String(d.subCityId) : '',
                         locationIds: d.locationIds || [],
+                        phase: d.phase || 'INITIATION',
                         agreementDate: d.agreementDate || '',
                         startDate: d.startDate || '',
                         endDate: d.endDate || ''
@@ -76,11 +77,11 @@ export default function CreateProjectInitiation() {
             return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
         }
 
-        // 2. Data Validation for ON_PROGRESS status (Mandatory Agreement, Start and End dates)
-        if (formData.status === 'ON_PROGRESS') {
+        // 2. Data Validation for EXECUTION Phase (Mandatory Agreement, Start and End dates)
+        if (formData.phase === 'EXECUTION') {
             if (!formData.agreementDate || !formData.startDate || !formData.endDate) {
                 setShowConfirm(false);
-                return setAlert({ show: true, type: 'error', message: 'Agreement Date, Launch Date, and Deadline are mandatory for ON_PROGRESS status.' });
+                return setAlert({ show: true, type: 'error', message: 'Agreement Date, Launch Date, and Deadline are mandatory for EXECUTION phase.' });
             }
 
             // Logic: Start Date <= End Date
@@ -98,9 +99,9 @@ export default function CreateProjectInitiation() {
             const payload = {
                 ...formData,
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
-                agreementDate: formData.status === 'ON_PROGRESS' ? formData.agreementDate : null,
-                startDate: formData.status === 'ON_PROGRESS' ? formData.startDate : null,
-                endDate: formData.status === 'ON_PROGRESS' ? formData.endDate : null
+                agreementDate: formData.phase === 'EXECUTION' ? formData.agreementDate : null,
+                startDate: formData.phase === 'EXECUTION' ? formData.startDate : null,
+                endDate: formData.phase === 'EXECUTION' ? formData.endDate : null
             };
 
             if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
@@ -239,19 +240,19 @@ export default function CreateProjectInitiation() {
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-sky-50 rounded-2xl text-[#0284C7]"><AssignmentTurnedIn /></div>
                         <div>
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry Status</h3>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry phase</h3>
                             <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Current lifecycle phase</p>
                         </div>
                     </div>
                     <div className="w-64">
-                        <select name="status" value={formData.status} onChange={handleInputChange} disabled={isView} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
-                            <option value="INITIATED">Initiated</option>
-                            <option value="ON_PROGRESS">On Progress</option>
+                        <select name="phase" value={formData.phase} onChange={handleInputChange} disabled={isView} className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
+                            <option value="INITIATION">Initiation</option>
+                            <option value="EXECUTION">Execution</option>
                         </select>
                     </div>
                 </div>
 
-                {formData.status === 'ON_PROGRESS' && (
+                {formData.phase === 'EXECUTION' && (
                     <div className="space-y-8 pt-8 border-t border-slate-50 animate-fadeIn">
                         {/* New Requirement: Agreement Date */}
                         <div className="space-y-2">
