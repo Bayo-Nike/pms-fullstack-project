@@ -35,7 +35,7 @@ export default function CreateRole() {
                 const allPerms = permRes.data || permRes;
                 formatPermissions(allPerms);
 
-                // ✅ Default permissions for new roles
+                // Default permissions for new roles
                 if (!isEdit) {
                     const defaultSlugs = [
                         'CAN_SEE_DASHBOARD',

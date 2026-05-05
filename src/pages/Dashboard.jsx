@@ -9,6 +9,7 @@ import {
   BarChart, Bar, Legend
 } from 'recharts';
 import dashboardApi from '../api/modules/dashboard';
+import { useAuth } from '../context/AuthContext';
 
 const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
 
@@ -32,6 +33,7 @@ const TASK_STATUS_COLORS = {
 export default function ProfessionalDashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { can } = useAuth();
 
   useEffect(() => {
     dashboardApi.getSummary()
@@ -58,7 +60,7 @@ export default function ProfessionalDashboard() {
       </div>
 
       {/* 2. STATS GRID (8 CARDS)*/}
-      <StatsGrid data={data} loading={loading} />
+      <StatsGrid data={data} loading={loading} can={can}/>
 
       {/* 3. SUBCITY COLORCODING PERFORMANCE (Target vs Achieved) */}
       <PerformanceAnalysisSection data={data?.colorCodePerformanceMetrics} loading={loading} />
@@ -216,14 +218,19 @@ const FilterSelect = ({ label, options, value, onChange }) => (
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="bg-white border border-slate-200 text-slate-700 text-xs font-bold rounded-xl focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 transition-all outline-none"
-    >
-      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+    > 
+
+      {options.map((opt, index) => (
+        <option key={`${opt}-${index}`} value={opt}>
+          {opt}
+        </option>
+      ))}
     </select>
   </div>
 );
 
 // --- UPDATED STATS GRID (receiving data from parent) ---
-function StatsGrid({ data, loading }) {
+function StatsGrid({ data, loading, can }) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
@@ -236,16 +243,22 @@ function StatsGrid({ data, loading }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
-      <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount} color="blue" />
-      <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount} color="indigo" />
-      <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount} color="amber" />
-      {/* <StatCard icon={<HardHat size={18} />} label="Consultants" value={data?.consultantCount} color="amber" />
-      <StatCard icon={<HardHat size={18} />} label="Clients" value={data?.clientCount} color="amber" /> */}
-      <StatCard icon={<Construction size={18} />} label="Total Projects" value={data?.projectCount} color="sky" />
-      <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount} color="purple" />
-      <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency} />
-      <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount} color="rose" />
-      <StatCard icon={<BarChart3 size={18} />} label="ColorCodings" value={data?.colorCodingCount} color="rose" />
+      <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount ?? 0} color="blue" />
+      <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount ?? 0} color="indigo" />
+      {can?.('CAN_SEE_CONTRACT_LIST') && (
+      <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount ?? 0} color="amber" />
+      )}
+      {can?.('CAN_SEE_CONSULTANT_LIST') && (
+       <StatCard icon={<HardHat size={18} />} label="Consultants" value={data?.consultantCount} color="amber" />
+      )}
+      {can?.('CAN_SEE_CLIENT_LIST') && (
+      <StatCard icon={<HardHat size={18} />} label="Clients" value={data?.clientCount} color="amber" />
+      )}
+      <StatCard icon={<Construction size={18} />} label="Total Projects" value={data?.projectCount ?? 0} color="sky" />
+      <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount ?? 0} color="purple" />
+      <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency ?? 0} />
+      <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount ?? 0} color="rose" />
+      <StatCard icon={<BarChart3 size={18} />} label="ColorCodings" value={data?.colorCodingCount ?? 0} color="rose" />
     </div>
   );
 }

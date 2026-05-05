@@ -104,9 +104,9 @@ export default function AppRoutes() {
         <Route path="consultancy/create" element={protect(<CreateConsultant />, "CAN_REGISTER_CONSULTANT")} />
         <Route path="consultancy/edit/:id" element={protect(<CreateConsultant />, "CAN_EDIT_CONSULTANT")} />
 
-        <Route path="client" element={protect(<Clients />, "CAN_SEE_CONSULTANT_LIST")} />
-        <Route path="client/create" element={protect(<CreateClient />, "CAN_REGISTER_CONSULTANT")} />
-        <Route path="client/edit/:id" element={protect(<CreateClient />, "CAN_EDIT_CONSULTANT")} />
+        <Route path="client" element={protect(<Clients />, "CAN_SEE_CLIENT_LIST")} />
+        <Route path="client/create" element={protect(<CreateClient />, "CAN_REGISTER_CLIENT")} />
+        <Route path="client/edit/:id" element={protect(<CreateClient />, "CAN_EDIT_CLIENT")} />
 
 
         {/* 5. Planning */}
