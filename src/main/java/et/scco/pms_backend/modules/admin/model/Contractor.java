@@ -41,7 +41,7 @@ public class Contractor {
     private LocalDate licenseExpiryDate;
 
     @Column(name = "registered_date")
-    private LocalDateTime registeredDate;
+    private LocalDate registeredDate;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -35,9 +36,13 @@ public class ColorCodingDetails {
     @JsonIgnore
     private ColorCoding colorCoding;
 
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "submitted_by")
+    // private User submittedBy;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "submitted_by")
-    private User submittedBy;
+    @JoinColumn(name = "submitted_by", nullable = false)
+    @JsonIgnore
+    private Employee submittedBy;
 
     @Column(name = "submitted_date")
     private LocalDateTime submittedDate;

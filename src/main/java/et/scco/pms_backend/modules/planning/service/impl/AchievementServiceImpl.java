@@ -71,6 +71,7 @@ public class AchievementServiceImpl {
             // colorCodingDetails.setSubmittedBy(user);
         }
 
+        colorCodingDetails.setSubmittedBy(user.getEmployee());
         // Saving details will automatically save locations due to CascadeType.ALL
         codingDetailRepository.save(colorCodingDetails);
 
@@ -142,6 +143,7 @@ public class AchievementServiceImpl {
             // details.setSubmittedBy(user);
         }
 
+        details.setSubmittedBy(user.getEmployee());
         // 7. Save changes
         codingDetailRepository.save(details);
         colorCodingRepository.save(master);

@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.admin.model;
 
 import et.scco.pms_backend.enums.EmployeeStatus;
+import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.task.model.Task;
 import jakarta.persistence.*;
@@ -53,4 +54,11 @@ public class Employee {
 
     @OneToOne(mappedBy = "employee")
     private User user;
+
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Consultancy> consultancies = new ArrayList<>();
+    @OneToMany(mappedBy = "submittedBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ColorCodingDetails> colorCodingDetails = new ArrayList<>();
+
+    
 }

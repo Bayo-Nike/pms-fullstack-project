@@ -65,7 +65,7 @@ public class ContractorServiceImpl implements ContractorService{
         contractor.setCategory(Category.valueOf(contractorRequestDTO.getCategory()));
         contractor.setStatus(ContractorStatus.valueOf(contractorRequestDTO.getStatus()));
         contractor.setLicenseExpiryDate(contractorRequestDTO.getLicenseExpiryDate());
-        contractor.setRegisteredDate(contractorRequestDTO.getRegisteredDate().atStartOfDay());
+        contractor.setRegisteredDate(contractorRequestDTO.getRegisteredDate());
 
         // Only update file if a new one is uploaded
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {

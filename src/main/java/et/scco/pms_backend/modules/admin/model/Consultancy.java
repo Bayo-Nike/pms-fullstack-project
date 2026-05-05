@@ -3,12 +3,15 @@ package et.scco.pms_backend.modules.admin.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ConsultantStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,15 +42,20 @@ public class Consultancy {
     private String document; // file name or path
  
 
-    @ManyToOne()
-    @JoinColumn(name = "created_by")
-    private User createdBy;
+    // @ManyToOne()
+    // @JoinColumn(name = "created_by")
+    // private User createdBy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    @JsonIgnore
+    private Employee createdBy;
 
     @Column(name = "license_expiry_date")
     private LocalDate licenseExpiryDate;
 
     @Column(name = "registered_date")
-    private LocalDateTime registeredDate;
+    private LocalDate registeredDate;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

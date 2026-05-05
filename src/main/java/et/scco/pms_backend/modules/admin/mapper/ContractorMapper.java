@@ -37,7 +37,7 @@ public class ContractorMapper {
         contractor.setLicenseExpiryDate(dto.getLicenseExpiryDate());
         contractor.setStatus(ContractorStatus.valueOf(dto.getStatus()));
         if (dto.getRegisteredDate()!=null) {
-            contractor.setRegisteredDate(dto.getRegisteredDate().atStartOfDay());
+            contractor.setRegisteredDate(dto.getRegisteredDate());
         }
         
 
