@@ -253,6 +253,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_REGISTER_CONSULTANT", "Register Consultant"),
                         new PermissionData("CAN_EDIT_CONSULTANT", "Edit Consultant"),
                         new PermissionData("CAN_DELETE_CONSULTANT", "Delete Consultant"),
+                        new PermissionData("CAN_SEE_CLIENT_LIST", "See Client List"),
                         new PermissionData("CAN_REGISTER_CLIENT", "Register Client"),
                         new PermissionData("CAN_EDIT_CLIENT", "Edit Client"),
                         new PermissionData("CAN_VIEW_CLIENT", "View Client"),
