@@ -209,25 +209,23 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_SEE_PROJECT_INITIATION", "See Project Initiation"),
                         new PermissionData("CAN_CREATE_PROJECT_INITIATION", "Create Project Initiation"),
                         new PermissionData("CAN_EDIT_PROJECT_INITIATION", "Edit Project Initiation"),
-                        new PermissionData("CAN_SEE_PROJECT_INITIATION_DETAILS", "Delete Project Initiation"),
+                        new PermissionData("CAN_VIEW_PROJECT_INITIATION_DETAILS", "View Project Initiation Detail"),
+                        new PermissionData("CAN_CREATE_INITIATION_TASK", "Create Initiation Task"),
+                        new PermissionData("CAN_EDIT_INITIATION_TASK", "Edit Initiation Task"),
+                        new PermissionData("CAN_DELETE_INITIATION_TASK", "Delete Initiation Task"),
                         new PermissionData("CAN_DELETE_PROJECT_INITIATION", "Delete Project Initiation"),
                         new PermissionData("CAN_SEE_PROJECT_LIST", "See Project List"),
-                        new PermissionData("CAN_CREATE_PROJECT", "Create Project"),
-                        new PermissionData("CAN_UPDATE_PROJECT", "Update Project"),
-                        new PermissionData("CAN_VIEW_PROJECT_DETAIL", "View Project Detail"),
-                        new PermissionData("CAN_DELETE_PROJECT", "Delete Project"),
                         new PermissionData("CAN_EDIT_PROJECT", "Edit Project"),
+                        new PermissionData("CAN_VIEW_PROJECT_DETAIL", "View Project Detail"),
                         new PermissionData("CAN_CREATE_TASK", "Create Task"),
                         new PermissionData("CAN_EDIT_TASK", "Edit Task"),
-                        new PermissionData("CAN_UPDATE_TASK", "Update Task"),
                         new PermissionData("CAN_DELETE_TASK", "Delete Task"),
                         new PermissionData("CAN_SEE_INSPECTIONS", "See Inspections"),
                         new PermissionData("CAN_VIEW_INSPECTION", "View Inspection"),
                         new PermissionData("CAN_LOG_INSPECTION", "Log Inspection"),
                         new PermissionData("CAN_EDIT_INSPECTION", "Edit Inspection"),
                         new PermissionData("CAN_DELETE_INSPECTION", "Delete Inspection"),
-                        new PermissionData("CAN_UPDATE_INSPECTION", "Can Updated Inspection"),
-                        new PermissionData("CAN_COMMENT_INSPECTION", "Can Comment on Inspection")
+                        new PermissionData("CAN_COMMENT_INSPECTION", "Comment on Inspection")
                 )
         );
 
@@ -235,7 +233,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "Finance",
                 List.of(
                         new PermissionData("CAN_SEE_PROJECT_FINANCE", "See Project Finance"),
-                        new PermissionData("CAN_VIEW_RECORD_COST", "Can View Record Cost"),
+                        new PermissionData("CAN_VIEW_RECORD_COST", "View Record Cost"),
                         new PermissionData("CAN_RECORD_COST", "Record Cost"),
                         new PermissionData("CAN_EDIT_RECORD", "Edit Record"),
                         new PermissionData("CAN_DELETE_RECORD", "Delete Record")
@@ -245,18 +243,12 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Contracts",
                 List.of(
-                        new PermissionData("CAN_SEE_CONTRACT_LIST", "See Contract List"),
-                        new PermissionData("CAN_REGISTER_CONTRACTOR", "Register Contractor"),
-                        new PermissionData("CAN_EDIT_CONTRACTOR", "Edit Contractor"),
-                        new PermissionData("CAN_DELETE_CONTRACTOR", "Delete Contractor"),
+                        new PermissionData("CAN_SEE_CONTRACTOR_LIST", "See Contract List"),
+                        new PermissionData("CAN_MANAGE_CONTRACTOR", "Manage Contactor"),
                         new PermissionData("CAN_SEE_CONSULTANT_LIST", "See Consultant List"),
-                        new PermissionData("CAN_REGISTER_CONSULTANT", "Register Consultant"),
-                        new PermissionData("CAN_EDIT_CONSULTANT", "Edit Consultant"),
-                        new PermissionData("CAN_DELETE_CONSULTANT", "Delete Consultant"),
-                        new PermissionData("CAN_REGISTER_CLIENT", "Register Client"),
-                        new PermissionData("CAN_EDIT_CLIENT", "Edit Client"),
-                        new PermissionData("CAN_VIEW_CLIENT", "View Client"),
-                        new PermissionData("CAN_DELETE_CLIENT", "Delete Client")
+                        new PermissionData("CAN_MANAGE_CONSULTANT", "Manage Consultant"),
+                        new PermissionData("CAN_SEE_CLIENT_LIST", "See Client"),
+                        new PermissionData("CAN_MANAGET_CLIENT", "Manage Client")
                 )
         );
 

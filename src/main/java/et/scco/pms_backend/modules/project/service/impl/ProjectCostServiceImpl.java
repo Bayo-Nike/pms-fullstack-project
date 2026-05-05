@@ -50,12 +50,16 @@ public class ProjectCostServiceImpl implements ProjectCostService {
             cost.setTask(task);
         }
 
-
         ProjectCost saved = costRepository.save(cost);
 
         // Update Project's budgetUsed field automatically
-        project.setBudgetUsed(project.getBudgetUsed() + dto.getAmount());
+        Double projectBudgetUsed = project.getBudgetUsed() != null ? project.getBudgetUsed(): Double.valueOf(0.0);
+        projectBudgetUsed = projectBudgetUsed + dto.getAmount();
+
+        project.setBudgetUsed(projectBudgetUsed);
+
         projectRepository.save(project);
+
 
         //send payment notification to the Project manager
         if (project.getProjectManager() != null){
