@@ -73,7 +73,7 @@ export default function Clients() {
                     <h1 className="text-base font-bold text-slate-900 leading-none">Client Partners</h1>
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-bold">External Resource Registry</p>
                 </div>
-                {can('CAN_REGISTER_CONSULTANT') && (
+                {can('CAN_MANAGET_CLIENT') && (
                     <button onClick={() => navigate('/client/create')} className="bg-[#FBAF1E] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-lg shadow-amber-100 hover:bg-[#e09a15] transition-all uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Register Client
                     </button>
@@ -95,8 +95,8 @@ export default function Clients() {
                             <th className="px-6 py-4">Client Category</th>
                             <th className="px-6 py-4">Status</th>
                             <th className="px-6 py-4">Verification</th>
-                            {(can('CAN_EDIT_CONSULTANT') || can('CAN_DELETE_CONSULTANT')) && (
-                            <th className="px-6 py-4 text-right">Operations</th>
+                            {(can('CAN_MANAGET_CLIENT')) && (
+                                <th className="px-6 py-4 text-right">Operations</th>
                             )}
                         </tr>
                     </thead>
@@ -131,18 +131,13 @@ export default function Clients() {
                                         <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter">No Artifact</span>
                                     )}
                                 </td>
-                                {(can('CAN_EDIT_CONSULTANT') || can('CAN_DELETE_CONSULTANT')) && (
-                                <td className="px-6 py-4 text-right">
-                                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {can('CAN_DELETE_CONSULTANT')&& (
-                                        <button onClick={() => navigate(`/client/edit/${c.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
-                                    )}
-
-                                    {can('CAN_DELETE_CONSULTANT') && (
-                                        <button onClick={() => setDeleteConfig({ show: true, id: c.id, name: c.clientName })} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
-                                    )}
-                                    </div>
-                                </td>
+                                {can('CAN_MANAGET_CLIENT') && (
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button onClick={() => navigate(`/client/edit/${c.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                            <button onClick={() => setDeleteConfig({ show: true, id: c.id, name: c.clientName })} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                        </div>
+                                    </td>
                                 )}
                             </tr>
                         ))}

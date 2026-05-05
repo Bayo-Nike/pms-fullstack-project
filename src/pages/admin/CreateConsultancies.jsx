@@ -6,11 +6,13 @@ import {
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CreateConsultant() {
     const navigate = useNavigate();
     const { id } = useParams();
     const isEdit = Boolean(id);
+    const { can } = useAuth();
 
     // Form States
     const [consultantName, setConsultantName] = useState('');
@@ -121,9 +123,14 @@ export default function CreateConsultant() {
                         <p className="text-[11px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Partner Configuration</p>
                     </div>
                 </div>
-                <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase">
-                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CONSULTANT'}
-                </button>
+                {
+                    can('CAN_MANAGE_CONSULTANT') && (
+                        <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase">
+                            <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CONSULTANT'}
+                        </button>
+                    )
+                }
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

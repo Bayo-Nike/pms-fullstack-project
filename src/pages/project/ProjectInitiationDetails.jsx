@@ -68,7 +68,7 @@ const ProjectInitiationDetails = () => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
             const filtered = taskTypeRegistry.filter(t =>
                 t.projectType === project.projectType &&
-                t.taskTypeProjectPhase === 'INITIATION'
+                t.taskTypeProjectStatus === 'INITIATION'
             );
             setFilteredTaskTypes(filtered);
         }
@@ -180,7 +180,7 @@ const ProjectInitiationDetails = () => {
                             </p>
                         </div>
                     </div>
-                    {canModifyTasks && (
+                    {canModifyTasks && can('CAN_CREATE_INITIATION_TASK') && (
                         <button onClick={() => { setEditingTask(null); setTaskFormData({ taskTypeId: '', taskCost: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setSupportDocument(null); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all"><Add /> New Task</button>
                     )}
                 </div>
@@ -207,8 +207,16 @@ const ProjectInitiationDetails = () => {
                                             <button onClick={() => setViewingTask(task)} className="p-2 text-slate-400 hover:text-emerald-600 transition-all"><Visibility fontSize="small" /></button>
                                             {canModifyTasks && (
                                                 <>
-                                                    <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '' }); setIsTaskModalOpen(true); }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
-                                                    <button onClick={() => setDeleteConfig({ show: true, id: task.id, taskName: task.taskName })} className="p-2 text-slate-400 hover:text-red-500 transition-all"><Delete fontSize="small" /></button>
+                                                    {
+                                                        can('CAN_EDIT_INITIATION_TASK') && (
+                                                            <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '' }); setIsTaskModalOpen(true); }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
+                                                        )
+                                                    }
+                                                    {
+                                                        can('CAN_DELETE_INITIATION_TASK') && (
+                                                            <button onClick={() => setDeleteConfig({ show: true, id: task.id, taskName: task.taskName })} className="p-2 text-slate-400 hover:text-red-500 transition-all"><Delete fontSize="small" /></button>
+                                                        )
+                                                    }
                                                 </>
                                             )}
                                         </div>

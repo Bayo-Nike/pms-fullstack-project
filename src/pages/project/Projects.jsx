@@ -10,6 +10,7 @@ import {
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export default function Projects() {
   // UI States
   const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
   const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, title: '' });
+  const { can } = useAuth();
 
   // Load Sub-Cities for filter
   useEffect(() => {
@@ -256,9 +258,16 @@ export default function Projects() {
                 {/* Actions */}
                 <td className="px-8 py-5 text-right">
                   <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl" title="View"><Visibility style={{ fontSize: 20 }} /></button>
-                    <button onClick={() => navigate(`/projects/edit/${proj.id}`)} className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl" title="Update Initiation"><Edit style={{ fontSize: 20 }} /></button>
-                    {/* <button onClick={() => setDeleteConfig({ show: true, id: proj.id, title: proj.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl" title="Delete"><Delete style={{ fontSize: 20 }} /></button> */}
+                    {
+                      can("CAN_VIEW_PROJECT_DETAIL") && (
+                        <button onClick={() => navigate(`/projects/${proj.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl" title="View"><Visibility style={{ fontSize: 20 }} /></button>
+                      )
+                    }
+                    {
+                      can("CAN_EDIT_PROJECT") && (
+                        <button onClick={() => navigate(`/projects/edit/${proj.id}`)} className="p-2 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-xl" title="Update Initiation"><Edit style={{ fontSize: 20 }} /></button>
+                      )
+                    }
                   </div>
                 </td>
               </tr>

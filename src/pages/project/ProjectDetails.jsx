@@ -101,7 +101,7 @@ const ProjectDetails = () => {
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
             const filtered = taskTypeRegistry.filter(
-                t => t.projectType === project.projectType && t.taskTypeProjectStatus === 'OTHERS'
+                t => t.projectType === project.projectType && t.taskTypeProjectStatus === 'ON_PROGRESS'
             );
             setFilteredTaskTypes(filtered);
         }
@@ -287,7 +287,7 @@ const ProjectDetails = () => {
                                         <td className="px-8 py-4 text-right">
                                             <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button onClick={() => setViewingTask(task)} className="p-1.5 text-slate-400 hover:text-emerald-600 transition-all"><Visibility style={{ fontSize: 18 }} /></button>
-                                                {!isInitiatedTask && (can('CAN_EDIT_TASK') || can('CAN_UPDATE_TASK')) && (
+                                                {!isInitiatedTask && (can('CAN_EDIT_TASK')) && (
                                                     <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '', employeeIds: task.employeeIds || [], locationIds: task.locationIds || [] }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
                                                 )}
                                                 {!isInitiatedTask && can('CAN_DELETE_TASK') && (
