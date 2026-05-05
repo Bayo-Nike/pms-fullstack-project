@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.dto.request;
 
 import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ProjectLevel;
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
 import lombok.Data;
@@ -22,6 +23,7 @@ public class CreateProjectInitiationRequestDTO {
     private List<Long> locationIds;
 
     private ProjectStatus status;
+    private ProjectPhase phase;
 
     private LocalDate startDate;
     private LocalDate endDate;

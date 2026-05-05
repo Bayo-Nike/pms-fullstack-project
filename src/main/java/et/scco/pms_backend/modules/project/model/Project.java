@@ -75,6 +75,10 @@ public class Project {
     private ProjectStatus status;
 
     @Enumerated(EnumType.STRING)
+    private ProjectPhase phase;
+    
+
+    @Enumerated(EnumType.STRING)
     private ProjectPriority priority;
 
     @Enumerated(EnumType.STRING)

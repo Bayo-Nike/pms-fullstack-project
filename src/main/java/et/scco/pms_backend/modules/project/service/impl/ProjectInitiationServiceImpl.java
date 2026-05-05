@@ -1,7 +1,7 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.Category;
-import et.scco.pms_backend.enums.ProjectStatus;
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
@@ -51,9 +51,9 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
     }
 
     @Override
-    public Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectStatus status, Category category) {
+    public Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectPhase phase, Category category) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Project> projects = projectRepository.findInitiations(status, category, search, pageable);
+        Page<Project> projects = projectRepository.findInitiations(phase, category, search, pageable);
 
         return projects.map(this::mapToResponseDTO);
     }
@@ -94,8 +94,9 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         project.setCategory(dto.getCategory());
         project.setProjectLevel(dto.getProjectLevel());
         project.setStatus(dto.getStatus());
+        project.setPhase(dto.getPhase());
 
-        if (dto.getStatus().equals(ProjectStatus.ON_PROGRESS)) {
+        if (dto.getPhase().equals(ProjectPhase.EXECUTION)) {
             project.setStartDate(dto.getStartDate());
             project.setEndDate(dto.getEndDate());
             project.setAgreementDate(dto.getAgreementDate());
@@ -133,6 +134,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         res.setCategory(p.getCategory());
         res.setProjectLevel(p.getProjectLevel());
         res.setStatus(p.getStatus());
+        res.setPhase(p.getPhase());
         res.setStartDate(p.getStartDate());
         res.setEndDate(p.getEndDate());
         res.setAgreementDate(p.getAgreementDate());

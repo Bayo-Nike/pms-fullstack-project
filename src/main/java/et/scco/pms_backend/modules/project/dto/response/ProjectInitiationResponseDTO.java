@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.dto.response;
 
 import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ProjectLevel;
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class ProjectInitiationResponseDTO {
     private Category category;
     private ProjectLevel projectLevel;
     private ProjectStatus status;
+    private ProjectPhase phase;
 
     // Assignment Data
     private Long subCityId;

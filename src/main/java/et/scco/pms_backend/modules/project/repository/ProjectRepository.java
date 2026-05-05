@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.repository;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.modules.admin.model.Employee;
@@ -22,10 +23,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
 
     @Query("SELECT p FROM Project p WHERE " +
-            "(:status IS NULL OR p.status = :status) AND " +
+            "(:phase IS NULL OR p.phase = :phase) AND " +
             "(:category IS NULL OR p.category = :category) AND " +
             "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.projectCode) LIKE LOWER(CONCAT('%', :search, '%')))")
-    Page<Project> findInitiations(ProjectStatus status, Category category, String search, Pageable pageable);
+    Page<Project> findInitiations(ProjectPhase phase, Category category, String search, Pageable pageable);
 
        boolean existsByTitleAndSubCityId(String title, Long subCityId);
 
@@ -61,7 +62,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT p FROM Project p WHERE " +
             "(:status IS NULL OR p.status = :status) AND " +
-            "(p.status <> ProjectStatus.INITIATED) AND " +
+            "(p.phase <> ProjectPhase.INITIATION) AND " +
             "(:subCityId IS NULL OR p.subCity.id = :subCityId) AND " +
             "(:projectType IS NULL OR p.projectType = :projectType) AND " +
             "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) " +

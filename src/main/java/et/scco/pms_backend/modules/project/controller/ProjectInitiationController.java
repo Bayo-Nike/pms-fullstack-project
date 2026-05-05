@@ -3,7 +3,7 @@ package et.scco.pms_backend.modules.project.controller;
 
 import et.scco.pms_backend.config.ApiResponse;
 import et.scco.pms_backend.enums.Category;
-import et.scco.pms_backend.enums.ProjectStatus;
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectInitiationRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectInitiationResponseDTO;
 import et.scco.pms_backend.modules.project.service.ProjectInitiationService;
@@ -30,10 +30,10 @@ public class ProjectInitiationController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(required = false) String search,
-            @RequestParam(required = false) ProjectStatus status,
+            @RequestParam(required = false) ProjectPhase phase,
             @RequestParam(required = false) Category category) {
 
-        Page<ProjectInitiationResponseDTO> initiations = initiationService.getInitiations(page, size, search, status, category);
+        Page<ProjectInitiationResponseDTO> initiations = initiationService.getInitiations(page, size, search, phase, category);
         return ResponseUtil.success("Project initiations retrieved successfully", initiations);
     }
 
