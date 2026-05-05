@@ -208,6 +208,11 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Projects",
                 List.of(
+                        new PermissionData("CAN_SEE_PROJECT_INITIATION", "See Project Initiation"),
+                        new PermissionData("CAN_CREATE_PROJECT_INITIATION", "Create Project Initiation"),
+                        new PermissionData("CAN_EDIT_PROJECT_INITIATION", "Edit Project Initiation"),
+                        new PermissionData("CAN_SEE_PROJECT_INITIATION_DETAILS", "Delete Project Initiation"),
+                        new PermissionData("CAN_DELETE_PROJECT_INITIATION", "Delete Project Initiation"),
                         new PermissionData("CAN_SEE_PROJECT_LIST", "See Project List"),
                         new PermissionData("CAN_CREATE_PROJECT", "Create Project"),
                         new PermissionData("CAN_UPDATE_PROJECT", "Update Project"),
