@@ -6,6 +6,7 @@ import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.PositionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -17,37 +18,45 @@ public class JurisdictionUtility {
     private final PositionRepository positionRepository;
     private final EmployeeRepository employeeRepository;
 
-
+    @Transactional(readOnly = true)
     public Long mySupervisor() {
-        Employee employee = authContext.getEmployee();
 
+        Employee employee = authContext.getEmployee();
         if (employee == null) return null;
 
-        Position position = employee.getPosition();
-        if (position == null) return null;
+        Employee fullEmployee = employeeRepository
+                .findByIdWithPositionTree(employee.getId())
+                .orElse(null);
 
-        Position parent = position.getParent();
+        if (fullEmployee == null || fullEmployee.getPosition() == null) return null;
+
+        Position parent = fullEmployee.getPosition().getParent();
         if (parent == null) return null;
 
         return employeeRepository.findByPosition_Id(parent.getId())
                 .map(Employee::getId)
-                .orElse(null);
+                .orElse(1L);
     }
 
-    public List<Long> myHierarchyUp()
-    {
+    @Transactional(readOnly = true)
+    public List<Long> myHierarchyUp() {
+
         List<Long> result = new ArrayList<>();
 
         Employee employee = authContext.getEmployee();
         if (employee == null) return result;
 
-        Position current = employee.getPosition();
-        if (current == null) return result;
+        Employee fullEmployee = employeeRepository
+                .findByIdWithPositionTree(employee.getId())
+                .orElse(null);
+
+        if (fullEmployee == null || fullEmployee.getPosition() == null) return result;
+
+        Position current = fullEmployee.getPosition();
 
         while (current.getParent() != null) {
-            Position parent = current.getParent();
 
-            if (parent.getParent() == null) break;
+            Position parent = current.getParent();
 
             employeeRepository.findByPosition_Id(parent.getId())
                     .ifPresent(e -> result.add(e.getId()));
@@ -58,7 +67,7 @@ public class JurisdictionUtility {
         return result;
     }
 
-
+    @Transactional(readOnly = true)
     public List<ReportToResponseDto> myReportees()
     {
         Employee employee = authContext.getEmployee();

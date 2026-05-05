@@ -69,10 +69,6 @@ public class ProjectServiceImpl implements ProjectService {
         return mapToDTO(project);
     }
 
-    /**
-     * UPDATE: Focuses strictly on Implementation and Management fields.
-     * Initiation fields (Title, Dates, Code, etc.) are NOT modified here.
-     */
     @Transactional
     @Override
     public ProjectResponseDTO updateProject(Long id, CreateProjectRequestDTO dto) {
@@ -92,7 +88,17 @@ public class ProjectServiceImpl implements ProjectService {
                     authContext.getEmployee().getId(),
                     dto.getProjectManagerId(),
                     "Management Update: You have been assigned as Manager for " + project.getTitle(),
-                    "projects/edit/" + updated.getId());
+                    "projects/view/" + updated.getId());
+        }
+
+        if (dto.getEmployeeIds() != null){
+            for (Long team : dto.getEmployeeIds()) {
+                notificationService.sendNotification(
+                        authContext.getEmployee().getId(),
+                        team,
+                        "You have been included into project team members for" + project.getTitle(),
+                        "projects/view/" + updated.getId());
+            }
         }
 
         return mapToDTO(updated);

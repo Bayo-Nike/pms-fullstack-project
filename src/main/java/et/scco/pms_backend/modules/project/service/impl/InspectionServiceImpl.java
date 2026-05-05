@@ -8,6 +8,7 @@ import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.InspectionType;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.InspectionTypesRepository;
+import et.scco.pms_backend.modules.admin.service.AuditLogService;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.project.dto.request.InspectionRequestDto;
@@ -45,6 +46,7 @@ public class InspectionServiceImpl implements InspectionService {
     private final EmployeeServiceImpl employeeServiceImpl;
     private final JurisdictionUtility jurisdictionUtility;
     private final FileStorageService fileStorageService;
+    private final AuditLogService auditLogService;
 
     @Transactional(readOnly = true)
     @Override
@@ -94,7 +96,7 @@ public class InspectionServiceImpl implements InspectionService {
     @Override
     public InspectionResponseDto createInspection(InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = new Inspection();
-        return getInspectionResponseDto(dto, files, inspection);
+        return getInspectionResponseDto(dto, files, inspection, true);
     }
 
     @Transactional
@@ -103,11 +105,11 @@ public class InspectionServiceImpl implements InspectionService {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
-        return getInspectionResponseDto(dto, files, inspection);
+        return getInspectionResponseDto(dto, files, inspection, false);
     }
 
     @NonNull
-    private InspectionResponseDto getInspectionResponseDto(InspectionRequestDto dto, List<MultipartFile> files, Inspection inspection) {
+    private InspectionResponseDto getInspectionResponseDto(InspectionRequestDto dto, List<MultipartFile> files, Inspection inspection, boolean isCreate) {
         updateInspectionEntity(inspection, dto);
 
         if (files != null)
@@ -120,6 +122,26 @@ public class InspectionServiceImpl implements InspectionService {
             }
         }
         Inspection updated = inspectionRepository.save(inspection);
+        Employee employee =  updated.getEmployee();
+        String insName = updated.getInspectionType().getName();
+
+        if (isCreate){
+            notificationService.sendNotification(
+                    employee.getId(),
+                    jurisdictionUtility.mySupervisor(),
+                    insName + " inspection logged by "+ employee.getFullName(),
+                    "/inspections"
+            );
+            auditLogService.auditLog("CREATE", "Inspection"+ updated.getInspectionType().getName()+" Created");
+        }else{
+            notificationService.sendNotification(
+                    employee.getId(),
+                    jurisdictionUtility.mySupervisor(),
+                    insName + " inspection updated by "+ employee.getFullName(),
+                    "/inspections"
+            );
+            auditLogService.auditLog("UPDATE", "Inspection "+ updated.getInspectionType().getName() +"Updated");
+        }
 
         return mapToResponseDto(updated);
     }
@@ -131,6 +153,7 @@ public class InspectionServiceImpl implements InspectionService {
             throw new RuntimeException("Inspection not found");
         }
         inspectionRepository.deleteById(id);
+        auditLogService.auditLog("DELETE", "Inspection result has been deleted");
     }
 
     @Override
@@ -145,14 +168,29 @@ public class InspectionServiceImpl implements InspectionService {
     public InspectionResponseDto commentInspection(Long inspectionId, String comment) {
         Inspection inspection = inspectionRepository.findById(inspectionId)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
+        int which;
         if (inspection.getComment1() == null) {
             inspection.setComment1(comment);
             inspection.setCommentedBy1(authContext.getEmployee().getFullName());
+            which = 1;
         } else {
             if (inspection.getComment2() == null){
                 inspection.setComment2(comment);
                 inspection.setCommentedBy2(authContext.getEmployee().getFullName());
+                which = 2;
+            }else{
+                which = 0;
             }
+        }
+
+        if (which != 0){
+            Long empId =  inspection.getEmployee().getId();
+            String who = which == 2 ? inspection.getCommentedBy2(): inspection.getCommentedBy1();
+            notificationService.sendNotification(
+                    empId,
+                    empId, who + "Has as added a comment to your inspection result",
+                    "inspections"
+            );
         }
 
         return mapToResponseDto(inspectionRepository.save(inspection));

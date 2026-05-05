@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.admin.repository;
 
 import et.scco.pms_backend.modules.admin.model.Employee;
+import et.scco.pms_backend.modules.admin.model.Roles;
 import et.scco.pms_backend.modules.admin.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByPosition_Id(Long positionId);
 
     List<Employee> findAllByUser(User user);
+
+    @Query("""
+    SELECT e FROM Employee e
+    JOIN FETCH e.position p
+    LEFT JOIN FETCH p.parent
+    WHERE e.id = :id
+    """)
+    Optional<Employee> findByIdWithPositionTree(Long id);
+
 }

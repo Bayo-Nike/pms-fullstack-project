@@ -6,6 +6,7 @@ import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+import et.scco.pms_backend.modules.admin.service.AuditLogService;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectInitiationRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectInitiationResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
@@ -30,6 +31,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
     private final ProjectRepository projectRepository;
     private final SubCityRepository subCityRepository;
     private final LocationRepository locationRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional
@@ -46,6 +48,12 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
                 saved.getId()
         );
         saved.setProjectCode(code);
+
+        auditLogService.auditLog(
+                "Project Initiation",
+                saved.getTitle() + " has been initiated with project code: "+ code
+        );
+
 
         return mapToResponseDTO(projectRepository.save(saved));
     }

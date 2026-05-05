@@ -30,7 +30,7 @@ public class InspectionResponseDto {
     private Long employeeId;
     private String employeeName;
 
-    private LocalDateTime inspectionDate;
+    private LocalDate inspectionDate;
     private String inspectionResult;
 
     private Long activeWorkers;

@@ -52,7 +52,7 @@ public class Inspection {
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
-    private LocalDateTime inspectionDate;
+    private LocalDate inspectionDate;
 
     @Column(length = 1000)
     private String inspectionResult;
