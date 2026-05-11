@@ -316,7 +316,7 @@ export default function CreateInspection() {
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Personnel on Site *</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Workers on Site *</label>
                                 <input type="number" value={formData.activeWorkers} onChange={(e) => setFormData({ ...formData, activeWorkers: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="0" />
                             </div>
                             <div className="space-y-2">

@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Edit, Delete, Search, Add, LocationOn,
-    HelpOutline, ChevronLeft, ChevronRight, PinDrop
+    HelpOutline, ChevronLeft, ChevronRight, PinDrop,
+    Visibility
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -12,7 +13,7 @@ export default function Locations() {
     const navigate = useNavigate();
     const { can } = useAuth();
 
-    const [locations, setLocations] = useState([]); // Initialized as array
+    const [locations, setLocations] = useState([]); 
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +28,6 @@ export default function Locations() {
     const fetchLocations = async () => {
         try {
             const res = await adminApi.GET_LOCATIONS();
-            // Critical fix: backend returns { success, message, data: [...] }
             if (res.data && Array.isArray(res.data.data)) {
                 setLocations(res.data.data);
             } else if (Array.isArray(res.data)) {
@@ -55,14 +55,13 @@ export default function Locations() {
         setDeleteConfig({ show: false, id: null, name: '' });
         try {
             await adminApi.DELETE_LOCATION(id);
-            showAlert('success', `Location "${name}" removed.`);
+            showAlert('success', `Site "${name}" removed.`);
             fetchLocations();
         } catch (err) {
             showAlert('error', "Deletion failed: Site is linked to active records.");
         }
     };
 
-    // Filter Logic - Ensures locations is always treated as an array
     const filteredLocations = useMemo(() => {
         if (!Array.isArray(locations)) return [];
         return locations.filter(l =>
@@ -92,6 +91,7 @@ export default function Locations() {
 
             <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert(prev => ({ ...prev, show: false }))} />
 
+            {/* HEADER */}
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-base font-bold text-slate-900">Project Sites</h1>
@@ -99,11 +99,12 @@ export default function Locations() {
                 </div>
                 {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => navigate('/admin/locations/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
-                        <Add style={{ fontSize: 18 }} /> Add Location
+                        <Add style={{ fontSize: 18 }} /> Add Site
                     </button>
                 )}
             </div>
 
+            {/* SEARCH */}
             <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
                 <div className="relative max-w-sm w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
@@ -114,12 +115,13 @@ export default function Locations() {
                 </div>
             </div>
 
+            {/* TABLE */}
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
                             <th className="px-6 py-3">Site / Area Name</th>
-                            <th className="px-6 py-3">Jurisdiction</th>
+                            <th className="px-6 py-3">Sub-city</th>
                             <th className="px-6 py-3">Coordinates (Lat, Lng)</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>
@@ -144,16 +146,35 @@ export default function Locations() {
                                             <span className="text-xs font-medium uppercase tracking-tight">{loc.subCityName}</span>
                                         </div>
                                     </td>
-                                    {/* Inside the table mapping in Locations.jsx */}
-                                    <td className="px-6 py-3.5 font-mono text-[10px] text-slate-400 italic">
+                                    
+                                    {/* COORDINATES COLUMN */}
+                                    <td className="px-6 py-3.5 w-52">
                                         {loc.lat != null && loc.lng != null ? (
-                                            <span className="not-italic text-slate-500 font-bold">
-                                                {loc.lat.toFixed(6)}, {loc.lng.toFixed(6)}
-                                            </span>
+                                            <a 
+                                                href={`https://www.google.com/maps?q=${loc.lat},${loc.lng}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-3 pl-3 pr-2 py-1.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-sky-300 hover:bg-sky-50 transition-all group/map shrink-0"
+                                            >
+                                                <div className="flex flex-col">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-mono font-bold text-slate-600 leading-tight">
+                                                        {Number(loc.lat).toFixed(7)}
+                                                    </span>
+                                                    <span className="text-[11px] font-mono font-bold text-slate-400 leading-tight">
+                                                        {Number(loc.lng).toFixed(7)}
+                                                    </span>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-white p-1 rounded-lg border border-slate-200 text-sky-600 group-hover/map:bg-sky-600 group-hover/map:text-white group-hover/map:border-sky-600 transition-colors shadow-sm">
+                                                    <Visibility style={{ fontSize: 12 }} />
+                                                </div>
+                                            </a>
                                         ) : (
-                                            "No GPS Data"
+                                            <span className="text-[10px] text-slate-300 font-bold uppercase italic tracking-widest">No GPS Data</span>
                                         )}
                                     </td>
+
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             {can('CAN_SEE_SYS_ADMIN') && (
@@ -171,7 +192,8 @@ export default function Locations() {
                         )}
                     </tbody>
                 </table>
-                {/* Pagination Footer */}
+                
+                {/* PAGINATION FOOTER */}
                 <div className="px-6 py-4 bg-slate-50/20 border-t border-slate-100 flex items-center justify-between">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page {currentPage} of {totalPages || 1}</span>
                     <div className="flex items-center gap-2">

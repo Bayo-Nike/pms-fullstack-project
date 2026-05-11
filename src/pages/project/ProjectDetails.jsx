@@ -101,7 +101,7 @@ const ProjectDetails = () => {
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
             const filtered = taskTypeRegistry.filter(
-                t => t.projectType === project.projectType && t.taskTypeProjectStatus === 'ON_PROGRESS'
+                t => t.projectType === project.projectType && t.taskTypeProjectPhase === 'EXECUTION'
             );
             setFilteredTaskTypes(filtered);
         }
@@ -265,7 +265,7 @@ const ProjectDetails = () => {
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {tasks.map((task) => {
-                                const isInitiatedTask = task.taskTypeProjectStatus === 'INITIATED';
+                                const isInitiatedTask = task.taskTypeProjectPhase === 'INITIATION';
                                 return (
                                     <tr key={task.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-4">

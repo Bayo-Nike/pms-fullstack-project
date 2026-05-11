@@ -13,6 +13,49 @@ import colorCodingApi from '../../api/modules/colorCoding';
 import adminApi from '../../api/modules/admin';
 import { useAuth } from '../../context/AuthContext';
 
+// --- LEAFLET IMPORTS ---
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for Leaflet marker icon images not loading correctly in React
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+
+// Set default marker icon
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Helper: Handles clicking on the map
+function MapClickHandler({ onMapClick, isEnabled }) {
+useMapEvents({
+  click: (e) => {
+    if (isEnabled) {
+      onMapClick(e.latlng.lat, e.latlng.lng);
+    }
+  },
+});
+return null;
+}
+
+// Helper: Centers map on specific coordinates
+function ChangeMapView({ coords }) {
+const map = useMap();
+useEffect(() => {
+  if (coords && coords[0] && coords[1]) {
+    map.setView(coords, map.getZoom());
+  }
+}, [coords, map]);
+return null;
+}
+
 export default function ViewTarget() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -87,6 +130,27 @@ export default function ViewTarget() {
     loadData();
   }, [id]);
 
+  // MAP LOGIC: Add marker on click
+  const handleMapClick = (lat, lng) => {
+    const newLoc = { latitude: lat.toFixed(7), longitude: lng.toFixed(7) };
+    setAchievementForm(prev => {
+        // If the first item is empty, replace it. Otherwise, append.
+        if (prev.locations.length === 1 && !prev.locations[0].latitude) {
+            return { ...prev, locations: [newLoc], achieved: 1 };
+        }
+        const updated = [...prev.locations, newLoc];
+        return { ...prev, locations: updated, achieved: updated.length };
+    });
+  };
+
+  // MISSING FUNCTION ADDED: Handle dragging markers on map
+  const handleMarkerDrag = (index, e) => {
+    const { lat, lng } = e.target.getLatLng();
+    const updated = [...achievementForm.locations];
+    updated[index] = { latitude: lat.toFixed(7), longitude: lng.toFixed(7) };
+    setAchievementForm(prev => ({ ...prev, locations: updated }));
+  };
+
   const addLocation = () => {
     setAchievementForm(prev => ({
       ...prev,
@@ -96,7 +160,10 @@ export default function ViewTarget() {
   };
   
   const removeLocation = (index) => {
-    if (achievementForm.locations.length === 1) return;
+    if (achievementForm.locations.length === 1) {
+        setAchievementForm(prev => ({ ...prev, locations: [{ latitude: '', longitude: '' }], achieved: 0 }));
+        return;
+    }
     setAchievementForm(prev => {
       const updated = prev.locations.filter((_, i) => i !== index);
       return { ...prev, locations: updated, achieved: updated.length };
@@ -405,81 +472,123 @@ export default function ViewTarget() {
       {/* MODAL */}
       {isAchievementModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
-          <div className="bg-white w-full max-w-2xl rounded-[2.5rem] p-8 space-y-6 shadow-2xl animate-slideUp max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full max-w-4xl rounded-[2.5rem] p-8 space-y-6 shadow-2xl animate-slideUp max-h-[95vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b pb-4">
               <h2 className="text-xl font-black text-slate-800">
                 {editingLogId ? 'Update Achievement Result' : 'New Achievement Entry'}
               </h2>
               <button onClick={closeModal} className="text-slate-400 hover:text-red-500">✕</button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Current Batch Quantity</label>
-                <input type="number" value={achievementForm.achieved} readOnly className="w-full bg-slate-50 rounded-2xl px-5 py-3 mt-1 font-bold border-none" />
-              </div>
-              <div className="col-span-2 space-y-3">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               
-            <div className="flex justify-between items-center">
-              <h3 className="text-xs font-black uppercase">GPS Location Logs</h3>
-              {canSendColorCodingAchievement && (
-              <button onClick={addLocation} className="bg-slate-900 text-white px-4 py-1.5 rounded-full text-[10px]">+ Add Coordinate</button>
-              )}
-            </div>
-                              
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
-                  {achievementForm.locations.map((loc, index) => (
-                    <div key={index} className="flex gap-2 items-center bg-slate-50 p-2 rounded-2xl">
-                      <input placeholder="Lat" value={loc.latitude} onChange={(e) => updateLocation(index, 'latitude', e.target.value)} className="bg-white rounded-xl px-3 py-2 text-xs w-full border-none" />
-                      <input placeholder="Lng" value={loc.longitude} onChange={(e) => updateLocation(index, 'longitude', e.target.value)} className="bg-white rounded-xl px-3 py-2 text-xs w-full border-none" />
-                      {canSendColorCodingAchievement && (
-                      <button onClick={() => removeLocation(index)} className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-colors">✕</button>
-                      )}
+              {/* LEFT: MAP VIEW (STEP 1) */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                   <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Step 1: Click map to pin locations</label>
+                   <span className="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-black uppercase">Batch Vol: {achievementForm.locations.filter(l => l.latitude).length}</span>
+                </div>
+                <div className="h-[400px] w-full rounded-3xl overflow-hidden border-4 border-slate-50 shadow-inner z-0 relative">
+                  <MapContainer 
+                    center={[9.0192, 38.7525]} 
+                    zoom={12} 
+                    style={{ height: '100%', width: '100%' }}
+                  >
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; OpenStreetMap'
+                    />
+                    <MapClickHandler onMapClick={handleMapClick} isEnabled={canSendColorCodingAchievement} />
+                    {achievementForm.locations.length > 0 && achievementForm.locations[0].latitude && (
+                        <ChangeMapView coords={[achievementForm.locations[0].latitude, achievementForm.locations[0].longitude]} />
+                    )}
+                    {achievementForm.locations.map((loc, idx) => (
+                      loc.latitude && (
+                        <Marker 
+                            key={idx} 
+                            position={[loc.latitude, loc.longitude]}
+                            draggable={canSendColorCodingAchievement}
+                            eventHandlers={{ dragend: (e) => handleMarkerDrag(idx, e) }}
+                        />
+                      )
+                    ))}
+                  </MapContainer>
+                </div>
+              </div>
+
+              {/* RIGHT: DATA LIST & FEEDBACK (STEP 2) */}
+              <div className="flex flex-col space-y-6">
+                
+                {/* COORDINATE LIST */}
+                <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-[10px] font-black uppercase text-slate-400 ml-1">Step 2: Selected Coordinates</h3>
+                        {/* {canSendColorCodingAchievement && (
+                            <button onClick={addLocation} className="text-[#0284C7] text-[10px] font-black uppercase hover:underline">Manual Slot +</button>
+                        )} */}
                     </div>
-                  ))}
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                        {achievementForm.locations.length === 0 || !achievementForm.locations[0].latitude ? (
+                            <div className="py-10 text-center border-2 border-dashed rounded-2xl border-slate-100 text-slate-300 text-[10px] font-black uppercase">No pins placed on map</div>
+                        ) : (
+                            achievementForm.locations.map((loc, idx) => (
+                                <div key={idx} className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100 group transition-all hover:border-[#0284C7]/30">
+                                    <div className="bg-white w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black text-slate-400 shadow-sm border border-slate-100">{idx+1}</div>
+                                    <div className="flex-1 grid grid-cols-2 gap-4">
+                                        <div className="text-[11px] font-mono text-slate-600"><span className="text-[9px] text-slate-300 uppercase block font-sans">Latitude</span>{loc.latitude || '0.000'}</div>
+                                        <div className="text-[11px] font-mono text-slate-600"><span className="text-[9px] text-slate-300 uppercase block font-sans">Longitude</span>{loc.longitude || '0.000'}</div>
+                                    </div>
+                                    {canSendColorCodingAchievement && (
+                                        <button onClick={() => removeLocation(idx)} className="p-1.5 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">✕</button>
+                                    )}
+                                </div>
+                            ))
+                        )}
+                    </div>
                 </div>
-              </div>
-              {/* SENDER FEEDBACK */}
-              <div className="col-span-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">
-                  Sender Feedback {!canSendColorCodingAchievement && <span className="text-amber-500 font-bold">(Read Only)</span>}
-                </label>
-                <textarea 
-                  rows={3} 
-                  value={achievementForm.senderFeedback} 
-                  onChange={(e) => setAchievementForm({ ...achievementForm, senderFeedback: e.target.value })} 
-                  readOnly={!canSendColorCodingAchievement} // LOCKING LOGIC
-                  className={`w-full rounded-2xl px-5 py-3 mt-1 text-xs outline-none border-none transition-colors ${
-                    !canSendColorCodingAchievement ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-slate-50'
-                  }`} 
-                  placeholder={canSendColorCodingAchievement ? "Enter Sender notes..." : "No sender notes provided."} 
-                />
-              </div>
 
-              {/* REVIEWER FEEDBACK (Visible only during Edit) */}
-              {editingLogId && (
-                <div className="col-span-2 animate-fadeIn">
-                  <label className="text-[10px] font-black text-emerald-600 uppercase ml-1">
-                    Reviewer Feedback {!canReviewColorCodingAchievement && <span className="text-amber-500 font-bold">(Read Only)</span>}
-                  </label>
-                  <textarea 
-                    rows={3} 
-                    value={achievementForm.reviewerFeedback} 
-                    onChange={(e) => setAchievementForm({ ...achievementForm, reviewerFeedback: e.target.value })} 
-                    readOnly={!canReviewColorCodingAchievement} // LOCKING LOGIC
-                    className={`w-full rounded-2xl px-5 py-3 mt-1 text-xs outline-none transition-colors ${
-                      !canReviewColorCodingAchievement 
-                        ? 'bg-slate-100 text-slate-500 border-none cursor-not-allowed' 
-                        : 'bg-emerald-50/50 border border-emerald-100 focus:ring-2 ring-emerald-200'
-                    }`} 
-                    placeholder={canReviewColorCodingAchievement ? "Enter Reviewer notes..." : "Waiting for review..."} 
-                  />
+                {/* FEEDBACK AREAS */}
+                <div className="space-y-4">
+                    <div>
+                        <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Sender Feedback</label>
+                        <textarea 
+                            rows={2} 
+                            value={achievementForm.senderFeedback} 
+                            onChange={(e) => setAchievementForm({ ...achievementForm, senderFeedback: e.target.value })} 
+                            readOnly={!canSendColorCodingAchievement}
+                            className={`w-full rounded-2xl px-4 py-3 mt-1 text-xs outline-none border-none transition-colors resize-none ${
+                                !canSendColorCodingAchievement ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : 'bg-slate-50 border border-slate-100 focus:ring-2 ring-sky-100'
+                            }`} 
+                            placeholder="Enter notes about this submission..." 
+                        />
+                    </div>
+
+                {/* REVIEWER FEEDBACK (Visible only during Edit) */}
+                    {editingLogId && (
+                        <div className="animate-fadeIn">
+                            <label className="text-[10px] font-black text-emerald-600 uppercase ml-1">Reviewer Feedback</label>
+                            <textarea 
+                                rows={2} 
+                                value={achievementForm.reviewerFeedback} 
+                                onChange={(e) => setAchievementForm({ ...achievementForm, reviewerFeedback: e.target.value })} 
+                                readOnly={!canReviewColorCodingAchievement}
+                                className={`w-full rounded-2xl px-4 py-3 mt-1 text-xs outline-none transition-colors resize-none ${
+                                    !canReviewColorCodingAchievement 
+                                        ? 'bg-emerald-50/30 text-slate-500 border-none cursor-not-allowed' 
+                                        : 'bg-emerald-50/50 border border-emerald-100 focus:ring-2 ring-emerald-200 text-emerald-900'
+                                }`} 
+                                placeholder="Waiting for review..." 
+                            />
+                        </div>
+                    )}
                 </div>
-              )}
+
+                <button onClick={handleSubmitAchievement} className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-sky-700 transition-all transform active:scale-[0.98]">
+                    {editingLogId ? 'Update Registration' : 'Submit Achievement'}
+                </button>
+              </div>
 
             </div>
-            <button onClick={handleSubmitAchievement} className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black text-sm shadow-xl hover:bg-sky-700 transition-all">
-              {editingLogId ? 'Update Result' : 'Submit Registration'}
-            </button>
           </div>
         </div>
       )}

@@ -68,7 +68,7 @@ const ProjectInitiationDetails = () => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
             const filtered = taskTypeRegistry.filter(t =>
                 t.projectType === project.projectType &&
-                t.taskTypeProjectStatus === 'INITIATION'
+                t.taskTypeProjectPhase === 'INITIATION'
             );
             setFilteredTaskTypes(filtered);
         }
