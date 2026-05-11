@@ -195,7 +195,7 @@ public class TaskServiceImpl implements TaskService {
         dto.setLatitude(task.getLatitude());
         dto.setLongitude(task.getLongitude());
 
-        dto.setTaskTypeProjectStatus(task.getTaskType().getTaskTypeProjectStatus());
+        dto.setTaskTypeProjectPhase(task.getTaskType().getTaskTypeProjectPhase());
 
         // 🔹 multiple locations
         dto.setLocationIds(task.getLocations().stream().map(Location::getId).toList());

@@ -1,6 +1,6 @@
 package et.scco.pms_backend.enums;
 
-public enum TaskTypeProjectStatus {
+public enum TaskTypeProjectPhase {
     INITIATION,
-    ON_PROGRESS
+    EXECUTION
 }

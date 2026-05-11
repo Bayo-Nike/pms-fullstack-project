@@ -38,7 +38,7 @@ public class TaskTypeServiceImpl implements TaskTypeService {
         taskType.setName(taskTypeDTO.getName());
         taskType.setProjectType(taskTypeDTO.getProjectType());
         taskType.setDescription(taskTypeDTO.getDescription());
-        taskType.setTaskTypeProjectStatus(taskTypeDTO.getTaskTypeProjectStatus());
+        taskType.setTaskTypeProjectPhase(taskTypeDTO.getTaskTypeProjectPhase());
 
         return convertToDTO(taskTypeRepository.save(taskType));
     }
@@ -52,7 +52,7 @@ public class TaskTypeServiceImpl implements TaskTypeService {
         taskType.setName(dto.getName());
         taskType.setProjectType(dto.getProjectType());
         taskType.setDescription(dto.getDescription());
-        taskType.setTaskTypeProjectStatus(dto.getTaskTypeProjectStatus());
+        taskType.setTaskTypeProjectPhase(dto.getTaskTypeProjectPhase());
 
         return convertToDTO(taskTypeRepository.save(taskType));
     }
@@ -72,7 +72,7 @@ public class TaskTypeServiceImpl implements TaskTypeService {
         dto.setName(entity.getName());
         dto.setProjectType(entity.getProjectType());
         dto.setDescription(entity.getDescription());
-        dto.setTaskTypeProjectStatus(entity.getTaskTypeProjectStatus());
+        dto.setTaskTypeProjectPhase(entity.getTaskTypeProjectPhase());
         return dto;
     }
 }
