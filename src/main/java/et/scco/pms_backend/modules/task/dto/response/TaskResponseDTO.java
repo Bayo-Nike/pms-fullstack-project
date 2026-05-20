@@ -2,7 +2,7 @@ package et.scco.pms_backend.modules.task.dto.response;
 
 import et.scco.pms_backend.enums.ProjectPriority;
 import et.scco.pms_backend.enums.TaskStatus;
-import et.scco.pms_backend.enums.TaskTypeProjectStatus;
+import et.scco.pms_backend.enums.TaskTypeProjectPhase;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -45,5 +45,5 @@ public class TaskResponseDTO {
     private LocalDateTime createdAt;
     private String supportDocument;
 
-    private TaskTypeProjectStatus taskTypeProjectStatus;
+    private TaskTypeProjectPhase taskTypeProjectPhase;
 }
