@@ -251,7 +251,7 @@ export default function CreateInspection() {
                         <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest italic">Digital Verification Hub</p>
                     </div>
                 </div>
-                {can('CAN_UPDATE_INSPECTION') && (
+                {can('CAN_LOG_INSPECTION') && (
                     <button onClick={triggerSave} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 shadow-xl hover:bg-[#0369a1] active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest">
                         <Save style={{ fontSize: 20 }} /> {saving ? 'SYNCING...' : 'COMMIT CHANGES'}
                     </button>
