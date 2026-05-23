@@ -53,7 +53,9 @@ public class SystemDataInitializer implements ApplicationRunner {
     }
 
     private void initSubCities() {
-
+        if (cityRepository.count() > 1){
+            return;
+        }
         City city = cityRepository.findById(1L)
                 .orElseThrow();
 
