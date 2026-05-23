@@ -127,9 +127,6 @@ export default function CreateClient() {
                         </button>
                     )
                 }
-                <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-8 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase">
-                    <Save style={{ fontSize: 18 }} /> {saving ? 'PROCESSING...' : 'SAVE CLIENT'}
-                </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
