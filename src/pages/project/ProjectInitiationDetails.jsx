@@ -79,7 +79,6 @@ const ProjectInitiationDetails = () => {
         try {
             const formData = new FormData();
 
-            // Build DTO matching CreateTaskRequestDTO
             const dto = {
                 taskTypeId: Number(taskFormData.taskTypeId),
                 projectId: Number(id),
@@ -209,7 +208,16 @@ const ProjectInitiationDetails = () => {
                                                 <>
                                                     {
                                                         can('CAN_EDIT_INITIATION_TASK') && (
-                                                            <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '' }); setIsTaskModalOpen(true); }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
+                                                            <button onClick={() => {
+                                                                setEditingTask(task);
+                                                                // MATCHING LOGIC: Find Registry ID by Task Name
+                                                                const matchedRegistry = taskTypeRegistry.find(r => r.name === task.taskName);
+                                                                setTaskFormData({
+                                                                    ...task,
+                                                                    taskTypeId: matchedRegistry ? matchedRegistry.id : ''
+                                                                });
+                                                                setIsTaskModalOpen(true);
+                                                            }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
                                                         )
                                                     }
                                                     {
@@ -257,7 +265,10 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Planned Component' : 'New Initiation Component'}</h3>
+                            {/* REQUIRED CHANGE: Header Title */}
+                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
+                                {editingTask ? 'Component Title' : 'New Initiation Component'}
+                            </h3>
                             <button onClick={() => setIsTaskModalOpen(false)} className="p-2 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
                         </div>
                         <form onSubmit={handleTaskAction} className="p-10 overflow-y-auto space-y-8 no-scrollbar">
