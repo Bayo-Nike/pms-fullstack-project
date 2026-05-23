@@ -88,7 +88,7 @@ public class ProjectServiceImpl implements ProjectService {
                     authContext.getEmployee().getId(),
                     dto.getProjectManagerId(),
                     "Management Update: You have been assigned as Manager for " + project.getTitle(),
-                    "projects/view/" + updated.getId());
+                    "projects/" + updated.getId());
         }
 
         if (dto.getEmployeeIds() != null){
@@ -97,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
                         authContext.getEmployee().getId(),
                         team,
                         "You have been included into project team members for" + project.getTitle(),
-                        "projects/view/" + updated.getId());
+                        "projects/" + updated.getId());
             }
         }
 
