@@ -16,6 +16,7 @@ public class EndpointPermissionConfig {
             new EndpointPermission("GET", "/api/auth/profile", AccessType.AUTHENTICATED, null),
             new EndpointPermission("POST", "/api/auth/logout", AccessType.AUTHENTICATED, null),
             new EndpointPermission("PUT", "/api/auth/change-password", AccessType.AUTHENTICATED, null),
+            new EndpointPermission("GET", "/api/jurisdiction/*", AccessType.AUTHENTICATED, null),
 
             // =========================
             // GET REQUESTS
