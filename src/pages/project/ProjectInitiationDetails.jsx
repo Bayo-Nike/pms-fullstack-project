@@ -271,7 +271,7 @@ const ProjectInitiationDetails = () => {
                                             onChange={e => setTaskFormData({ ...taskFormData, taskTypeId: e.target.value })}
                                             className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-[#0284C7] text-sm font-bold appearance-none cursor-pointer"
                                         >
-                                            <option value="">-- Select Initiation Blueprint --</option>
+                                            <option value="">-- Select Initiation Phase --</option>
                                             {filteredTaskTypes.map(t => (
                                                 <option key={t.id} value={t.id}>{t.name}</option>
                                             ))}

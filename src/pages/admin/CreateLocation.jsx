@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
     ArrowBack, Save, PinDrop, LocationOn, HelpOutline, Language
@@ -53,11 +53,13 @@ export default function CreateLocation() {
     const [formData, setFormData] = useState({
         name: '',
         subCityId: '',
+        woredaId: '',
         lat: '',
         lng: ''
     });
 
     const [subCities, setSubCities] = useState([]);
+    const [allWoredas, setAllWoredas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -71,9 +73,16 @@ export default function CreateLocation() {
     useEffect(() => {
         const initData = async () => {
             try {
-                const subRes = await adminApi.GET_SUB_CITIES();
-                const subListData = subRes.data?.data || subRes.data || [];
-                setSubCities(subListData);
+                // const subRes = await adminApi.GET_SUB_CITIES();
+                // const subListData = subRes.data?.data || subRes.data || [];
+                // setSubCities(subListData);
+                const [subRes, woredaRes] = await Promise.all([
+                    adminApi.GET_SUB_CITIES(),
+                    adminApi.GET_WOREDAS()
+                ]);
+
+                setSubCities(subRes.data?.data || subRes.data || []);
+                setAllWoredas(woredaRes.data?.data || woredaRes.data || []);
 
                 if (isEdit) {
                     const locRes = await adminApi.GET_LOCATION(id);
@@ -81,7 +90,8 @@ export default function CreateLocation() {
                     if (l) {
                         setFormData({
                             name: l.name || '',
-                            subCityId: l.subCityId || '',
+                            subCityId: l.subCity?.id || l.subCityId || '',
+                            woredaId: l.woreda?.id || l.woredaId || '',
                             lat: l.lat ?? '', 
                             lng: l.lng ?? ''  
                         });
@@ -96,9 +106,22 @@ export default function CreateLocation() {
         initData();
     }, [id, isEdit]);
 
+    // 2. Hierarchical Filter: Only show woredas belonging to selected sub-city
+    const filteredWoredas = useMemo(() => {
+        if (!formData.subCityId) return [];
+        return allWoredas.filter(w => 
+            String(w.subCityId) === String(formData.subCityId) || 
+            String(w.subCity?.id) === String(formData.subCityId)
+        );
+    }, [formData.subCityId, allWoredas]);
+
+    // --- EVENT HANDLERS ---
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value,
+            // Reset Woreda if Sub-City changes
+            ...(name === 'subCityId' ? { woredaId: '' } : {})
+         }));
     };
 
     // --- MAP CLICK LOGIC ---
@@ -111,9 +134,9 @@ export default function CreateLocation() {
     };
 
     const handleSaveTrigger = () => {
-        const { name, subCityId } = formData;
+        const { name, subCityId, woredaId } = formData;
         if (!name?.toString().trim() || !subCityId) {
-            showAlert('error', 'Validation Error: Site name and Jurisdiction are mandatory.');
+            showAlert('error', 'Validation Error: Site name, SUb-city and Woreda are mandatory.');
             window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
         }
@@ -127,6 +150,7 @@ export default function CreateLocation() {
             const payload = {
                 name: formData.name.trim(),
                 subCityId: Number(formData.subCityId),
+                woredaId: Number(formData.woredaId),
                 lat: formData.lat === '' ? null : parseFloat(formData.lat),
                 lng: formData.lng === '' ? null : parseFloat(formData.lng)
             };
@@ -194,16 +218,33 @@ export default function CreateLocation() {
                     </div>
                     <div className="p-6 space-y-5">
                         <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Site Name</label>
-                            <input name="name" value={formData.name} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] transition-all shadow-sm" placeholder="e.g. Megenagna Square" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Jurisdiction / Sub-City</label>
-                            <select name="subCityId" value={formData.subCityId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] appearance-none cursor-pointer">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Sub-City</label>
+                            <select name="subCityId" value={formData.subCityId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white appearance-none cursor-pointer">
                                 <option value="">-- Select Sub-City --</option>
                                 {subCities.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
                         </div>
+                        
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Woreda Designation</label>
+                            <select 
+                                name="woredaId" 
+                                value={formData.woredaId} 
+                                onChange={handleInputChange} 
+                                disabled={!formData.subCityId}
+                                className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] focus:bg-white appearance-none cursor-pointer disabled:opacity-50"
+                            >
+                                <option value="">-- Select Woreda --</option>
+                                {filteredWoredas.map(w => <option key={w.id} value={w.id}>{w.woredaName || w.name}</option>)}
+                            </select>
+                            {!formData.subCityId && <p className="text-[9px] text-amber-500 font-bold ml-1 italic">Select a Sub-City first</p>}
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Site Name</label>
+                            <input name="name" value={formData.name} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] transition-all shadow-sm" placeholder="e.g. Megenagna Square" />
+                        </div>
+                        
                     </div>
                 </div>
 

@@ -87,6 +87,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       icon: <Settings />,
       children: [
         { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/woredas', name: 'Woredas', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/locations', name: 'Sites', permission: 'CAN_SEE_SYS_ADMIN' },

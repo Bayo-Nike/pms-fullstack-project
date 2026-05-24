@@ -18,11 +18,11 @@ export default function CreateProjectInitiation() {
 
     const [formData, setFormData] = useState({
         projectCode: '', title: '', description: '', projectType: 'BUILDING',
-        category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '',
+        category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '', woredaIds: [],
         locationIds: [], phase: 'INITIATION', agreementDate: '', startDate: '', endDate: ''
     });
 
-    const [lookups, setLookups] = useState({ subCities: [], locations: [] });
+    const [lookups, setLookups] = useState({ subCities: [], woredas: [],  locations: [] });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -31,11 +31,12 @@ export default function CreateProjectInitiation() {
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, locRes] = await Promise.all([
-                    adminApi.GET_SUB_CITIES(), adminApi.GET_LOCATIONS()
+                const [subRes, woredaRes, locRes] = await Promise.all([
+                    adminApi.GET_SUB_CITIES(), adminApi.GET_WOREDAS(), adminApi.GET_LOCATIONS()
                 ]);
                 setLookups({
                     subCities: subRes.data?.data || subRes.data || [],
+                    woredas: woredaRes.data?.data || woredaRes.data || [],
                     locations: locRes.data?.data || locRes.data || []
                 });
 
@@ -46,7 +47,8 @@ export default function CreateProjectInitiation() {
                         ...d,
                         category: d.category || 'GOVERNMENT',
                         subCityId: d.subCityId ? String(d.subCityId) : '',
-                        locationIds: d.locationIds || [],
+                        woredaIds: d.woredaId ? [Number(d.woredaId)] : (d.woredaIds ? d.woredaIds.map(Number) : []),
+                        locationIds: Array.isArray(d.locationIds) ? d.locationIds.map(Number) : [],
                         phase: d.phase || 'INITIATION',
                         agreementDate: d.agreementDate || '',
                         startDate: d.startDate || '',
@@ -59,17 +61,40 @@ export default function CreateProjectInitiation() {
         init();
     }, [id]);
 
+     
     const handleInputChange = (e) => {
         if (isView) return;
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value, ...(name === 'subCityId' ? { locationIds: [] } : {}) }));
+        setFormData(prev => {
+            const update = { ...prev, [name]: value };
+            // Cascading Reset: If Sub-City changes, Woredas and Locations must clear
+            if (name === 'subCityId') {
+                update.woredaIds = [];
+                update.locationIds = [];
+            }
+            return update;
+        });
     };
 
-    const availableLocations = useMemo(() => {
+     
+    // 1. Filter Woredas by Sub-City
+    const filteredWoredas = useMemo(() => {
         if (!formData.subCityId) return [];
-        return (lookups.locations || []).filter(l => String(l.subCityId) === String(formData.subCityId));
-    }, [formData.subCityId, lookups.locations]);
+        return lookups.woredas.filter(w => 
+            String(w.subCityId) === String(formData.subCityId) || 
+            String(w.subCity?.id) === String(formData.subCityId)
+        );
+    }, [formData.subCityId, lookups.woredas]);
 
+    // 2. Filter Locations by the list of selected Woredas
+    const filteredLocations = useMemo(() => {
+        if (formData.woredaIds.length === 0) return [];
+        return lookups.locations.filter(loc => 
+            formData.woredaIds.includes(Number(loc.woredaId)) || 
+            formData.woredaIds.includes(Number(loc.woreda?.id))
+        );
+    }, [formData.woredaIds, lookups.locations]);
+    
     const executeSave = async () => {
         // 1. Level Validation
         if (formData.projectLevel === 'SUB_CITY' && !formData.subCityId) {
@@ -99,6 +124,10 @@ export default function CreateProjectInitiation() {
             const payload = {
                 ...formData,
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
+                
+                // CHANGED AREA: Map array back to singular woredaId for backend
+                woredaId: formData.woredaIds.length > 0 ? Number(formData.woredaIds[0]) : null,
+                locationIds: formData.locationIds.map(Number),
                 agreementDate: formData.phase === 'EXECUTION' ? formData.agreementDate : null,
                 startDate: formData.phase === 'EXECUTION' ? formData.startDate : null,
                 endDate: formData.phase === 'EXECUTION' ? formData.endDate : null
@@ -196,7 +225,7 @@ export default function CreateProjectInitiation() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Assigned Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
                             <select
                                 name="subCityId" value={formData.subCityId} onChange={handleInputChange} disabled={isView}
                                 className={`w-full text-sm font-semibold bg-slate-50 border rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer ${formData.projectLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300' : 'border-slate-200'}`}
@@ -207,25 +236,72 @@ export default function CreateProjectInitiation() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites (Locations)</label>
+                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Woreda</label>
                             <div className="relative">
                                 <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
                                 <select
                                     disabled={!formData.subCityId || isView}
-                                    onChange={(e) => { const v = Number(e.target.value); if (v && !formData.locationIds.includes(v)) setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }}
+                                    onChange={(e) => { 
+                                        const v = Number(e.target.value); 
+                                        // CHANGED AREA: Ensure only ONE woreda is selected (replace array instead of push)
+                                        if (v) setFormData(p => ({ ...p, woredaIds: [v] })); 
+                                    }}
                                     className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
                                 >
-                                    <option value="">{formData.subCityId ? '-- Select Site --' : '-- Select Sub-City First --'}</option>
-                                    {availableLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
+                                    <option value="">{formData.subCityId ? '-- Select Woreda --' : 'Select Sub-City First'}</option>
+                                    {filteredWoredas.map(w => (
+                                        <option key={w.id} value={w.id}>{w.woredaName || w.name}</option>
+                                    ))}
                                 </select>
                             </div>
-                            <div className="flex flex-wrap gap-3 pt-2">
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {formData.woredaIds.map(worId => {
+                                    const wor = lookups.woredas.find(w => w.id === worId);
+                                    return wor ? (
+                                        <div key={worId} className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest">
+                                            {wor.woredaName || wor.name}
+                                            {!isView && <Close onClick={() => setFormData(p => {
+                                                const newWoredaIds = p.woredaIds.filter(i => i !== worId);
+                                                // When removing a woreda, we should also remove its associated locations
+                                                const newLocationIds = p.locationIds.filter(locId => {
+                                                    const loc = lookups.locations.find(l => l.id === locId);
+                                                    return Number(loc?.woredaId) !== worId;
+                                                });
+                                                return { ...p, woredaIds: newWoredaIds, locationIds: newLocationIds };
+                                            })} className="cursor-pointer hover:text-rose-400" style={{ fontSize: 14 }} />}
+                                        </div>
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites / Locations (Multiple)</label>
+                            <div className="relative">
+                                <LocationOn className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
+                                <select
+                                    disabled={formData.woredaIds.length === 0 || isView}
+                                    onChange={(e) => { 
+                                        const v = Number(e.target.value); 
+                                        if (v && !formData.locationIds.includes(v)) {
+                                            setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); 
+                                        }
+                                    }}
+                                    className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
+                                >
+                                    <option value="">{formData.woredaIds.length > 0 ? '-- Select Site --' : '-- Select Woreda First --'}</option>
+                                    {filteredLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => (
+                                        <option key={l.id} value={l.id}>{l.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex flex-wrap gap-2 pt-2">
                                 {formData.locationIds.map(locId => {
                                     const loc = lookups.locations.find(l => l.id === locId);
                                     return loc ? (
-                                        <div key={locId} className="flex items-center gap-3 bg-slate-800 text-white pl-4 pr-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                                        <div key={locId} className="flex items-center gap-2 bg-sky-700 text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest">
                                             {loc.name}
-                                            {!isView && <Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:bg-white/10 rounded-full p-0.5" style={{ fontSize: 14 }} />}
+                                            {!isView && <Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:text-rose-400" style={{ fontSize: 14 }} />}
                                         </div>
                                     ) : null;
                                 })}
@@ -234,6 +310,7 @@ export default function CreateProjectInitiation() {
                     </div>
                 </div>
             </div>
+                    
 
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-8 flex flex-col gap-8 transition-all">
                 <div className="flex items-center justify-between">
