@@ -79,7 +79,6 @@ const ProjectInitiationDetails = () => {
         try {
             const formData = new FormData();
 
-            // Build DTO matching CreateTaskRequestDTO
             const dto = {
                 taskTypeId: Number(taskFormData.taskTypeId),
                 projectId: Number(id),
@@ -209,7 +208,16 @@ const ProjectInitiationDetails = () => {
                                                 <>
                                                     {
                                                         can('CAN_EDIT_INITIATION_TASK') && (
-                                                            <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '' }); setIsTaskModalOpen(true); }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
+                                                            <button onClick={() => {
+                                                                setEditingTask(task);
+                                                                // MATCHING LOGIC: Find Registry ID by Task Name
+                                                                const matchedRegistry = taskTypeRegistry.find(r => r.name === task.taskName);
+                                                                setTaskFormData({
+                                                                    ...task,
+                                                                    taskTypeId: matchedRegistry ? matchedRegistry.id : ''
+                                                                });
+                                                                setIsTaskModalOpen(true);
+                                                            }} className="p-2 text-slate-400 hover:text-[#0284C7] transition-all"><Edit fontSize="small" /></button>
                                                         )
                                                     }
                                                     {
