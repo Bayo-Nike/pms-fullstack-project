@@ -420,7 +420,7 @@ const ProjectDetails = () => {
                                                     <input 
                                                         type="number" step="any" 
                                                         value={taskFormData.latitude} 
-                                                        onChange={e => setTaskFormData({...taskFormData, latitude: e.target.value})}
+                                                        onChange={e => setTaskFormData({...taskFormData, latitude: e.target.value})} disabled
                                                         className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
                                                         placeholder="Latitude" 
                                                     />
@@ -430,7 +430,7 @@ const ProjectDetails = () => {
                                                     <input 
                                                         type="number" step="any" 
                                                         value={taskFormData.longitude} 
-                                                        onChange={e => setTaskFormData({...taskFormData, longitude: e.target.value})}
+                                                        onChange={e => setTaskFormData({...taskFormData, longitude: e.target.value})} disabled
                                                         className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
                                                         placeholder="Longitude" 
                                                     />
