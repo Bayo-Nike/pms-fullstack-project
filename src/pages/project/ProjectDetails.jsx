@@ -5,7 +5,8 @@ import {
     TrendingUp, Engineering, Info, Add, Edit, Delete,
     Assignment, Close, HelpOutline, Search, Explore, Schedule,
     Visibility, AccessTime, Diversity3, DateRange, Payment,
-    Description, UploadFile, CloudDone
+    Description, UploadFile, CloudDone,
+    Language
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import taskApi from '../../api/modules/task';
@@ -13,6 +14,41 @@ import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 import ProgressPie from '../../utility/ProgressPie';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Helper: Handles single click to set coordinates
+function MapClickHandler({ onMapClick }) {
+    useMapEvents({
+        click: (e) => {
+            onMapClick(e.latlng.lat, e.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Helper: Centers map when editing or selecting
+function ChangeMapView({ coords }) {
+    const map = useMap();
+    useEffect(() => {
+        if (coords && coords[0] && coords[1]) {
+            map.setView(coords, map.getZoom());
+        }
+    }, [coords, map]);
+    return null;
+}
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -56,6 +92,15 @@ const ProjectDetails = () => {
         longitude: '',
         taskCost: ''
     });
+
+    // --- MAP CLICK LOGIC ---
+    const handleMapClick = (lat, lng) => {
+        setTaskFormData(prev => ({
+            ...prev,
+            latitude: lat.toFixed(7),
+            longitude: lng.toFixed(7)
+        }));
+    };
 
     useEffect(() => {
         const loadPageData = async () => {
@@ -336,8 +381,62 @@ const ProjectDetails = () => {
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
                                     </div>
                                     <div className="p-4 bg-slate-50 rounded-2xl border space-y-3">
-                                        <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase"><Explore style={{ fontSize: 16 }} /> Coordinates (Preserved)</div>
-                                        <div className="grid grid-cols-2 gap-3"><input placeholder="LAT" value={taskFormData.latitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, latitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono outline-none" /><input placeholder="LNG" value={taskFormData.longitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, longitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono outline-none" /></div>
+                                        <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase">
+                                            <Explore style={{ fontSize: 16 }} /> Site GIS Coordinates
+                                        </div>
+                                        
+                                        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[350px]">
+                                            <div className="p-3 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Language className="text-slate-400" style={{ fontSize: 16 }} />
+                                                    <span className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">GIS Mapping</span>
+                                                </div>
+                                                <div className="text-[9px] font-mono text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded">
+                                                    {taskFormData.latitude ? `${taskFormData.latitude}, ${taskFormData.longitude}` : 'Click map to set'}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 relative z-0">
+                                                <MapContainer 
+                                                    center={taskFormData.latitude && taskFormData.longitude ? [parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)] : [9.0192, 38.7525]} 
+                                                    zoom={13} 
+                                                    style={{ height: '100%', width: '100%' }}
+                                                >
+                                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                                    <MapClickHandler onMapClick={handleMapClick} />
+                                                    
+                                                    {taskFormData.latitude && taskFormData.longitude && (
+                                                        <>
+                                                            <ChangeMapView coords={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} />
+                                                            <Marker position={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} icon={DefaultIcon} />
+                                                        </>
+                                                    )}
+                                                </MapContainer>
+                                            </div>
+
+                                            <div className="p-3 bg-slate-50/50 grid grid-cols-2 gap-3 border-t">
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lat</label>
+                                                    <input 
+                                                        type="number" step="any" 
+                                                        value={taskFormData.latitude} 
+                                                        onChange={e => setTaskFormData({...taskFormData, latitude: e.target.value})}
+                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
+                                                        placeholder="Latitude" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lng</label>
+                                                    <input 
+                                                        type="number" step="any" 
+                                                        value={taskFormData.longitude} 
+                                                        onChange={e => setTaskFormData({...taskFormData, longitude: e.target.value})}
+                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
+                                                        placeholder="Longitude" 
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
