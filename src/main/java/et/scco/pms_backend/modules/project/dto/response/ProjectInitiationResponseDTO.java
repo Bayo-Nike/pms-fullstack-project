@@ -30,6 +30,10 @@ public class ProjectInitiationResponseDTO {
     private Long subCityId;
     private String subCityName;
 
+    // Assignment Data
+    private Long woredaId;
+    private String woredaName;
+
     private List<Long> locationIds;
 
     // Added Date Fields

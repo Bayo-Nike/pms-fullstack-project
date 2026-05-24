@@ -6,6 +6,7 @@ import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
 import et.scco.pms_backend.modules.admin.repository.*;
+import et.scco.pms_backend.utility.PermissionFilter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -301,7 +302,14 @@ public class SystemDataInitializer implements ApplicationRunner {
         insertModuleWithPermissions(
                 "Sys Admin",
                 List.of(
-                        new PermissionData("CAN_SEE_SYS_ADMIN", "See System Admin")
+                        new PermissionData("CAN_SEE_SYS_ADMIN", "See System Admin"),
+                        new PermissionData("CAN_SEE_SUBCITY","See subcity"),
+                        new PermissionData("CAN_CREATE_SUBCITY","create subcity"),
+                        new PermissionData("CAN_EDIT_SUBCITY", "Edit subcity"),
+                        new PermissionData("CAN_SEE_WOREDA","See Woreda"),
+                        new PermissionData("CAN_CREATE_WOREDA","Create Woreda"),
+                        new PermissionData("CAN_EDIT_WOREDA", "Edit Woreda")
+                        
                 )
         );
     }

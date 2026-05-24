@@ -27,6 +27,9 @@ public class ProjectResponseDTO {
     private Long subCityId;
     private String subCityName;
 
+    private Long woredaId;
+    private String woredaName;
+
     private List<Long> locationIds ;
     private List<String> locationNames;
 

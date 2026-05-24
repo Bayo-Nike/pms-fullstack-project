@@ -27,6 +27,9 @@ public class Location {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_city_id")
     private SubCity subCity;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "woreda_id")
+    private Woreda woreda;
 
     private Double lat;
 

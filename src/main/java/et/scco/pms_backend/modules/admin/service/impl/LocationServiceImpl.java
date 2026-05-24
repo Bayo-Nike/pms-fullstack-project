@@ -5,8 +5,10 @@ import et.scco.pms_backend.modules.admin.dto.request.LocationRequestDTO;
 import et.scco.pms_backend.modules.admin.dto.response.LocationResponseDTO;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.model.Woreda;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+import et.scco.pms_backend.modules.admin.repository.WoredaRepository;
 import et.scco.pms_backend.modules.admin.service.LocationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class LocationServiceImpl implements LocationService {
 
     private final LocationRepository locationRepository;
     private final SubCityRepository subCityRepository;
+    private final WoredaRepository woredaRepository;
     private final AuditLogServiceImpl auditLogService;
 
     @Override
@@ -60,12 +63,16 @@ public class LocationServiceImpl implements LocationService {
 
         SubCity subCity = subCityRepository.findById(dto.getSubCityId())
                 .orElseThrow(() -> new RuntimeException("SubCity not found"));
+        Woreda woreda = woredaRepository.findById(dto.getWoredaId())
+                .orElseThrow(() -> new RuntimeException("Woreda not found"));
+        
 
         Location location = new Location();
         location.setName(dto.getName());
         location.setLat(dto.getLat());
         location.setLng(dto.getLng());
         location.setSubCity(subCity);
+        location.setWoreda(woreda);
 
         auditLogService.auditLog("Created", dto.getName()+" Location has been created");
 
@@ -88,11 +95,14 @@ public class LocationServiceImpl implements LocationService {
 
         SubCity subCity = subCityRepository.findById(dto.getSubCityId())
                 .orElseThrow(() -> new RuntimeException("SubCity not found"));
+        Woreda woreda = woredaRepository.findById(dto.getWoredaId())
+                .orElseThrow(() -> new RuntimeException("Woreda not found"));
 
         location.setName(dto.getName());
         location.setLat(dto.getLat());
         location.setLng(dto.getLng());
         location.setSubCity(subCity);
+        location.setWoreda(woreda);
 
         auditLogService.auditLog("Updated",
                 dto.getName()+" Location has been update"
@@ -120,6 +130,8 @@ public class LocationServiceImpl implements LocationService {
                 location.getName(),
                 location.getSubCity().getId(),
                 location.getSubCity().getSubCityName(),
+                location.getWoreda().getId(),
+                location.getWoreda().getWoredaName(),
                 location.getLat(),
                 location.getLng()
         );

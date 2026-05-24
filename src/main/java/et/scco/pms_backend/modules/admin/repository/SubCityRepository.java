@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SubCityRepository extends JpaRepository<SubCity, Long> {
     boolean existsBySubCityNameIgnoreCase(String name);
+    SubCity getSubCityById(Long id);
 }

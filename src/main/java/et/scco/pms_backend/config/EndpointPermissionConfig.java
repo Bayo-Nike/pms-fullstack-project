@@ -51,6 +51,9 @@ public class EndpointPermissionConfig {
             new EndpointPermission("GET", "/api/admin/cities/city", AccessType.PERMISSION, "CAN_SEE_CITY"),
             new EndpointPermission("GET", "/api/admin/cities/sub", AccessType.PERMISSION, "CAN_SEE_SUBCITY"),
             new EndpointPermission("GET", "/api/admin/cities/sub/*", AccessType.PERMISSION, "CAN_SEE_SUBCITY"),
+            new EndpointPermission("GET", "/api/admin/subCities/subCity", AccessType.PERMISSION, "CAN_SEE_CITY"),
+            new EndpointPermission("GET", "/api/admin/subCities/woreda", AccessType.PERMISSION, "CAN_SEE_WOREDA"), //CAN_SEE_WOREDA
+            new EndpointPermission("GET", "/api/admin/subCities/woreda/*", AccessType.PERMISSION, "CAN_SEE_WOREDA"), 
             new EndpointPermission("GET", "/api/admin/task-types", AccessType.PERMISSION, "CAN_SEE_TASK_TYPE"),
             new EndpointPermission("GET", "/api/admin/task-types/*", AccessType.PERMISSION, "CAN_SEE_TASK_TYPE"),
             new EndpointPermission("GET", "/api/admin/users/*", AccessType.PERMISSION, "CAN_SEE_USER"),
@@ -91,6 +94,7 @@ public class EndpointPermissionConfig {
             new EndpointPermission("POST", "/api/admin/positions", AccessType.PERMISSION, "CAN_CREATE_POSITION"),
             new EndpointPermission("POST", "/api/admin/roles", AccessType.PERMISSION, "CAN_CREATE_ROLE"),
             new EndpointPermission("POST", "/api/admin/cities/sub", AccessType.PERMISSION, "CAN_CREATE_SUBCITY"),
+            new EndpointPermission("POST", "/api/admin/subCities/woreda", AccessType.PERMISSION, "CAN_CREATE_WOREDA"),
             new EndpointPermission("POST", "/api/admin/task-types", AccessType.PERMISSION, "CAN_CREATE_TASK_TYPE"),
             new EndpointPermission("POST", "/api/admin/users", AccessType.PERMISSION, "CAN_CREATE_USER"),
             new EndpointPermission("POST", "/api/colorCodes", AccessType.PERMISSION, "CAN_REGISTER_COLOR_CODING"),
@@ -115,6 +119,7 @@ public class EndpointPermissionConfig {
             new EndpointPermission("PUT", "/api/admin/positions/*", AccessType.PERMISSION, "CAN_EDIT_POSITION"),
             new EndpointPermission("PUT", "/api/admin/roles/*", AccessType.PERMISSION, "CAN_EDIT_ROLE"),
             new EndpointPermission("PUT", "/api/admin/cities/sub/*", AccessType.PERMISSION, "CAN_EDIT_SUBCITY"),
+            new EndpointPermission("PUT", "/api/admin/subCities/woreda/*", AccessType.PERMISSION, "CAN_EDIT_WOREDA"), //CAN_EDIT_WOREDA
             new EndpointPermission("PUT", "/api/admin/task-types/*", AccessType.PERMISSION, "CAN_EDIT_TASK_TYPE"),
             new EndpointPermission("PUT", "/api/admin/users/*", AccessType.PERMISSION, "CAN_EDIT_USER"),
             new EndpointPermission("PUT", "/api/colorCodes/*", AccessType.PERMISSION, "CAN_EDIT_COLOR_CODING"),

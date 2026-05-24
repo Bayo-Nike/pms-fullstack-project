@@ -1,18 +1,15 @@
 package et.scco.pms_backend.modules.admin.dto.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+@Data
 @AllArgsConstructor
-public class LocationResponseDTO {
+public class WoredaResponseDto {
 
     private Long id;
     private String name;
     private Long subCityId;
     private String subCityName;
-    private Long woredaId;
-    private String woredaName;
-    private Double lat;
-    private Double lng;
+
 }

@@ -49,6 +49,10 @@ public class Project {
     private SubCity subCity;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "woreda_id")
+    private Woreda woreda;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "contractor_id")
     private Contractor contractor;
 

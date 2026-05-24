@@ -9,6 +9,7 @@ public class LocationRequestDTO {
 
     private String name;
     private Long subCityId;
+    private Long woredaId;
     private Double lat;
     private Double lng;
 }

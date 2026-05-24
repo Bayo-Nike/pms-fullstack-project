@@ -159,6 +159,10 @@ public class ProjectServiceImpl implements ProjectService {
             dto.setSubCityId(project.getSubCity().getId());
             dto.setSubCityName(project.getSubCity().getSubCityName());
         }
+        if (project.getWoreda() != null) {
+            dto.setWoredaId(project.getWoreda().getId());
+            dto.setWoredaName(project.getWoreda().getWoredaName());
+        }
         if (project.getLocations() != null) {
             dto.setLocationIds(project.getLocations().stream().map(Location::getId).toList());
             dto.setLocationNames(project.getLocations().stream().map(Location::getName).toList());

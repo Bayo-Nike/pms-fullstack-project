@@ -4,8 +4,10 @@ import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.model.Woreda;
 import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+import et.scco.pms_backend.modules.admin.repository.WoredaRepository;
 import et.scco.pms_backend.modules.admin.service.AuditLogService;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectInitiationRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectInitiationResponseDTO;
@@ -30,6 +32,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
 
     private final ProjectRepository projectRepository;
     private final SubCityRepository subCityRepository;
+    private final WoredaRepository woredaRepository;
     private final LocationRepository locationRepository;
     private final AuditLogService auditLogService;
 
@@ -120,6 +123,14 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
             project.setSubCity(null);
         }
 
+        if (dto.getWoredaId() != null) {
+            Woreda woreda = woredaRepository.findById(dto.getWoredaId())
+                    .orElseThrow(() -> new RuntimeException("Woreda not found"));
+            project.setWoreda(woreda);
+        } else {
+            project.setWoreda(null);;
+        }
+
         // Map Locations (Sites)
         if (dto.getLocationIds() != null && !dto.getLocationIds().isEmpty()) {
             List<Location> sites = locationRepository.findAllById(dto.getLocationIds());
@@ -150,6 +161,10 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         if (p.getSubCity() != null) {
             res.setSubCityId(p.getSubCity().getId());
             res.setSubCityName(p.getSubCity().getSubCityName());
+        }
+        if (p.getWoreda() != null) {
+            res.setWoredaId(p.getWoreda().getId());
+            res.setWoredaName(p.getWoreda().getWoredaName());
         }
 
         if (p.getLocations() != null) {

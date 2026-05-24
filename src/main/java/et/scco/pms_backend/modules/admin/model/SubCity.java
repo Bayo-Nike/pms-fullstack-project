@@ -1,5 +1,8 @@
 package et.scco.pms_backend.modules.admin.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,4 +24,7 @@ public class SubCity {
 
     @JsonIgnore
     private City city;
+
+    @OneToMany(mappedBy = "subCity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Woreda> woredas = new ArrayList<>();
 }

@@ -20,6 +20,7 @@ public class CreateProjectInitiationRequestDTO {
     private ProjectLevel projectLevel;
 
     private Long subCityId;
+    private Long woredaId;
     private List<Long> locationIds;
 
     private ProjectStatus status;
