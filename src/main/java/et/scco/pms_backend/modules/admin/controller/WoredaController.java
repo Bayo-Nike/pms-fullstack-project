@@ -53,7 +53,6 @@ public String getSubCity(@RequestParam("id") Long id) {
 
     @PostMapping("/woreda")
     public WoredaResponseDto create(@RequestBody WoredaRequestDto dto){
-        System.out.println("--------"+dto);
         return woredaService.createWoreda(dto);
     }
 

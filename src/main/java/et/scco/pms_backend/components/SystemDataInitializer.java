@@ -98,18 +98,18 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createDivision("City Record Office", DivisionGroup.BTH, "City Office");
         createDivision("City Building Director Office", DivisionGroup.BLD, "City Office");
-        createDivision("City Roads, Water Supply and Irrigation Director Office", DivisionGroup.WAR, "City Office");
-        createDivision("City Industry Construction Director Office", DivisionGroup.BTH, "City Office");
+        createDivision("City Road, Water Supply and Irrigation Director Office", DivisionGroup.WAR, "City Office");
+        createDivision("City Construction Industry Competence Director Office", DivisionGroup.BTH, "City Office");
         createDivision("Sub-City Office", DivisionGroup.BTH, "City Office");
         createDivision("City Finance Office", DivisionGroup.BTH, "City Office");
 
         createDivision("City Building Design Review and Approval Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
         createDivision("City Building Supervision and Monitoring Team Leader Office", DivisionGroup.BLD, "City Building Director Office");
 
-        createDivision("City Road Design Review and Approval Team Leader Office", DivisionGroup.WAR, "City Roads, Water Supply and Irrigation Director Office");
-        createDivision("City Road Construction Supervision and Monitoring Team Leader Office", DivisionGroup.WAR, "City Roads, Water Supply and Irrigation Director Office");
-        createDivision("City Water Supply and Irrigation Design Review and Approval Team Leader Office", DivisionGroup.WAR, "City Roads, Water Supply and Irrigation Director Office");
-        createDivision("City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader Office", DivisionGroup.WAR, "City Roads, Water Supply and Irrigation Director Office");
+        createDivision("City Road Design Review and Approval Team Leader Office", DivisionGroup.WAR, "City Road, Water Supply and Irrigation Director Office");
+        createDivision("City Road Construction Supervision and Monitoring Team Leader Office", DivisionGroup.WAR, "City Road, Water Supply and Irrigation Director Office");
+        createDivision("City Water Supply and Irrigation Design Review and Approval Team Leader Office", DivisionGroup.WAR, "City Road, Water Supply and Irrigation Director Office");
+        createDivision("City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader Office", DivisionGroup.WAR, "City Road, Water Supply and Irrigation Director Office");
 
         
         createDivision("Sub-City Record Office", DivisionGroup.BTH, "Sub-City Office");
@@ -143,8 +143,8 @@ public class SystemDataInitializer implements ApplicationRunner {
         createPosition("City Office Head", "Mayor", "City Office");
 
         createPosition("City Building Director", "City Office Head", "City Building Director Office");
-        createPosition("City Roads, Water Supply and Irrigation Director", "City Office Head", "City Roads, Water Supply and Irrigation Director Office");
-        createPosition("City Industry Construction Director", "City Office Head", "City Industry Construction Director Office");
+        createPosition("City Road, Water Supply and Irrigation Director", "City Office Head", "City Road, Water Supply and Irrigation Director Office");
+        createPosition("City Construction Industry Competence Director", "City Office Head", "City Construction Industry Competence Office");
         createPosition("Sub-City Office Head", "City Office Head", "Sub-City Office");
         createPosition("Finance Officer", "City Office Head", "City Finance Office");
         createPosition("City Record Office Head", "City Office Head", "City Record Office");
@@ -155,10 +155,10 @@ public class SystemDataInitializer implements ApplicationRunner {
         
 
         // City WAR T/Ls
-        createPosition("City Road Design Review and Approval Team Leader", "City Roads, Water Supply and Irrigation Director", "City Road Design Review and Approval Team Leader Office");
-        createPosition("City Road Construction Supervision and Monitoring Team Leader", "City Roads, Water Supply and Irrigation Director", "City Road Construction Supervision and Monitoring Team Leader Office");
-        createPosition("City Water Supply and Irrigation Design Review and Approval Team Leader", "City Roads, Water Supply and Irrigation Director", "City Water Supply and Irrigation Design Review and Approval Team Leader Office");
-        createPosition("City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader", "City Roads, Water Supply and Irrigation Director", "City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader Office");
+        createPosition("City Road Design Review and Approval Team Leader", "City Road, Water Supply and Irrigation Director", "City Road Design Review and Approval Team Leader Office");
+        createPosition("City Road Construction Supervision and Monitoring Team Leader", "City Road, Water Supply and Irrigation Director", "City Road Construction Supervision and Monitoring Team Leader Office");
+        createPosition("City Water Supply and Irrigation Design Review and Approval Team Leader", "City Road, Water Supply and Irrigation Director", "City Water Supply and Irrigation Design Review and Approval Team Leader Office");
+        createPosition("City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader", "City Road, Water Supply and Irrigation Director", "City Water Supply and Irrigation Construction Supervision and Monitoring Team Leader Office");
 
         // City BLD_Monitoring SEs
         createPosition("City Contract Administration, Building Supervision and Monitoring Site Engineer", "City Building Supervision and Monitoring Team Leader", "City Building Supervision and Monitoring Team Leader Office");
