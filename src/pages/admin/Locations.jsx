@@ -95,7 +95,7 @@ export default function Locations() {
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
                     <h1 className="text-base font-bold text-slate-900">Project Sites</h1>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">Geographic Mapping</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">Geographic Area</p>
                 </div>
                 {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => navigate('/admin/locations/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
@@ -122,6 +122,7 @@ export default function Locations() {
                         <tr>
                             <th className="px-6 py-3">Site / Area Name</th>
                             <th className="px-6 py-3">Sub-city</th>
+                            <th className="px-6 py-3">Woreda</th>
                             <th className="px-6 py-3">Coordinates (Lat, Lng)</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>
@@ -144,6 +145,12 @@ export default function Locations() {
                                         <div className="flex items-center gap-2 text-slate-500">
                                             <LocationOn style={{ fontSize: 14 }} />
                                             <span className="text-xs font-medium uppercase tracking-tight">{loc.subCityName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-3.5">
+                                        <div className="flex items-center gap-2 text-slate-500">
+                                            <LocationOn style={{ fontSize: 14 }} />
+                                            <span className="text-xs font-medium uppercase tracking-tight">{loc.woredaName}</span>
                                         </div>
                                     </td>
                                     

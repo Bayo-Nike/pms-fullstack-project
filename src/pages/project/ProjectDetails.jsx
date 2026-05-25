@@ -5,7 +5,8 @@ import {
     TrendingUp, Engineering, Info, Add, Edit, Delete,
     Assignment, Close, HelpOutline, Search, Explore, Schedule,
     Visibility, AccessTime, Diversity3, DateRange, Payment,
-    Description, UploadFile, CloudDone
+    Description, UploadFile, CloudDone,
+    Language
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import taskApi from '../../api/modules/task';
@@ -13,6 +14,41 @@ import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 import ProgressPie from '../../utility/ProgressPie';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+
+let DefaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+
+// Helper: Handles single click to set coordinates
+function MapClickHandler({ onMapClick }) {
+    useMapEvents({
+        click: (e) => {
+            onMapClick(e.latlng.lat, e.latlng.lng);
+        },
+    });
+    return null;
+}
+
+// Helper: Centers map when editing or selecting
+function ChangeMapView({ coords }) {
+    const map = useMap();
+    useEffect(() => {
+        if (coords && coords[0] && coords[1]) {
+            map.setView(coords, map.getZoom());
+        }
+    }, [coords, map]);
+    return null;
+}
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -56,6 +92,15 @@ const ProjectDetails = () => {
         longitude: '',
         taskCost: ''
     });
+
+    // --- MAP CLICK LOGIC ---
+    const handleMapClick = (lat, lng) => {
+        setTaskFormData(prev => ({
+            ...prev,
+            latitude: lat.toFixed(7),
+            longitude: lng.toFixed(7)
+        }));
+    };
 
     useEffect(() => {
         const loadPageData = async () => {
@@ -308,14 +353,14 @@ const ProjectDetails = () => {
                 <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[32px] shadow-2xl border w-full max-w-5xl overflow-hidden max-h-[95vh] flex flex-col">
                         <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                            <h3 className="font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Implementation Component' : 'Register New Component'}</h3>
+                            <h3 className="font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Execution Task' : 'Register New Task'}</h3>
                             <button onClick={() => setIsTaskModalOpen(false)} className="p-1.5 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
                         </div>
                         <form onSubmit={handleTaskAction} className="p-8 overflow-y-auto space-y-6 no-scrollbar">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 <div className="space-y-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Definition *</label>
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title *</label>
                                         <select
                                             required
                                             value={taskFormData.taskTypeId}
@@ -326,7 +371,7 @@ const ProjectDetails = () => {
                                             {filteredTaskTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                         </select>
                                     </div>
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Cost Projection ({project.currencyType})</label><input type="number" step="0.01" value={taskFormData.taskCost} onChange={e => setTaskFormData({ ...taskFormData, taskCost: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold" /></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Cost({project.currencyType})</label><input type="number" step="0.01" value={taskFormData.taskCost} onChange={e => setTaskFormData({ ...taskFormData, taskCost: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold" /></div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Weight (%)</label><input type="number" step="0.01" value={taskFormData.weight} onChange={e => setTaskFormData({ ...taskFormData, weight: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold" /></div>
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Priority</label><select value={taskFormData.priority} onChange={e => setTaskFormData({ ...taskFormData, priority: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="LOW">Low</option><option value="MEDIUM">Medium</option><option value="HIGH">High</option><option value="URGENT">Urgent</option></select></div>
@@ -336,21 +381,75 @@ const ProjectDetails = () => {
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
                                     </div>
                                     <div className="p-4 bg-slate-50 rounded-2xl border space-y-3">
-                                        <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase"><Explore style={{ fontSize: 16 }} /> Coordinates (Preserved)</div>
-                                        <div className="grid grid-cols-2 gap-3"><input placeholder="LAT" value={taskFormData.latitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, latitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono outline-none" /><input placeholder="LNG" value={taskFormData.longitude ?? ""} onChange={e => setTaskFormData({ ...taskFormData, longitude: e.target.value })} className="bg-white border rounded-xl px-3 py-2 text-xs font-mono outline-none" /></div>
+                                        <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase">
+                                            <Explore style={{ fontSize: 16 }} /> Site GIS Coordinates
+                                        </div>
+                                        
+                                        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[350px]">
+                                            <div className="p-3 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <Language className="text-slate-400" style={{ fontSize: 16 }} />
+                                                    <span className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">GIS Mapping</span>
+                                                </div>
+                                                <div className="text-[9px] font-mono text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded">
+                                                    {taskFormData.latitude ? `${taskFormData.latitude}, ${taskFormData.longitude}` : 'Click map to set'}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex-1 relative z-0">
+                                                <MapContainer 
+                                                    center={taskFormData.latitude && taskFormData.longitude ? [parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)] : [9.0192, 38.7525]} 
+                                                    zoom={13} 
+                                                    style={{ height: '100%', width: '100%' }}
+                                                >
+                                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                                                    <MapClickHandler onMapClick={handleMapClick} />
+                                                    
+                                                    {taskFormData.latitude && taskFormData.longitude && (
+                                                        <>
+                                                            <ChangeMapView coords={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} />
+                                                            <Marker position={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} icon={DefaultIcon} />
+                                                        </>
+                                                    )}
+                                                </MapContainer>
+                                            </div>
+
+                                            <div className="p-3 bg-slate-50/50 grid grid-cols-2 gap-3 border-t">
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lat</label>
+                                                    <input 
+                                                        type="number" step="any" 
+                                                        value={taskFormData.latitude} 
+                                                        onChange={e => setTaskFormData({...taskFormData, latitude: e.target.value})} disabled
+                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
+                                                        placeholder="Latitude" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lng</label>
+                                                    <input 
+                                                        type="number" step="any" 
+                                                        value={taskFormData.longitude} 
+                                                        onChange={e => setTaskFormData({...taskFormData, longitude: e.target.value})} disabled
+                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
+                                                        placeholder="Longitude" 
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Lifecycle Status</label><select value={taskFormData.status} onChange={e => setTaskFormData({ ...taskFormData, status: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="TO_DO">To Do</option><option value="IN_PROGRESS">In Progress</option><option value="IN_REVIEW">In Review</option><option value="COMPLETED">Completed</option></select></div>
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Linked Hub Sites</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.locationIds.includes(v)) setTaskFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Link --</option>{projectSites.filter(s => !taskFormData.locationIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.locationIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-white border rounded-lg text-[9px] font-bold text-slate-600">{(projectSites.find(s => s.id === id))?.name} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, locationIds: p.locationIds.filter(lid => lid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Field Personnel</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.employeeIds.includes(v)) setTaskFormData(p => ({ ...p, employeeIds: [...p.employeeIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Assign --</option>{projectStaff.filter(s => !taskFormData.employeeIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.employeeIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-100 rounded-lg text-[9px] font-bold text-[#0284C7]">{(projectStaff.find(s => s.id === id))?.fullName} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, employeeIds: p.employeeIds.filter(eid => eid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Status</label><select value={taskFormData.status} onChange={e => setTaskFormData({ ...taskFormData, status: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="TO_DO">To Do</option><option value="IN_PROGRESS">In Progress</option><option value="IN_REVIEW">In Review</option><option value="COMPLETED">Completed</option></select></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Site(s)</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.locationIds.includes(v)) setTaskFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Select Site --</option>{projectSites.filter(s => !taskFormData.locationIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.locationIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-white border rounded-lg text-[9px] font-bold text-slate-600">{(projectSites.find(s => s.id === id))?.name} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, locationIds: p.locationIds.filter(lid => lid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Assigned Site Engiiner</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.employeeIds.includes(v)) setTaskFormData(p => ({ ...p, employeeIds: [...p.employeeIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Assign --</option>{projectStaff.filter(s => !taskFormData.employeeIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.employeeIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-100 rounded-lg text-[9px] font-bold text-[#0284C7]">{(projectStaff.find(s => s.id === id))?.fullName} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, employeeIds: p.employeeIds.filter(eid => eid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="bg-white rounded-2xl border p-6 space-y-4"><div className="flex items-center gap-1 text-[11px] font-bold uppercase text-slate-400"><Description fontSize="small" /> Artifact (Preserved)</div><div className="border-2 border-dashed rounded-[28px] p-8 text-center relative cursor-pointer group bg-slate-50/20"><input type="file" onChange={(e) => setSupportDocument(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" /><UploadFile className="text-slate-100 group-hover:text-[#0284C7] mb-2" style={{ fontSize: 32 }} /><p className="text-[10px] font-bold text-slate-500 group-hover:text-[#0284C7] uppercase font-black">Upload Proof</p></div>{(supportDocument || existingFile) && (<div className="flex items-center gap-2 p-2 rounded-xl border bg-sky-50/30 border-sky-100"><Description className="text-[#0284C7]" /><div className="flex-1 min-w-0"><p className="text-[10px] font-bold truncate text-slate-700">{supportDocument ? supportDocument.name : existingFile}</p></div>{supportDocument && <Close onClick={() => setSupportDocument(null)} className="cursor-pointer text-slate-400" style={{ fontSize: 14 }} />}</div>)}</div>
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Scope Documentation</label><textarea rows="4" value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Task details..." /></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Description</label><textarea rows="4" value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Task descriptions..." /></div>
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Synchronize Implementation Task</button>
+                            <button type="submit" className="w-full bg-[#0284C7] text-white py-4 rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Save Execution Task</button>
                         </form>
                     </div>
                 </div>

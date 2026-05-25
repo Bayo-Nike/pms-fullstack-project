@@ -21,6 +21,14 @@ const adminApi = {
     UPDATE_SUB_CITY: (id, data) => api.put(`/admin/cities/sub/${id}`, data),
     DELETE_SUB_CITY: (id) => api.delete(`/admin/cities/sub/${id}`),
 
+    //woreda
+    // GET_SUB_CITY: () => api.get("/admin/subCities/subCity"),
+    GET_WOREDAS: () => api.get('/admin/subCities/woreda'),
+    GET_WOREDA: (id) => api.get(`/admin/subCities/woreda/${id}`),
+    CREATE_WOREDA: (data) => api.post("/admin/subCities/woreda", data),
+    UPDATE_WOREDA: (id, data) => api.put(`/admin/subCities/woreda/${id}`, data),
+    DELETE_WOREDA: (id) => api.delete(`/admin/subCities/woreda/${id}`),
+
     //Division
     GET_DIVISIONS: () => api.get("/admin/divisions"),
     GET_DIVISION: (id) => api.get(`/admin/divisions/${id}`),

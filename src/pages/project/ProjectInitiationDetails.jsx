@@ -112,7 +112,7 @@ const ProjectInitiationDetails = () => {
         try {
             await taskApi.DELETE_TASK(deleteConfig.id);
             setTasks(prev => prev.filter(t => t.id !== deleteConfig.id));
-            setAlert({ show: true, type: 'success', message: 'Component removed from plan.' });
+            setAlert({ show: true, type: 'success', message: 'Task removed from plan.' });
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Deletion failed.' }); }
         finally { setDeleteConfig({ show: false, id: null, taskName: '' }); }
     };
@@ -138,7 +138,7 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
                     <div className="bg-white rounded-[32px] p-10 max-w-sm w-full text-center border shadow-2xl animate-scaleIn">
                         <HelpOutline className="text-red-500 mb-6 mx-auto" style={{ fontSize: 64 }} />
-                        <h3 className="text-xl font-black uppercase text-slate-800">Remove Component</h3>
+                        <h3 className="text-xl font-black uppercase text-slate-800">Remove Task</h3>
                         <p className="text-sm text-slate-500 mt-2 leading-relaxed">Delete <b>{deleteConfig.taskName}</b> from initiation plan?</p>
                         <div className="flex gap-4 mt-10">
                             <button onClick={() => setDeleteConfig({ show: false, id: null, taskName: '' })} className="flex-1 px-4 py-3 rounded-2xl border font-black uppercase text-[10px] hover:bg-slate-50">Cancel</button>
@@ -163,17 +163,17 @@ const ProjectInitiationDetails = () => {
                 <div className="flex gap-8">
                     <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.phase === 'EXECUTION' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.phase}</span></div>
                     <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Category</p><span className="text-xs font-black text-amber-600 uppercase">{project.category}</span></div>
-                    <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Window</p><span className="text-xs font-black text-slate-700">{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
+                    <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Timeline</p><span className="text-xs font-black text-slate-700">{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
                 </div>
             </div>
 
-            {/* Component List */}
+            {/* Task List */}
             <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
                 <div className="p-8 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-[#0284C7] text-white rounded-2xl flex items-center justify-center shadow-lg">{canModifyTasks ? <Assignment /> : <Lock />}</div>
                         <div>
-                            <h2 className="text-lg font-black text-slate-900 tracking-tight">Planned Initiation Components</h2>
+                            <h2 className="text-lg font-black text-slate-900 tracking-tight">Planned Initiation Tasks</h2>
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
                                 {canModifyTasks ? 'Define tasks for this initiation' : 'Planning locked: project implementation has started'}
                             </p>
@@ -241,12 +241,12 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[1600] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl border w-full max-w-2xl overflow-hidden flex flex-col">
                         <div className="p-8 border-b bg-slate-50/50 flex items-center justify-between">
-                            <div className="flex items-center gap-3"><Visibility className="text-emerald-500" /><h3 className="font-black text-slate-800 uppercase tracking-tight">Component Dossier</h3></div>
+                            <div className="flex items-center gap-3"><Visibility className="text-emerald-500" /><h3 className="font-black text-slate-800 uppercase tracking-tight">Task Dossier</h3></div>
                             <button onClick={() => setViewingTask(null)} className="p-2 hover:bg-white rounded-full"><Close /></button>
                         </div>
                         <div className="p-10 space-y-6">
                             <div className="flex justify-between items-start">
-                                <div className="space-y-1"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Component Name</p><p className="text-xl font-black text-slate-800">{viewingTask.taskName}</p></div>
+                                <div className="space-y-1"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Task Name</p><p className="text-xl font-black text-slate-800">{viewingTask.taskName}</p></div>
                                 <span className={`text-[10px] font-black px-4 py-2 rounded-xl border uppercase ${getTaskStatusStyle(viewingTask.status)}`}>{viewingTask.status.replace(/_/g, ' ')}</span>
                             </div>
                             <div className="grid grid-cols-2 gap-8">
@@ -265,31 +265,28 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                            {/* REQUIRED CHANGE: Header Title */}
-                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">
-                                {editingTask ? 'Component Title' : 'New Initiation Component'}
-                            </h3>
+                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Planned Task' : 'New Initiation Task'}</h3>
                             <button onClick={() => setIsTaskModalOpen(false)} className="p-2 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
                         </div>
                         <form onSubmit={handleTaskAction} className="p-10 overflow-y-auto space-y-8 no-scrollbar">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                 <div className="space-y-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Component Title (Registry Dropdown) *</label>
+                                        <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Task Title (Registry Dropdown) *</label>
                                         <select
                                             required
                                             value={taskFormData.taskTypeId}
                                             onChange={e => setTaskFormData({ ...taskFormData, taskTypeId: e.target.value })}
                                             className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-[#0284C7] text-sm font-bold appearance-none cursor-pointer"
                                         >
-                                            <option value="">-- Select Initiation Blueprint --</option>
+                                            <option value="">-- Select Initiation Phase --</option>
                                             {filteredTaskTypes.map(t => (
                                                 <option key={t.id} value={t.id}>{t.name}</option>
                                             ))}
                                         </select>
                                     </div>
                                     <div className="grid grid-cols-2 gap-6">
-                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Current Progress Status</label>
+                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Task Status</label>
                                             <select value={taskFormData.status} onChange={e => setTaskFormData({ ...taskFormData, status: e.target.value })} className="w-full bg-sky-50 border-2 border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 text-[11px] font-black uppercase outline-none cursor-pointer">
                                                 <option value="TO_DO">To Do</option>
                                                 <option value="IN_PROGRESS">In Progress</option>
@@ -300,8 +297,8 @@ const ProjectInitiationDetails = () => {
                                         <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Est. Weight (%)</label><input type="number" step="0.01" value={taskFormData.weight} onChange={e => setTaskFormData({ ...taskFormData, weight: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 text-sm font-bold" /></div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-6">
-                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Start Window</label><input type="date" value={taskFormData.startDate} onChange={e => setTaskFormData({ ...taskFormData, startDate: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-sm" /></div>
-                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">End Window</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-sm" /></div>
+                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Start Date</label><input type="date" value={taskFormData.startDate} onChange={e => setTaskFormData({ ...taskFormData, startDate: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-sm" /></div>
+                                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 font-bold text-sm" /></div>
                                     </div>
                                 </div>
                                 <div className="space-y-6">
@@ -314,7 +311,7 @@ const ProjectInitiationDetails = () => {
                                     {supportDocument && <div className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100"><div className="flex items-center gap-3"><CloudDone className="text-[#0284C7]" /><span className="text-[11px] font-bold text-slate-700 truncate max-w-[200px]">{supportDocument.name}</span></div><Close onClick={() => setSupportDocument(null)} className="cursor-pointer text-slate-400" /></div>}
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-[#0284C7] text-white py-5 rounded-[24px] font-black uppercase text-xs shadow-xl shadow-sky-100 hover:bg-[#0369a1] active:scale-95 transition-all tracking-[0.2em]">{editingTask ? 'Update Initiation Component' : 'Save Planned Component'}</button>
+                            <button type="submit" className="w-full bg-[#0284C7] text-white py-5 rounded-[24px] font-black uppercase text-xs shadow-xl shadow-sky-100 hover:bg-[#0369a1] active:scale-95 transition-all tracking-[0.2em]">{editingTask ? 'Update Initiation Task' : 'Save Planned Task'}</button>
                         </form>
                     </div>
                 </div>

@@ -55,6 +55,8 @@ import CreateProjectInitiation from './pages/project/CreateProjectInitiation';
 import ProjectInitiationDetails from './pages/project/ProjectInitiationDetails';
 import { Edit } from 'lucide-react';
 import EditProject from './pages/project/EditProject';
+import CreateWoreda from './pages/admin/CreateWoreda';
+import Woredas from './pages/admin/Woredas';
 
 
 export default function AppRoutes() {
@@ -129,6 +131,9 @@ export default function AppRoutes() {
         <Route path="admin/sub-cities" element={protect(<SubCities />, "CAN_SEE_SYS_ADMIN")} />
         <Route path="admin/sub-cities/create" element={protect(<CreateSubCity />, "CAN_SEE_SYS_ADMIN")} />
         <Route path="admin/sub-cities/edit/:id" element={protect(<CreateSubCity />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/woredas" element={protect(<Woredas />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/woredas/create" element={protect(<CreateWoreda />, "CAN_SEE_SYS_ADMIN")} />
+        <Route path="admin/woredas/edit/:id" element={protect(<CreateWoreda />, "CAN_SEE_SYS_ADMIN")} />
 
         <Route path="admin/divisions" element={protect(<Divisions />, "CAN_SEE_SYS_ADMIN")} />
         <Route path="admin/divisions/create" element={protect(<CreateDivision />, "CAN_SEE_SYS_ADMIN")} />
