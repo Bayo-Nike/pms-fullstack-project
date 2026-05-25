@@ -248,12 +248,12 @@ export default function CreateInspection() {
                     <button onClick={() => navigate('/inspections')} className="p-3 bg-slate-50 border rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
                     <div>
                         <h1 className="text-2xl font-black text-slate-900 leading-none">{isEdit ? 'Log Maintenance' : 'Quality Inspection'}</h1>
-                        <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest italic">Digital Verification Hub</p>
+                        <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest italic">Inspection Assessment</p>
                     </div>
                 </div>
                 {can('CAN_LOG_INSPECTION') && (
                     <button onClick={triggerSave} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 shadow-xl hover:bg-[#0369a1] active:scale-95 transition-all disabled:opacity-50 uppercase tracking-widest">
-                        <Save style={{ fontSize: 20 }} /> {saving ? 'SYNCING...' : 'COMMIT CHANGES'}
+                        <Save style={{ fontSize: 20 }} /> {saving ? 'SYNCING...' : 'SUBMIT INSPECTION'}
                     </button>
                 )}
             </div>
@@ -269,7 +269,7 @@ export default function CreateInspection() {
                         </div>
                         <div className="p-8 space-y-6">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Hierarchy Level *</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Inspection Level *</label>
                                 <div className="flex p-1.5 bg-slate-50 rounded-2xl border border-slate-100 gap-1">
                                     {['PROJECT', 'TASK'].map(lvl => (
                                         <button key={lvl} onClick={() => setFormData({ ...formData, inspectionLevel: lvl, taskId: '' })} className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${formData.inspectionLevel === lvl ? 'bg-white text-[#0284C7] shadow-sm border border-slate-100' : 'text-slate-400'}`}>{lvl}</button>
@@ -277,7 +277,7 @@ export default function CreateInspection() {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Active Project *</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Project *</label>
                                 <select value={formData.projectId} onChange={e => handleProjectChange(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-sky-500 transition-all">
                                     <option value="">-- Choose Project --</option>
                                     {myProjects.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
@@ -320,7 +320,7 @@ export default function CreateInspection() {
                                 <input type="number" value={formData.activeWorkers} onChange={(e) => setFormData({ ...formData, activeWorkers: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none" placeholder="0" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Log Date (Auto-locked)</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Inspection Date (As of Day)</label>
                                 <input type="date" value={formData.inspectionDate} readOnly className="w-full bg-slate-100 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-400 cursor-not-allowed outline-none" />
                             </div>
                         </div>
@@ -336,9 +336,9 @@ export default function CreateInspection() {
                         </div>
                         <div className="p-10 space-y-8">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Standard Template *</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Inspection Type *</label>
                                 <select value={formData.inspectionTypeId} onChange={e => setFormData({ ...formData, inspectionTypeId: e.target.value })} disabled={!selectedProject} className="w-full bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-5 text-sm font-bold outline-none disabled:opacity-50">
-                                    <option value="">-- Choose QC Template --</option>
+                                    <option value="">-- Choose Inspection Type --</option>
                                     {filteredTemplates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                                 </select>
                             </div>
@@ -395,7 +395,7 @@ export default function CreateInspection() {
                         <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                             <div className="p-6 border-b border-slate-50 bg-slate-50/40 flex items-center gap-3">
                                 <CloudUpload className="text-slate-400" fontSize="small" />
-                                <span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Evidence Registry</span>
+                                <span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Inspection Evidence</span>
                             </div>
                             <div className="p-8 space-y-4">
                                 {formData.inspectionDocumentUrl && (

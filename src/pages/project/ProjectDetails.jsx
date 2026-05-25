@@ -188,6 +188,7 @@ const ProjectDetails = () => {
             formData.append("data", new Blob([JSON.stringify(dto)], { type: "application/json" }));
             if (supportDocument instanceof File) formData.append("supportDocument", supportDocument);
 
+            console.log(formData);
             if (editingTask?.id) await taskApi.UPDATE_TASK(editingTask.id, formData);
             else await taskApi.CREATE_TASK(formData);
 

@@ -200,12 +200,12 @@ export default function CreateLocation() {
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
-                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update Site' : 'Create site'}</h1>
+                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update Site Location' : 'Create site Location'}</h1>
                         <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Spatial Data Management</p>
                     </div>
                 </div>
                 <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-6 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 uppercase tracking-widest">
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : 'COMMIT SITE'}
+                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : 'SAVE SITE LOCATION'}
                 </button>
             </div>
 
@@ -242,7 +242,7 @@ export default function CreateLocation() {
 
                         <div className="space-y-1.5">
                             <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Site Name</label>
-                            <input name="name" value={formData.name} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] transition-all shadow-sm" placeholder="e.g. Megenagna Square" />
+                            <input name="name" value={formData.name} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] transition-all shadow-sm" placeholder="e.g. Hachalu Square" />
                         </div>
                         
                     </div>

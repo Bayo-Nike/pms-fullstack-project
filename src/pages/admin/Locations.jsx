@@ -94,12 +94,12 @@ export default function Locations() {
             {/* HEADER */}
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
-                    <h1 className="text-base font-bold text-slate-900">Project Sites</h1>
+                    <h1 className="text-base font-bold text-slate-900">Project Site Locations</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">Geographic Area</p>
                 </div>
                 {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => navigate('/admin/locations/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
-                        <Add style={{ fontSize: 18 }} /> Add Site
+                        <Add style={{ fontSize: 18 }} /> Add Site Location
                     </button>
                 )}
             </div>

@@ -477,7 +477,7 @@ export default function CreateEmployee() {
                     </div>
                     <div className="p-6 space-y-5">
                         <div>
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Full Legal Name</label>
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Full Name</label>
                             <input name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] transition-all" placeholder="e.g. Elias D." />
                         </div>
                         <div>

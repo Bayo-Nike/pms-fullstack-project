@@ -137,7 +137,7 @@ export default function CreateDivision() {
                     disabled={saving}
                     className="bg-[#0284C7] text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50"
                 >
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'PROCESSSING...' : isEdit ? 'UPDATE UNIT' : 'SAVE DIVISION'}
+                    <Save style={{ fontSize: 16 }} /> {saving ? 'PROCESSSING...' : isEdit ? 'UPDATE DIVISION' : 'SAVE DIVISION'}
                 </button>
             </div>
 
@@ -168,7 +168,7 @@ export default function CreateDivision() {
                             >
                                 {/* KEPT CURRENT ORDER */}
                                 <option value="BLD">Building (BLD)</option>
-                                <option value="WAR">Water and Road (WAR)</option>
+                                <option value="WAR">Water, Road and Irrigation (WAR)</option>
                                 <option value="BTH">Both (BTH)</option>
                             </select>
                         </div>

@@ -19,6 +19,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
     { accessorKey: "sno", header: "S/No" },
     { accessorKey: "locationName", header: "Site Name" },
     { accessorKey: "subCity", header: "Sub-city" },
+    { accessorKey: "woreda", header: "Woreda" },
     { accessorKey: "lat", header: "Latitude" },
     { accessorKey: "lng", header: "Longitude" }
   ], []);
@@ -58,7 +59,7 @@ export default function LocationReport({ data = [], loading, onRefresh }) {
       {/* HEADER */}
       <div className="p-5 border-b flex justify-between items-center">
         <div>
-          <h1 className="text-lg font-bold">Site Master Report</h1>
+          <h1 className="text-lg font-bold">Site Location Master Report</h1>
           <p className="text-xs text-slate-400">Enterprise GIS Data</p>
         </div>
 

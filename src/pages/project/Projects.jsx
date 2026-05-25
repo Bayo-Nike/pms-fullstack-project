@@ -173,7 +173,7 @@ export default function Projects() {
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-xl">
             <Apartment className="text-slate-400" style={{ fontSize: 14 }} />
             <select value={subCityFilter} onChange={(e) => setSubCityFilter(e.target.value)} className="bg-transparent text-[10px] font-black uppercase text-slate-600 outline-none">
-              <option value="">Global/All Sub-Cities</option>
+              <option value="">All Sub-Cities</option>
               {subCities.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
             </select>
           </div>
