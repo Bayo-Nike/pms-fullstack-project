@@ -44,6 +44,7 @@ public class CreateProjectRequestDTO {
     private Long projectManagerId;
 
     private ProjectPriority priority;
+    private ProjectStatus status;
     private CurrencyType currencyType;
     private Double budget;
 

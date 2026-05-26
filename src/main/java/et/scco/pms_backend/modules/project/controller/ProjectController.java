@@ -27,6 +27,7 @@ public class ProjectController {
             @RequestParam(required = false) Long subCityId,
             Pageable pageable) {
 
+
         // Pass these new parameters to your service
         Page<ProjectResponseDTO> projects = projectService.getAllProjects(search, status, subCityId, pageable);
         return ResponseUtil.success("Projects fetched successfully", projects);

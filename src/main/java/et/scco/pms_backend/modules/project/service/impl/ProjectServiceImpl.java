@@ -107,6 +107,7 @@ public class ProjectServiceImpl implements ProjectService {
     private void populateImplementationDetails(Project project, CreateProjectRequestDTO dto) {
         // Management & Urgency
         project.setPriority(dto.getPriority());
+        project.setStatus(dto.getStatus());
         project.setProjectManager(dto.getProjectManagerId() != null ? employeeServiceImpl.findEmployee(dto.getProjectManagerId()) : null);
 
         // Partnerships
