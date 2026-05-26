@@ -211,7 +211,10 @@ const ProjectInitiationDetails = () => {
                                                             <button onClick={() => {
                                                                 setEditingTask(task);
                                                                 // MATCHING LOGIC: Find Registry ID by Task Name
-                                                                const matchedRegistry = taskTypeRegistry.find(r => r.name === task.taskName);
+                                                                const matchedRegistry = taskTypeRegistry.find(t =>
+                                                                    t.name?.trim().toLowerCase() === task.taskName?.trim().toLowerCase() &&
+                                                                    t.projectType === project.projectType &&
+                                                                    t.taskTypeProjectPhase === 'INITIATION');
                                                                 setTaskFormData({
                                                                     ...task,
                                                                     taskTypeId: matchedRegistry ? matchedRegistry.id : ''

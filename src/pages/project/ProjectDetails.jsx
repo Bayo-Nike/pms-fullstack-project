@@ -145,8 +145,10 @@ const ProjectDetails = () => {
     // Preservation: Logic for 'OTHERS' task types only
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
-            const filtered = taskTypeRegistry.filter(
-                t => t.projectType === project.projectType && t.taskTypeProjectPhase === 'EXECUTION'
+            
+            const filtered = taskTypeRegistry.filter(t =>
+                t.projectType === project.projectType && 
+                t.taskTypeProjectPhase === 'EXECUTION'
             );
             setFilteredTaskTypes(filtered);
         }
@@ -334,7 +336,14 @@ const ProjectDetails = () => {
                                             <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button onClick={() => setViewingTask(task)} className="p-1.5 text-slate-400 hover:text-emerald-600 transition-all"><Visibility style={{ fontSize: 18 }} /></button>
                                                 {!isInitiatedTask && (can('CAN_EDIT_TASK')) && (
-                                                    <button onClick={() => { setEditingTask(task); setTaskFormData({ ...task, taskTypeId: task.taskTypeId || '', employeeIds: task.employeeIds || [], locationIds: task.locationIds || [] }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                    <button onClick={() => { 
+                                                        const matchedTaskType = taskTypeRegistry.find(t =>
+                                                            t.name?.trim().toLowerCase() ===
+                                                                task.taskName?.trim().toLowerCase()
+                                                            &&
+                                                            t.projectType === project.projectType
+                                                            &&
+                                                            t.taskTypeProjectPhase === 'EXECUTION'); setEditingTask(task); setTaskFormData({ ...task, taskTypeId: matchedTaskType?.id || '', employeeIds: task.employeeIds || [], locationIds: task.locationIds || [] }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
                                                 )}
                                                 {!isInitiatedTask && can('CAN_DELETE_TASK') && (
                                                     <button onClick={() => setDeleteConfig({ show: true, id: task.id, taskName: task.taskName })} className="p-1.5 text-slate-400 hover:text-red-500 transition-all"><Delete style={{ fontSize: 18 }} /></button>

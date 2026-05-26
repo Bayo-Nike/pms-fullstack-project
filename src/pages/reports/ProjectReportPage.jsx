@@ -59,7 +59,7 @@ export default function ProjectReportPage() {
           if (diffDays > 0) {
             timelineExport = `${diffDays} Days Left`;
           } else if (diffDays < 0) {
-            timelineExport = `${Math.abs(diffDays)}d Overdue`;
+            timelineExport = `${Math.abs(diffDays)} Days Overdue`;
           } else {
             timelineExport = "Due Today";
           }
