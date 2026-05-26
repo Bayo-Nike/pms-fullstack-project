@@ -61,6 +61,7 @@ public class SecurityConfig {
 
                         // API authentication
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/mobile/auth/login").permitAll()
                         .requestMatchers("/api/**").authenticated()
 
                         // any other paths

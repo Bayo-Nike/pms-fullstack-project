@@ -1,15 +1,9 @@
-package et.scco.pms_backend.modules.admin.service.impl;
+package et.scco.pms_backend.modules.mobile;
 
-import et.scco.pms_backend.modules.admin.dto.request.MobileUserRequestDto;
-import et.scco.pms_backend.modules.admin.dto.request.MobileVerifyRequest;
-import et.scco.pms_backend.modules.admin.dto.response.MobileUserResponseDto;
 import et.scco.pms_backend.modules.admin.mapper.UserMapper;
 import et.scco.pms_backend.modules.admin.model.Employee;
-import et.scco.pms_backend.modules.admin.model.MobileUser;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
-import et.scco.pms_backend.modules.admin.repository.MobileUserRepository;
-import et.scco.pms_backend.modules.admin.service.MobileUserService;
 import et.scco.pms_backend.modules.auth.AuthResponseDto;
 import et.scco.pms_backend.utility.JwtService;
 import lombok.RequiredArgsConstructor;

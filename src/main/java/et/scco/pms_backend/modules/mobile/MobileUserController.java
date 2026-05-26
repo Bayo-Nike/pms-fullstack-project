@@ -1,8 +1,6 @@
-package et.scco.pms_backend.modules.admin.controller;
+package et.scco.pms_backend.modules.mobile;
 
 import et.scco.pms_backend.config.ApiResponse;
-import et.scco.pms_backend.modules.admin.dto.request.MobileVerifyRequest;
-import et.scco.pms_backend.modules.admin.service.MobileUserService;
 import et.scco.pms_backend.modules.auth.AuthResponseDto;
 import et.scco.pms_backend.modules.auth.AuthService;
 import et.scco.pms_backend.modules.auth.UserResponseLoginDto;

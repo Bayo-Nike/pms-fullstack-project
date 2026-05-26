@@ -1,6 +1,5 @@
-package et.scco.pms_backend.modules.admin.repository;
+package et.scco.pms_backend.modules.mobile;
 
-import et.scco.pms_backend.modules.admin.model.MobileUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

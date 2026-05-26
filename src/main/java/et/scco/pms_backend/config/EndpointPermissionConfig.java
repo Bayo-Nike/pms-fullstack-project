@@ -17,6 +17,7 @@ public class EndpointPermissionConfig {
             new EndpointPermission("POST", "/api/auth/logout", AccessType.AUTHENTICATED, null),
             new EndpointPermission("PUT", "/api/auth/change-password", AccessType.AUTHENTICATED, null),
             new EndpointPermission("GET", "/api/jurisdiction/*", AccessType.AUTHENTICATED, null),
+            new EndpointPermission("GET", "/api/locations/*", AccessType.AUTHENTICATED, null),
 
             // =========================
             // GET REQUESTS
@@ -38,7 +39,6 @@ public class EndpointPermissionConfig {
             new EndpointPermission("GET", "/api/admin/employees/no-user", AccessType.PERMISSION, "CAN_SEE_EMPLOYEE_REPORT"),
             new EndpointPermission("GET", "/api/admin/inspection-types", AccessType.PERMISSION, "CAN_SEE_INSPECTION_TYPE"),
             new EndpointPermission("GET", "/api/admin/inspection-types/*", AccessType.PERMISSION, "CAN_SEE_INSPECTION_TYPE"),
-            new EndpointPermission("GET", "/api/admin/locations", AccessType.PERMISSION, "CAN_SEE_LOCATION_REPORT"),
             new EndpointPermission("GET", "/api/admin/locations/*", AccessType.PERMISSION, "CAN_SEE_LOCATION_REPORT"),
             new EndpointPermission("GET", "/api/admin/mobile", AccessType.PERMISSION, "CAN_SEE_MOBILE_USER"),
             new EndpointPermission("GET", "/api/admin/mobile/profile", AccessType.AUTHENTICATED, null),

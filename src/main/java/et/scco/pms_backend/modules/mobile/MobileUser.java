@@ -1,5 +1,6 @@
-package et.scco.pms_backend.modules.admin.model;
+package et.scco.pms_backend.modules.mobile;
 
+import et.scco.pms_backend.modules.admin.model.Employee;
 import jakarta.persistence.*;
 import lombok.Data;
 

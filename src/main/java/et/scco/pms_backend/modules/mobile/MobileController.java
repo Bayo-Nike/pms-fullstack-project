@@ -1,9 +1,6 @@
-package et.scco.pms_backend.modules.admin.controller;
+package et.scco.pms_backend.modules.mobile;
 
 import et.scco.pms_backend.config.ApiResponse;
-import et.scco.pms_backend.modules.admin.dto.request.MobileUserRequestDto;
-import et.scco.pms_backend.modules.admin.dto.response.MobileUserResponseDto;
-import et.scco.pms_backend.modules.admin.service.MobileUserService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -47,4 +47,6 @@ public class User {
     public EmployeeStatus getStatus() {
         return employee != null ? employee.getStatus() : null;
     }
+
+    private Boolean mobileAllowed = false;
 }

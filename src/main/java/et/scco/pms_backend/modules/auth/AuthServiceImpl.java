@@ -32,7 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Override
-    public AuthResponseDto login(LoginRequestDto request) {
+    public AuthResponseDto login(LoginRequestDto request, Boolean isMobile) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
@@ -54,6 +54,13 @@ public class AuthServiceImpl implements AuthService {
                         request.getUsernameOrEmail()
                 )
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (isMobile) {
+            //is mobile end login
+            if (!user.getMobileAllowed()){
+                throw new UsernameNotFoundException("Mobile login is not allowed");
+            }
+        }
 
         //check if the user is active
         if (user.getUserType().equals(UserType.EMPLOYEE) && user.getStatus() != EmployeeStatus.ACTIVE) {
