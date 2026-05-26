@@ -35,4 +35,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     """)
     Optional<Employee> findByIdWithPositionTree(Long id);
 
+
+    @Query("SELECT e FROM Employee e JOIN FETCH e.position")
+List<Employee> findAllWithPosition();
 }

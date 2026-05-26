@@ -2,8 +2,10 @@ package et.scco.pms_backend.modules.admin.repository;
 
 import et.scco.pms_backend.modules.admin.model.Position;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
- 
+
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,5 +15,10 @@ public interface PositionRepository extends JpaRepository<Position, Long> {
 
     boolean existsByNameIgnoreCaseAndDivisionId(String name, Long divisionId);
     Optional<Position> findByIdAndDivisionId(Long id, Long divisionId);
+
+    
+    @Query("SELECT p FROM Position p LEFT JOIN FETCH p.parent")
+    List<Position> findAllWithParent();
+
 
 }
