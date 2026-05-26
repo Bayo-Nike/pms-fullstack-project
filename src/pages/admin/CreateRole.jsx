@@ -170,12 +170,12 @@ export default function CreateRole() {
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
-                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update ACL' : 'Create Role'}</h1>
+                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Update Role' : 'Create Role'}</h1>
                         <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Configuration Panel</p>
                     </div>
                 </div>
                 <button onClick={handleSaveTrigger} disabled={saving} className="bg-[#0284C7] text-white px-6 py-2 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all disabled:opacity-50 shadow-md">
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : isEdit ? 'UPDATE CHANGES' : 'SAVE ROLE'}
+                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : isEdit ? 'UPDATE ROLE' : 'SAVE ROLE'}
                 </button>
             </div>
 

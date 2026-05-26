@@ -133,7 +133,7 @@ export default function Inspections() {
                 {
                     can('CAN_LOG_INSPECTION') && (
                         <button onClick={() => navigate('/inspections/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
-                            <Add /> Log Inspection
+                            <Add /> New Inspection
                         </button>
                     )
                 }
@@ -148,7 +148,7 @@ export default function Inspections() {
                 <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-3 py-2 rounded-xl">
                     <Apartment className="text-slate-400" style={{ fontSize: 14 }} />
                     <select value={subCityFilter} onChange={(e) => setSubCityFilter(e.target.value)} className="bg-transparent text-[10px] font-bold uppercase text-slate-600 outline-none cursor-pointer">
-                        <option value="">All Regions</option>
+                        <option value="">All Sub-cities</option>
                         {subCities.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
                     </select>
                 </div>
@@ -161,7 +161,7 @@ export default function Inspections() {
                     <thead className="bg-slate-50/50 border-b text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
                             <th className="px-8 py-5">Context & Scope</th>
-                            <th className="px-8 py-5">Template Type</th>
+                            <th className="px-8 py-5">Inspection Type</th>
                             <th className="px-8 py-5">Environment</th>
                             <th className="px-8 py-5 text-right">Date</th>
                             <th className="px-8 py-5 text-right">Actions</th>

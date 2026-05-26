@@ -17,6 +17,7 @@ export default function LocationReportPage() {
         sno: index + 1,
         locationName: loc.name || "N/A",
         subCity: loc.subCityName || "N/A",
+        woreda: loc.woredaName || "N/A",
         lat: loc.lat != null ? loc.lat : "N/A",
         lng: loc.lng != null ? loc.lng : "N/A"
       }));

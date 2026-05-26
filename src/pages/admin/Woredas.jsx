@@ -15,6 +15,8 @@ export default function Woredas() {
     const [woredas, setWoredas] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [subCityFilter, setSubCityFilter] = useState('');
+    const [subCities, setSubCities] = useState([]);
 
     // Pagination States - CHANGED DEFAULT TO 5
     const [currentPage, setCurrentPage] = useState(1);
@@ -26,12 +28,23 @@ export default function Woredas() {
 
     useEffect(() => {
         fetchWoredas();
+        fetchLookups();
     }, []);
 
     // Reset to page 1 when searching
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm]);
+    }, [searchTerm,subCityFilter]);
+
+    const fetchLookups = async () => {
+        try {
+            const res = await adminApi.GET_SUB_CITIES();
+            setSubCities(res.data?.data || res.data || []);
+        } catch (err) {
+            console.error("Sub-city fetch failed", err);
+        }
+    };
+
 
     const fetchWoredas = async () => {
         try {
@@ -66,25 +79,43 @@ export default function Woredas() {
     };
 
     // 1. Filter Logic
-    const filteredSubCities = useMemo(() => {
-        return woredas.filter(sc =>
-            (sc.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (sc.cityName || "").toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [woredas, searchTerm]);
+    // const filteredSubCities = useMemo(() => {
+    //     return woredas.filter(sc =>
+    //         (sc.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //         (sc.cityName || "").toLowerCase().includes(searchTerm.toLowerCase())
+    //     );
+    // }, [woredas, searchTerm]);
+    // 1. UPDATED FILTER LOGIC: Handles search term AND sub-city selection
+    const filteredWoredas = useMemo(() => {
+        return woredas.filter(w => {
+            const matchesSearch = (w.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                 (w.subCityName || "").toLowerCase().includes(searchTerm.toLowerCase());
+            
+            // Check if subCityFilter is active, then compare IDs
+            const matchesSubCity = subCityFilter === "" || String(w.subCityId) === String(subCityFilter);
+            
+            return matchesSearch && matchesSubCity;
+        });
+    }, [woredas, searchTerm, subCityFilter]);
 
+    // // 2. Pagination Calculation
+    // const totalPages = Math.ceil(filteredSubCities.length / itemsPerPage);
+    // const paginatedSubCities = useMemo(() => {
+    //     const firstPageIndex = (currentPage - 1) * itemsPerPage;
+    //     const lastPageIndex = firstPageIndex + itemsPerPage;
+    //     return filteredSubCities.slice(firstPageIndex, lastPageIndex);
+    // }, [filteredSubCities, currentPage, itemsPerPage]);
     // 2. Pagination Calculation
-    const totalPages = Math.ceil(filteredSubCities.length / itemsPerPage);
-    const paginatedSubCities = useMemo(() => {
+    const totalPages = Math.ceil(filteredWoredas.length / itemsPerPage);
+    const paginatedWoredas = useMemo(() => {
         const firstPageIndex = (currentPage - 1) * itemsPerPage;
         const lastPageIndex = firstPageIndex + itemsPerPage;
-        return filteredSubCities.slice(firstPageIndex, lastPageIndex);
-    }, [filteredSubCities, currentPage, itemsPerPage]);
+        return filteredWoredas.slice(firstPageIndex, lastPageIndex);
+    }, [filteredWoredas, currentPage, itemsPerPage]);
 
     return (
         <div className="w-full space-y-4 animate-fadeIn px-2 pb-10 relative">
 
-            {/* Confirmation Dialog remains the same */}
             {deleteConfig.show && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 border border-slate-100 text-center">
@@ -114,21 +145,34 @@ export default function Woredas() {
                 )}
             </div>
 
-            {/* Filter & Page Size Selector */}
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center">
+            {/* Filter Toolbar */}
+            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex flex-wrap items-center gap-4">
                 <div className="relative max-w-sm w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
-                    <input type="text" placeholder="Search..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                    <input type="text" placeholder="Search Woreda name..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                </div>
+
+                {/* SUB-CITY FILTER DROPDOWN */}
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+                    <Apartment className="text-slate-400" style={{ fontSize: 16 }} />
+                    <select 
+                        value={subCityFilter} 
+                        onChange={(e) => setSubCityFilter(e.target.value)} 
+                        className="bg-transparent text-[10px] font-black uppercase text-slate-600 outline-none cursor-pointer"
+                    >
+                        <option value="">All Sub-Cities</option>
+                        {subCities.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                    </select>
                 </div>
 
                 {/* Page Size Selector */}
-                <div className="ml-auto flex items-center gap-2 px-4">
+                <div className="ml-auto flex items-center gap-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase">Per Page:</span>
                     <select
                         value={itemsPerPage}
                         onChange={(e) => {
                             setItemsPerPage(Number(e.target.value));
-                            setCurrentPage(1); // Reset to page 1 on change
+                            setCurrentPage(1);
                         }}
                         className="bg-slate-50 border border-slate-200 text-[10px] font-bold rounded-md px-2 py-1 outline-none text-slate-600 focus:border-[#0284C7]"
                     >
@@ -150,8 +194,8 @@ export default function Woredas() {
                     <tbody className="divide-y divide-slate-50">
                         {loading ? (
                             <tr><td colSpan="3" className="px-6 py-10 text-center text-slate-400 text-xs italic">Syncing Woreda Registry...</td></tr>
-                        ) : paginatedSubCities.length > 0 ? (
-                            paginatedSubCities.map((woreda) => (
+                        ) : paginatedWoredas.length > 0 ? (
+                            paginatedWoredas.map((woreda) => (
                                 <tr key={woreda.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-6 py-3.5">
                                         <div className="flex items-center gap-3">
@@ -159,7 +203,11 @@ export default function Woredas() {
                                             <span className="text-sm font-semibold text-slate-700">{woreda.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-3.5"><span className="text-xs text-slate-500 font-medium uppercase tracking-tight">{woreda.subCityName}</span></td>
+                                    <td className="px-6 py-3.5">
+                                        <span className="text-xs text-slate-500 font-medium uppercase tracking-tight">
+                                            {woreda.subCityName}
+                                        </span>
+                                    </td>
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             {can('CAN_SEE_SYS_ADMIN') && (
@@ -173,7 +221,7 @@ export default function Woredas() {
                                 </tr>
                             ))
                         ) : (
-                            <tr><td colSpan="3" className="px-6 py-20 text-center text-slate-400 text-xs italic">No woreda data found matching "{searchTerm}"</td></tr>
+                            <tr><td colSpan="3" className="px-6 py-20 text-center text-slate-400 text-xs italic">No woreda data found matching filters.</td></tr>
                         )}
                     </tbody>
                 </table>
@@ -181,7 +229,7 @@ export default function Woredas() {
                 {/* Pagination Footer */}
                 <div className="px-6 py-4 bg-slate-50/20 border-t border-slate-100 flex items-center justify-between">
                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredSubCities.length)} of {filteredSubCities.length}
+                        Showing {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredWoredas.length)} of {filteredWoredas.length}
                     </div>
                     <div className="flex items-center gap-2">
                         <button disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} className="p-1.5 rounded-lg border border-slate-200 bg-white text-slate-400 disabled:opacity-30 hover:text-[#0284C7] hover:border-[#0284C7] transition-all"><ChevronLeft fontSize="small" /></button>

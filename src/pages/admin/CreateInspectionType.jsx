@@ -116,8 +116,8 @@ export default function CreateInspectionType() {
                         <ArrowBack fontSize="small" />
                     </button>
                     <div>
-                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Edit Blueprint' : 'Register Template'}</h1>
-                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Standardized QA Matrix</p>
+                        <h1 className="text-base font-bold text-slate-900 leading-none">{isEdit ? 'Edit Blueprint' : 'Register Inspection'}</h1>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold">Standardized Inspections</p>
                     </div>
                 </div>
                 <button
@@ -125,7 +125,7 @@ export default function CreateInspectionType() {
                     disabled={saving}
                     className="bg-[#0284C7] text-white px-6 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 uppercase tracking-widest"
                 >
-                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : 'SAVE TEMPLATE'}
+                    <Save style={{ fontSize: 16 }} /> {saving ? 'SAVING...' : 'SAVE INSPECTION'}
                 </button>
             </div>
 
@@ -139,7 +139,7 @@ export default function CreateInspectionType() {
                 <div className="p-8 space-y-6 max-w-4xl">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Template Name *</label>
+                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Inspection Name *</label>
                             <input
                                 name="name"
                                 className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-[#0284C7] transition-all shadow-sm"
@@ -164,7 +164,7 @@ export default function CreateInspectionType() {
 
                     <div className="space-y-1.5">
                         <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1 flex items-center gap-2">
-                            <Description style={{ fontSize: 14 }} /> Detailed Technical Scope
+                            <Description style={{ fontSize: 14 }} /> Detailed Technical Inspection Scope
                         </label>
                         <textarea
                             name="description"

@@ -317,7 +317,7 @@ const TreeNode = ({ label, empCount, projCount, type, children, color, icon: Ico
 export default function OrgStructure() {
     const [activeTab, setActiveTab] = useState('GEO');
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState({ city: null, subCities: [], divisions: [], positions: [], locations: [], employees: [], projects: [] });
+    const [data, setData] = useState({ city: null, subCities: [], woredas: [], divisions: [], positions: [], locations: [], employees: [], projects: [] });
     const [zoom, setZoom] = useState(0.8);
 
     const viewportRef = useRef(null);
@@ -348,8 +348,8 @@ export default function OrgStructure() {
         const fetchAll = async () => {
             setLoading(true);
             try {
-                const [cityRes, subRes, divRes, posRes, locRes, empRes] = await Promise.all([
-                    adminApi.GET_CITY(), adminApi.GET_SUB_CITIES(), adminApi.GET_DIVISIONS(),
+                const [cityRes, subRes, woredaRes, divRes, posRes, locRes, empRes] = await Promise.all([
+                    adminApi.GET_CITY(), adminApi.GET_SUB_CITIES(), adminApi.GET_WOREDAS(), adminApi.GET_DIVISIONS(),
                     adminApi.GET_POSITIONS(), adminApi.GET_LOCATIONS(), adminApi.GET_EMPLOYEES()
                 ]);
 
@@ -364,6 +364,7 @@ export default function OrgStructure() {
                 setData({
                     city: cityRes.data?.data || cityRes.data,
                     subCities: subRes.data?.data || subRes.data || [],
+                    woredas: woredaRes.data?.data || woredaRes.data || [],
                     divisions: divRes.data?.data || divRes.data || [],
                     positions: posRes.data?.data || posRes.data || [],
                     locations: locRes.data?.data || locRes.data || [],
@@ -397,7 +398,7 @@ export default function OrgStructure() {
 
     // Prepare all tree structures independently
     const trees = useMemo(() => {
-        const { city, subCities, divisions, positions, locations, employees, projects } = data;
+        const { city, subCities, woredas, divisions, positions, locations, employees, projects } = data;
         if (!city) return {};
 
         return {
@@ -407,7 +408,22 @@ export default function OrgStructure() {
                 children: subCities.map(s => ({
                     label: s.name, type: "Sub-City", icon: Apartment, color: "bg-[#FBAF1E]",
                     empCount: employees.filter(e => e.subCityId === s.id).length,
-                    projCount: projects.filter(p => p.subCityId === s.id).length
+                    projCount: projects.filter(p => p.subCityId === s.id).length,
+                    // ADDED WOREDA LEVEL
+                    children: woredas.filter(w => w.subCityId === s.id).map(wor => ({
+                        label: wor.woredaName || wor.name, type: "Woreda", icon: Hub, color: "bg-orange-400",
+                        empCount: employees.filter(e => e.woredaId === wor.id).length,
+                        projCount: projects.filter(p => p.woredaId === wor.id).length,
+                        // Level 3: Locations belonging to this Woreda
+                        children: locations.filter(l => l.woredaId === wor.id || l.woreda?.id === wor.id).map(loc => ({
+                            label: loc.name, 
+                            type: "Project Site", 
+                            icon: PinDrop, 
+                            color: "bg-green-600",
+                            empCount: 0, // Usually locations don't have direct employees, but sites do
+                            projCount: projects.filter(p => p.locationIds?.includes(loc.id)).length
+                        }))
+                    }))
                 }))
             },
             DIV: {
@@ -420,6 +436,7 @@ export default function OrgStructure() {
                 empCount: employees.length,
                 children: buildTree(positions, null, "Position", Work, "bg-blue-600")
             },
+            // Inside useMemo -> trees object:
             LOC: {
                 label: "Construction Office", type: "Shaggar City", icon: LocationCity, color: "bg-slate-900",
                 empCount: employees.length, projCount: projects.length,
@@ -427,10 +444,25 @@ export default function OrgStructure() {
                     label: s.name, type: "Sub-City Hub", icon: Apartment, color: "bg-[#FBAF1E]",
                     empCount: employees.filter(e => e.subCityId === s.id).length,
                     projCount: projects.filter(p => p.subCityId === s.id).length,
-                    children: locations.filter(l => l.subCityId === s.id).map(loc => ({
-                        label: loc.name, type: "Project Site", icon: PinDrop, color: "bg-green-600",
-                        empCount: 0,
-                        projCount: projects.filter(p => p.locationIds?.includes(loc.id)).length
+                    
+                    // Level 2: Woredas belonging to this Sub-City
+                    children: woredas.filter(w => w.subCityId === s.id || w.subCityId?.id === s.id).map(wor => ({
+                        label: wor.woredaName || wor.name, 
+                        type: "Woreda", 
+                        icon: Hub, 
+                        color: "bg-orange-400",
+                        empCount: employees.filter(e => e.woredaId === wor.id).length,
+                        projCount: projects.filter(p => p.woredaId === wor.id).length,
+                        
+                        // Level 3: Locations belonging to this Woreda
+                        children: locations.filter(l => l.woredaId === wor.id || l.woreda?.id === wor.id).map(loc => ({
+                            label: loc.name, 
+                            type: "Project Site", 
+                            icon: PinDrop, 
+                            color: "bg-green-600",
+                            empCount: 0, // Usually locations don't have direct employees, but sites do
+                            projCount: projects.filter(p => p.locationIds?.includes(loc.id)).length
+                        }))
                     }))
                 }))
             }
@@ -448,7 +480,7 @@ export default function OrgStructure() {
                     { id: 'GEO', label: 'Regional', icon: Apartment },
                     { id: 'DIV', label: 'Divisions', icon: Business },
                     { id: 'POS', label: 'Roles', icon: Schema },
-                    { id: 'LOC', label: 'Sites', icon: Map },
+                    { id: 'LOC', label: 'Site Locations', icon: Map },
                 ].map(tab => (
                     <button
                         key={tab.id}

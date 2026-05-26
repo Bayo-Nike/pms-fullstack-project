@@ -161,7 +161,7 @@ export default function EditProject() {
         if (isLocked) return showAlert('error', 'Action prohibited: Agreement Date missing.');
         setConfirmModal({
             show: true,
-            title: 'Commit Changes?',
+            title: 'Confirm Update?',
             message: '',
             type: 'info',
             onConfirm: executeSave
@@ -208,7 +208,7 @@ export default function EditProject() {
                             <div className="grid grid-cols-2 gap-4 pt-4">
                                 <button onClick={() => setConfirmModal(p => ({ ...p, show: false }))} className="py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-slate-400 bg-slate-50 hover:bg-slate-100 transition-all">Cancel</button>
                                 <button onClick={confirmModal.onConfirm} className={`py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-white shadow-lg transition-all ${confirmModal.type === 'danger' ? 'bg-rose-500 hover:bg-rose-600 shadow-rose-100' : 'bg-slate-900 hover:bg-black shadow-slate-200'}`}>
-                                    {confirmModal.type === 'danger' ? 'Confirm Revert' : 'Confirm Sync'}
+                                    {confirmModal.type === 'danger' ? 'Cancel Update' : 'Submit Update'}
                                 </button>
                             </div>
                         </div>
@@ -237,11 +237,11 @@ export default function EditProject() {
             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-5">
                     <button onClick={() => navigate('/projects')} className="p-3 bg-slate-50 border rounded-[20px] hover:bg-slate-100"><ArrowBack fontSize="small" /></button>
-                    <div><h1 className="text-2xl font-black text-slate-900 leading-none">Implementation Hub</h1><p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest">{formData.projectCode}</p></div>
+                    <div><h1 className="text-2xl font-black text-slate-900 leading-none">Project Execution Phase</h1><p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest">{formData.projectCode}</p></div>
                 </div>
                 <div className="flex items-center gap-4">
                     {isLocked && <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 text-amber-600 rounded-2xl border border-amber-100 text-[10px] font-black uppercase italic"><Lock size={14} /> Legally Unverified (Agreement Missing)</div>}
-                    <button onClick={confirmSave} disabled={saving || isLocked} className={`px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl uppercase tracking-widest ${isLocked ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#0284C7] text-white hover:bg-[#0369a1] shadow-sky-100'}`}><Save style={{ fontSize: 20 }} /> {saving ? 'SYNCING...' : 'COMMIT CHANGES'}</button>
+                    <button onClick={confirmSave} disabled={saving || isLocked} className={`px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl uppercase tracking-widest ${isLocked ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-[#0284C7] text-white hover:bg-[#0369a1] shadow-sky-100'}`}><Save style={{ fontSize: 20 }} /> {saving ? 'SYNCING...' : 'UPDATE PROJECT'}</button>
                 </div>
             </div>
 
