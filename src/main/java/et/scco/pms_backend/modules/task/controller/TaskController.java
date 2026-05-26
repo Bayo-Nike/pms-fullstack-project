@@ -67,19 +67,7 @@ public class TaskController {
                 .body(resource);
     }
 
-    // Build Update Contractor REST API
-    // @PutMapping(value = "{id}", consumes = "multipart/form-data")
-    // // @PutMapping("/{id}")
-    // public ApiResponse<TaskResponseDTO> updateTask(
-    //         @PathVariable Long id,
-    //         @ModelAttribute CreateTaskRequestDTO dto) {
-    //             System.out.println("Edit Time");
-
-    //     return ResponseUtil.success(
-    //             "Task updated successfully",
-    //             taskService.updateTask(id, dto)
-    //     );
-    // }
+    
 
     @PutMapping(value = "{id}", consumes = "multipart/form-data")
     public ApiResponse<TaskResponseDTO> updateTask(
