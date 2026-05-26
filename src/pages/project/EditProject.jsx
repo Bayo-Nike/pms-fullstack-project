@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-    ArrowBack, Save, Info, Groups, Close, Search, Add
+    ArrowBack, Save, Info, Groups, Close, Search, Add,
+    PriorityHigh,
+    PriorityHighOutlined,
+    Report
 } from '@mui/icons-material';
 import {
     History, UserCheck, Handshake, Landmark, AlertTriangle,
@@ -176,6 +179,7 @@ export default function EditProject() {
                 consultantId: formData.consultantId ? Number(formData.consultantId) : null,
                 clientId: formData.clientId ? Number(formData.clientId) : null,
                 projectManagerId: formData.projectManagerId ? Number(formData.projectManagerId) : null,
+                status: formData.status,
                 priority: formData.priority,
                 currencyType: formData.currencyType,
                 budget: formData.budget ? parseFloat(formData.budget) : 0,
@@ -328,8 +332,10 @@ export default function EditProject() {
 
                 {/* ROW 4: PRIORITY STRIP (LOCKED) */}
                 <div className={`lg:col-span-3 bg-white rounded-[24px] border border-amber-100 shadow-sm p-6 flex items-center justify-between transition-all ${isLocked ? 'opacity-60' : ''}`}>
-                    <div className="flex items-center gap-4"><div className="p-3 bg-amber-50 rounded-xl"><AlertTriangle className="text-amber-500" size={20} /></div><span className="text-xs font-bold text-slate-700">Priority for Implementation</span></div>
-                    <select name="priority" value={formData.priority} onChange={handleInputChange} disabled={isLocked} className="bg-slate-50 border border-slate-200 rounded-xl px-6 py-3 text-xs font-black uppercase outline-none">{['MEDIUM', 'LOW', 'HIGH', 'URGENT'].map(p => <option key={p} value={p}>{p}</option>)}</select>
+                <div className="flex items-center gap-4"><div className="p-3 bg-amber-50 rounded-xl"><Report className="text-amber-500" size={20} /></div><span className="text-xs font-bold text-slate-700">Project Status</span></div>
+                <div className="space-y-2"><select name="status" value={formData.status} onChange={handleInputChange} className="w-full text-[11px] font-black bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none uppercase">{['NOT_STARTED', 'ON_GOING', 'COMPLETED', 'ON_HOLD', 'CANCELLED'].map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}</select></div>
+                <div className="flex items-center gap-4"><div className="p-3 bg-amber-50 rounded-xl"><Report className="text-amber-500" size={20} /></div><span className="text-xs font-bold text-slate-700">Project Priority</span></div>
+                <select name="priority" value={formData.priority} onChange={handleInputChange} disabled={isLocked} className="bg-slate-50 border border-slate-200 rounded-xl px-6 py-3 text-xs font-black uppercase outline-none">{['MEDIUM', 'LOW', 'HIGH', 'URGENT'].map(p => <option key={p} value={p}>{p}</option>)}</select>
                 </div>
 
                 {/* ROW 5: FINANCIAL CONTEXT (LOCKED) */}
