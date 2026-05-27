@@ -2,31 +2,110 @@ import React, { useState, useEffect } from 'react';
 import {
     Close, FactCheck, WbSunny, Engineering, MyLocation,
     LocationOn, Description, Assignment, OpenInNew, Message, Send, Person,
-    CalendarMonth, Badge, CloudDone, VerifiedUser, RateReview, Lock
+    CalendarMonth, Badge, CloudDone, VerifiedUser, RateReview, Lock,
+    Straighten, CheckCircle
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
+import adminApi from '../../api/modules/admin'; // Added for Actual location resolution
+import taskApi from '../../api/modules/task';   // Added for Task actual location
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 
+// Helper: Haversine Formula (Compares Recorded Claim vs Admin Actual)
+const getDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+    const R = 6371;
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
+
+// Helper: Proximity Status (Tolerance logic)
+const getProximityStatus = (km) => {
+    const meters = km * 1000;
+    if (meters <= 150) return { label: 'ON-SITE', color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100' };
+    if (meters <= 500) return { label: 'NEAR-SITE', color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' };
+    return { label: 'REMOTE', color: 'text-slate-400', bg: 'bg-slate-50', border: 'border-slate-100' };
+};
+
 export default function InspectionDetail({ show, log, onClose, onSync }) {
-    // Local state to manage the log data independently for immediate updates
     const [currentLog, setCurrentLog] = useState(null);
     const [commentInput, setCommentInput] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showIframe, setShowIframe] = useState(false);
     const { can } = useAuth();
 
-    // Internal alert state for the modal
+    // --- Distance Auditing Local States ---
+    const [actualCoords, setActualCoords] = useState({ lat: null, lng: null });
+    const [proximityKm, setProximityKm] = useState(null);
+
     const [localAlert, setLocalAlert] = useState({ show: false, type: 'info', message: '' });
 
-    // Sync local state when the prop log changes
     useEffect(() => {
-        if (log) setCurrentLog(log);
+        if (log) {
+            setCurrentLog(log);
+            resolveActualLocation(log);
+        }
     }, [log]);
+
+    /**
+     * FEATURE: Resolve the "Actual" Ground Truth set by Admin
+     */
+    const resolveActualLocation = async (targetLog) => {
+        let lat = null, lng = null;
+
+        try {
+            // 1. Check Task Registry coordinates if applicable
+            if (targetLog.inspectionLevel === 'TASK' && targetLog.taskId) {
+                const res = await taskApi.GET_TASK(targetLog.taskId);
+                const task = res.data?.data || res.data;
+                if (task?.latitude && task?.longitude) {
+                    lat = parseFloat(task.latitude);
+                    lng = parseFloat(task.longitude);
+                }
+            }
+
+            // 2. Fallback to Location API (using project location)
+            if (!lat || !lng) {
+                // We fetch the project to find its location IDs, or use a known locationId if available
+                const pRes = await projectApi.GET_PROJECT(targetLog.projectId);
+                const project = pRes.data?.data || pRes.data;
+                if (project?.locationIds?.length > 0) {
+                    const locRes = await adminApi.GET_LOCATION(project.locationIds[0]);
+                    const dto = locRes.data?.data || locRes.data;
+                    if (dto?.lat && dto?.lng) {
+                        lat = parseFloat(dto.lat);
+                        lng = parseFloat(dto.lng);
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Audit Context Error:", e);
+        }
+        setActualCoords({ lat, lng });
+    };
+
+    // Calculate proximity when either log (recorded) or actual changes
+    useEffect(() => {
+        if (currentLog?.latitude && currentLog?.longitude && actualCoords.lat && actualCoords.lng) {
+            const dist = getDistance(
+                parseFloat(currentLog.latitude), parseFloat(currentLog.longitude),
+                actualCoords.lat, actualCoords.lng
+            );
+            setProximityKm(dist);
+        } else {
+            setProximityKm(null);
+        }
+    }, [currentLog, actualCoords]);
 
     if (!show || !currentLog) return null;
 
     const isFinalized = !!(currentLog.comment1 && currentLog.comment2);
+    const proxStatus = proximityKm !== null ? getProximityStatus(proximityKm) : null;
 
     const showInternalAlert = (type, message) => {
         setLocalAlert({ show: true, type, message });
@@ -37,16 +116,10 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
         if (!commentInput.trim()) return;
         setIsSubmitting(true);
         try {
-            // Updated API call handling based on your new DTO return type
             const res = await projectApi.COMMENT_INSPECTION(currentLog.id, commentInput.trim());
             const updatedLog = res.data?.data || res.data;
-
-            // 1. Update local modal state immediately
             setCurrentLog(updatedLog);
-
-            // 2. Notify parent (Inspections.jsx) to sync the list
             onSync(updatedLog);
-
             setCommentInput('');
             showInternalAlert('success', 'Official comment recorded in registry.');
         } catch (err) {
@@ -58,7 +131,6 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
 
     return (
         <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md animate-fadeIn p-4">
-            {/* Modal Internal Alert */}
             <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[1300] w-full max-w-md">
                 <AlertMessage
                     show={localAlert.show}
@@ -122,15 +194,39 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
                                 </div>
                             </div>
 
-                            <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center gap-2 text-[#0284C7]"><MyLocation style={{ fontSize: 18 }} /><span className="text-[10px] font-black uppercase tracking-widest">Localization</span></div>
-                                    <a href={`https://www.google.com/maps/search/?api=1&query=${currentLog.latitude},${currentLog.longitude}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-[#0284C7] hover:text-white transition-all text-[9px] font-black uppercase flex items-center gap-2">Map</a>
+                            <div className="space-y-4">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 flex items-center gap-2"><MyLocation fontSize="inherit" /> Localization Audit</label>
+
+                                <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-2 text-[#0284C7]"><LocationOn style={{ fontSize: 18 }} /><span className="text-[10px] font-black uppercase tracking-widest">Recorded Coordinates</span></div>
+                                        <a href={`https://www.google.com/maps/search/?api=1&query=${currentLog.latitude},${currentLog.longitude}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-[#0284C7] hover:text-white transition-all text-[9px] font-black uppercase flex items-center gap-2">Map</a>
+                                    </div>
+                                    <p className="text-sm font-mono font-bold text-slate-700 tracking-tighter">{currentLog.latitude}, {currentLog.longitude}</p>
                                 </div>
-                                <p className="text-sm font-mono font-bold text-slate-700 tracking-tighter">{currentLog.latitude}, {currentLog.longitude}</p>
+
+                                {/* AUDIT CARD: PROXIMITY FROM ADMIN ACTUAL */}
+                                {proximityKm !== null && proxStatus && (
+                                    <div className={`p-6 rounded-[32px] border animate-fadeIn ${proxStatus.bg} ${proxStatus.border}`}>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <div className={`flex items-center gap-2 ${proxStatus.color}`}>
+                                                <Straighten style={{ fontSize: 18 }} />
+                                                <span className="text-[10px] font-black uppercase tracking-widest">Proximity Audit</span>
+                                            </div>
+                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded border uppercase bg-white ${proxStatus.color} ${proxStatus.border}`}>{proxStatus.label}</span>
+                                        </div>
+                                        <p className={`text-sm font-black ${proxStatus.color}`}>
+                                            Inspector was {proximityKm < 1 ? `${(proximityKm * 1000).toFixed(0)} Meters` : `${proximityKm.toFixed(2)} KM`} from actual site.
+                                        </p>
+                                        <div className="mt-3 pt-3 border-t border-dashed border-current opacity-20 flex items-center gap-2">
+                                            <CheckCircle style={{ fontSize: 14 }} />
+                                            <span className="text-[9px] font-bold uppercase">Compared with Admin technical Registry</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* --- UPDATED SUPPORT DOCUMENTS SECTION --- */}
+                            {/* DOCUMENTS SECTION */}
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Support Documentation</label>
                                 {currentLog.inspectionDocumentUrl ? (
