@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 public interface ProjectInitiationService {
     ProjectInitiationResponseDTO createInitiation(CreateProjectInitiationRequestDTO dto);
 
-    Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectPhase phase, Category category);
+    Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectPhase phase, Long subCityId, Category category);
 
     ProjectInitiationResponseDTO getInitiation(Long id);
 

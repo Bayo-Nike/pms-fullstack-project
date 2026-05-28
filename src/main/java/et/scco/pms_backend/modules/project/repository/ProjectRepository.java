@@ -24,10 +24,12 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("SELECT p FROM Project p WHERE " +
             "(:phase IS NULL OR p.phase = :phase) AND " +
+        //     "(p.phase <> ProjectPhase.EXECUTION) AND " +
+            "(:subCityId IS NULL OR p.subCity.id = :subCityId) AND " +
             "(:category IS NULL OR p.category = :category) AND " +
             "(:search IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.projectCode) LIKE LOWER(CONCAT('%', :search, '%')))"
     )
-    Page<Project> findInitiations(ProjectPhase phase, Category category, String search, Pageable pageable);
+    Page<Project> findInitiations(ProjectPhase phase, Category category, String search, Long subCityId, Pageable pageable);
 
        Page<Project> findAllByEmployeesContaining(Employee employee, Pageable pageable);
 

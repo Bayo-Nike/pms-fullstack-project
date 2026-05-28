@@ -96,7 +96,7 @@ public class ProjectServiceImpl implements ProjectService {
                 notificationService.sendNotification(
                         authContext.getEmployee().getId(),
                         team,
-                        "You have been included into project team members for" + project.getTitle(),
+                        "You have been included into project team members for " + project.getTitle(),
                         "projects/" + updated.getId());
             }
         }

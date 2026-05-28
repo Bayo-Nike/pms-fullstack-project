@@ -31,9 +31,10 @@ public class ProjectInitiationController {
             @RequestParam(defaultValue = "8") int size,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) ProjectPhase phase,
-            @RequestParam(required = false) Category category) {
+            @RequestParam(required = false) Long subCityId,
+            @RequestParam(required = false) Category category) { 
 
-        Page<ProjectInitiationResponseDTO> initiations = initiationService.getInitiations(page, size, search, phase, category);
+        Page<ProjectInitiationResponseDTO> initiations = initiationService.getInitiations(page, size, search, phase, subCityId, category);
         return ResponseUtil.success("Project initiations retrieved successfully", initiations);
     }
 
