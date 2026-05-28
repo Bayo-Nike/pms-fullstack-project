@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import {
     Search, Add, Visibility, Edit, Delete,
     HelpOutline, LocationOn, ChevronLeft, ChevronRight,
-    Close, NoteAdd, Category, WarningAmber
+    Close, NoteAdd, Category, WarningAmber,
+    Apartment
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import adminApi from '../../api/modules/admin';
@@ -15,6 +16,7 @@ export default function ProjectInitiations() {
 
     const [initiations, setInitiations] = useState([]);
     const [subCities, setSubCities] = useState([]);
+    const [subCityFilter, setSubCityFilter] = useState('');
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [phaseFilter, setPhaseFilter] = useState('');
@@ -24,6 +26,19 @@ export default function ProjectInitiations() {
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, title: '' });
     const { can } = useAuth();
 
+    // Load Sub-Cities for filter
+  useEffect(() => {
+    const fetchLookups = async () => {
+      try {
+        const res = await adminApi.GET_SUB_CITIES();
+        setSubCities(res.data?.data || res.data || []);
+      } catch (err) {
+        console.error("Sub-city fetch failed", err);
+      }
+    };
+    fetchLookups();
+  }, []);
+
     const fetchInitiations = useCallback(async (page = 0) => {
         setLoading(true);
         try {
@@ -31,7 +46,8 @@ export default function ProjectInitiations() {
                 page: page,
                 size: pageInfo.size,
                 search: searchTerm.trim() || null,
-                phase: phaseFilter || null
+                phase: phaseFilter || null,
+                subCityId: subCityFilter && subCityFilter !== "" ? subCityFilter : null
             };
             const res = await projectApi.GET_PROJECT_INITIATIONS(params);
             const pageData = res.data.data;
@@ -43,7 +59,7 @@ export default function ProjectInitiations() {
         finally { setLoading(false); }
     }, [pageInfo.size, searchTerm, phaseFilter]);
 
-    useEffect(() => { fetchInitiations(0); }, [fetchInitiations, phaseFilter]);
+    useEffect(() => { fetchInitiations(0); }, [subCityFilter, fetchInitiations, phaseFilter]);
 
     const executeDelete = async () => {
         try {
@@ -90,7 +106,7 @@ export default function ProjectInitiations() {
                     <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center shadow-inner"><NoteAdd /></div>
                     <div>
                         <h1 className="text-xl font-bold text-slate-900 leading-none">Project Initiations</h1>
-                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black">Regional Proposal Registry</p>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-widest font-black">City Project Registry</p>
                     </div>
                 </div>
                 {
@@ -118,6 +134,13 @@ export default function ProjectInitiations() {
                     <option value="INITIATION">Initiation</option>
                     <option value="EXECUTION">Execution</option>
                 </select>
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2.5 rounded-xl">
+                <Apartment className="text-slate-400" style={{ fontSize: 14 }} />
+                <select value={subCityFilter} onChange={(e) => setSubCityFilter(e.target.value)} className="bg-transparent text-[10px] font-black uppercase text-slate-600 outline-none">
+                    <option value="">All Sub-Cities</option>
+                    {subCities.map(sc => <option key={sc.id} value={sc.id}>{sc.name}</option>)}
+                </select>
+                </div>
             </div>
 
             {/* Table */}
@@ -125,9 +148,9 @@ export default function ProjectInitiations() {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50/50 border-b text-slate-400 text-[9px] font-black uppercase tracking-[0.2em]">
                         <tr>
-                            <th className="px-8 py-5">Initiation ID & Title</th>
+                            <th className="px-8 py-5">Initiation Title</th>
                             <th className="px-6 py-5">Category</th>
-                            <th className="px-6 py-5">Origin / Hub</th>
+                            <th className="px-6 py-5">Sub-city</th>
                             <th className="px-6 py-5 text-center">Phase</th>
                             <th className="px-8 py-5 text-right">Actions</th>
                         </tr>

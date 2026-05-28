@@ -253,7 +253,7 @@ const Reportees = () => {
                         <AccountTree fontSize="medium" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-black text-slate-900 tracking-tight uppercase">Structure</h1>
+                        <h1 className="text-xl font-black text-slate-900 tracking-tight uppercase">SCCO Organizational Structure</h1>
                         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[2px]">Organizational Hierarchy</p>
                     </div>
                 </div>

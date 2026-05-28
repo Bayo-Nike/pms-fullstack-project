@@ -332,7 +332,7 @@ export default function CreateTarget() {
               value={formData.target}
               onChange={handleInputChange}
               className="w-full text-sm font-semibold px-4 py-3 border rounded-xl outline-none bg-white border-slate-200 focus:border-[#0284C7]"
-              placeholder="Enter numerical target"
+              placeholder="Enter target value"
             />
           </div>
 
