@@ -6,7 +6,7 @@ import {
     Assignment, Close, HelpOutline, Search, Explore, Schedule,
     Visibility, AccessTime, Diversity3, DateRange, Payment,
     Description, UploadFile, CloudDone,
-    Language
+    Language, ErrorOutline
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import taskApi from '../../api/modules/task';
@@ -21,11 +21,11 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 
 let DefaultIcon = L.icon({
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
@@ -71,6 +71,7 @@ const ProjectDetails = () => {
     const [viewingTask, setViewingTask] = useState(null);
     const [teamSearch, setTeamSearch] = useState('');
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, taskName: '' });
+    const [modalError, setModalError] = useState('');
 
     // --- File States ---
     const [supportDocument, setSupportDocument] = useState(null);
@@ -145,9 +146,9 @@ const ProjectDetails = () => {
     // Preservation: Logic for 'OTHERS' task types only
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
-            
+
             const filtered = taskTypeRegistry.filter(t =>
-                t.projectType === project.projectType && 
+                t.projectType === project.projectType &&
                 t.taskTypeProjectPhase === 'EXECUTION'
             );
             setFilteredTaskTypes(filtered);
@@ -169,6 +170,19 @@ const ProjectDetails = () => {
 
     const handleTaskAction = async (e) => {
         e.preventDefault();
+        setModalError('');
+
+        // VALIDATION: Ensure task dates are within project dates
+        const pStart = new Date(project.startDate);
+        const pEnd = new Date(project.finalEndDate);
+        const tStart = new Date(taskFormData.startDate);
+        const tEnd = new Date(taskFormData.endDate);
+
+        if (tStart < pStart || tEnd > pEnd) {
+            setModalError(`Task schedule must be within project lifecycle (${project.startDate} to ${project.finalEndDate})`);
+            return;
+        }
+
         try {
             const formData = new FormData();
             const dto = {
@@ -190,7 +204,6 @@ const ProjectDetails = () => {
             formData.append("data", new Blob([JSON.stringify(dto)], { type: "application/json" }));
             if (supportDocument instanceof File) formData.append("supportDocument", supportDocument);
 
-            console.log(formData);
             if (editingTask?.id) await taskApi.UPDATE_TASK(editingTask.id, formData);
             else await taskApi.CREATE_TASK(formData);
 
@@ -199,7 +212,7 @@ const ProjectDetails = () => {
             setIsTaskModalOpen(false);
             setAlert({ show: true, type: "success", message: "Task registry updated." });
         } catch (err) {
-            setAlert({ show: true, type: "error", message: err?.response?.data?.message || "Sync failed" });
+            setModalError(err?.response?.data?.message || "Sync failed. Please check your inputs.");
         }
     };
 
@@ -303,7 +316,7 @@ const ProjectDetails = () => {
                 <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
                     <div className="flex items-center gap-3"><div className="w-10 h-10 bg-[#0284C7] text-white rounded-2xl flex items-center justify-center shadow-lg"><Assignment /></div><div><h2 className="text-lg font-bold text-slate-900 leading-none">Task Registry</h2><p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Lifecycle Tracking</p></div></div>
                     {can('CAN_CREATE_TASK') && (
-                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskTypeId: '', taskCost: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'MEDIUM', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setSupportDocument(null); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase shadow-lg active:scale-95 transition-all"><Add style={{ fontSize: 18 }} /> New Task</button>
+                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskTypeId: '', taskCost: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'MEDIUM', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setSupportDocument(null); setModalError(''); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-4 py-2.5 rounded-xl text-xs font-bold uppercase shadow-lg active:scale-95 transition-all"><Add style={{ fontSize: 18 }} /> New Task</button>
                     )}
                 </div>
                 <div className="overflow-x-auto">
@@ -336,14 +349,15 @@ const ProjectDetails = () => {
                                             <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button onClick={() => setViewingTask(task)} className="p-1.5 text-slate-400 hover:text-emerald-600 transition-all"><Visibility style={{ fontSize: 18 }} /></button>
                                                 {!isInitiatedTask && (can('CAN_EDIT_TASK')) && (
-                                                    <button onClick={() => { 
+                                                    <button onClick={() => {
                                                         const matchedTaskType = taskTypeRegistry.find(t =>
                                                             t.name?.trim().toLowerCase() ===
-                                                                task.taskName?.trim().toLowerCase()
+                                                            task.taskName?.trim().toLowerCase()
                                                             &&
                                                             t.projectType === project.projectType
                                                             &&
-                                                            t.taskTypeProjectPhase === 'EXECUTION'); setEditingTask(task); setTaskFormData({ ...task, taskTypeId: matchedTaskType?.id || '', employeeIds: task.employeeIds || [], locationIds: task.locationIds || [] }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setIsTaskModalOpen(true); }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                            t.taskTypeProjectPhase === 'EXECUTION'); setEditingTask(task); setTaskFormData({ ...task, taskTypeId: matchedTaskType?.id || '', employeeIds: task.employeeIds || [], locationIds: task.locationIds || [] }); setSupportDocument(null); setExistingFile(task.supportDocument || ''); setModalError(''); setIsTaskModalOpen(true);
+                                                    }} className="p-1.5 text-slate-400 hover:text-[#0284C7] transition-all"><Edit style={{ fontSize: 18 }} /></button>
                                                 )}
                                                 {!isInitiatedTask && can('CAN_DELETE_TASK') && (
                                                     <button onClick={() => setDeleteConfig({ show: true, id: task.id, taskName: task.taskName })} className="p-1.5 text-slate-400 hover:text-red-500 transition-all"><Delete style={{ fontSize: 18 }} /></button>
@@ -367,6 +381,14 @@ const ProjectDetails = () => {
                             <button onClick={() => setIsTaskModalOpen(false)} className="p-1.5 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
                         </div>
                         <form onSubmit={handleTaskAction} className="p-8 overflow-y-auto space-y-6 no-scrollbar">
+
+                            {modalError && (
+                                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3 animate-shake">
+                                    <ErrorOutline className="text-red-500" />
+                                    <p className="text-xs font-bold text-red-700 uppercase tracking-tight">{modalError}</p>
+                                </div>
+                            )}
+
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 <div className="space-y-4">
                                     <div className="space-y-1.5">
@@ -390,64 +412,16 @@ const ProjectDetails = () => {
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Start Date</label><input type="date" value={taskFormData.startDate} onChange={e => setTaskFormData({ ...taskFormData, startDate: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
                                         <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">End Date</label><input type="date" value={taskFormData.endDate} onChange={e => setTaskFormData({ ...taskFormData, endDate: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 font-bold text-sm" required /></div>
                                     </div>
+
+                                    {/* Site GIS Coordinates Section
                                     <div className="p-4 bg-slate-50 rounded-2xl border space-y-3">
                                         <div className="flex items-center gap-2 text-slate-400 font-bold text-[9px] uppercase">
                                             <Explore style={{ fontSize: 16 }} /> Site GIS Coordinates
                                         </div>
-                                        
-                                        <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col h-[350px]">
-                                            <div className="p-3 border-b border-slate-50 bg-slate-50/30 flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
-                                                    <Language className="text-slate-400" style={{ fontSize: 16 }} />
-                                                    <span className="text-[9px] font-bold uppercase text-slate-500 tracking-widest">GIS Mapping</span>
-                                                </div>
-                                                <div className="text-[9px] font-mono text-[#0284C7] bg-sky-50 px-2 py-0.5 rounded">
-                                                    {taskFormData.latitude ? `${taskFormData.latitude}, ${taskFormData.longitude}` : 'Click map to set'}
-                                                </div>
-                                            </div>
-
-                                            <div className="flex-1 relative z-0">
-                                                <MapContainer 
-                                                    center={taskFormData.latitude && taskFormData.longitude ? [parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)] : [9.0192, 38.7525]} 
-                                                    zoom={13} 
-                                                    style={{ height: '100%', width: '100%' }}
-                                                >
-                                                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                                                    <MapClickHandler onMapClick={handleMapClick} />
-                                                    
-                                                    {taskFormData.latitude && taskFormData.longitude && (
-                                                        <>
-                                                            <ChangeMapView coords={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} />
-                                                            <Marker position={[parseFloat(taskFormData.latitude), parseFloat(taskFormData.longitude)]} icon={DefaultIcon} />
-                                                        </>
-                                                    )}
-                                                </MapContainer>
-                                            </div>
-
-                                            <div className="p-3 bg-slate-50/50 grid grid-cols-2 gap-3 border-t">
-                                                <div className="space-y-1">
-                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lat</label>
-                                                    <input 
-                                                        type="number" step="any" 
-                                                        value={taskFormData.latitude} 
-                                                        onChange={e => setTaskFormData({...taskFormData, latitude: e.target.value})} disabled
-                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
-                                                        placeholder="Latitude" 
-                                                    />
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[8px] font-black uppercase text-slate-400">Lng</label>
-                                                    <input 
-                                                        type="number" step="any" 
-                                                        value={taskFormData.longitude} 
-                                                        onChange={e => setTaskFormData({...taskFormData, longitude: e.target.value})} disabled
-                                                        className="w-full text-[10px] font-mono bg-white border border-slate-200 rounded-lg px-2 py-1.5 outline-none focus:border-[#0284C7]" 
-                                                        placeholder="Longitude" 
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
+                                        ...Map Logic...
                                     </div>
+                                    */}
+
                                 </div>
                                 <div className="space-y-4">
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Status</label><select value={taskFormData.status} onChange={e => setTaskFormData({ ...taskFormData, status: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="TO_DO">To Do</option><option value="IN_PROGRESS">In Progress</option><option value="IN_REVIEW">In Review</option><option value="COMPLETED">Completed</option></select></div>

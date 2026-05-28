@@ -135,7 +135,7 @@ export default function Mobile() {
                         <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Device Token & UserCode Registry</p>
                     </div>
                 </div>
-                {can('CAN_MANAGE_USERS') && (
+                {can('CAN_SEE_SYS_ADMIN') && (
                     <button onClick={() => setIsModalOpen(true)} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg shadow-sky-100 active:scale-95 transition-all">
                         <Add /> Register Device
                     </button>
