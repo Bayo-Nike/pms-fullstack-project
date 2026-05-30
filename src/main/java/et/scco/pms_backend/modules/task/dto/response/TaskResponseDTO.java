@@ -27,6 +27,7 @@ public class TaskResponseDTO {
     private LocalDate endDate;
 
     private String description;
+    private String remark;
 
     private TaskStatus status;
 

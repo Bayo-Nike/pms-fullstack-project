@@ -40,6 +40,7 @@ public class Task {
     private LocalDate endDate;
 
     private String description;
+    private String remark;
 
     @Enumerated(EnumType.STRING)
     private TaskStatus status;

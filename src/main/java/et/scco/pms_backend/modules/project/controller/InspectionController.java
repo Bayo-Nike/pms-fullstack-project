@@ -85,4 +85,9 @@ public class InspectionController {
                 inspectionService.getInspectionsByProject(projectId)
         );
     }
+
+    @PutMapping("/{id}/approve")
+    public ApiResponse<InspectionResponseDto> approve(@PathVariable Long id) {
+        return ResponseUtil.success("Inspection promoted to next level", inspectionService.approveInspection(id));
+    }
 }

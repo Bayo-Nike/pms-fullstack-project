@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.dto.request;
 
 import et.scco.pms_backend.enums.InspectionLevel;
+import et.scco.pms_backend.enums.InspectionStatus;
 import et.scco.pms_backend.enums.WeatherCondition;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ import java.time.LocalDate;
 public class InspectionRequestDto {
     private Long inspectionTypeId;
     private InspectionLevel inspectionLevel;
+    private InspectionStatus inspectionStatus;
     private WeatherCondition weatherCondition;
     private Long projectId;
     private Long taskId;

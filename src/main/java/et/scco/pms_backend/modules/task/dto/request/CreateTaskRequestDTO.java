@@ -26,6 +26,7 @@ public class CreateTaskRequestDTO {
     private LocalDate endDate;
 
     private String description;
+    private String remark;
 
     private TaskStatus status;
 

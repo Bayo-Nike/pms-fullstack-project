@@ -5,7 +5,6 @@ import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.modules.admin.model.Employee;
-import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.project.model.Project;
 
 import java.util.List;
@@ -43,14 +42,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        // If subId is null (Admin), it groups ALL projects by sub-city including Unassigned if null.
        // If subId is provided (User), it only shows the count for that specific sub-city.
        @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as name, COUNT(p) as value " +
-              "FROM Project p LEFT JOIN p.subCity sc " +
-              "WHERE (:subId IS NULL OR sc.id = :subId) " +
-              "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
-       List<Map<String, Object>> countProjectsBySubCity(@Param("subId") Long subId);
+       "FROM Project p LEFT JOIN p.subCity sc " +
+       "WHERE (:subId IS NULL OR sc.id = :subId) " +
+       "AND p.phase = :phase " +
+       "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
+        List<Map<String, Object>> countProjectsBySubCityAndPhase(@Param("subId") Long subId, @Param("phase") ProjectPhase phase);
 
        // Area Chart: SQL Server Format (MMM), filter if subId is provided
        @Query(value = "SELECT FORMAT(created_at, 'MMM') as month, " +
-                     "currency_type as currency, " + // Add this
+                     "currency_type as currency, " +
                      "SUM(budget) as amount " +
                      "FROM projects " +
                      "WHERE (:subId IS NULL OR sub_city_id = :subId) " +
@@ -59,6 +59,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        List<Map<String, Object>> getMonthlyBudgetTrend(@Param("subId") Long subId);
 
        // Count methods with sub-city filter
+//        @Query("SELECT p FROM Project p WHERE " +
+//             "(p.phase <> ProjectPhase.EXECUTION)");
        long countBySubCityId(Long subCityId);
 
     @Query("SELECT p FROM Project p WHERE " +
@@ -82,12 +84,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
               "p.status as name, " + 
               "COUNT(p) as value " +
               "FROM Project p " +
-              "LEFT JOIN p.subCity sc " + // Explicit LEFT JOIN is the key
+              "LEFT JOIN p.subCity sc " +
+              "WHERE p.phase = :phase " +
               "GROUP BY sc.subCityName, p.status") 
-       List<Map<String, Object>> getProjectStatusDetailed();
+       List<Map<String, Object>> getProjectStatusDetailed(@Param("phase") ProjectPhase phase);
 
         // For Sub-City User: Count projects by status within their sub-city
-        @Query("SELECT p.status as name, COUNT(p) as value FROM Project p WHERE p.subCity.id = :subId GROUP BY p.status")
-        List<Map<String, Object>> countProjectsByStatusBySubCity(@Param("subId") Long subId);
+        @Query("SELECT p.status as name, COUNT(p) as value FROM Project p WHERE p.subCity.id = :subId AND p.phase = :phase GROUP BY p.status")
+        List<Map<String, Object>> countProjectsByStatusBySubCityAndPhase(@Param("subId") Long subId, ProjectPhase phase);
+
+        long countByPhase(ProjectPhase execution);
+
+        long countBySubCityIdAndPhase(Long subId, ProjectPhase execution);
 
 }

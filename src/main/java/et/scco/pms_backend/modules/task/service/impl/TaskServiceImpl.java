@@ -3,9 +3,13 @@ package et.scco.pms_backend.modules.task.service.impl;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.TaskType;
+import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.TaskTypeRepository;
+import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
 import et.scco.pms_backend.modules.admin.service.LocationService;
+import et.scco.pms_backend.modules.admin.service.impl.NotificationServiceImpl;
+import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
 import et.scco.pms_backend.modules.task.dto.request.CreateTaskRequestDTO;
 import et.scco.pms_backend.modules.task.dto.response.TaskResponseDTO;
@@ -38,12 +42,21 @@ public class TaskServiceImpl implements TaskService {
     private final AuthContext authContext;
     private final TaskTypeRepository taskTypeRepository;
     private final FileStorageService fileStorageService;
+    private final UserRepository userRepository;
+    private final NotificationServiceImpl notificationServiceImpl;
 
     // ---------------- Create Task ----------------
     @Override
     public TaskResponseDTO createTask(CreateTaskRequestDTO dto, MultipartFile file) {
 
         Task task = mapToEntity(dto);
+
+        // 5. Security Context
+        String currentUsername = AuthUtility.getUserName();
+        User loggedInUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("The Updating User not found")); 
+        Employee loggedInEmployee=loggedInUser.getEmployee();
+
         // if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
         if (file != null && !file.isEmpty()) {
             String fileName = null;
@@ -56,6 +69,22 @@ public class TaskServiceImpl implements TaskService {
         }
         Task saved = taskRepository.save(task);
 
+        //send notification to SE
+        saved.getEmployees().forEach(receiverEmployee -> {
+
+            notificationServiceImpl.sendNotification(
+                    loggedInEmployee.getId(),
+                    receiverEmployee.getId(),
+                    String.format(
+                            "%s has assigned a task %s for project %s to you.",
+                            loggedInEmployee.getFullName(),
+                            saved.getTaskType().getName(),
+                            saved.getProject().getTitle()
+                    ),
+                    "inspections/create"
+            );
+        });
+
         return mapToDTO(saved);
     }
 
@@ -64,7 +93,13 @@ public class TaskServiceImpl implements TaskService {
     // public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto) {
     public TaskResponseDTO updateTask(Long taskId, CreateTaskRequestDTO dto, MultipartFile file){
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId)); 
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
+       
+                // 5. Security Context
+        String currentUsername = AuthUtility.getUserName();
+        User loggedInUser = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new RuntimeException("The Updating User not found")); 
+        Employee loggedInEmployee=loggedInUser.getEmployee();
 
         // Only update file if a new one is uploaded
         // if (dto.getSupportDocument() != null && !dto.getSupportDocument().isEmpty()) {
@@ -80,6 +115,22 @@ public class TaskServiceImpl implements TaskService {
         // else: keep the existing file
 
         Task updated = taskRepository.save(mapToEntity(dto, task));
+
+        //send notification to SE
+        updated.getEmployees().forEach(receiverEmployee -> {
+
+            notificationServiceImpl.sendNotification(
+                    loggedInEmployee.getId(),
+                    receiverEmployee.getId(),
+                    String.format(
+                            "%s has assigned a task %s for project %s to you.",
+                            loggedInEmployee.getFullName(),
+                            updated.getTaskType().getName(),
+                            updated.getProject().getTitle()
+                    ),
+                    "inspections/create"
+            );
+        });
 
         return mapToDTO(updated);
     }
@@ -155,6 +206,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStartDate(dto.getStartDate());
         task.setEndDate(dto.getEndDate());
         task.setDescription(dto.getDescription());
+        task.setRemark(dto.getRemark());
         task.setStatus(dto.getStatus());
         task.setPriority(dto.getPriority());
         task.setWeight(dto.getWeight());
@@ -189,6 +241,7 @@ public class TaskServiceImpl implements TaskService {
         dto.setStartDate(task.getStartDate());
         dto.setEndDate(task.getEndDate());
         dto.setDescription(task.getDescription());
+        dto.setRemark(task.getRemark());
         dto.setStatus(task.getStatus());
         dto.setPriority(task.getPriority());
         dto.setWeight(task.getWeight());

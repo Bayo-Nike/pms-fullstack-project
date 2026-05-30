@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.task.repository;
 
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.modules.task.model.Task;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -53,11 +54,15 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
         // For Admin: Group tasks by Project and Status
         @Query("SELECT t.project.title as projectName, t.status as status, COUNT(t) as count " +
-        "FROM Task t GROUP BY t.project.title, t.status")
-        List<Map<String, Object>> getTaskStatusDetailed();
+        "FROM Task t WHERE t.project.phase = :phase GROUP BY t.project.title, t.status")
+        List<Map<String, Object>> getTaskStatusDetailed(@Param("phase") ProjectPhase phase);
 
         // For Sub-City User: Group tasks by Project and Status within their sub-city
         @Query("SELECT t.project.title as projectName, t.status as status, COUNT(t) as count " +
-        "FROM Task t WHERE t.project.subCity.id = :subId GROUP BY t.project.title, t.status")
-        List<Map<String, Object>> getTaskStatusDetailedBySubCity(@Param("subId") Long subId);
+        "FROM Task t WHERE t.project.subCity.id = :subId AND t.project.phase = :phase GROUP BY t.project.title, t.status")
+        List<Map<String, Object>> getTaskStatusDetailedBySubCityAndPhase(@Param("subId") Long subId, @Param("phase") ProjectPhase phase);
+
+        long countByProjectPhase(ProjectPhase execution);
+
+        long countByProjectSubCityIdAndProjectPhase(Long subId, ProjectPhase execution);
 }

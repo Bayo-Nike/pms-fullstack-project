@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.model;
 
 import et.scco.pms_backend.enums.InspectionLevel;
+import et.scco.pms_backend.enums.InspectionStatus;
 import et.scco.pms_backend.enums.WeatherCondition;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.InspectionType;
@@ -12,7 +13,6 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -32,6 +32,10 @@ public class Inspection {
     @Enumerated(EnumType.STRING)
     @Column(name = "inspection_level")
     private InspectionLevel inspectionLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "inspection_status")
+    private InspectionStatus inspectionStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "weather_condition")

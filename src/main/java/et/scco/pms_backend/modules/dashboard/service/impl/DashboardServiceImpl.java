@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
@@ -52,23 +53,32 @@ public class DashboardServiceImpl implements DashboardService {
             .contractorCount(contractorRepository.count())
             .consultantCount(consultancyRepository.count())
             .clientCount(clientRepository.count()) 
-            .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
-            .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
+        //     .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
+            .projectCount(subId == null
+                ? projectRepository.countByPhase(ProjectPhase.EXECUTION)
+                : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.EXECUTION))
+            .initiationCount(subId == null
+                ? projectRepository.countByPhase(ProjectPhase.INITIATION)
+                : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.INITIATION))
+        //     .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
+            .taskCount(subId == null ? taskRepository.countByProjectPhase(ProjectPhase.EXECUTION)
+                        : taskRepository.countByProjectSubCityIdAndProjectPhase(subId,ProjectPhase.EXECUTION
+                        ))
             .subCityCount(subId == null ? subCityRepository.count() : 1)
             .colorCodingCount(subId == null ? codingRepository.count() : codingRepository.countBySubCity(userSubCity))
             
             // Financials & Charts: These methods now handle the null subId internally
             // .totalBudget(projectRepository.sumTotalBudget(subId))
             .budgetByCurrency(projectRepository.sumBudgetByCurrency(subId)) // Use the new multi-currency method
-            .projectsBySubCity(projectRepository.countProjectsBySubCity(subId))
+            .projectsBySubCity(projectRepository.countProjectsBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
             .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId))
             .colorCodePerformanceMetrics(colorCodePerformanceMetrics)
             .projectsByStatus(subId == null 
-                    ? projectRepository.getProjectStatusDetailed() 
-                    : projectRepository.countProjectsByStatusBySubCity(subId))
+                    ? projectRepository.getProjectStatusDetailed(ProjectPhase.EXECUTION) 
+                    : projectRepository.countProjectsByStatusBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
             .tasksByStatus(subId == null 
-                    ? taskRepository.getTaskStatusDetailed() 
-                    : taskRepository.getTaskStatusDetailedBySubCity(subId))
+                    ? taskRepository.getTaskStatusDetailed(ProjectPhase.EXECUTION) 
+                    : taskRepository.getTaskStatusDetailedBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
 
             .build();
     }

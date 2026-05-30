@@ -16,6 +16,7 @@ public class DashboardSummaryDTO {
     private long consultantCount;
     private long clientCount;
     private long projectCount;
+    private long initiationCount;
     private long taskCount;
     // private double totalBudget;
     private List<Map<String, Object>> budgetByCurrency; // [{name: "ETB", value: 100}, ...]
