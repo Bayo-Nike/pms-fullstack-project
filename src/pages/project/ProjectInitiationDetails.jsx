@@ -38,7 +38,7 @@ const ProjectInitiationDetails = () => {
 
     const [taskFormData, setTaskFormData] = useState({
         taskTypeId: '', // Requirement: Use ID for payload
-        taskCost: '', startDate: '', endDate: '', description: '',
+        taskCost: '', startDate: '', endDate: '', description: '', remark: '',
         status: 'TO_DO', priority: 'LOW', weight: 0,
         latitude: '', longitude: '', locationIds: [], employeeIds: []
     });
@@ -87,6 +87,7 @@ const ProjectInitiationDetails = () => {
                 startDate: taskFormData.startDate || null,
                 endDate: taskFormData.endDate || null,
                 description: taskFormData.description || "",
+                remark:taskFormData.remark || "",
                 status: taskFormData.status,
                 priority: taskFormData.priority,
                 weight: parseFloat(taskFormData.weight) || 0,
@@ -180,7 +181,7 @@ const ProjectInitiationDetails = () => {
                         </div>
                     </div>
                     {canModifyTasks && can('CAN_CREATE_INITIATION_TASK') && (
-                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskTypeId: '', taskCost: '', startDate: '', endDate: '', description: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setSupportDocument(null); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all"><Add /> New Task</button>
+                        <button onClick={() => { setEditingTask(null); setTaskFormData({ taskTypeId: '', taskCost: '', startDate: '', endDate: '', description: '', remark: '', status: 'TO_DO', priority: 'LOW', weight: 0, latitude: '', longitude: '', locationIds: [], employeeIds: [] }); setSupportDocument(null); setIsTaskModalOpen(true); }} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl active:scale-95 transition-all"><Add /> New Task</button>
                     )}
                 </div>
 
@@ -256,7 +257,8 @@ const ProjectInitiationDetails = () => {
                                 <div><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contribution</p><p className="text-sm font-bold text-slate-700">{viewingTask.weight}% Weight</p></div>
                                 <div><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Planned Cost</p><p className="text-sm font-bold text-slate-700">{project.currencyType} {viewingTask.taskCost?.toLocaleString()}</p></div>
                             </div>
-                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Scope Justification</p><p className="text-xs text-slate-600 italic leading-relaxed">"{viewingTask.description || 'No additional scope details provided.'}"</p></div>
+                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Task Description</p><p className="text-xs text-slate-600 italic leading-relaxed">"{viewingTask.description || 'No additional task description provided.'}"</p></div>
+                            <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Feedback/Remark</p><p className="text-xs text-slate-600 italic leading-relaxed">"{viewingTask.remark || 'No additional feedback/remark provided.'}"</p></div>
                         </div>
                         <div className="p-8 border-t bg-slate-50/30 flex justify-end"><button onClick={() => setViewingTask(null)} className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest">Dismiss</button></div>
                     </div>
@@ -305,11 +307,12 @@ const ProjectInitiationDetails = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-6">
-                                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Scope & Detail</label><textarea rows="5" value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-3xl px-6 py-5 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Elaborate on the task objectives..."></textarea></div>
-                                    <div className="bg-slate-50 rounded-[28px] border-2 border-slate-100 border-dashed p-10 text-center relative group hover:bg-white transition-all cursor-pointer">
+                                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Task Detail Description</label><textarea value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-3xl px-6 py-5 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Elaborate on the task description..."></textarea></div>
+                                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase ml-1">Feedback/Remark</label><textarea  value={taskFormData.remark} onChange={e => setTaskFormData({ ...taskFormData, remark: e.target.value })} className="w-full bg-slate-50 border-2 border-slate-100 rounded-3xl px-6 py-5 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Elaborate why you Approved..."></textarea></div>
+                                    <div className="bg-slate-50 rounded-[28px] border-2 border-slate-100 border-dashed p-2 text-center relative group hover:bg-white transition-all cursor-pointer">
                                         <input type="file" onChange={(e) => setSupportDocument(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                         <UploadFile className="text-slate-200 group-hover:text-[#0284C7] mb-2" style={{ fontSize: 40 }} />
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attach Proof of Work</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Attach Task Support Document</p>
                                     </div>
                                     {supportDocument && <div className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100"><div className="flex items-center gap-3"><CloudDone className="text-[#0284C7]" /><span className="text-[11px] font-bold text-slate-700 truncate max-w-[200px]">{supportDocument.name}</span></div><Close onClick={() => setSupportDocument(null)} className="cursor-pointer text-slate-400" /></div>}
                                 </div>

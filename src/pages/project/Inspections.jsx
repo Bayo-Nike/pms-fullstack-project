@@ -10,10 +10,11 @@ import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import InspectionDetail from './InspectionDetail';
 import { useAuth } from '../../context/AuthContext';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function Inspections() {
     const navigate = useNavigate();
-    const { can } = useAuth();
+    const { user, can } = useAuth(); // Assuming user object contains roles
 
     // Data States
     const [logs, setLogs] = useState([]);
@@ -29,6 +30,7 @@ export default function Inspections() {
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [deleteConfig, setDeleteConfig] = useState({ show: false, id: null, typeName: '' });
     const [viewModal, setViewModal] = useState({ show: false, log: null });
+    const [approveModal, setApproveModal] = useState({ show: false, id: null, targetLevel: ''});
 
     useEffect(() => {
         const fetchLookups = async () => {
@@ -97,6 +99,30 @@ export default function Inspections() {
         }
     };
 
+    // Open the confirmation modal
+    const triggerApproveModal = (id, currentStatus) => {
+        const target = currentStatus === 'SUBMITTED_BY_SE' ? 'Director' : 'Office Head';
+        setApproveModal({ show: true, id, targetLevel: target });
+    };
+
+    const handleInspectionVisiblityApprove = async () => { 
+        const id = approveModal.id; // Use the id from state
+        setApproveModal(prev => ({ ...prev, show: false })); 
+        
+        try {
+            // Ensure this method name matches your projectApi.js exactly
+            await projectApi.APPROVE_INSPECTION_EXCALATION(id); 
+            setAlert({ 
+                show: true, 
+                type: 'success', 
+                message: `Visibility granted to ${approveModal.targetLevel}.` 
+            });
+            fetchLogs(pageInfo.current);
+        } catch (err) {
+            setAlert({ show: true, type: 'error', message: 'Approval failed.' });
+        }
+    };
+
     return (
         <div className="w-full space-y-4 animate-fadeIn px-2 pb-10 relative text-slate-700">
 
@@ -116,6 +142,34 @@ export default function Inspections() {
                         <div className="flex gap-3 mt-8">
                             <button onClick={() => setDeleteConfig({ show: false, id: null, typeName: '' })} className="flex-1 px-4 py-3 rounded-2xl border text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50">Cancel</button>
                             <button onClick={executeDelete} className="flex-1 px-4 py-3 rounded-2xl bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest shadow-lg active:scale-95 transition-all">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* VISIBILITY APPROVAL MODAL */}
+            {approveModal.show && (
+                <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn p-4">
+                    <div className="bg-white rounded-[32px] shadow-2xl p-10 max-w-sm w-full text-center border border-slate-100 animate-scaleUp">
+                        <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle2 size={40} />
+                        </div>
+                        <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">Grant Access?</h3>
+                        <p className="text-sm text-slate-500 mt-3 leading-relaxed font-medium">
+                            Make this inspection result visible to the <b className="text-emerald-600">{approveModal.targetLevel}</b>?
+                        </p>
+                        <div className="flex gap-3 mt-10">
+                            <button 
+                                onClick={() => setApproveModal({ show: false, id: null, targetLevel: '' })} 
+                                className="flex-1 px-4 py-4 rounded-2xl border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:bg-slate-50 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleInspectionVisiblityApprove} 
+                                className="flex-1 px-4 py-4 rounded-2xl bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-200 active:scale-95 transition-all hover:bg-emerald-600"
+                            >
+                                Confirm & Allow
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -157,66 +211,125 @@ export default function Inspections() {
 
             {/* Table */}
             <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-slate-50/50 border-b text-slate-400 text-[9px] font-bold uppercase tracking-widest">
-                        <tr>
-                            <th className="px-8 py-5">Context & Scope</th>
-                            <th className="px-8 py-5">Inspection Type</th>
-                            <th className="px-8 py-5">Environment</th>
-                            <th className="px-8 py-5 text-right">Date</th>
-                            <th className="px-8 py-5 text-right">Actions</th>
+            <table className="w-full text-left">
+                <thead className="bg-slate-50/50 border-b text-slate-400 text-[9px] font-bold uppercase tracking-widest">
+                    <tr>
+                        <th className="px-8 py-5">Context & Scope</th>
+                        <th className="px-8 py-5">Inspection Type</th>
+                        <th className="px-8 py-5">Environment</th>
+                        <th className="px-8 py-5 text-right">Date</th>
+                        <th className="px-8 py-5 text-right">Visibility</th>
+                        <th className="px-8 py-5 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                    {loading ? (
+                        <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic animate-pulse font-medium">Synchronizing PMS Registry...</td></tr>
+                    ) : logs.length === 0 ? (
+                        <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic font-medium">No records found.</td></tr>
+                    ) : logs.map((log) => (
+                        <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
+                            <td className="px-8 py-5">
+                                <div className="flex flex-col">
+                                    <span className={`w-fit text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter ${log.inspectionLevel === 'TASK' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
+                                        {log.inspectionLevel}
+                                    </span>
+                                    <span className="text-[11px] font-bold text-slate-700 mt-1 truncate max-w-[180px]">{log.taskName || log.projectTitle}</span>
+                                </div>
+                            </td>
+                            <td className="px-8 py-5">
+                                <div className="flex flex-col">
+                                    <span className="text-sm font-bold text-slate-700">{log.inspectionTypeName}</span>
+                                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-0.5">
+                                        Status: {log.inspectionStatus?.replace(/_/g, ' ')}
+                                    </span>
+                                </div>
+                            </td>
+                            <td className="px-8 py-5">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex flex-col items-center"><WbSunny className="text-amber-400" style={{ fontSize: 16 }} /><span className="text-[8px] font-black text-slate-400 uppercase">{log.weatherCondition?.substring(0, 3)}</span></div>
+                                    <div className="flex flex-col items-center"><Engineering className="text-slate-400" style={{ fontSize: 16 }} /><span className="text-[8px] font-black text-slate-400 uppercase">{log.activeWorkers}</span></div>
+                                </div>
+                            </td>
+                            <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
+                            
+                            {/* COLUMN 5: VISIBILITY (Approval Logic) */}
+                            <td className="px-8 py-5 text-right">
+                                <div className="flex justify-end items-center gap-2">
+                                    
+                                    {/* 1. TEAM LEADER ACTION: 
+                                    Shows if status is SUBMITTED_BY_SE. Clicking it sets status to APPROVED_BY_TL */}
+                                    {['ROLE_CITY_TEAM_LEADER', 'ROLE_SUB-CITY_TEAM_LEADER'].some(r => user?.roles?.includes(r)) && log.inspectionStatus === 'SUBMITTED_BY_SE' && (
+                                        <button 
+                                            // onClick={() => handleInspectionVisiblityApprove(log.id)}
+                                            onClick={() => triggerApproveModal(log.id, log.inspectionStatus)}
+                                            className="group/btn p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-xl transition-all flex items-center gap-2 shadow-sm border border-emerald-100"
+                                            title="Allow Director to see"
+                                        >
+                                            <CheckCircle2 size={16} className="group-hover/btn:scale-110 transition-transform" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Allow Director</span>
+                                        </button>
+                                    )}
+
+                                    {/* 2. DIRECTOR ACTION: 
+                                    Shows if status is APPROVED_BY_TL. Clicking it sets status to APPROVED_BY_DIRECTOR */}
+                                    {['ROLE_CITY_DIRECTOR', 'ROLE_SUB-CITY_OFFICE_HEAD'].some(r => user?.roles?.includes(r)) && log.inspectionStatus === 'APPROVED_BY_TL' && (
+                                        <button 
+                                            // onClick={() => handleInspectionVisiblityApprove(log.id)}
+                                            onClick={() => triggerApproveModal(log.id, log.inspectionStatus)}
+                                            className="group/btn p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-xl transition-all flex items-center gap-2 shadow-sm border border-emerald-100"
+                                            title="Allow Office Head to see"
+                                        >
+                                            <CheckCircle2 size={16} className="group-hover/btn:scale-110 transition-transform" />
+                                            <span className="text-[9px] font-black uppercase tracking-widest">Allow Office Head</span>
+                                        </button>
+                                    )}
+
+                                    {/* 3. PROGRESS TRACKER:
+                                    Shows current visibility status when no action button is available for the current user */}
+                                    {!((user?.roles?.includes('ROLE_CITY_TEAM_LEADER') && log.inspectionStatus === 'SUBMITTED_BY_SE') || 
+                                    (user?.roles?.includes('ROLE_CITY_DIRECTOR') && log.inspectionStatus === 'APPROVED_BY_TL')) && (
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-100 opacity-80">
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+                                                {log.inspectionStatus === 'APPROVED_BY_DIRECTOR' ? 'Office Head Access' :
+                                                log.inspectionStatus === 'APPROVED_BY_TL' ? 'Director Access' : 
+                                                'Team Leader Access'}
+                                            </span>
+                                            <div className={`w-1.5 h-1.5 rounded-full ${
+                                                log.inspectionStatus === 'APPROVED_BY_DIRECTOR' ? 'bg-emerald-400 animate-pulse' : 
+                                                log.inspectionStatus === 'APPROVED_BY_TL' ? 'bg-sky-400' : 'bg-slate-300'
+                                            }`} />
+                                        </div>
+                                    )}
+                                </div>
+                            </td>
+
+                            {/* COLUMN 6: ACTIONS (View/Edit/Delete) */}
+                            <td className="px-8 py-5 text-right">
+                                <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {can('CAN_VIEW_INSPECTION') && (
+                                        <button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Details">
+                                            <Visibility style={{ fontSize: 20 }} />
+                                        </button>
+                                    )}
+
+                                    {can('CAN_EDIT_INSPECTION') && (
+                                        <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Entry">
+                                            <Edit style={{ fontSize: 20 }} />
+                                        </button>
+                                    )}
+
+                                    {can('CAN_DELETE_INSPECTION') && (
+                                        <button onClick={() => setDeleteConfig({ show: true, id: log.id, typeName: log.inspectionTypeName })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Log">
+                                            <Delete style={{ fontSize: 20 }} />
+                                        </button>
+                                    )}
+                                </div>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-50">
-                        {loading ? (
-                            <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic animate-pulse font-medium">Synchronizing PMS Registry...</td></tr>
-                        ) : logs.length === 0 ? (
-                            <tr><td colSpan="6" className="px-8 py-20 text-center text-slate-400 italic font-medium">No records found.</td></tr>
-                        ) : logs.map((log) => (
-                            <tr key={log.id} className="hover:bg-slate-50/50 transition-colors group">
-                                <td className="px-8 py-5">
-                                    <div className="flex flex-col">
-                                        <span className={`w-fit text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter ${log.inspectionLevel === 'TASK' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-purple-50 text-purple-700 border-purple-100'}`}>
-                                            {log.inspectionLevel}
-                                        </span>
-                                        <span className="text-[11px] font-bold text-slate-700 mt-1 truncate max-w-[180px]">{log.taskName || log.projectTitle}</span>
-                                    </div>
-                                </td>
-                                <td className="px-8 py-5"><span className="text-sm font-bold text-slate-700">{log.inspectionTypeName}</span></td>
-                                <td className="px-8 py-5">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex flex-col items-center"><WbSunny className="text-amber-400" style={{ fontSize: 16 }} /><span className="text-[8px] font-black text-slate-400 uppercase">{log.weatherCondition?.substring(0, 3)}</span></div>
-                                        <div className="flex flex-col items-center"><Engineering className="text-slate-400" style={{ fontSize: 16 }} /><span className="text-[8px] font-black text-slate-400 uppercase">{log.activeWorkers}</span></div>
-                                    </div>
-                                </td>
-                                <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
-                                <td className="px-8 py-5 text-right">
-                                    {/* PERMISSIONS REMOVED: Always show actions */}
-                                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-
-                                        {
-                                            can('CAN_VIEW_INSPECTION') && (
-                                                <button onClick={() => setViewModal({ show: true, log })} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all" title="View Details"><Visibility style={{ fontSize: 20 }} /></button>
-
-                                            )
-                                        }
-                                        {
-                                            can('CAN_EDIT_INSPECTION') && (
-                                                <button onClick={() => navigate(`/inspections/edit/${log.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Entry"><Edit style={{ fontSize: 20 }} /></button>
-
-                                            )
-                                        }
-                                        {
-                                            can('CAN_DELETE_INSPECTION') && (
-                                                <button onClick={() => setDeleteConfig({ show: true, id: log.id, typeName: log.inspectionTypeName })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Log"><Delete style={{ fontSize: 20 }} /></button>
-                                            )
-                                        }
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                    ))}
+                </tbody>
+            </table>
 
                 {/* Pagination */}
                 <div className="px-8 py-6 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">

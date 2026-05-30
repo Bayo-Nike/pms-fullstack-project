@@ -10,6 +10,7 @@ import {
 } from 'recharts';
 import dashboardApi from '../api/modules/dashboard';
 import { useAuth } from '../context/AuthContext';
+import { Start } from '@mui/icons-material';
 
 const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
 
@@ -245,7 +246,7 @@ function StatsGrid({ data, loading, can }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
       <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount ?? 0} color="blue" />
       <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount ?? 0} color="indigo" />
-      {can?.('CAN_SEE_CONTRACT_LIST') && (
+      {can?.('CAN_SEE_CONTRACTOR_LIST') && (
       <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount ?? 0} color="amber" />
       )}
       {can?.('CAN_SEE_CONSULTANT_LIST') && (
@@ -254,6 +255,7 @@ function StatsGrid({ data, loading, can }) {
       {can?.('CAN_SEE_CLIENT_LIST') && (
       <StatCard icon={<HardHat size={18} />} label="Clients" value={data?.clientCount} color="amber" />
       )}
+      <StatCard icon={<Start size={18} />} label="Total Initiations" value={data?.initiationCount ?? 0} color="sky" />
       <StatCard icon={<Construction size={18} />} label="Total Projects" value={data?.projectCount ?? 0} color="sky" />
       <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount ?? 0} color="purple" />
       <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency ?? 0} />

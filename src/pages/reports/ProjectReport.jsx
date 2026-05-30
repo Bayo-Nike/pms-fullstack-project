@@ -134,7 +134,7 @@ export default function ProjectReport({ data = [], loading, onRefresh }) {
     
     {
       accessorKey: "employeeNames",
-      header: "Employees"
+      header: "Project Member"
     },
     {
       accessorKey: "status",

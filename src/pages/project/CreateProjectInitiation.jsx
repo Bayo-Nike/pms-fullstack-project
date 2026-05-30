@@ -136,7 +136,7 @@ export default function CreateProjectInitiation() {
             if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
             else await projectApi.CREATE_PROJECT_INITIATION(payload);
 
-            setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Synced.' });
+            setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Submitted.' });
             setTimeout(() => navigate('/initiations'), 1500);
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
         finally { setSaving(false); }

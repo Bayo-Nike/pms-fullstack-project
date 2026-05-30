@@ -133,7 +133,7 @@ export default function ProjectCosts() {
                             <th className="px-8 py-5">Project Details</th>
                             <th className="px-6 py-5">Total Budget</th>
                             <th className="px-6 py-5">Spent to Date</th>
-                            <th className="px-6 py-5">Utilization</th>
+                            <th className="px-6 py-5">Financial Utilized Progress</th>
                             <th className="px-8 py-5 text-right">Operations</th>
                         </tr>
                     </thead>

@@ -47,7 +47,7 @@ export default function ProjectInitiations() {
                 size: pageInfo.size,
                 search: searchTerm.trim() || null,
                 phase: phaseFilter || null,
-                subCityId: subCityFilter && subCityFilter !== "" ? subCityFilter : null
+                subCityId: subCityFilter ? Number(subCityFilter) : undefined
             };
             const res = await projectApi.GET_PROJECT_INITIATIONS(params);
             const pageData = res.data.data;
@@ -57,7 +57,7 @@ export default function ProjectInitiations() {
             }));
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); }
         finally { setLoading(false); }
-    }, [pageInfo.size, searchTerm, phaseFilter]);
+    }, [pageInfo.size, searchTerm, phaseFilter,subCityFilter]);
 
     useEffect(() => { fetchInitiations(0); }, [subCityFilter, fetchInitiations, phaseFilter]);
 
