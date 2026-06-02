@@ -81,7 +81,6 @@ export default function CreateWoreda() {
              };
 
             if (isEdit) {
-                console.log(payload)
                 await adminApi.UPDATE_WOREDA(id, payload);
                 showAlert('success', 'Woreda configuration updated successfully.');
             } else {

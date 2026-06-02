@@ -20,6 +20,7 @@ export default function ProjectInitiations() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [phaseFilter, setPhaseFilter] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
     const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8, totalElements: 0 });
 
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
@@ -47,6 +48,7 @@ export default function ProjectInitiations() {
                 size: pageInfo.size,
                 search: searchTerm.trim() || null,
                 phase: phaseFilter || null,
+                category:categoryFilter || null,
                 subCityId: subCityFilter ? Number(subCityFilter) : undefined
             };
             const res = await projectApi.GET_PROJECT_INITIATIONS(params);
@@ -57,7 +59,7 @@ export default function ProjectInitiations() {
             }));
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); }
         finally { setLoading(false); }
-    }, [pageInfo.size, searchTerm, phaseFilter,subCityFilter]);
+    }, [pageInfo.size, searchTerm, phaseFilter,subCityFilter, categoryFilter]);
 
     useEffect(() => { fetchInitiations(0); }, [subCityFilter, fetchInitiations, phaseFilter]);
 
@@ -129,6 +131,12 @@ export default function ProjectInitiations() {
                         className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold outline-none focus:border-[#0284C7] transition-all"
                     />
                 </div>
+                <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="bg-slate-50 border px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 outline-none cursor-pointer">
+                    <option value="">All Category</option>
+                    <option value="GOVERNMENT">Government</option>
+                    <option value="NON_GOVERNMENT">Non Government</option>
+                </select>
+
                 <select value={phaseFilter} onChange={(e) => setPhaseFilter(e.target.value)} className="bg-slate-50 border px-4 py-2 rounded-xl text-[10px] font-black uppercase text-slate-500 outline-none cursor-pointer">
                     <option value="">All Phases</option>
                     <option value="INITIATION">Initiation</option>

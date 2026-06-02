@@ -14,41 +14,41 @@ import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 import ProgressPie from '../../utility/ProgressPie';
-import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
+// import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+// import markerIcon from 'leaflet/dist/images/marker-icon.png';
+// import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
 
-let DefaultIcon = L.icon({
-    iconUrl: markerIcon,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-});
-L.Marker.prototype.options.icon = DefaultIcon;
+// let DefaultIcon = L.icon({
+//     iconUrl: markerIcon,
+//     shadowUrl: markerShadow,
+//     iconSize: [25, 41],
+//     iconAnchor: [12, 41],
+//     popupAnchor: [1, -34],
+// });
+// L.Marker.prototype.options.icon = DefaultIcon;
 
 // Helper: Handles single click to set coordinates
-function MapClickHandler({ onMapClick }) {
-    useMapEvents({
-        click: (e) => {
-            onMapClick(e.latlng.lat, e.latlng.lng);
-        },
-    });
-    return null;
-}
+// function MapClickHandler({ onMapClick }) {
+//     useMapEvents({
+//         click: (e) => {
+//             onMapClick(e.latlng.lat, e.latlng.lng);
+//         },
+//     });
+//     return null;
+// }
 
 // Helper: Centers map when editing or selecting
-function ChangeMapView({ coords }) {
-    const map = useMap();
-    useEffect(() => {
-        if (coords && coords[0] && coords[1]) {
-            map.setView(coords, map.getZoom());
-        }
-    }, [coords, map]);
-    return null;
-}
+// function ChangeMapView({ coords }) {
+//     const map = useMap();
+//     useEffect(() => {
+//         if (coords && coords[0] && coords[1]) {
+//             map.setView(coords, map.getZoom());
+//         }
+//     }, [coords, map]);
+//     return null;
+// }
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -428,7 +428,7 @@ const ProjectDetails = () => {
                                 <div className="space-y-4">
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Status</label><select value={taskFormData.status} onChange={e => setTaskFormData({ ...taskFormData, status: e.target.value })} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase"><option value="TO_DO">To Do</option><option value="IN_PROGRESS">In Progress</option><option value="IN_REVIEW">In Review</option><option value="COMPLETED">Completed</option></select></div>
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Site Location(s)</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.locationIds.includes(v)) setTaskFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Select Site --</option>{projectSites.filter(s => !taskFormData.locationIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.locationIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-white border rounded-lg text-[9px] font-bold text-slate-600">{(projectSites.find(s => s.id === id))?.name} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, locationIds: p.locationIds.filter(lid => lid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
-                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Assigned Site Engiiner</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.employeeIds.includes(v)) setTaskFormData(p => ({ ...p, employeeIds: [...p.employeeIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Assign --</option>{projectStaff.filter(s => !taskFormData.employeeIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.employeeIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-100 rounded-lg text-[9px] font-bold text-[#0284C7]">{(projectStaff.find(s => s.id === id))?.fullName} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, employeeIds: p.employeeIds.filter(eid => eid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
+                                    <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Assign Team</label><select onChange={(e) => { const v = Number(e.target.value); if (v && !taskFormData.employeeIds.includes(v)) setTaskFormData(p => ({ ...p, employeeIds: [...p.employeeIds, v] })); }} className="w-full bg-slate-50 border rounded-2xl px-4 py-3 text-xs font-bold uppercase outline-none"><option value="">-- Assign --</option>{projectStaff.filter(s => !taskFormData.employeeIds.includes(s.id)).map(s => <option key={s.id} value={s.id}>{s.fullName}</option>)}</select><div className="flex flex-wrap gap-1 mt-2">{taskFormData.employeeIds.map(id => (<span key={id} className="inline-flex items-center gap-1 px-2 py-1 bg-sky-50 border border-sky-100 rounded-lg text-[9px] font-bold text-[#0284C7]">{(projectStaff.find(s => s.id === id))?.fullName} <button type="button" onClick={() => setTaskFormData(p => ({ ...p, employeeIds: p.employeeIds.filter(eid => eid !== id) }))}><Close style={{ fontSize: 12 }} /></button></span>))}</div></div>
                                 </div>
                                 <div className="space-y-4">
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Description</label><textarea rows="3" value={taskFormData.description} onChange={e => setTaskFormData({ ...taskFormData, description: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-medium resize-none focus:border-[#0284C7] outline-none" placeholder="Task descriptions..." /></div>

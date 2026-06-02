@@ -17,7 +17,6 @@ export default function EmployeeReportPage() {
  
       const employeesData = res.data || [];
 
-      console.log(employeesData);
       const transformed = employeesData.map((emp, index) => ({
         sno: index + 1,
         fullName: emp.fullName,
