@@ -1,13 +1,19 @@
 package et.scco.pms_backend.modules.task.service.impl;
 
+import et.scco.pms_backend.enums.DivisionGroup;
+import et.scco.pms_backend.enums.ProjectPhase;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
+import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.TaskType;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.TaskTypeRepository;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.EmployeeService;
 import et.scco.pms_backend.modules.admin.service.LocationService;
+import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.NotificationServiceImpl;
 import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
@@ -36,14 +42,15 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final EmployeeService employeeServiceImpl;    // to fetch employees
+    private final EmployeeService employeeService;    // to fetch employees
     private final LocationService locationServiceImpl;    // optional location
     private final ProjectServiceImpl projectService;
     private final AuthContext authContext;
     private final TaskTypeRepository taskTypeRepository;
     private final FileStorageService fileStorageService;
     private final UserRepository userRepository;
-    private final NotificationServiceImpl notificationServiceImpl;
+    private final NotificationServiceImpl notificationServiceImpl; 
+    private final EmployeeServiceImpl employeeServiceImpl;
 
     // ---------------- Create Task ----------------
     @Override
@@ -197,7 +204,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         if (dto.getEmployeeIds() != null && !dto.getEmployeeIds().isEmpty()) {
-            task.setEmployees(employeeServiceImpl.findEmpsByEmployeeIds(dto.getEmployeeIds()));
+            task.setEmployees(employeeService.findEmpsByEmployeeIds(dto.getEmployeeIds()));
         } else {
             task.setEmployees(new ArrayList<>());
         }
@@ -259,8 +266,32 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
+
+        // 1. Get Employee context
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+        if (employee == null) return taskRepository.findAll(pageable).map(this::mapToDTO);
+
+        // 2. Validate Division
+        Division division = employee.getDivision();
+        if (division == null) return Page.empty(pageable);
+
+        // 3. Determine ProjectType filter based on DivisionGroup
+        DivisionGroup divisionGroup = division.getDivisionGroup();
+        ProjectType projectType = null;
+        if (divisionGroup == DivisionGroup.BLD) {
+            projectType = ProjectType.BUILDING;
+        } else if (divisionGroup == DivisionGroup.WAR) {
+            projectType = ProjectType.WATER_AND_ROAD;
+        }
+        // If DivisionGroup.BTH, projectType remains null (no filter applied)
+
+        // 4. Determine SubCity filter
+        Long subId = (employee.getSubCity() != null) ? employee.getSubCity().getId() : null; 
+
+
         Page<Task> taskPage;
-        taskPage = taskRepository.findAll(pageable);
+        taskPage = taskRepository.findAllTasksByCriteria(subId, projectType, ProjectPhase.EXECUTION,  pageable);
+        // taskPage = taskRepository.findAll(pageable);
         return taskPage.map(this::mapToDTO);
     }
 }

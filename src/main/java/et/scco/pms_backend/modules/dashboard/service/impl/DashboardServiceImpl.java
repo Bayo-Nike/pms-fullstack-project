@@ -5,14 +5,21 @@ import et.scco.pms_backend.modules.admin.repository.ConsultancyRepository;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectPhase;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.exception.ResourceNotFoundException;
+import et.scco.pms_backend.modules.admin.model.Division;
+import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
+import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
 import et.scco.pms_backend.modules.dashboard.dto.DashboardSummaryDTO;
 import et.scco.pms_backend.modules.dashboard.service.DashboardService;
@@ -35,12 +42,29 @@ public class DashboardServiceImpl implements DashboardService {
     private final SubCityRepository subCityRepository;
     private final TaskRepository taskRepository;
     private final ColorCodingRepository codingRepository;
+    private final EmployeeServiceImpl employeeServiceImpl;
 
     @Override
     public DashboardSummaryDTO getSummary() {
 
         SubCity userSubCity = subCityServiceImpl.getCurrentUserSubCity();
         Long subId = (userSubCity != null) ? userSubCity.getId() : null;
+
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+        Division division = employee.getDivision();
+        if (division == null) {
+            throw new ResourceNotFoundException("Employee is not assigned to a division. Dashboard cannot be generated.");
+        }
+
+        DivisionGroup divisionGroup = division.getDivisionGroup();
+        // If DivisionGroup is BTH BTH, projectTypeFilter remains null (meaning no filtering)
+        // else if BLD = BUILDING or WAR = WATER_AND_ROAD
+        ProjectType projectType = null;
+        if (divisionGroup == DivisionGroup.BLD) {
+            projectType = ProjectType.BUILDING;
+        } else if (divisionGroup == DivisionGroup.WAR) {
+            projectType = ProjectType.WATER_AND_ROAD;
+        }
 
         List<Map<String, Object>> colorCodePerformanceMetrics = (subId == null) 
         ? codingRepository.getPerformanceBySubCityDetailed() 
@@ -55,29 +79,28 @@ public class DashboardServiceImpl implements DashboardService {
             .clientCount(clientRepository.count()) 
         //     .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
             .projectCount(subId == null
-                ? projectRepository.countByPhase(ProjectPhase.EXECUTION)
+                ? projectRepository.countByPhaseAndProjectType(ProjectPhase.EXECUTION, projectType)
                 : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.EXECUTION))
             .initiationCount(subId == null
-                ? projectRepository.countByPhase(ProjectPhase.INITIATION)
+                ? projectRepository.countByPhaseAndProjectType(ProjectPhase.INITIATION, projectType)
                 : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.INITIATION))
         //     .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
-            .taskCount(subId == null ? taskRepository.countByProjectPhase(ProjectPhase.EXECUTION)
-                        : taskRepository.countByProjectSubCityIdAndProjectPhase(subId,ProjectPhase.EXECUTION
-                        ))
+            .taskCount(subId == null ? taskRepository.countByProjectPhaseAndProjectType(ProjectPhase.EXECUTION, projectType)
+                        : taskRepository.countByProjectSubCityIdAndProjectPhase(subId,ProjectPhase.EXECUTION))
             .subCityCount(subId == null ? subCityRepository.count() : 1)
             .colorCodingCount(subId == null ? codingRepository.count() : codingRepository.countBySubCity(userSubCity))
             
             // Financials & Charts: These methods now handle the null subId internally
             // .totalBudget(projectRepository.sumTotalBudget(subId))
-            .budgetByCurrency(projectRepository.sumBudgetByCurrency(subId)) // Use the new multi-currency method
-            .projectsBySubCity(projectRepository.countProjectsBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
-            .budgetTrend(projectRepository.getMonthlyBudgetTrend(subId))
+            .budgetByCurrency(projectRepository.sumBudgetByCurrencyAndProjectType(subId, projectType)) // Use the new multi-currency method
+            .projectsBySubCity(projectRepository.countProjectsBySubCityAndPhaseAndProjectType(subId, ProjectPhase.EXECUTION, projectType))
+            .budgetTrend(projectRepository.getMonthlyBudgetTrendByProjectType(subId, projectType != null ? projectType.name() : null))
             .colorCodePerformanceMetrics(colorCodePerformanceMetrics)
             .projectsByStatus(subId == null 
-                    ? projectRepository.getProjectStatusDetailed(ProjectPhase.EXECUTION) 
+                    ? projectRepository.getProjectStatusDetailed(ProjectPhase.EXECUTION, projectType) 
                     : projectRepository.countProjectsByStatusBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
             .tasksByStatus(subId == null 
-                    ? taskRepository.getTaskStatusDetailed(ProjectPhase.EXECUTION) 
+                    ? taskRepository.getTaskStatusDetailed(ProjectPhase.EXECUTION, projectType) 
                     : taskRepository.getTaskStatusDetailedBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
 
             .build();

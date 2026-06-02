@@ -1,7 +1,10 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectPhase;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
@@ -73,10 +76,18 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
         if (employee == null) return projectRepository.findAll(pageable).map(this::mapToResponseDTO);
 
         SubCity restrictedSubCity = employee.getSubCity();
+        Division division = employee.getDivision();
+        if (division == null) return Page.empty(pageable);
+
+        DivisionGroup divisionGroup = division.getDivisionGroup();
         
         Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+        ProjectType projectType = null;
+        if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
+        else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
         
-        Page<Project> projects = projectRepository.findInitiations(phase, category, search, finalSubCityId, pageable);
+        Page<Project> projects = projectRepository.findInitiations(projectType, phase, category, search, finalSubCityId, pageable);
 
         return projects.map(this::mapToResponseDTO);
     }
