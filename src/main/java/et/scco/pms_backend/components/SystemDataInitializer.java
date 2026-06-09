@@ -61,18 +61,18 @@ public class SystemDataInitializer implements ApplicationRunner {
                 .orElseThrow();
 
         List<String> names = List.of(
-                "Kura Jida",
-                "Laga Tafo",
-                "Burayu",
-                "Koye Fache",
-                "Galan",
-                "Furi",
-                "Galan Guda",
-                "Sabata",
-                "Malka Nono",
-                "Gafarsa Guje",
-                "Mana Abichu",
-                "Sululta"
+                "Kuraa Jiddaa",
+                "Laga Xaafoo",
+                "Buraayyuu",
+                "Kooyyee Faccee",
+                "Galaan",
+                "Furii",
+                "Galaan Guddaa",
+                "Sabbataa",
+                "Malkaa Noonnoo",
+                "Gafarsa Gujee",
+                "Mana Abbichuu",
+                "Sulultaa"
         );
 
         List<SubCity> subCities = names.stream()

@@ -47,6 +47,7 @@ public class WoredaServiceImpl implements WoredaService{
                 .orElseThrow(() -> new RuntimeException("Woreda not found with id: " + id));
 
         woreda.setWoredaName(dto.getName());
+        woreda.setDescription(dto.getDescription());
         woreda.setSubCity(getSubCity(dto.getSubCityId()));
 
         return WoredaMapper.toDto(woredaRepository.save(woreda));
@@ -59,6 +60,7 @@ public class WoredaServiceImpl implements WoredaService{
         }
         Woreda woreda = new Woreda();
         woreda.setWoredaName(dto.getName());
+        woreda.setDescription(dto.getDescription());
         woreda.setSubCity(getSubCity(dto.getSubCityId()));
         return WoredaMapper.toDto(woredaRepository.save(woreda));
         

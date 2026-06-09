@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import et.scco.pms_backend.enums.DivisionGroup;
+import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.exception.ResourceNotFoundException;
@@ -80,10 +81,10 @@ public class DashboardServiceImpl implements DashboardService {
         //     .projectCount(subId == null ? projectRepository.count() : projectRepository.countBySubCityId(subId))
             .projectCount(subId == null
                 ? projectRepository.countByPhaseAndProjectType(ProjectPhase.EXECUTION, projectType)
-                : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.EXECUTION))
+                : projectRepository.countBySubCityIdAndPhaseAndProjectLevel(subId, ProjectPhase.EXECUTION, ProjectLevel.SUB_CITY))
             .initiationCount(subId == null
                 ? projectRepository.countByPhaseAndProjectType(ProjectPhase.INITIATION, projectType)
-                : projectRepository.countBySubCityIdAndPhase(subId, ProjectPhase.INITIATION))
+                : projectRepository.countBySubCityIdAndPhaseAndProjectLevel(subId, ProjectPhase.INITIATION, ProjectLevel.SUB_CITY))
         //     .taskCount(subId == null ? taskRepository.count() : taskRepository.countByProjectSubCityId(subId))
             .taskCount(subId == null ? taskRepository.countByProjectPhaseAndProjectType(ProjectPhase.EXECUTION, projectType)
                         : taskRepository.countByProjectSubCityIdAndProjectPhase(subId,ProjectPhase.EXECUTION))
@@ -96,7 +97,7 @@ public class DashboardServiceImpl implements DashboardService {
             .projectsBySubCity(projectRepository.countProjectsBySubCityAndPhaseAndProjectType(subId, ProjectPhase.EXECUTION, projectType))
             .budgetTrend(projectRepository.getMonthlyBudgetTrendByProjectType(subId, projectType != null ? projectType.name() : null))
             .colorCodePerformanceMetrics(colorCodePerformanceMetrics)
-            .projectsByStatus(subId == null 
+            .projectsByStatus(subId == null
                     ? projectRepository.getProjectStatusDetailed(ProjectPhase.EXECUTION, projectType) 
                     : projectRepository.countProjectsByStatusBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
             .tasksByStatus(subId == null 

@@ -9,6 +9,7 @@ public class WoredaMapper {
         return new WoredaResponseDto(
           woreda.getId(),
           woreda.getWoredaName(),
+          woreda.getDescription(),
           woreda.getSubCity().getId(),
           woreda.getSubCity().getSubCityName()
         );

@@ -159,7 +159,7 @@ public class InspectionServiceImpl implements InspectionService {
     @Override
     public InspectionResponseDto createInspection(InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = new Inspection();
-        inspection.setInspectionStatus(InspectionStatus.SUBMITTED_BY_SE); // Default start
+        dto.setInspectionStatus(InspectionStatus.SUBMITTED_BY_SE); // Default start
         return getInspectionResponseDto(dto, files, inspection, true);
     }
 
@@ -168,7 +168,8 @@ public class InspectionServiceImpl implements InspectionService {
     public InspectionResponseDto updateInspection(Long id, InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
-
+ 
+        dto.setInspectionStatus(InspectionStatus.SUBMITTED_BY_SE); // Default start
         return getInspectionResponseDto(dto, files, inspection, false);
     }
 
@@ -252,7 +253,7 @@ public class InspectionServiceImpl implements InspectionService {
             String who = which == 2 ? inspection.getCommentedBy2(): inspection.getCommentedBy1();
             notificationService.sendNotification(
                     empId,
-                    empId, who + " has as added a comment to your inspection result",
+                    empId, who + " has added a comment to your "+inspection.getInspectionType().getName() +" inspection result for "+inspection.getProject().getTitle(),
                     "inspections"
             );
         }

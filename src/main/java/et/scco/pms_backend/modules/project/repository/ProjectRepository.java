@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.repository;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
@@ -101,6 +102,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         @Query("SELECT COUNT(p) FROM Project p WHERE p.phase = :phase AND (:type IS NULL OR p.projectType = :type)")
         long countByPhaseAndProjectType(@Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
-        long countBySubCityIdAndPhase(Long subId, ProjectPhase phase);
+        long countBySubCityIdAndPhaseAndProjectLevel(Long subId, ProjectPhase phase, ProjectLevel projectLevel);
 
 }
