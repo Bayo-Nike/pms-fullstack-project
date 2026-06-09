@@ -188,6 +188,7 @@ export default function Woredas() {
                         <tr>
                             <th className="px-6 py-3">Woreda Name</th>
                             <th className="px-6 py-3">Sub-City</th>
+                            <th className="px-6 py-3">Description</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>
                     </thead>
@@ -200,12 +201,17 @@ export default function Woredas() {
                                     <td className="px-6 py-3.5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-sky-50 text-[#0284C7] rounded-lg flex items-center justify-center group-hover:bg-[#0284C7] group-hover:text-white transition-all"><Apartment style={{ fontSize: 16 }} /></div>
-                                            <span className="text-sm font-semibold text-slate-700">{woreda.name}</span>
+                                            <span className="text-sm font-semibold text-slate-500">{woreda.name}</span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-3.5">
                                         <span className="text-xs text-slate-500 font-medium uppercase tracking-tight">
                                             {woreda.subCityName}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-3.5">
+                                        <span className="text-xs text-slate-700">
+                                            {woreda.description}
                                         </span>
                                     </td>
                                     <td className="px-6 py-3.5 text-right">

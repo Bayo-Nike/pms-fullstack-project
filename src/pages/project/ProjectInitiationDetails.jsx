@@ -63,16 +63,67 @@ const ProjectInitiationDetails = () => {
         loadData();
     }, [id]);
 
-    // Apply strict filtering for Task Type Dropdown
+    // // Apply strict filtering for Task Type Dropdown
+    // useEffect(() => {
+    //     if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
+    //         const filtered = taskTypeRegistry.filter(t =>
+    //             t.projectType === project.projectType &&
+    //             t.taskTypeProjectPhase === 'INITIATION'
+    //         );
+    //         setFilteredTaskTypes(filtered);
+    //     }
+    // }, [isTaskModalOpen, project, taskTypeRegistry]);
+
+    // Apply strict filtering and duplication restriction
+    // Apply strict filtering and duplication restriction
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
-            const filtered = taskTypeRegistry.filter(t =>
-                t.projectType === project.projectType &&
-                t.taskTypeProjectPhase === 'INITIATION'
-            );
-            setFilteredTaskTypes(filtered);
+            
+            // 1. Identify IDs of task types already present in the table
+            const assignedTaskTypeIds = tasks.map(t => {
+                // Priority 1: Use the ID if the backend provides it
+                if (t.taskTypeId) return Number(t.taskTypeId);
+                
+                // Priority 2: Lookup by Name AND the current Project Type
+                // This ensures we get the ID specifically for THIS project type
+                const match = taskTypeRegistry.find(reg => 
+                    reg.name?.trim().toLowerCase() === t.taskName?.trim().toLowerCase() &&
+                    reg.projectType === project.projectType // <--- CRITICAL same task on both Project type
+                );
+                return match ? Number(match.id) : null;
+            }).filter(id => id !== null);
+
+            // 2. Identify the ID of the task currently being edited
+            const editingId = editingTask ? (
+                editingTask.taskTypeId ? Number(editingTask.taskTypeId) :
+                taskTypeRegistry.find(reg => 
+                    reg.name?.trim().toLowerCase() === editingTask.taskName?.trim().toLowerCase() &&
+                    reg.projectType === project.projectType
+                )?.id
+            ) : null;
+
+            // 3. Process the Registry
+            const processed = taskTypeRegistry
+                .filter(t => 
+                    t.projectType === project.projectType &&
+                    t.taskTypeProjectPhase === 'INITIATION'
+                )
+                .map(t => {
+                    const regId = Number(t.id);
+                    const alreadyAssigned = assignedTaskTypeIds.includes(regId);
+                    const isCurrentEditingType = editingId && Number(editingId) === regId;
+
+                    return {
+                        ...t,
+                        // The task is disabled if it's already in the table
+                        // but NOT the one we are currently editing
+                        isDisabled: alreadyAssigned && !isCurrentEditingType
+                    };
+                });
+
+            setFilteredTaskTypes(processed);
         }
-    }, [isTaskModalOpen, project, taskTypeRegistry]);
+    }, [isTaskModalOpen, project, taskTypeRegistry, tasks, editingTask]);
 
     const handleTaskAction = async (e) => {
         e.preventDefault();
@@ -276,7 +327,7 @@ const ProjectInitiationDetails = () => {
                         <form onSubmit={handleTaskAction} className="p-10 overflow-y-auto space-y-8 no-scrollbar">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                 <div className="space-y-6">
-                                    <div className="space-y-2">
+                                    {/* <div className="space-y-2">
                                         <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Task Title (Registry Dropdown) *</label>
                                         <select
                                             required
@@ -287,6 +338,28 @@ const ProjectInitiationDetails = () => {
                                             <option value="">-- Select Initiation Phase --</option>
                                             {filteredTaskTypes.map(t => (
                                                 <option key={t.id} value={t.id}>{t.name}</option>
+                                            ))}
+                                        </select>
+                                    </div> */}
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Task Title (Registry Dropdown) *</label>
+                                        <select
+                                            required
+                                            value={taskFormData.taskTypeId}
+                                            onChange={e => setTaskFormData({ ...taskFormData, taskTypeId: e.target.value })}
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 py-4 outline-none focus:border-[#0284C7] text-sm font-bold appearance-none cursor-pointer"
+                                        >
+                                            <option value="">-- Select Initiation Task --</option>
+                                            {filteredTaskTypes.map(t => (
+                                                <option 
+                                                    key={t.id} 
+                                                    value={t.id} 
+                                                    disabled={t.isDisabled} // RESTRICTION APPLIED HERE
+                                                    className={t.isDisabled ? "text-slate-300 italic" : "text-slate-900"}
+                                                >
+                                                    {t.name} {t.isDisabled ? " (Already in plan)" : ""}
+                                                </option>
                                             ))}
                                         </select>
                                     </div>

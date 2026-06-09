@@ -168,7 +168,7 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {[
                             { icon: <WbSunny />, color: 'text-amber-500', label: 'Weather', value: currentLog.weatherCondition },
-                            { icon: <Engineering />, color: 'text-sky-500', label: 'Personnel', value: `${currentLog.activeWorkers} Workers` },
+                            { icon: <Engineering />, color: 'text-sky-500', label: 'Active Workers', value: `${currentLog.activeWorkers} Workers` },
                             { icon: <CalendarMonth />, color: 'text-indigo-500', label: 'Date', value: currentLog.inspectionDate },
                             { icon: <Person />, color: 'text-emerald-500', label: 'Inspector', value: currentLog.employeeName }
                         ].map((item, i) => (

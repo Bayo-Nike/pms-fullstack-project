@@ -235,7 +235,7 @@ export default function CreateTarget() {
           disabled={saving}
           className="bg-[#0284C7] text-white px-6 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-[#0369a1] active:scale-95 transition-all shadow-md disabled:opacity-50 tracking-widest uppercase"
         >
-          <Save style={{ fontSize: 16 }} /> {saving ? 'UPDATING...' : 'UPDATE CHANGES'}
+          <Save style={{ fontSize: 16 }} /> {saving ? 'UPDATING...' : 'SUBMIT COLOR CODE'}
         </button>
       </div>
 

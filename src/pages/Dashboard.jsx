@@ -328,7 +328,7 @@ function BudgetUtilizationSection({ trendData = [], loading }) {
 function ProjectDistributionSection({ pieData = [], loading }) {
   return (
     <div className="bg-white p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] shadow-sm border border-slate-100 flex flex-col">
-      <h3 className="text-lg font-bold text-slate-800 mb-6">Project Distribution</h3>
+      <h3 className="text-lg font-bold text-slate-800 mb-6">Project Distribution by Sub-City</h3>
 
       <div className="h-[220px] sm:h-[250px] w-full relative">
         {loading ? (
@@ -363,13 +363,13 @@ function ProjectDistributionSection({ pieData = [], loading }) {
 }
 
 function ProjectStatusSection({ data = [], loading }) {
-  const [selectedSubCity, setSelectedSubCity] = useState('All');
+  const [selectedSubCity, setSelectedSubCity] = useState('All Sub-City');
 
   // 1. Calculate Chart Data (SUM everything if 'All' is selected)
   const chartData = useMemo(() => {
     // A. Filter logic
     const filtered = data.filter(item => {
-      if (selectedSubCity === 'All') return true;
+      if (selectedSubCity === 'All Sub-City') return true;
       return item.subCity === selectedSubCity;
     });
 
@@ -390,16 +390,16 @@ function ProjectStatusSection({ data = [], loading }) {
   // 2. Generate Dropdown Options
   const subCityOptions = useMemo(() => {
     const unique = [...new Set(data.map(item => item.subCity))].filter(Boolean);
-    return ['All', ...unique];
+    return ['All Sub-City', ...unique];
   }, [data]);
 
   return (
     <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 flex flex-col h-full">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Project Status</h3>
+          <h3 className="text-lg font-bold text-slate-800">Project Status by Sub-City</h3>
           <p className="text-[10px] font-bold text-slate-400 uppercase">
-            {selectedSubCity === 'All' ? 'Total Portfolio' : selectedSubCity}
+            {selectedSubCity === 'All Sub-City' ? 'Total Portfolio' : selectedSubCity}
           </p>
         </div>
 
@@ -487,7 +487,7 @@ function TaskOverviewSection({ data = [], loading }) {
       {/* HEADER WITH PROJECT FILTER */}
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Task Progress</h3>
+          <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Project Task Progress</h3>
           <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
             {selectedProject === 'All Projects' ? 'Operational Velocity' : 'Project Drill-down'}
           </p>

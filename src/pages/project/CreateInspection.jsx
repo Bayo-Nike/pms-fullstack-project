@@ -69,6 +69,7 @@ export default function CreateInspection() {
     const [fetchingGPS, setFetchingGPS] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+    const [activeProjectLogs, setActiveProjectLogs] = useState([]);
 
     // --- Distance Logic States ---
     const [actualCoords, setActualCoords] = useState({ lat: null, lng: null });
@@ -159,6 +160,8 @@ export default function CreateInspection() {
                     });
                     const context = projects.find(p => String(p.id) === String(d.projectId));
                     if (context) setSelectedProject(context);
+                    const projectLogRes = await projectApi.GET_INSPECTION_BY_PROJECT(d.projectId);
+                    setActiveProjectLogs(projectLogRes.data?.data || projectLogRes.data || []);
                 }
             } catch (err) { showAlert('error', 'Failed to synchronize with central registry.'); }
             finally { setLoading(false); }
@@ -171,15 +174,67 @@ export default function CreateInspection() {
         return allMyTasks.filter(t => Number(t.projectId) === Number(formData.projectId));
     }, [formData.projectId, allMyTasks]);
 
+    // const filteredTemplates = useMemo(() => {
+    //     if (!selectedProject) return [];
+    //     return inspectionTemplates.filter(t => t.projectType === selectedProject.projectType);
+    // }, [selectedProject, inspectionTemplates]);
+    
     const filteredTemplates = useMemo(() => {
         if (!selectedProject) return [];
-        return inspectionTemplates.filter(t => t.projectType === selectedProject.projectType);
-    }, [selectedProject, inspectionTemplates]);
+    
+        return inspectionTemplates
+            .filter(t => t.projectType === selectedProject.projectType)
+            .map(template => {
+                const templateId = Number(template.id);
+                const selectedTaskId = formData.taskId ? String(formData.taskId) : null;
+                const currentLevel = formData.inspectionLevel;
+    
+                // Check if this type is already recorded in the project's history
+                const isDuplicate = activeProjectLogs.some(log => {
+                    // 1. If we are editing, ignore the record currently being modified
+                    if (isEdit && String(log.id) === String(id)) return false;
+    
+                    // 2. Must match the inspection type
+                    const matchType = Number(log.inspectionTypeId) === templateId;
+                    if (!matchType) return false;
+    
+                    // 3. Match the logic based on level
+                    if (currentLevel === 'TASK') {
+                        // Check if the specific task already has this inspection type
+                        return String(log.taskId) === selectedTaskId;
+                    } else {
+                        // Check if the PROJECT level (where taskId is null) already has this type
+                        // In most Spring backends, taskId is null or 0 for project-level logs
+                        return !log.taskId || Number(log.taskId) === 0;
+                    }
+                });
+    
+                return {
+                    ...template,
+                    isDisabled: isDuplicate
+                };
+            });
+    }, [selectedProject, inspectionTemplates, activeProjectLogs, formData.taskId, formData.inspectionLevel, isEdit, id]);
 
-    const handleProjectChange = (projId) => {
+    const handleProjectChange = async (projId) => {
         const proj = myProjects.find(p => String(p.id) === String(projId));
         setSelectedProject(proj);
         setFormData(prev => ({ ...prev, projectId: projId, taskId: '', inspectionTypeId: '' }));
+        
+        // FETCH SO FAR INSPECTIONS FOR THIS PROJECT ONLY
+        if (projId) {
+            try {
+                const res = await projectApi.GET_INSPECTION_BY_PROJECT(projId);
+                // Ensure you are accessing the correct data path from your API response
+                const logs = res.data?.data || res.data || [];
+                setActiveProjectLogs(logs);
+            } catch (err) {
+                console.error("Failed to fetch project-specific logs", err);
+                setActiveProjectLogs([]);
+            }
+        } else {
+            setActiveProjectLogs([]);
+        }
     };
 
     const handleFileSelect = (e) => setSelectedFiles(prev => [...prev, ...Array.from(e.target.files)]);
@@ -317,10 +372,31 @@ export default function CreateInspection() {
                     <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
                         <div className="p-6 border-b border-slate-50 bg-slate-50/40 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Findings & Evidence</span></div>
                         <div className="p-10 space-y-8">
-                            <div className="space-y-2">
+                            {/* <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Inspection Type *</label>
                                 <select value={formData.inspectionTypeId} onChange={e => setFormData({ ...formData, inspectionTypeId: e.target.value })} disabled={!selectedProject} className="w-full bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-5 text-sm font-bold outline-none disabled:opacity-50">
                                     <option value="">-- Choose Inspection Type --</option>{filteredTemplates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div> */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Inspection Type *</label>
+                                <select 
+                                    value={formData.inspectionTypeId} 
+                                    onChange={e => setFormData({ ...formData, inspectionTypeId: e.target.value })} 
+                                    disabled={!selectedProject} 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-5 text-sm font-bold outline-none disabled:opacity-50 transition-all focus:border-sky-500"
+                                >
+                                    <option value="">-- Choose Inspection Type --</option>
+                                    {filteredTemplates.map(t => (
+                                        <option 
+                                            key={t.id} 
+                                            value={t.id} 
+                                            disabled={t.isDisabled} // THIS PREVENTS DUPLICATION
+                                            className={t.isDisabled ? "text-slate-300 italic" : "text-slate-900"}
+                                        >
+                                            {t.name} {t.isDisabled ? " (Already Inspected for this scope)" : ""}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-2">

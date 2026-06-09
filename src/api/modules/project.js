@@ -49,6 +49,7 @@ const projectApi = {
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
     APPROVE_INSPECTION_EXCALATION: (id) => api.put(`/admin/inspections/${id}/approve`),
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
+    GET_INSPECTION_BY_PROJECT: (projectId) => api.get(`/admin/inspections/project/${projectId}`),
 
     // Project Cost Transactional APIs
     // Project Cost History

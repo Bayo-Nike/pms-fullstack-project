@@ -47,6 +47,13 @@ export default function EditProject() {
     const [clientSearch, setClientSearch] = useState('');
     const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
 
+    // to close dropdown pop-up lists using a useRef Event Listener
+    const contractorRef = React.useRef(null);
+    const consultantRef = React.useRef(null);
+    const clientRef = React.useRef(null);
+    const implementationTeamRef = React.useRef(null);
+    const projectManagerRef = React.useRef(null);
+
     // Modal States
     const [showExtendModal, setShowExtendModal] = useState(false);
     const [extensionData, setExtensionData] = useState({ extendedDays: '', reason: '' });
@@ -80,6 +87,10 @@ export default function EditProject() {
         if (!d) return formData;
         return {
             ...d,
+            status: d.status ?? 'NOT_STARTED',
+            priority: d.priority ?? 'MEDIUM',
+            currencyType: d.currencyType ?? 'ETB',
+
             subCityId: d.subCityId ? String(d.subCityId) : '',
             projectManagerId: d.projectManagerId ? String(d.projectManagerId) : '',
             contractorId: d.contractorId ? String(d.contractorId) : '',
@@ -112,6 +123,38 @@ export default function EditProject() {
         };
         init();
     }, [id]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // Close Contractor if clicked outside
+            if (contractorRef.current && !contractorRef.current.contains(event.target)) {
+                setIsContractorDropdownOpen(false);
+            }
+            // Close Consultant if clicked outside
+            if (consultantRef.current && !consultantRef.current.contains(event.target)) {
+                setIsConsultantDropdownOpen(false);
+            }
+            // Close Client if clicked outside
+            if (clientRef.current && !clientRef.current.contains(event.target)) {
+                setIsClientDropdownOpen(false);
+            }
+            // Close Implemenation Team if clicked outside
+            if (implementationTeamRef.current && !implementationTeamRef.current.contains(event.target)) {
+                setIsTeamDropdownOpen(false);
+            }
+            // Close PM if clicked outside
+            if (projectManagerRef.current && !projectManagerRef.current.contains(event.target)) {
+                setIsPmDropdownOpen(false);
+            }
+        };
+    
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const pmOptions = useMemo(() => (lookups.employees || []).filter(emp => emp.status === 'ACTIVE' && !formData.employeeIds.includes(emp.id) && isEmployeeCompatible(emp) && emp.fullName?.toLowerCase().includes(pmSearch.toLowerCase())), [lookups.employees, formData.employeeIds, pmSearch, formData.projectType]);
     const teamOptions = useMemo(() => (lookups.employees || []).filter(emp => emp.status === 'ACTIVE' && !formData.employeeIds.includes(emp.id) && String(emp.id) !== String(formData.projectManagerId) && isEmployeeCompatible(emp) && emp.fullName?.toLowerCase().includes(teamSearch.toLowerCase())), [lookups.employees, formData.employeeIds, formData.projectManagerId, teamSearch, formData.projectType]);
@@ -278,7 +321,7 @@ export default function EditProject() {
                         <div className="flex items-center gap-3"><UserCheck className="text-slate-400" size={18} /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Project Manager</span></div>
                         {isLocked && <Lock size={14} className="text-amber-500" />}
                     </div>
-                    <div className="p-8 space-y-4">
+                    <div className="p-8 space-y-4" ref={projectManagerRef}>
                         <div className="relative">
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                             <input type="text" placeholder={isLocked ? "Registry Locked..." : "Find Manager..."} disabled={isLocked} className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" value={pmSearch} onFocus={() => setIsPmDropdownOpen(true)} onChange={(e) => setPmSearch(e.target.value)} />
@@ -299,7 +342,7 @@ export default function EditProject() {
                         <div className="flex items-center gap-3"><Groups className="text-slate-400" size={18} /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">Implementation Team</span></div>
                         {isLocked && <Lock size={14} className="text-amber-500" />}
                     </div>
-                    <div className="p-8 space-y-6">
+                    <div className="p-8 space-y-6" ref={implementationTeamRef}>
                         <div className="relative max-w-lg">
                             <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                             <input type="text" placeholder={isLocked ? "Registry Locked..." : "Search personnel..."} disabled={isLocked} className="w-full pl-14 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" value={teamSearch} onFocus={() => setIsTeamDropdownOpen(true)} onChange={(e) => setTeamSearch(e.target.value)} />
@@ -315,18 +358,18 @@ export default function EditProject() {
                 </div>
 
                 {/* ROW 3: SEARCHABLE EXTERNAL PARTNERSHIPS */}
-                <div className={`lg:col-span-3 bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden transition-all ${isLocked ? 'opacity-60 bg-slate-50/30' : ''}`}>
+                <div className={`lg:col-span-3 bg-white rounded-[32px] border border-slate-100 shadow-sm transition-all ${isLocked ? 'opacity-60 bg-slate-50/30' : ''}`}>
                     <div className="p-6 border-b border-slate-50 bg-slate-50/40 flex items-center justify-between">
                         <div className="flex items-center gap-3"><Handshake className="text-slate-400" size={18} /><span className="text-[11px] font-bold uppercase text-slate-500 tracking-widest">External Partnerships</span></div>
                         {isLocked && <div className="flex items-center gap-2 text-[10px] font-bold text-amber-600 uppercase italic"><Lock size={12} /> Signatures required</div>}
                     </div>
                     <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* CONTRACTOR */}
-                        <div className="space-y-4"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contractor</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Contractor..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={contractorSearch} onFocus={() => setIsContractorDropdownOpen(true)} onChange={(e) => setContractorSearch(e.target.value)} />{isContractorDropdownOpen && contractorOptions.length > 0 && !isLocked && (<div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-xl max-h-40 overflow-y-auto">{contractorOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, contractorId: String(c.id) })); setContractorSearch(''); setIsContractorDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.contractorName}</div>))}</div>)}</div>{formData.contractorId && (() => { const c = lookups.contractors.find(x => String(x.id) === String(formData.contractorId)); return c ? (<div className="flex items-center justify-between bg-sky-50 border border-sky-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><Building2 size={14} className="text-sky-600" /><span className="text-[11px] font-black text-sky-800 uppercase">{c.contractorName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, contractorId: '' }))}><Close style={{ fontSize: 16 }} className="text-sky-400 hover:text-sky-600" /></button>}</div>) : null; })()}</div>
+                        <div className="space-y-4" ref={contractorRef}><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contractor</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Contractor..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={contractorSearch} onFocus={() => setIsContractorDropdownOpen(true)} onChange={(e) => setContractorSearch(e.target.value)} />{isContractorDropdownOpen && contractorOptions.length > 0 && !isLocked && (<div className="absolute z-50 w-full mt-1 bg-white border rounded-2xl shadow-xl max-h-60 overflow-y-auto">{contractorOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, contractorId: String(c.id) })); setContractorSearch(''); setIsContractorDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.contractorName}</div>))}</div>)}</div>{formData.contractorId && (() => { const c = lookups.contractors.find(x => String(x.id) === String(formData.contractorId)); return c ? (<div className="flex items-center justify-between bg-sky-50 border border-sky-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><Building2 size={14} className="text-sky-600" /><span className="text-[11px] font-black text-sky-800 uppercase">{c.contractorName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, contractorId: '' }))}><Close style={{ fontSize: 16 }} className="text-sky-400 hover:text-sky-600" /></button>}</div>) : null; })()}</div>
                         {/* CONSULTANT */}
-                        <div className="space-y-4"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consultant</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Consultant..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={consultantSearch} onFocus={() => setIsConsultantDropdownOpen(true)} onChange={(e) => setConsultantSearch(e.target.value)} />{isConsultantDropdownOpen && consultantOptions.length > 0 && !isLocked && (<div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-xl max-h-40 overflow-y-auto">{consultantOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, consultantId: String(c.id) })); setConsultantSearch(''); setIsConsultantDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.consultantName}</div>))}</div>)}</div>{formData.consultantId && (() => { const c = lookups.consultancies.find(x => String(x.id) === String(formData.consultantId)); return c ? (<div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><Briefcase size={14} className="text-emerald-600" /><span className="text-[11px] font-black text-emerald-800 uppercase">{c.consultantName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, consultantId: '' }))}><Close style={{ fontSize: 16 }} className="text-emerald-400 hover:text-emerald-600" /></button>}</div>) : null; })()}</div>
+                        <div className="space-y-4" ref={consultantRef}><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Consultant</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Consultant..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={consultantSearch} onFocus={() => setIsConsultantDropdownOpen(true)} onChange={(e) => setConsultantSearch(e.target.value)} />{isConsultantDropdownOpen && consultantOptions.length > 0 && !isLocked && (<div className="absolute z-50 w-full mt-1 bg-white border rounded-2xl shadow-xl max-h-60 overflow-y-auto">{consultantOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, consultantId: String(c.id) })); setConsultantSearch(''); setIsConsultantDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.consultantName}</div>))}</div>)}</div>{formData.consultantId && (() => { const c = lookups.consultancies.find(x => String(x.id) === String(formData.consultantId)); return c ? (<div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><Briefcase size={14} className="text-emerald-600" /><span className="text-[11px] font-black text-emerald-800 uppercase">{c.consultantName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, consultantId: '' }))}><Close style={{ fontSize: 16 }} className="text-emerald-400 hover:text-emerald-600" /></button>}</div>) : null; })()}</div>
                         {/* CLIENT */}
-                        <div className="space-y-4"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Client</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Client..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={clientSearch} onFocus={() => setIsClientDropdownOpen(true)} onChange={(e) => setClientSearch(e.target.value)} />{isClientDropdownOpen && clientOptions.length > 0 && !isLocked && (<div className="absolute z-20 w-full mt-1 bg-white border rounded-xl shadow-xl max-h-40 overflow-y-auto">{clientOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, clientId: String(c.id) })); setClientSearch(''); setIsClientDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.clientName}</div>))}</div>)}</div>{formData.clientId && (() => { const c = lookups.clients.find(x => String(x.id) === String(formData.clientId)); return c ? (<div className="flex items-center justify-between bg-purple-50 border border-purple-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><UserCircle size={14} className="text-purple-600" /><span className="text-[11px] font-black text-purple-800 uppercase">{c.clientName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, clientId: '' }))}><Close style={{ fontSize: 16 }} className="text-purple-400 hover:text-purple-600" /></button>}</div>) : null; })()}</div>
+                        <div className="space-y-4" ref={clientRef}><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Client</label><div className="relative"><Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} /><input type="text" placeholder="Search Client..." disabled={isLocked} className="w-full pl-10 pr-4 py-3 text-xs font-bold bg-slate-50 border border-slate-200 rounded-xl outline-none" value={clientSearch} onFocus={() => setIsClientDropdownOpen(true)} onChange={(e) => setClientSearch(e.target.value)} />{isClientDropdownOpen && clientOptions.length > 0 && !isLocked && (<div className="absolute z-50 w-full mt-1 bg-white border rounded-xl shadow-2xl max-h-60 overflow-y-auto">{clientOptions.map(c => (<div key={c.id} onClick={() => { setFormData(p => ({ ...p, clientId: String(c.id) })); setClientSearch(''); setIsClientDropdownOpen(false); }} className="px-4 py-2 hover:bg-sky-50 cursor-pointer text-[11px] font-bold text-slate-600 border-b last:border-none">{c.clientName}</div>))}</div>)}</div>{formData.clientId && (() => { const c = lookups.clients.find(x => String(x.id) === String(formData.clientId)); return c ? (<div className="flex items-center justify-between bg-purple-50 border border-purple-100 p-3 rounded-xl animate-fadeIn"><div className="flex items-center gap-2"><UserCircle size={14} className="text-purple-600" /><span className="text-[11px] font-black text-purple-800 uppercase">{c.clientName}</span></div>{!isLocked && <button onClick={() => setFormData(p => ({ ...p, clientId: '' }))}><Close style={{ fontSize: 16 }} className="text-purple-400 hover:text-purple-600" /></button>}</div>) : null; })()}</div>
                     </div>
                 </div>
 

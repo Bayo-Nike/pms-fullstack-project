@@ -217,9 +217,10 @@ export default function Inspections() {
                         <th className="px-8 py-5">Context & Scope</th>
                         <th className="px-8 py-5">Inspection Type</th>
                         <th className="px-8 py-5">Environment</th>
-                        <th className="px-8 py-5 text-right">Date</th>
-                        <th className="px-8 py-5 text-right">Visibility</th>
-                        <th className="px-8 py-5 text-right">Actions</th>
+                        <th className="px-8 py-5">Date</th>
+                        <th className="px-8 py-5">Submitted By</th>
+                        <th className="px-8 py-5">Visibility</th>
+                        <th className="px-8 py-5">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -251,7 +252,8 @@ export default function Inspections() {
                                     <div className="flex flex-col items-center"><Engineering className="text-slate-400" style={{ fontSize: 16 }} /><span className="text-[8px] font-black text-slate-400 uppercase">{log.activeWorkers}</span></div>
                                 </div>
                             </td>
-                            <td className="px-8 py-5 text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
+                            <td className="text-right text-[11px] font-bold text-slate-400">{log.inspectionDate}</td>
+                            <td className="text-right text-[11px] font-bold text-slate-400">{log.employeeName}</td>
                             
                             {/* COLUMN 5: VISIBILITY (Approval Logic) */}
                             <td className="px-8 py-5 text-right">

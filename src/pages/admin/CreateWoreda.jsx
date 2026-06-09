@@ -11,6 +11,7 @@ export default function CreateWoreda() {
 
     // Form State
     const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
     const [subCityId, setSubCityId] = useState(''); // State for selected Sub-City ID
     const [subCities, setSubCities] = useState([]); // State to hold the list of Sub-Cities
 
@@ -30,7 +31,7 @@ export default function CreateWoreda() {
         const fetchSubCities = async () => {
             try {
                 // Adjust this call to your actual adminApi method for sub-cities
-                const res = await adminApi.GET_SUB_CITIES(); 
+                const res = await adminApi.GET_SUB_CITIES();
                 setSubCities(res.data || res);
             } catch (err) {
                 showAlert('error', 'Failed to load sub-cities list.');
@@ -47,6 +48,7 @@ export default function CreateWoreda() {
                     const res = await adminApi.GET_WOREDA(id);
                     const data = res.data || res;
                     setName(data.name || '');
+                    setDescription(data.description || '');
                     // Handle if the backend returns an object (data.subCity.id) or a flat ID
                     setSubCityId(data.subCity?.id || data.subCityId || '');
                 } catch (err) {
@@ -75,16 +77,17 @@ export default function CreateWoreda() {
         setShowConfirm(false);
         setSaving(true);
         try {
-            const payload = { 
+            const payload = {
                 name: name.trim(),
+                description: description.trim(),
                 subCityId: subCityId // Sent to Spring Boot
-             };
+            };
 
             if (isEdit) {
                 await adminApi.UPDATE_WOREDA(id, payload);
                 showAlert('success', 'Woreda configuration updated successfully.');
             } else {
-                
+
                 await adminApi.CREATE_WOREDA(payload);
                 showAlert('success', 'New Woreda Registered.');
             }
@@ -152,12 +155,12 @@ export default function CreateWoreda() {
                 </div>
 
                 <div className="p-8 max-w-2xl">
-                <div className="space-y-1.5 mb-6">
+                    <div className="space-y-1.5 mb-6">
                         <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Sub-City</label>
-                        <select 
-                            name="subCityId" 
-                            value={subCityId} 
-                            onChange={(e) => setSubCityId(e.target.value)} 
+                        <select
+                            name="subCityId"
+                            value={subCityId}
+                            onChange={(e) => setSubCityId(e.target.value)}
                             className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] appearance-none cursor-pointer"
                         >
                             <option value="">-- Select Sub-City --</option>
@@ -172,9 +175,12 @@ export default function CreateWoreda() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
-                        <p className="text-[10px] text-slate-400 italic ml-1 mt-2">
-                            This designation will be available for project categorization and filtering.
-                        </p>
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-[9px] font-black text-slate-400 uppercase ml-1 tracking-widest">Description</label>
+                        <textarea rows="3" value={description} onChange={(e) => setDescription(e.target.value)}
+                            placeholder='Description about Woreda'
+                            className="w-full px-5 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-xs font-medium outline-none focus:border-[#FBAF1E] resize-none" />
                     </div>
                 </div>
             </div>

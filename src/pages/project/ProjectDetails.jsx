@@ -145,16 +145,61 @@ const ProjectDetails = () => {
     }, [id]);
 
     // Preservation: Logic for 'OTHERS' task types only
+    // useEffect(() => {
+    //     if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
+
+    //         const filtered = taskTypeRegistry.filter(t =>
+    //             t.projectType === project.projectType &&
+    //             t.taskTypeProjectPhase === 'EXECUTION'
+    //         );
+    //         setFilteredTaskTypes(filtered);
+    //     }
+    // }, [isTaskModalOpen, project, taskTypeRegistry]);
+
+    // Restricted Duplicate Task Assignment Logic
     useEffect(() => {
         if (isTaskModalOpen && project && taskTypeRegistry.length > 0) {
-
-            const filtered = taskTypeRegistry.filter(t =>
-                t.projectType === project.projectType &&
-                t.taskTypeProjectPhase === 'EXECUTION'
-            );
-            setFilteredTaskTypes(filtered);
+            
+            // 1. Identify all IDs currently used in the table
+            const assignedTaskTypeIds = tasks.map(t => {
+                if (t.taskTypeId) return Number(t.taskTypeId);
+                const match = taskTypeRegistry.find(reg => 
+                    // reg.name?.trim().toLowerCase() === t.taskName?.trim().toLowerCase()
+                    reg.name?.trim().toLowerCase() === t.taskName?.trim().toLowerCase() &&
+                    reg.projectType === project.projectType // <--- CRITICAL same task on both Project type
+                );
+                return match ? Number(match.id) : null;
+            }).filter(id => id !== null);
+    
+            // 2. Identify the ID of the task we are currently editing
+            const editingId = editingTask ? (
+                editingTask.taskTypeId ? Number(editingTask.taskTypeId) :
+                taskTypeRegistry.find(reg => reg.name?.trim().toLowerCase() === editingTask.taskName?.trim().toLowerCase() &&
+                    reg.projectType === project.projectType
+            )?.id
+            ) : null;
+    
+            // 3. Process the Registry: Filter for context, then MAP to add the disabled flag
+            const processedTypes = taskTypeRegistry
+                .filter(registryItem => 
+                    registryItem.projectType === project.projectType && 
+                    registryItem.taskTypeProjectPhase === 'EXECUTION'
+                )
+                .map(registryItem => {
+                    const regId = Number(registryItem.id);
+                    const alreadyExistsInTable = assignedTaskTypeIds.includes(regId);
+                    const isCurrentEdit = editingId && Number(editingId) === regId;
+    
+                    return {
+                        ...registryItem,
+                        // Logic: Disable if it exists in the table AND it's not the one we are currently editing
+                        isReadOnly: alreadyExistsInTable && !isCurrentEdit 
+                    };
+                });
+    
+            setFilteredTaskTypes(processedTypes);
         }
-    }, [isTaskModalOpen, project, taskTypeRegistry]);
+    }, [isTaskModalOpen, project, taskTypeRegistry, tasks, editingTask]);
 
     const projectStaff = useMemo(() => {
         if (!project) return [];
@@ -324,7 +369,7 @@ const ProjectDetails = () => {
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead className="bg-slate-50 text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                            <tr><th className="px-8 py-4">Task Component</th><th className="px-6 py-4 text-center">Weight</th><th className="px-6 py-4 text-center">Status</th><th className="px-6 py-4">Artifact</th><th className="px-8 py-4 text-right">Actions</th></tr>
+                            <tr><th className="px-8 py-4">Task Component</th><th className="px-6 py-4 text-center">Assigned Team</th><th className="px-6 py-4 text-center">Weight</th><th className="px-6 py-4 text-center">Status</th><th className="px-6 py-4">Artifact</th><th className="px-8 py-4 text-right">Actions</th></tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {tasks.map((task) => {
@@ -340,6 +385,7 @@ const ProjectDetails = () => {
                                                 <span className="text-[9px] font-bold text-slate-400 uppercase mt-1 flex items-center gap-1"><Schedule style={{ fontSize: 10 }} /> {task.startDate} &rarr; {task.endDate}</span>
                                             </div>
                                         </td>
+                                        <td className="px-6 py-4 text-center"><span className="text-xs font-black text-slate-900 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">{task.employeeNames}</span></td>
                                         <td className="px-6 py-4 text-center"><span className="text-xs font-black text-slate-900 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">{task.weight}%</span></td>
                                         <td className="px-6 py-4 text-center"><span className={`text-[9px] font-black px-2 py-1 rounded border uppercase ${getTaskStatusStyle(task.status)}`}>{task.status.replace(/_/g, ' ')}</span></td>
                                         <td className="px-6 py-4">
@@ -393,7 +439,7 @@ const ProjectDetails = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-1.5">
+                                    {/* <div className="space-y-1.5">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title *</label>
                                         <select
                                             required
@@ -403,6 +449,23 @@ const ProjectDetails = () => {
                                         >
                                             <option value="">-- Select Standard Blueprint --</option>
                                             {filteredTaskTypes.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                        </select>
+                                    </div> */}
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Title *</label>
+                                        <select required value={taskFormData.taskTypeId}
+                                            onChange={e => setTaskFormData({ ...taskFormData, taskTypeId: e.target.value })}
+                                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-4 py-3.5 text-sm font-bold outline-none focus:border-[#0284C7] appearance-none cursor-pointer">
+                                            <option value="">-- Select Standard Task --</option>
+                                            {filteredTaskTypes.map(t => (
+                                                <option 
+                                                    key={t.id} 
+                                                    value={t.id} 
+                                                    disabled={t.isReadOnly} // This makes it Read-Only in the list
+                                                    className={t.isReadOnly ? "text-slate-300 italic" : "text-slate-900"}>
+                                                    {t.name} {t.isReadOnly ? "(Already Assigned)" : ""}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
                                     <div className="space-y-1.5"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Task Cost({project.currencyType})</label><input type="number" step="0.01" value={taskFormData.taskCost} onChange={e => setTaskFormData({ ...taskFormData, taskCost: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold" /></div>
