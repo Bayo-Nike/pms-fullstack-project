@@ -179,9 +179,9 @@ export default function TaskTypes() {
                         <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black mt-1">Operational Task Standardization</p>
                     </div>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_TASK_TYPE') && (
                     <button onClick={() => handleOpenDialog('create')} className="bg-[#FBAF1E] text-white px-6 py-3 rounded-2xl font-black text-xs flex items-center gap-2 uppercase tracking-widest shadow-xl active:scale-95 transition-all">
-                        <Add /> Register Blueprint
+                        <Add /> Register TaskType Blueprint
                     </button>
                 )}
             </div>
@@ -235,11 +235,13 @@ export default function TaskTypes() {
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button onClick={() => handleOpenDialog('view', item)} className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all" title="View Dossier"><Visibility style={{ fontSize: 20 }} /></button>
-                                            {can('CAN_SEE_SYS_ADMIN') && (
-                                                <>
+                                            {can('CAN_EDIT_TASK_TYPE') && (
                                                     <button onClick={() => handleOpenDialog('edit', item)} className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-all" title="Edit Blueprint"><Edit style={{ fontSize: 20 }} /></button>
+                                                   
+                                            )}
+                                            {can('CAN_DELETE_TASK_TYPE') && (
                                                     <button onClick={() => setDeleteConfig({ show: true, id: item.id, name: item.name })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all" title="Delete"><Delete style={{ fontSize: 20 }} /></button>
-                                                </>
+                                              
                                             )}
                                         </div>
                                     </td>

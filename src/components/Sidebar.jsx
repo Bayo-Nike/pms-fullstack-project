@@ -40,16 +40,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
       ]
     },
-    {
-      id: 'contracts-consultancies',
-      name: 'Contracts & Consultancies',
-      icon: <Handshake />,
-      children: [
-        { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACTOR_LIST' },
-        { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_SEE_CONSULTANT_LIST' },
-        { path: '/client', name: 'Client List', permission: 'CAN_SEE_CLIENT_LIST' },
-      ]
-    },
+    
     {
       id: 'planning',
       name: 'Planning',
@@ -82,22 +73,32 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       ]
     },
     {
+      id: 'contracts-consultancies',
+      name: 'Contracts & Consultancies',
+      icon: <Handshake />,
+      children: [
+        { path: '/contractors', name: 'Contractor List', permission: 'CAN_SEE_CONTRACTOR_LIST' },
+        { path: '/consultancy', name: 'Consultancy List', permission: 'CAN_SEE_CONSULTANT_LIST' },
+        { path: '/client', name: 'Client List', permission: 'CAN_SEE_CLIENT_LIST' },
+      ]
+    },
+    {
       id: 'admin',
-      name: 'Sys Admin',
+      name: 'System Administration',
       icon: <Settings />,
       children: [
-        { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/woredas', name: 'Woredas', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/locations', name: 'Site Locations', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/task-types', name: 'Task Types', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/sub-cities', name: 'Cities & Sub-Cities', permission: 'CAN_SEE_SUBCITY' },
+        { path: '/admin/woredas', name: 'Woredas', permission: 'CAN_SEE_WOREDA' },
+        { path: '/admin/divisions', name: 'Divisions', permission: 'CAN_SEE_DIVISION' },
+        { path: '/admin/positions', name: 'Positions', permission: 'CAN_SEE_POSITION' },
+        { path: '/admin/locations', name: 'Site Locations', permission: 'CAN_SEE_SITE_LOCATION' },
+        { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_INSPECTION_TYPE' },
+        { path: '/admin/task-types', name: 'Task Types', permission: 'CAN_SEE_TASK_TYPE' },
+        { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_EMPLOYEE' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_SYS_ADMIN' },
-        { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_SEE_SYS_ADMIN' },
+        { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_USER_MGMT' },
+        { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_MOBILE_APP' },
+        { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_SEE_AUDIT_LOG' },
       ]
     }
   ];

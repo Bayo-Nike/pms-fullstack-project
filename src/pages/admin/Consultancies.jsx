@@ -45,7 +45,7 @@ export default function Consultancies() {
     };
 
     const filteredConsultancies = useMemo(() => {
-        return consultancies.filter(c => (c.contractorName || "").toLowerCase().includes(searchTerm.toLowerCase()));
+        return consultancies.filter(c => (c.consultantName || "").toLowerCase().includes(searchTerm.toLowerCase()));
     }, [consultancies, searchTerm]);
 
     const paginatedItems = filteredConsultancies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);

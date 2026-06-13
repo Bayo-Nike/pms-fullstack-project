@@ -135,7 +135,7 @@ export default function Mobile() {
                         <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Device Token & UserCode Registry</p>
                     </div>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_MOBILE_APP') && (
                     <button onClick={() => setIsModalOpen(true)} className="bg-[#0284C7] text-white px-6 py-3.5 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg shadow-sky-100 active:scale-95 transition-all">
                         <Add /> Register Device
                     </button>
@@ -187,6 +187,7 @@ export default function Mobile() {
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex justify-end gap-2">
+                                        {can('CAN_EDIT_MOBILE_APP') && (
                                             <button
                                                 onClick={() => toggleStatus(mu.id, mu.status)}
                                                 className={`p-2 rounded-xl border transition-all ${mu.status === 'ACTIVE' ? 'text-amber-500 hover:bg-amber-50 border-amber-100' : 'text-green-500 hover:bg-green-50 border-green-100'}`}
@@ -194,12 +195,15 @@ export default function Mobile() {
                                             >
                                                 <PhonelinkLock style={{ fontSize: 18 }} />
                                             </button>
+                                        )}
+                                        {can('CAN_DELETE_MOBILE_APP') && (
                                             <button
                                                 onClick={() => { if (window.confirm('Delete registration?')) adminApi.DELETE_MOBILE_USER(mu.id).then(() => fetchData()) }}
                                                 className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                             >
                                                 <Delete style={{ fontSize: 18 }} />
                                             </button>
+                                        )}
                                         </div>
                                     </td>
                                 </tr>

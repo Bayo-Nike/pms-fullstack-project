@@ -96,7 +96,7 @@ export default function Positions() {
                     <h1 className="text-base font-bold text-slate-900">Positions</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">Human Resource Hierarchy</p>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_POSITION') && (
                     <button onClick={() => navigate('/admin/positions/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Create Position
                     </button>
@@ -148,11 +148,13 @@ export default function Positions() {
                                     </td>
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {can('CAN_SEE_SYS_ADMIN') && (
-                                                <>
+                                            {can('CAN_EDIT_POSITION') && (
                                                     <button onClick={() => navigate(`/admin/positions/edit/${p.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md"><Edit style={{ fontSize: 16 }} /></button>
-                                                    <button onClick={() => handleDeleteClick(p)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md"><Delete style={{ fontSize: 16 }} /></button>
-                                                </>
+                                                    
+                                            )}
+                                            {can('CAN_DELETE_POSITION') && (
+                                                   <button onClick={() => handleDeleteClick(p)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md"><Delete style={{ fontSize: 16 }} /></button>
+                                                
                                             )}
                                         </div>
                                     </td>

@@ -97,7 +97,7 @@ export default function Locations() {
                     <h1 className="text-base font-bold text-slate-900">Project Site Locations</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">Geographic Area</p>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_SITE_LOCATION') && (
                     <button onClick={() => navigate('/admin/locations/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Add Site Location
                     </button>
@@ -184,11 +184,13 @@ export default function Locations() {
 
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {can('CAN_SEE_SYS_ADMIN') && (
-                                                <>
+                                            {can('CAN_EDIT_SITE_LOCATION') && (
                                                     <button onClick={() => navigate(`/admin/locations/edit/${loc.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 16 }} /></button>
-                                                    <button onClick={() => handleDeleteClick(loc)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 16 }} /></button>
-                                                </>
+                                                    
+                                            )}
+                                            {can('CAN_DELETE_SITE_LOCATION') && (
+                                               <button onClick={() => handleDeleteClick(loc)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 16 }} /></button>
+                                                
                                             )}
                                         </div>
                                     </td>

@@ -479,7 +479,7 @@ export default function OrgStructure() {
                 {[
                     { id: 'GEO', label: 'Regional', icon: Apartment },
                     { id: 'DIV', label: 'Divisions', icon: Business },
-                    { id: 'POS', label: 'Roles', icon: Schema },
+                    { id: 'POS', label: 'Positions', icon: Schema },
                     { id: 'LOC', label: 'Site Locations', icon: Map },
                 ].map(tab => (
                     <button

@@ -7,9 +7,11 @@ import {
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Users() {
     const navigate = useNavigate();
+    const { can } = useAuth();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -88,9 +90,11 @@ export default function Users() {
                     <h1 className="text-base font-bold text-slate-900 leading-none">User Accounts</h1>
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Authentication Registry</p>
                 </div>
+                {can('CAN_CREATE_USER_MGMT') && (
                 <button onClick={() => navigate('/admin/users/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                     <Add style={{ fontSize: 18 }} /> Create User
                 </button>
+                )}
             </div>
 
             <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
@@ -152,8 +156,12 @@ export default function Users() {
                                                     </div>
                                                 ) : (
                                                     <>
+                                                    {can('CAN_EDIT_USER_MGMT') && (
                                                         <button onClick={() => navigate(`/admin/users/edit/${user.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                    )}
+                                                    {can('CAN_DELETE_USER_MGMT') && (
                                                         <button onClick={() => handleDeleteClick(user)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                                    )}
                                                     </>
                                                 )}
                                             </div>

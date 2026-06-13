@@ -91,9 +91,9 @@ export default function Employees() {
                     <h1 className="text-base font-bold text-slate-900">Employee Directory</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-widest">HR & Resource Management</p>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_EMPLOYEE') && (
                     <button onClick={() => navigate('/admin/employees/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-widest">
-                        <Add style={{ fontSize: 18 }} /> Add Employee
+                        <Add style={{ fontSize: 18 }} /> Add New Employee
                     </button>
                 )}
             </div>
@@ -149,11 +149,13 @@ export default function Employees() {
                                 </td>
                                 <td className="px-6 py-3.5 text-right">
                                     <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {can('CAN_SEE_SYS_ADMIN') && (
-                                            <>
+                                        {can('CAN_EDIT_EMPLOYEE') && (
                                                 <button onClick={() => navigate(`/admin/employees/edit/${emp.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 16 }} /></button>
+                                            
+                                        )}
+                                        {can('CAN_DELETE_EMPLOYEE') && (
                                                 <button onClick={() => handleDeleteClick(emp)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 16 }} /></button>
-                                            </>
+                                            
                                         )}
                                     </div>
                                 </td>

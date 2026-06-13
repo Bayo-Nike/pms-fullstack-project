@@ -107,7 +107,7 @@ export default function SubCities() {
                     <h1 className="text-base font-bold text-slate-900 leading-none">Sub-Cities</h1>
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Geographic Level Settings</p>
                 </div>
-                {can('CAN_SEE_SYS_ADMIN') && (
+                {can('CAN_CREATE_SUBCITY') && (
                     <button onClick={() => navigate('/admin/sub-cities/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
                         <Add style={{ fontSize: 18 }} /> Add Sub-City
                     </button>
@@ -142,8 +142,8 @@ export default function SubCities() {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 text-[9px] font-bold uppercase tracking-widest">
                         <tr>
-                            <th className="px-6 py-3">Level Name</th>
-                            <th className="px-6 py-3">Municipality</th>
+                            <th className="px-6 py-3">Sub-City Name</th>
+                            <th className="px-6 py-3">City Name</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>
                     </thead>
@@ -162,11 +162,13 @@ export default function SubCities() {
                                     <td className="px-6 py-3.5"><span className="text-xs text-slate-500 font-medium uppercase tracking-tight">{sc.cityName}</span></td>
                                     <td className="px-6 py-3.5 text-right">
                                         <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {can('CAN_SEE_SYS_ADMIN') && (
-                                                <>
+                                            {can('CAN_EDIT_SUBCITY') && (
                                                     <button onClick={() => navigate(`/admin/sub-cities/edit/${sc.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 16 }} /></button>
+                                                  
+                                            )}
+                                            {can('CAN_DELETE_SUBCITY') && (
                                                     <button onClick={() => handleDeleteClick(sc)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 16 }} /></button>
-                                                </>
+                                                
                                             )}
                                         </div>
                                     </td>

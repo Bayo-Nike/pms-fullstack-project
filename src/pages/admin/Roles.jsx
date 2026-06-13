@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Edit, Search, Add, Shield, Lock, Delete, HelpOutline } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Roles() {
     const navigate = useNavigate();
+    const { can } = useAuth();
     const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -98,12 +100,12 @@ export default function Roles() {
                     <h1 className="text-base font-bold text-slate-900 leading-none">Roles & Permissions</h1>
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Access Control Level Management</p>
                 </div>
-                <button
-                    onClick={() => navigate('/admin/roles/create')}
-                    className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest"
-                >
-                    <Add style={{ fontSize: 18 }} /> Create Role
-                </button>
+                {can('CAN_CREATE_ROLE_PERMISSION') && (
+                    <button onClick={() => navigate('/admin/roles/create')}
+                        className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
+                        <Add style={{ fontSize: 18 }} /> Create Role
+                    </button>
+                )}
             </div>
 
             {/* Search */}
@@ -162,6 +164,7 @@ export default function Roles() {
                                                 </div>
                                             ) : (
                                                 <>
+                                                {can('CAN_EDIT_ROLE_PERMISSION') && (
                                                     <button
                                                         onClick={() => navigate(`/admin/roles/edit/${role.id}`)}
                                                         className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"
@@ -169,7 +172,9 @@ export default function Roles() {
                                                     >
                                                         <Edit style={{ fontSize: 18 }} />
                                                     </button>
-                                                    {
+                                                )}
+                                                {can('CAN_DELETE_ROLE_PERMISSION') && (
+                                                    
                                                         (!(role.roleName === 'ROLE_CITY_OFFICE_HEAD' || role.roleName === 'ROLE_MAYOR')) &&
                                                         (<button
                                                             onClick={() => handleDeleteClick(role)}
@@ -178,7 +183,8 @@ export default function Roles() {
                                                         >
                                                             <Delete style={{ fontSize: 18 }} />
                                                         </button>)
-                                                    }
+                                                    
+                                                )}
                                                 </>
                                             )}
                                         </div>

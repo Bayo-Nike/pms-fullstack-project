@@ -44,7 +44,7 @@ export default function Clients() {
     };
 
     const filteredClients = useMemo(() => {
-        return clients.filter(c => (c.contractorName || "").toLowerCase().includes(searchTerm.toLowerCase()));
+        return clients.filter(c => (c.clientName || "").toLowerCase().includes(searchTerm.toLowerCase()));
     }, [clients, searchTerm]);
 
     const paginatedItems = filteredClients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
