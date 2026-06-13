@@ -18,4 +18,5 @@ public interface WoredaService {
 
     WoredaResponseDto createWoreda(WoredaRequestDto dto);
 
+    void deleteById(Long id);
 }

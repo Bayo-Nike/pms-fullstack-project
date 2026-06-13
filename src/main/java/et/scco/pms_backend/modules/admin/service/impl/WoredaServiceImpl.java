@@ -66,4 +66,9 @@ public class WoredaServiceImpl implements WoredaService{
         
     }
 
+    @Override
+    public void deleteById(Long id) {
+        woredaRepository.deleteById(id);
+    }
+
 }
