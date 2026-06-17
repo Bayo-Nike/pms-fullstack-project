@@ -6,7 +6,6 @@ import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
-import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.TaskType;
 import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.TaskTypeRepository;
@@ -88,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
                             saved.getTaskType().getName(),
                             saved.getProject().getTitle()
                     ),
-                    "inspections/create"
+                    "projects/"+saved.getProject().getId()
             );
         });
 
@@ -135,7 +134,7 @@ public class TaskServiceImpl implements TaskService {
                             updated.getTaskType().getName(),
                             updated.getProject().getTitle()
                     ),
-                    "inspections/create"
+                    "projects/"+updated.getProject().getId()
             );
         });
 
