@@ -55,7 +55,13 @@ export default function ProjectInitiations() {
             const pageData = res.data.data;
             setInitiations(pageData.content || []);
             setPageInfo(prev => ({
-                ...prev, current: pageData.number, total: pageData.totalPages, totalElements: pageData.totalElements
+                ...prev, 
+                current: pageData.page?.number ?? 0,
+                total: pageData.page?.totalPages ?? 0,
+                totalElements: pageData.page?.totalElements ?? 0
+                // current: pageData.number, 
+                // total: pageData.totalPages, 
+                // totalElements: pageData.totalElements
             }));
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync error.' }); }
         finally { setLoading(false); }

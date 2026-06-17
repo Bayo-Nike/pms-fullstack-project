@@ -209,13 +209,23 @@ const ProjectInitiationDetails = () => {
                             <span className="text-[10px] font-black bg-sky-50 text-[#0284C7] px-2 py-0.5 rounded border border-sky-100 uppercase">{project.projectCode}</span>
                             <h1 className="text-xl font-black text-slate-900">{project.title}</h1>
                         </div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 flex items-center gap-2"><LocationOn style={{ fontSize: 14 }} /> {project.subCityName || 'City Wide Hub'}</p>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 flex items-center gap-2"><LocationOn style={{ fontSize: 14 }} /> {project.subCityName || 'City Wide Hub'} | {project.woredaName} | {project.locationNames}</p>
                     </div>
                 </div>
                 <div className="flex gap-8">
                     <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Phase</p><span className={`text-xs font-black uppercase ${project.phase === 'EXECUTION' ? 'text-emerald-600' : 'text-[#0284C7]'}`}>{project.phase}</span></div>
-                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Category</p><span className="text-xs font-black text-amber-600 uppercase">{project.category}</span></div>
-                    <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Timeline</p><span className="text-xs font-black text-slate-700">{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
+                    {/* <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Category</p><span className="text-xs font-black text-amber-600 uppercase">{project.category}</span></div> */}
+                    <div className="text-right border-r pr-8 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">{project.phase} Classification</p><span className="text-xs font-black text-slate-700">{project.projectType || 'TBD'} / <p className="text-[9px] font-black text-amber-600 uppercase">{project.category} / </p><p className="text-[9px] font-black text-sky-600 uppercase">{project.projectLevel} LEVEL {project.phase}</p></span></div>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div className="lg:col-span-8 space-y-4">
+                        
+                    <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Info fontSize="small" /> Project Description</div>
+                        <p className="text-xs text-slate-500 italic line-clamp-3">{project.description || 'N/A'}</p>
+                            
+                    </div>
                 </div>
             </div>
 
@@ -296,7 +306,7 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[1600] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl border w-full max-w-2xl overflow-hidden flex flex-col">
                         <div className="p-8 border-b bg-slate-50/50 flex items-center justify-between">
-                            <div className="flex items-center gap-3"><Visibility className="text-emerald-500" /><h3 className="font-black text-slate-800 uppercase tracking-tight">Task Dossier</h3></div>
+                            <div className="flex items-center gap-3"><Visibility className="text-emerald-500" /><h3 className="font-black text-slate-800 uppercase tracking-tight">Task Detail</h3></div>
                             <button onClick={() => setViewingTask(null)} className="p-2 hover:bg-white rounded-full"><Close /></button>
                         </div>
                         <div className="p-10 space-y-6">
@@ -321,7 +331,7 @@ const ProjectInitiationDetails = () => {
                 <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-fadeIn">
                     <div className="bg-white rounded-[40px] shadow-2xl border border-slate-100 w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
                         <div className="p-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Planned Task' : 'New Initiation Task'}</h3>
+                            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight">{editingTask ? 'Modify Initiation Task' : 'New Initiation Task'}</h3>
                             <button onClick={() => setIsTaskModalOpen(false)} className="p-2 hover:bg-white rounded-full text-slate-400 transition-all"><Close /></button>
                         </div>
                         <form onSubmit={handleTaskAction} className="p-10 overflow-y-auto space-y-8 no-scrollbar">
@@ -390,7 +400,7 @@ const ProjectInitiationDetails = () => {
                                     {supportDocument && <div className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100"><div className="flex items-center gap-3"><CloudDone className="text-[#0284C7]" /><span className="text-[11px] font-bold text-slate-700 truncate max-w-[200px]">{supportDocument.name}</span></div><Close onClick={() => setSupportDocument(null)} className="cursor-pointer text-slate-400" /></div>}
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-[#0284C7] text-white py-5 rounded-[24px] font-black uppercase text-xs shadow-xl shadow-sky-100 hover:bg-[#0369a1] active:scale-95 transition-all tracking-[0.2em]">{editingTask ? 'Update Initiation Task' : 'Save Planned Task'}</button>
+                            <button type="submit" className="w-full bg-[#0284C7] text-white py-5 rounded-[24px] font-black uppercase text-xs shadow-xl shadow-sky-100 hover:bg-[#0369a1] active:scale-95 transition-all tracking-[0.2em]">{editingTask ? 'Update Initiation Task' : 'Save Initiation Task'}</button>
                         </form>
                     </div>
                 </div>

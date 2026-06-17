@@ -309,15 +309,20 @@ const ProjectDetails = () => {
                             <span className="text-[10px] font-black text-[#0284C7] bg-sky-50 px-1.5 py-0.5 rounded border border-sky-100 uppercase">{project.projectCode}</span>
                             <h1 className="text-xl font-black text-slate-900">{project.title}</h1>
                         </div>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1"><LocationOn style={{ fontSize: 12 }} /> {project.cityName} &bull; {project.subCityName}</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1"><LocationOn style={{ fontSize: 12 }} /> {project.cityName} &bull; {project.subCityName} | {project.woredaName} | {project.locationNames}</p>
                     </div>
                 </div>
                 <div className="flex gap-4">
-                    <div className="text-right border-r pr-6 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Status</p><span className="text-xs font-black text-[#0284C7] uppercase">{project.status}</span></div>
+                    
+                    <div className="text-right border-r pr-6 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Project CLassification</p><span className="text-[9px] font-black uppercase">{project.projectType} / <p className="text-[9px] font-black text-amber-600 uppercase">{project.category} / </p><p className="text-[9px] font-black text-sky-600 uppercase">{project.projectLevel} LEVEL PROJECT</p></span></div>
+                    <div className="text-right border-r pr-6 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Status</p><span className="text-xs font-black text-amber-600 uppercase">{project.status}</span></div>
+                    <div className="text-right border-r pr-6 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Agreement Date</p><span className="text-xs font-black text-[#0284C7] uppercase">{project.agreementDate}</span></div>
+                    {/* <div className="text-right border-r pr-6 border-slate-100"><p className="text-[9px] font-bold text-slate-400 uppercase">Project Start</p><span className="text-xs font-black text-[#0284C7] uppercase">{project.startDate}</span></div> */}
                     <div className="text-right border-l pl-6 border-slate-100">
-                        <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1"><AccessTime fontSize="small" /> Project Deadline</p>
+                        {/* <p className="text-[9px] font-bold text-slate-400 uppercase flex items-center justify-end gap-1"><AccessTime fontSize="small" /> Project Deadline</p> */}
+                        <div className="text-right"><p className="text-[9px] font-bold text-slate-400 uppercase">Project Timeline</p><span className="text-xs font-black text-slate-700" title='Start Date -> End Date'>{project.startDate || 'TBD'} &rarr; {project.endDate || 'TBD'}</span></div>
                         <div className="flex flex-col items-end">
-                            <span className={`text-sm font-black ${project.totalExtendedDays > 0 ? 'text-amber-600' : 'text-slate-700'}`}>{new Date(project.finalEndDate).toLocaleDateString()}</span>
+                        {project.totalExtendedDays > 0 && <span className={`text-sm font-black ${project.totalExtendedDays > 0 ? 'text-amber-600' : 'text-slate-700'}`}>{new Date(project.finalEndDate).toLocaleDateString()}</span>}
                             <div className="flex items-center gap-2 mt-1">
                                 {project.totalExtendedDays > 0 && <span className="text-[8px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100">+{project.totalExtendedDays} Days Extension</span>}
                                 {(() => {
@@ -344,15 +349,23 @@ const ProjectDetails = () => {
                             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center"><p className="text-[9px] font-bold text-slate-400 uppercase">Expenditure</p><p className="text-lg font-black text-[#0284C7]">{project.currencyType} {project.budgetUsed?.toLocaleString()}</p></div>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm"><div className="flex items-center gap-2 mb-2 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Info fontSize="small" /> Project Description</div><p className="text-xs text-slate-500 italic line-clamp-3">{project.description || 'N/A'}</p></div>
+                    <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><Info fontSize="small" /> Project Description</div>
+                        <p className="text-xs text-slate-500 italic line-clamp-3">{project.description || 'N/A'}</p>
+                        <div className="pt-4 border-t border-slate-50 space-y-2">
+                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Badge className="text-sky-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Project Team</p><p className="text-xs font-bold text-slate-700">{project.employeeNames}</p></div></div>
+                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Badge className="text-sky-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Project Client</p><p className="text-xs font-bold text-slate-700">{project.clientName}</p></div></div>
+                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Work className="text-amber-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Project Consultant</p><p className="text-xs font-bold text-slate-700">{project.consultantName}</p></div></div>
+                        </div>
+                    </div>
                 </div>
                 <div className="lg:col-span-4">
                     <div className="bg-white p-6 rounded-[24px] border border-slate-100 shadow-sm space-y-4 h-full text-center">
                         <div className="flex items-center justify-center gap-2 font-bold text-[10px] text-slate-400 uppercase tracking-widest"><TrendingUp fontSize="small" /> Implementation Progress</div>
                         <ProgressPie progress={project.projectProgress || 0} />
                         <div className="pt-4 border-t border-slate-50 space-y-2">
-                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Badge className="text-sky-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Manager</p><p className="text-xs font-bold text-slate-700">{project.projectManagerName}</p></div></div>
-                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Work className="text-amber-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Contractor</p><p className="text-xs font-bold text-slate-700">{project.contractorName}</p></div></div>
+                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Badge className="text-sky-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Project Manager</p><p className="text-xs font-bold text-slate-700">{project.projectManagerName}</p></div></div>
+                            <div className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-left"><Work className="text-amber-500" style={{ fontSize: 16 }} /><div><p className="text-[8px] font-bold text-slate-400 uppercase">Project Contractor</p><p className="text-xs font-bold text-slate-700">{project.contractorName}</p></div></div>
                         </div>
                     </div>
                 </div>
