@@ -98,6 +98,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createDivision("City Record Office", DivisionGroup.BTH, "City Office");
         createDivision("City Building Director Office", DivisionGroup.BLD, "City Office");
+        createDivision("City Construction Industry Competence Office", DivisionGroup.BTH, "City Office");
         createDivision("City Road, Water Supply and Irrigation Director Office", DivisionGroup.WAR, "City Office");
         createDivision("City Construction Industry Competence Director Office", DivisionGroup.BTH, "City Office");
         createDivision("Sub-City Office", DivisionGroup.BTH, "City Office");
