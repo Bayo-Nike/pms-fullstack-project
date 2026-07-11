@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.InspectionLevel;
+import et.scco.pms_backend.enums.InspectionStatus;
 import et.scco.pms_backend.enums.ProjectType;
 import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
@@ -31,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,10 +50,45 @@ public class InspectionServiceImpl implements InspectionService {
     private final FileStorageService fileStorageService;
     private final AuditLogService auditLogService;
 
+    // @Transactional(readOnly = true)
+    // @Override
+    // public Page<InspectionResponseDto> getAllInspections(String search, Long subCityId, Pageable pageable) {
+
+    //     Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+
+    //     if (employee == null) {
+    //         return inspectionRepository.findAll(pageable).map(this::mapToResponseDto);
+    //     }
+
+    //     SubCity restrictedSubCity = employee.getSubCity();
+    //     Division division = employee.getDivision();
+
+    //     if (division == null) {
+    //         return Page.empty(pageable);
+    //     }
+
+    //     DivisionGroup divisionGroup = division.getDivisionGroup();
+    //     Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+    //     ProjectType projectType = null;
+    //     if (divisionGroup.equals(DivisionGroup.BLD)) {
+    //         projectType = ProjectType.BUILDING;
+    //     } else if (!divisionGroup.equals(DivisionGroup.BTH)) {
+    //         projectType = ProjectType.WATER_AND_ROAD;
+    //     }
+
+    //     Page<Inspection> inspectionPage = inspectionRepository.findWithFilters(
+    //             projectType,
+    //             finalSubCityId,
+    //             search,
+    //             pageable);
+
+    //     return inspectionPage.map(this::mapToResponseDto);
+    // }
+
     @Transactional(readOnly = true)
     @Override
     public Page<InspectionResponseDto> getAllInspections(String search, Long subCityId, Pageable pageable) {
-
         Employee employee = employeeServiceImpl.findEmployeeWithDivision();
 
         if (employee == null) {
@@ -75,13 +112,39 @@ public class InspectionServiceImpl implements InspectionService {
             projectType = ProjectType.WATER_AND_ROAD;
         }
 
-        Page<Inspection> inspectionPage = inspectionRepository.findWithFilters(
+        // ADD THIS LOGIC:
+        List<InspectionStatus> allowedStatuses = new ArrayList<>();
+    
+        // 1. Role-based visibility
+        if (authContext.hasAnyRole("ROLE_CITY_TEAM_LEADER","ROLE_SUB-CITY_TEAM_LEADER")){
+            allowedStatuses.addAll(List.of(InspectionStatus.values()));
+        } 
+        else if (authContext.hasAnyRole("ROLE_CITY_DIRECTOR","ROLE_SUB-CITY_OFFICE_HEAD")){
+            allowedStatuses.add(InspectionStatus.APPROVED_BY_TL);
+            allowedStatuses.add(InspectionStatus.APPROVED_BY_DIRECTOR);
+        } 
+        else if (authContext.hasRole("ROLE_CITY_OFFICE_HEAD")) { // Matches your AuthContext name
+            allowedStatuses.add(InspectionStatus.APPROVED_BY_DIRECTOR);
+        }
+        // 2. Fallback for Site Engineer (The person creating the logs)
+        else {
+            allowedStatuses.add(InspectionStatus.SUBMITTED_BY_SE);
+            allowedStatuses.add(InspectionStatus.APPROVED_BY_TL);
+            allowedStatuses.add(InspectionStatus.APPROVED_BY_DIRECTOR);
+        }
+
+        // IMPORTANT: If no statuses are found, add a dummy to prevent SQL error
+        if (allowedStatuses.isEmpty()) {
+            allowedStatuses.add(InspectionStatus.SUBMITTED_BY_SE);
+        }
+
+        return inspectionRepository.findWithFilters(
                 projectType,
                 finalSubCityId,
                 search,
-                pageable);
-
-        return inspectionPage.map(this::mapToResponseDto);
+                allowedStatuses,
+                pageable
+        ).map(this::mapToResponseDto);
     }
 
     @Override
@@ -96,6 +159,7 @@ public class InspectionServiceImpl implements InspectionService {
     @Override
     public InspectionResponseDto createInspection(InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = new Inspection();
+        dto.setInspectionStatus(InspectionStatus.SUBMITTED_BY_SE); // Default start
         return getInspectionResponseDto(dto, files, inspection, true);
     }
 
@@ -104,7 +168,8 @@ public class InspectionServiceImpl implements InspectionService {
     public InspectionResponseDto updateInspection(Long id, InspectionRequestDto dto, List<MultipartFile> files) {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
-
+ 
+        dto.setInspectionStatus(InspectionStatus.SUBMITTED_BY_SE); // Default start
         return getInspectionResponseDto(dto, files, inspection, false);
     }
 
@@ -137,7 +202,7 @@ public class InspectionServiceImpl implements InspectionService {
             notificationService.sendNotification(
                     employee.getId(),
                     jurisdictionUtility.mySupervisor(),
-                    insName + " inspection updated by "+ employee.getFullName(),
+                    insName + " inspection submitted by "+ employee.getFullName(),
                     "/inspections"
             );
             auditLogService.auditLog("UPDATE", "Inspection "+ updated.getInspectionType().getName() +"Updated");
@@ -188,7 +253,7 @@ public class InspectionServiceImpl implements InspectionService {
             String who = which == 2 ? inspection.getCommentedBy2(): inspection.getCommentedBy1();
             notificationService.sendNotification(
                     empId,
-                    empId, who + "Has as added a comment to your inspection result",
+                    empId, who + " has added a comment to your "+inspection.getInspectionType().getName() +" inspection result for "+inspection.getProject().getTitle(),
                     "inspections"
             );
         }
@@ -216,6 +281,7 @@ public class InspectionServiceImpl implements InspectionService {
         inspection.setProject(project);
         inspection.setEmployee(employee);
         inspection.setInspectionLevel(dto.getInspectionLevel());
+        inspection.setInspectionStatus(dto.getInspectionStatus());
         inspection.setWeatherCondition(dto.getWeatherCondition());
         inspection.setInspectionDate(dto.getInspectionDate());
         inspection.setInspectionResult(dto.getInspectionResult());
@@ -238,6 +304,7 @@ public class InspectionServiceImpl implements InspectionService {
         dto.setInspectionTypeId(inspection.getInspectionType().getId());
         dto.setInspectionTypeName(inspection.getInspectionType().getName());
         dto.setInspectionLevel(inspection.getInspectionLevel());
+        dto.setInspectionStatus(inspection.getInspectionStatus());
         dto.setWeatherCondition(inspection.getWeatherCondition());
         dto.setProjectId(inspection.getProject().getId());
         dto.setProjectTitle(inspection.getProject().getTitle());
@@ -261,5 +328,18 @@ public class InspectionServiceImpl implements InspectionService {
         dto.setCommentedBy2(inspection.getCommentedBy2());
 
         return dto;
+    }
+
+    @Transactional
+    public InspectionResponseDto approveInspection(Long id) {
+        Inspection inspection = inspectionRepository.findById(id).orElseThrow();
+        
+        if (authContext.hasRole("ROLE_CITY_TEAM_LEADER") && inspection.getInspectionStatus() == InspectionStatus.SUBMITTED_BY_SE) {
+            inspection.setInspectionStatus(InspectionStatus.APPROVED_BY_TL);
+        } else if (authContext.hasRole("ROLE_CITY_DIRECTOR") && inspection.getInspectionStatus() == InspectionStatus.APPROVED_BY_TL) {
+            inspection.setInspectionStatus(InspectionStatus.APPROVED_BY_DIRECTOR);
+        }
+        
+        return mapToResponseDto(inspectionRepository.save(inspection));
     }
 }

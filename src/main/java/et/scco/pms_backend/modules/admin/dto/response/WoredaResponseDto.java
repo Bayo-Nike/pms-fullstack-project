@@ -9,6 +9,7 @@ public class WoredaResponseDto {
 
     private Long id;
     private String name;
+    private String description;
     private Long subCityId;
     private String subCityName;
 

@@ -1,7 +1,11 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectPhase;
+import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.model.Division;
+import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.Woreda;
@@ -9,6 +13,7 @@ import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.repository.WoredaRepository;
 import et.scco.pms_backend.modules.admin.service.AuditLogService;
+import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectInitiationRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectInitiationResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
@@ -35,6 +40,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
     private final WoredaRepository woredaRepository;
     private final LocationRepository locationRepository;
     private final AuditLogService auditLogService;
+    private final EmployeeServiceImpl employeeServiceImpl;
 
     @Override
     @Transactional
@@ -62,9 +68,26 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
     }
 
     @Override
-    public Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectPhase phase, Category category) {
+    public Page<ProjectInitiationResponseDTO> getInitiations(int page, int size, String search, ProjectPhase phase, Long subCityId, Category category) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Project> projects = projectRepository.findInitiations(phase, category, search, pageable);
+        
+        
+        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+        if (employee == null) return projectRepository.findAll(pageable).map(this::mapToResponseDTO);
+
+        SubCity restrictedSubCity = employee.getSubCity();
+        Division division = employee.getDivision();
+        if (division == null) return Page.empty(pageable);
+
+        DivisionGroup divisionGroup = division.getDivisionGroup();
+        
+        Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+        ProjectType projectType = null;
+        if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
+        else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
+        
+        Page<Project> projects = projectRepository.findInitiations(projectType, phase, category, search, finalSubCityId, pageable);
 
         return projects.map(this::mapToResponseDTO);
     }

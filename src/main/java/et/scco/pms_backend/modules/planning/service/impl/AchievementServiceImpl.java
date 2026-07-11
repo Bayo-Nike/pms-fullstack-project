@@ -89,7 +89,7 @@ public class AchievementServiceImpl {
             notificationServiceImpl.sendNotification(
                     authContext.getEmployee().getId(),
                     employee.getId(),
-                    userSubCity.getSubCityName() + " has been Submitted Color Coding Achievement to you",
+                    userSubCity.getSubCityName() + " Sub-city has been Submitted Color Coding Achievement to you",
                     "planning/ColorCodings/details/" + colorCoding.getId());
         }
     }

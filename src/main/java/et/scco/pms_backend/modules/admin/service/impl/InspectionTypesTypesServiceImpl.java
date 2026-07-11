@@ -5,7 +5,6 @@ import et.scco.pms_backend.modules.admin.dto.response.InspectionTypesResponseDto
 import et.scco.pms_backend.modules.admin.model.InspectionType;
 import et.scco.pms_backend.modules.admin.repository.InspectionTypesRepository;
 import et.scco.pms_backend.modules.admin.service.InspectionTypesService;
-import et.scco.pms_backend.utility.AuthContext;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +16,6 @@ import java.util.List;
 public class InspectionTypesTypesServiceImpl implements InspectionTypesService {
 
     private final InspectionTypesRepository repository;
-    private final AuthContext authContext;
 
     @Transactional
     @Override

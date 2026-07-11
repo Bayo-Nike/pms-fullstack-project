@@ -64,6 +64,6 @@ public String getSubCity(@RequestParam("id") Long id) {
 
     @DeleteMapping("/woreda/{id}")
     public void delete(@PathVariable Long id){
-        woredaService.getWoreda(id);
+        woredaService.deleteById(id);
     }
 }

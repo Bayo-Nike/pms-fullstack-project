@@ -9,7 +9,10 @@ public interface InspectionTypesService {
     boolean createInspection(InspectionTypesRequestDto dto);
 
     InspectionTypesResponseDto getInspection(Long id);
+
     void deleteInspection(Long id);
+
     InspectionTypesResponseDto updateInspection(Long id, InspectionTypesRequestDto dto);
+
     List<InspectionTypesResponseDto> getInspections();
 }

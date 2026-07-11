@@ -73,8 +73,7 @@ public class TaskController {
     public ApiResponse<TaskResponseDTO> updateTask(
             @PathVariable Long id,
             @RequestPart("data") CreateTaskRequestDTO dto,
-            @RequestPart(value = "supportDocument", required = false) MultipartFile file
-    ) {
+            @RequestPart(value = "supportDocument", required = false) MultipartFile file) {
         return ResponseUtil.success(
                 "Task updated successfully",
                 taskService.updateTask(id, dto,file)

@@ -26,6 +26,8 @@ public class Woreda {
 
     @Column(nullable = false)
     private String woredaName;
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subCity_id", nullable = false)

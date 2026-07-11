@@ -61,18 +61,18 @@ public class SystemDataInitializer implements ApplicationRunner {
                 .orElseThrow();
 
         List<String> names = List.of(
-                "Kura Jida",
-                "Laga Tafo",
-                "Burayu",
-                "Koye Fache",
-                "Galan",
-                "Furi",
-                "Galan Guda",
-                "Sabata",
-                "Malka Nono",
-                "Gafarsa Guje",
-                "Mana Abichu",
-                "Sululta"
+                "Kuraa Jiddaa",
+                "Laga Xaafoo",
+                "Buraayyuu",
+                "Kooyyee Faccee",
+                "Galaan",
+                "Furii",
+                "Galaan Guddaa",
+                "Sabbataa",
+                "Malkaa Noonnoo",
+                "Gafarsa Gujee",
+                "Mana Abbichuu",
+                "Sulultaa"
         );
 
         List<SubCity> subCities = names.stream()
@@ -304,12 +304,64 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "Sys Admin",
                 List.of(
                         new PermissionData("CAN_SEE_SYS_ADMIN", "See System Admin"),
+
                         new PermissionData("CAN_SEE_SUBCITY","See subcity"),
                         new PermissionData("CAN_CREATE_SUBCITY","create subcity"),
                         new PermissionData("CAN_EDIT_SUBCITY", "Edit subcity"),
+                        new PermissionData("CAN_DELETE_SUBCITY", "Delete Subcity"),
+
                         new PermissionData("CAN_SEE_WOREDA","See Woreda"),
                         new PermissionData("CAN_CREATE_WOREDA","Create Woreda"),
-                        new PermissionData("CAN_EDIT_WOREDA", "Edit Woreda")
+                        new PermissionData("CAN_EDIT_WOREDA", "Edit Woreda"),
+                        new PermissionData("CAN_DELETE_WOREDA", "Delete Woreda"),
+
+                        new PermissionData("CAN_SEE_DIVISION","See Division"),
+                        new PermissionData("CAN_CREATE_DIVISION","Create Division"),
+                        new PermissionData("CAN_EDIT_DIVISION", "Edit Division"),
+                        new PermissionData("CAN_DELETE_DIVISION", "Delete Division"),
+
+                        new PermissionData("CAN_SEE_POSITION","See Position"),
+                        new PermissionData("CAN_CREATE_POSITION","Create Position"),
+                        new PermissionData("CAN_EDIT_POSITION", "Edit Position"),
+                        new PermissionData("CAN_DELETE_POSITION", "Delete Position"),
+
+                        new PermissionData("CAN_SEE_SITE_LOCATION","See Site Location"),
+                        new PermissionData("CAN_CREATE_SITE_LOCATION","Create Site Location"),
+                        new PermissionData("CAN_EDIT_SITE_LOCATION", "Edit Site Location"),
+                        new PermissionData("CAN_DELETE_SITE_LOCATION", "Delete Site Location"),
+
+                        new PermissionData("CAN_SEE_INSPECTION_TYPE","See Inspection Type"),
+                        new PermissionData("CAN_CREATE_INSPECTION_TYPE","Create Inspection Type"),
+                        new PermissionData("CAN_EDIT_INSPECTION_TYPE", "Edit Inspection Type"),
+                        new PermissionData("CAN_DELETE_INSPECTION_TYPE", "Delete Inspection Type"),
+
+                        new PermissionData("CAN_SEE_TASK_TYPE","See Task Type"),
+                        new PermissionData("CAN_CREATE_TASK_TYPE","Create Task Type"),
+                        new PermissionData("CAN_EDIT_TASK_TYPE", "Edit Task Type"),
+                        new PermissionData("CAN_DELETE_TASK_TYPE", "Delete Task Type"),
+                        new PermissionData("CAN_VIEW_TASK_TYPE", "View Task Type Detail"),
+
+                        new PermissionData("CAN_SEE_EMPLOYEE","See Employee"),
+                        new PermissionData("CAN_CREATE_EMPLOYEE","Create Employee"),
+                        new PermissionData("CAN_EDIT_EMPLOYEE", "Edit Employee"),
+                        new PermissionData("CAN_DELETE_EMPLOYEE", "Delete Employee"),
+
+                        new PermissionData("CAN_SEE_ROLE_PERMISSION","See Role Permission"),
+                        new PermissionData("CAN_CREATE_ROLE_PERMISSION","Create Role Permission"),
+                        new PermissionData("CAN_EDIT_ROLE_PERMISSION", "Edit Role Permission"),
+                        new PermissionData("CAN_DELETE_ROLE_PERMISSION", "Delete Role Permission"),
+
+                        new PermissionData("CAN_SEE_USER_MGMT","See User Management"),
+                        new PermissionData("CAN_CREATE_USER_MGMT","Create User Management"),
+                        new PermissionData("CAN_EDIT_USER_MGMT", "Edit User Management"),
+                        new PermissionData("CAN_DELETE_USER_MGMT", "Delete User Management"),
+
+                        new PermissionData("CAN_SEE_MOBILE_APP","See Mobile Application"),
+                        new PermissionData("CAN_CREATE_MOBILE_APP","Create Mobile Application"),
+                        new PermissionData("CAN_EDIT_MOBILE_APP", "Edit Mobile Application"),
+                        new PermissionData("CAN_DELETE_MOBILE_APP", "Delete Mobile Application"),
+
+                        new PermissionData("CAN_SEE_AUDIT_LOG","See Audit Log File")
                         
                 )
         );

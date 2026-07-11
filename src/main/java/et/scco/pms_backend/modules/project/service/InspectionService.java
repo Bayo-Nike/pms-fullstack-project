@@ -27,4 +27,6 @@ public interface InspectionService {
     List<InspectionResponseDto> getInspectionsByProject(Long projectId);
 
     InspectionResponseDto commentInspection(Long inspectionId, String comment);
+
+    InspectionResponseDto approveInspection(Long id);
 }
