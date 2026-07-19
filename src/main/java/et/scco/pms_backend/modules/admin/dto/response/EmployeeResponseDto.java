@@ -22,4 +22,7 @@ public class EmployeeResponseDto {
     private String email;
     private int projectCount;
     private int taskCount;
+    private String employeeType;
+    private Long clientId;
+    private String clientName;
 }

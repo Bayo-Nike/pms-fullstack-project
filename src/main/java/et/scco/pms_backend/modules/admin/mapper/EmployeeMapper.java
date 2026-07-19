@@ -23,7 +23,12 @@ public class EmployeeMapper {
           employee.getStatus().toString(),
           employee.getEmail(),
           employee.getAssignedProjects() != null ? employee.getAssignedProjects().size(): 0,
-          employee.getTasks() != null ? employee.getTasks().size(): 0
+          employee.getTasks() != null ? employee.getTasks().size(): 0,
+           // FIX: Add null checks for Client fields
+           employee.getClient() != null ? employee.getClient().getClientName() : null,
+           employee.getClient() != null ? employee.getClient().getId() : null,
+           // FIX: Add null check for EmployeeType
+           employee.getEmployeeType() != null ? employee.getEmployeeType().toString() : null
         );
     }
 }

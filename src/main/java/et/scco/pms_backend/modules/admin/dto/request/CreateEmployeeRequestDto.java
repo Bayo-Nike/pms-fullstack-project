@@ -10,4 +10,6 @@ public class CreateEmployeeRequestDto {
     private Long positionId;
     private Long subCityId;
     private String status;
+    private String employeeType; // INTERNAL or EXTERNAL
+    private Long clientId;       // Required only if EXTERNAL
 }
