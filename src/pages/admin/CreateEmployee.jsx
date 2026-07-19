@@ -295,7 +295,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
     ArrowBack, Save, Badge, Work, Business,
     LocationOn, HelpOutline, Mail, ToggleOn,
-    LocationCity
+    LocationCity,People
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -312,7 +312,9 @@ export default function CreateEmployee() {
         divisionId: '',
         positionId: '',
         subCityId: '',
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        employeeType: 'INTERNAL', // Added to initial state
+        clientId: ''               // Added to initial state
     });
 
     // Master Data States
@@ -320,6 +322,7 @@ export default function CreateEmployee() {
     const [positions, setPositions] = useState([]); // Full list from API
     const [subCities, setSubCities] = useState([]);
     const [parentCityName, setParentCityName] = useState('...');
+    const [clients, setClients] = useState([]);
 
     // UI States
     const [loading, setLoading] = useState(true);
@@ -341,16 +344,23 @@ export default function CreateEmployee() {
     useEffect(() => {
         const loadInitialData = async () => {
             try {
-                const [divRes, posRes, subRes, cityRes] = await Promise.all([
+                const [divRes, posRes, subRes, cityRes, clientRes] = await Promise.all([
                     adminApi.GET_DIVISIONS(),
                     adminApi.GET_POSITIONS(),
                     adminApi.GET_SUB_CITIES(),
-                    adminApi.GET_CITY()
+                    adminApi.GET_CITY(),
+                    adminApi.GET_CLIENTS()
                 ]);
 
                 setDivisions(divRes.data || divRes);
                 setPositions(posRes.data || posRes);
                 setSubCities(subRes.data || subRes);
+                
+                 // DEFENSIVE CHECK: Handle different API response structures
+                 const rawClients = clientRes?.data || clientRes;
+                 // If your API uses pagination, it might be in rawClients.content
+                 const clientList = Array.isArray(rawClients) ? rawClients : (rawClients?.content || []);
+                 setClients(clientList);
 
                 const cityNameValue = cityRes.data !== undefined ? cityRes.data : cityRes;
                 setParentCityName(cityNameValue || "Main Municipality");
@@ -364,7 +374,9 @@ export default function CreateEmployee() {
                         divisionId: e.divisionId || '',
                         positionId: e.positionId || '',
                         subCityId: e.subCityId || '',
-                        status: e.status || 'ACTIVE'
+                        status: e.status || 'ACTIVE',
+                        employeeType: 'INTERNAL', // Default
+                        clientId: e.clientId || ''
                     });
                 }
             } catch (err) {
@@ -413,6 +425,8 @@ export default function CreateEmployee() {
                 divisionId: Number(formData.divisionId),
                 positionId: Number(formData.positionId),
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
+                clientId: formData.employeeType === 'EXTERNAL' ? Number(formData.clientId) : null,
+                employeeType: formData.employeeType,
                 status: formData.status
             };
 
@@ -474,6 +488,45 @@ export default function CreateEmployee() {
                     <div className="p-4 border-b border-slate-50 bg-slate-50/30 flex items-center gap-2">
                         <Badge className="text-slate-400" fontSize="small" />
                         <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Identification</span>
+                    </div>
+
+                    <div className="p-6 space-y-5">
+                        {/* Employee Type Selection */}
+                        <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Employee Type</label>
+                        <div className="flex gap-4 p-1 bg-slate-100 rounded-xl mb-2">
+                        
+                            <button 
+                                onClick={() => setFormData({...formData, employeeType: 'INTERNAL', clientId: ''})}
+                                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${formData.employeeType === 'INTERNAL' ? 'bg-white shadow-sm text-[#0284C7]' : 'text-slate-500'}`}
+                            >
+                                INTERNAL STAFF
+                            </button>
+                            <button 
+                                onClick={() => setFormData({...formData, employeeType: 'EXTERNAL'})}
+                                className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${formData.employeeType === 'EXTERNAL' ? 'bg-white shadow-sm text-[#0284C7]' : 'text-slate-500'}`}
+                            >
+                                EXTERNAL CLIENT
+                            </button>
+                        </div>
+
+                        {/* Conditional Client Dropdown */}
+                        {formData.employeeType === 'EXTERNAL' && (
+                            <div className="animate-slideDown">
+                                <label className="text-[9px] font-bold uppercase text-red-500 tracking-[0.2em] ml-1">Assigned Client Organization</label>
+                                <select 
+                                    name="clientId" 
+                                    value={formData.clientId} 
+                                    onChange={handleInputChange} 
+                                    className="w-full text-sm font-semibold bg-orange-50 border border-orange-100 rounded-xl px-4 py-3 outline-none focus:border-orange-400"
+                                >
+                                    <option value="">-- Select Client --</option>
+                                    {/* FIXED: Added safety check for mapping */}
+                                    {Array.isArray(clients) && clients.map(c => (
+                                        <option key={c.id} value={c.id}>{c.clientName}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
                     <div className="p-6 space-y-5">
                         <div>

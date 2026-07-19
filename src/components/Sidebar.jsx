@@ -30,6 +30,16 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/my-reportees', name: 'My Reportees', permission: 'CAN_SEE_MY_REPORTEES' }
       ]
     },
+
+    {
+      id: 'demands',
+      name: 'Demands',
+      icon: <Assignment />,
+      children: [
+        { path: '/initiations', name: 'Demand Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' },
+        { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
+      ]
+    },
     {
       id: 'projects',
       name: 'Projects',
