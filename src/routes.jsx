@@ -57,6 +57,8 @@ import { Edit } from 'lucide-react';
 import EditProject from './pages/project/EditProject';
 import CreateWoreda from './pages/admin/CreateWoreda';
 import Woredas from './pages/admin/Woredas';
+import DemandInitiations from './pages/demand/DemandInitiations';
+import CreateDemandInitiation from './pages/demand/CreateDemandInitiation';
 
 
 export default function AppRoutes() {
@@ -77,7 +79,16 @@ export default function AppRoutes() {
         <Route path="org-structure" element={protect(<OrgStructure />, "CAN_SEE_ORG_STRUCTURE")} />
         <Route path="my-reportees" element={protect(<Reportees />, "CAN_SEE_MY_REPORTEES")} />
 
-        {/* 2. Projects */}
+
+        {/* 2. demands */}
+        {/* CAN_DELETE_PROJECT_INITIATION */}
+        <Route path='demands' element={protect(<DemandInitiations />, "CAN_SEE_PROJECT_INITIATION")} />
+        <Route path='demands/create' element={protect(<CreateDemandInitiation />, "CAN_CREATE_PROJECT_INITIATION")} />
+        <Route path='demands/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_EDIT_PROJECT_INITIATION")} />
+        <Route path='demands/view/:id' element={protect(<ProjectInitiationDetails />, "CAN_VIEW_PROJECT_INITIATION_DETAILS")} />
+        
+
+        {/* 3. Projects */}
         {/* CAN_DELETE_PROJECT_INITIATION */}
         <Route path='initiations' element={protect(<ProjectInitiations />, "CAN_SEE_PROJECT_INITIATION")} />
         <Route path='initiations/create' element={protect(<CreateProjectInitiation />, "CAN_CREATE_PROJECT_INITIATION")} />

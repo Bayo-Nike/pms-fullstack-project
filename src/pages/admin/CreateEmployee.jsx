@@ -404,11 +404,31 @@ export default function CreateEmployee() {
     };
 
     const handleSaveTrigger = () => {
-        const { fullName, email, divisionId, positionId, status } = formData;
+        // const { fullName, email, divisionId, positionId, status } = formData;
 
-        if (!fullName.trim() || !email.trim() || !divisionId || !positionId || !status) {
-            showAlert('error', 'Validation Failed: All fields are mandatory except Subcity.');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        // if (!fullName.trim() || !email.trim() || !divisionId || !positionId || !status) {
+        //     showAlert('error', 'Validation Failed: All fields are mandatory except Subcity.');
+        //     window.scrollTo({ top: 0, behavior: 'smooth' });
+        //     return;
+        // }
+
+        const { fullName, email, divisionId, positionId, status, employeeType, clientId } = formData;
+
+        // 1. Mandatory for everyone
+        if (!fullName.trim() || !email.trim() || !status) {
+            showAlert('error', 'Validation Failed: Full Name, Email and Status are mandatory.');
+            return;
+        }
+
+        // 2. Mandatory only for INTERNAL
+        if (employeeType === 'INTERNAL' && (!divisionId || !positionId)) {
+            showAlert('error', 'Validation Failed: Division and Position are mandatory for Internal Staff.');
+            return;
+        }
+
+        // 3. Mandatory only for EXTERNAL
+        if (employeeType === 'EXTERNAL' && !clientId) {
+            showAlert('error', 'Validation Failed: Please select a Client for External employees.');
             return;
         }
 
@@ -419,13 +439,26 @@ export default function CreateEmployee() {
         setShowConfirm(false);
         setSaving(true);
         try {
+            // const payload = {
+            //     fullName: formData.fullName.trim(),
+            //     email: formData.email.trim(),
+            //     divisionId: Number(formData.divisionId),
+            //     positionId: Number(formData.positionId),
+            //     subCityId: formData.subCityId ? Number(formData.subCityId) : null,
+            //     clientId: formData.employeeType === 'EXTERNAL' ? Number(formData.clientId) : null,
+            //     employeeType: formData.employeeType,
+            //     status: formData.status
+            // };
+            const isExternal = formData.employeeType === 'EXTERNAL';
+            
             const payload = {
                 fullName: formData.fullName.trim(),
                 email: formData.email.trim(),
-                divisionId: Number(formData.divisionId),
-                positionId: Number(formData.positionId),
+                // Send null for Division/Position if External
+                divisionId: isExternal ? null : (formData.divisionId ? Number(formData.divisionId) : null),
+                positionId: isExternal ? null : (formData.positionId ? Number(formData.positionId) : null),
                 subCityId: formData.subCityId ? Number(formData.subCityId) : null,
-                clientId: formData.employeeType === 'EXTERNAL' ? Number(formData.clientId) : null,
+                clientId: isExternal ? Number(formData.clientId) : null,
                 employeeType: formData.employeeType,
                 status: formData.status
             };
@@ -558,26 +591,39 @@ export default function CreateEmployee() {
                         <span className="text-[10px] font-bold uppercase text-slate-500 tracking-widest">Job Assignment</span>
                     </div>
                     <div className="p-6 space-y-5">
-                        <div>
-                            <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Division</label>
-                            <select name="divisionId" value={formData.divisionId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7]">
-                                <option value="">-- Select Division --</option>
-                                {divisions.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className={`text-[9px] font-bold uppercase tracking-[0.2em] ml-1 ${!formData.divisionId ? 'text-slate-300' : 'text-slate-400'}`}>Position</label>
-                            <select
-                                name="positionId"
-                                value={formData.positionId}
-                                onChange={handleInputChange}
-                                disabled={!formData.divisionId}
-                                className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] disabled:opacity-50"
-                            >
-                                <option value="">{formData.divisionId ? '-- Select Position --' : 'Please select a Division first'}</option>
-                                {filteredPositions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </select>
-                        </div>
+                        
+                        
+                        {/* Conditional Rendering for Division and Position */}
+                        {formData.employeeType === 'INTERNAL' ? (
+                            <>
+                                <div>
+                                    <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Division</label>
+                                    <select name="divisionId" value={formData.divisionId} onChange={handleInputChange} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7]">
+                                        <option value="">-- Select Division --</option>
+                                        {divisions.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className={`text-[9px] font-bold uppercase tracking-[0.2em] ml-1 ${!formData.divisionId ? 'text-slate-300' : 'text-slate-400'}`}>Position</label>
+                                    <select
+                                        name="positionId"
+                                        value={formData.positionId}
+                                        onChange={handleInputChange}
+                                        disabled={!formData.divisionId}
+                                        className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-[#0284C7] disabled:opacity-50"
+                                    >
+                                        <option value="">{formData.divisionId ? '-- Select Position --' : 'Please select a Division first'}</option>
+                                        {filteredPositions.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                                    </select>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="py-10 text-center border-2 border-dashed border-slate-100 rounded-2xl">
+                                <People className="mx-auto text-slate-200 mb-2" style={{ fontSize: 40 }} />
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Organizational mapping is handled<br/>via Client Association</p>
+                            </div>
+                        )}
+
                         <div>
                             <label className="text-[9px] font-bold uppercase text-slate-400 tracking-[0.2em] ml-1">Work Location</label>
                             <div className="flex gap-2">

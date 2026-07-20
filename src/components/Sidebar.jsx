@@ -36,10 +36,10 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Demands',
       icon: <Assignment />,
       children: [
-        { path: '/initiations', name: 'Demand Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' },
-        { path: '/projects', name: 'Project List', permission: 'CAN_SEE_PROJECT_LIST' },
+        { path: '/demands', name: 'Demand Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' }
       ]
     },
+    
     {
       id: 'projects',
       name: 'Projects',
