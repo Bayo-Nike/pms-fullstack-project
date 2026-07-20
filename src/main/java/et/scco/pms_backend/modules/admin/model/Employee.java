@@ -29,11 +29,11 @@ public class Employee {
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "division_id", nullable = false)
+    @JoinColumn(name = "division_id", nullable = true)
     private Division division;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id", nullable = false)
+    @JoinColumn(name = "position_id", nullable = true)
     private Position position;
 
     @ManyToOne(fetch = FetchType.LAZY)
