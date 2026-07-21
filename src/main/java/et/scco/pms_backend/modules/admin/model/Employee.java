@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.admin.model;
 
 import et.scco.pms_backend.enums.EmployeeStatus;
+import et.scco.pms_backend.enums.EmployeeType;
 import et.scco.pms_backend.modules.planning.model.ColorCodingDetails;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.task.model.Task;
@@ -28,11 +29,11 @@ public class Employee {
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "division_id", nullable = false)
+    @JoinColumn(name = "division_id", nullable = true)
     private Division division;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id", nullable = false)
+    @JoinColumn(name = "position_id", nullable = true)
     private Position position;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,6 +47,14 @@ public class Employee {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EmployeeStatus status = EmployeeStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "employee_type", nullable = false, columnDefinition = "nvarchar(255) default 'INTERNAL'")
+    private EmployeeType employeeType = EmployeeType.INTERNAL;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id") // Nullable: only filled if employeeType is EXTERNAL
+    private Client client;
 
     @ManyToMany(mappedBy = "employees")
     private List<Project> assignedProjects = new ArrayList<>();
