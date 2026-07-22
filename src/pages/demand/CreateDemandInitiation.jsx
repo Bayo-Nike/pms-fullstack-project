@@ -1,360 +1,273 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-    ArrowBack, Save, Info, LocationOn, PinDrop,
-    Close, AssignmentTurnedIn, HelpOutline, CalendarMonth, Visibility
+    ArrowBack, Save, Info, LocationOn, 
+    Close, Search, Add, CloudUpload, Delete
 } from '@mui/icons-material';
-import projectApi from '../../api/modules/project';
+import { 
+    Building2, Briefcase, Map, 
+    AlertCircle, CheckCircle2, 
+    User
+} from 'lucide-react';
+import demandApi from '../../api/modules/demand';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 
 export default function CreateDemandInitiation() {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { id } = useParams();
 
-    const isEdit = Boolean(id) && location.pathname.includes('/edit');
-    const isView = Boolean(id) && location.pathname.includes('/view');
-
+    // 1. Form State
     const [formData, setFormData] = useState({
-        projectCode: '', title: '', description: '', projectType: 'BUILDING',
-        category: 'GOVERNMENT', projectLevel: 'CITY', subCityId: '', woredaIds: [],
-        locationIds: [], phase: 'INITIATION', agreementDate: '', startDate: '', endDate: ''
+        title: '',
+        description: '',
+        category: 'GOVERNMENT',
+        demandType: 'BUILDING', // or 'WATER_AND_ROAD'
+        demandLevel: 'CITY',
+        subCityId: '',
+        woredaId: '',
+        siteLocation: '',
+        contractorId: '',
+        consultancyId: '',
+        clientId: 1,      
+        phase: 'INITIATION'
     });
 
-    const [lookups, setLookups] = useState({ subCities: [], woredas: [],  locations: [] });
+    // 2. Lookups & Files
+    const [files, setFiles] = useState([]);
+    const [lookups, setLookups] = useState({ 
+        subCities: [], woredas: [], contractors: [], consultancies: [] 
+    });
+    
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [showConfirm, setShowConfirm] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
 
+    // 3. Search & UI States
+    const [contractorSearch, setContractorSearch] = useState('');
+    const [isContractorDropdownOpen, setIsContractorDropdownOpen] = useState(false);
+    const [consultantSearch, setConsultantSearch] = useState('');
+    const [isConsultantDropdownOpen, setIsConsultantDropdownOpen] = useState(false);
+
+    const contractorRef = useRef(null);
+    const consultantRef = useRef(null);
+
+    // 4. Load Data
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, woredaRes, locRes] = await Promise.all([
-                    adminApi.GET_SUB_CITIES(), adminApi.GET_WOREDAS(), adminApi.GET_LOCATIONS()
+                const [subRes, woredaRes, contRes, consRes] = await Promise.all([
+                    adminApi.GET_SUB_CITIES(),
+                    adminApi.GET_WOREDAS(),
+                    adminApi.GET_CONTRACTORS(),
+                    adminApi.GET_CONSULTANTS()
                 ]);
                 setLookups({
                     subCities: subRes.data?.data || subRes.data || [],
                     woredas: woredaRes.data?.data || woredaRes.data || [],
-                    locations: locRes.data?.data || locRes.data || []
+                    contractors: contRes.data?.data || contRes.data || [],
+                    consultancies: consRes.data?.data || consRes.data || []
                 });
-
-                if (id) {
-                    const res = await projectApi.GET_PROJECT_INITIATION(id);
-                    const d = res.data?.data || res.data;
-                    setFormData({
-                        ...d,
-                        category: d.category || 'GOVERNMENT',
-                        subCityId: d.subCityId ? String(d.subCityId) : '',
-                        woredaIds: d.woredaId ? [Number(d.woredaId)] : (d.woredaIds ? d.woredaIds.map(Number) : []),
-                        locationIds: Array.isArray(d.locationIds) ? d.locationIds.map(Number) : [],
-                        phase: d.phase || 'INITIATION',
-                        agreementDate: d.agreementDate || '',
-                        startDate: d.startDate || '',
-                        endDate: d.endDate || ''
-                    });
-                }
-            } catch (err) { setAlert({ show: true, type: 'error', message: 'Registry sync failed.' }); }
-            finally { setLoading(false); }
+            } catch (err) {
+                setAlert({ show: true, type: 'error', message: 'Registry sync failed.' });
+            } finally { setLoading(false); }
         };
         init();
-    }, [id]);
+    }, []);
 
-     
+    // 5. Close dropdowns on outside click
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (contractorRef.current && !contractorRef.current.contains(event.target)) setIsContractorDropdownOpen(false);
+            if (consultantRef.current && !consultantRef.current.contains(event.target)) setIsConsultantDropdownOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // 6. Search Filtering
+    const contractorOptions = useMemo(() => {
+        if (!contractorSearch) return lookups.contractors;
+        return lookups.contractors.filter(c => c.contractorName?.toLowerCase().includes(contractorSearch.toLowerCase()));
+    }, [lookups.contractors, contractorSearch]);
+
+    const consultantOptions = useMemo(() => {
+        if (!consultantSearch) return lookups.consultancies;
+        return lookups.consultancies.filter(c => c.consultantName?.toLowerCase().includes(consultantSearch.toLowerCase()));
+    }, [lookups.consultancies, consultantSearch]);
+
+    const filteredWoredas = useMemo(() => 
+        lookups.woredas.filter(w => String(w.subCityId) === String(formData.subCityId)), 
+    [formData.subCityId, lookups.woredas]);
+
+    // 7. Actions
     const handleInputChange = (e) => {
-        if (isView) return;
         const { name, value } = e.target;
-        setFormData(prev => {
-            const update = { ...prev, [name]: value };
-            // Cascading Reset: If Sub-City changes, Woredas and Locations must clear
-            if (name === 'subCityId') {
-                update.woredaIds = [];
-                update.locationIds = [];
-            }
-            return update;
-        });
+        setFormData(p => ({ ...p, [name]: value, ...(name === 'subCityId' && { woredaId: '' }) }));
     };
 
-     
-    // 1. Filter Woredas by Sub-City
-    const filteredWoredas = useMemo(() => {
-        if (!formData.subCityId) return [];
-        return lookups.woredas.filter(w => 
-            String(w.subCityId) === String(formData.subCityId) || 
-            String(w.subCity?.id) === String(formData.subCityId)
-        );
-    }, [formData.subCityId, lookups.woredas]);
-
-    // 2. Filter Locations by the list of selected Woredas
-    const filteredLocations = useMemo(() => {
-        if (formData.woredaIds.length === 0) return [];
-        return lookups.locations.filter(loc => 
-            formData.woredaIds.includes(Number(loc.woredaId)) || 
-            formData.woredaIds.includes(Number(loc.woreda?.id))
-        );
-    }, [formData.woredaIds, lookups.locations]);
-    
     const executeSave = async () => {
-        // 1. Level Validation
-        if (formData.projectLevel === 'SUB_CITY' && !formData.subCityId) {
-            setShowConfirm(false);
-            return setAlert({ show: true, type: 'error', message: 'Sub-City assignment required for Sub-City level.' });
+        // STRICT VALIDATION
+        if (!formData.title || !formData.subCityId) {
+            return setAlert({ show: true, type: 'error', message: 'Project Title and Sub-City are required.' });
         }
-
-        // 2. Data Validation for EXECUTION Phase (Mandatory Agreement, Start and End dates)
-        if (formData.phase === 'EXECUTION') {
-            if (!formData.agreementDate || !formData.startDate || !formData.endDate) {
-                setShowConfirm(false);
-                return setAlert({ show: true, type: 'error', message: 'Agreement Date, Launch Date, and Deadline are mandatory for EXECUTION phase.' });
-            }
-
-            // Logic: Start Date <= End Date
-            const start = new Date(formData.startDate);
-            const end = new Date(formData.endDate);
-            if (start > end) {
-                setShowConfirm(false);
-                return setAlert({ show: true, type: 'error', message: 'Launch Date cannot be later than the Handover Deadline.' });
-            }
+        if (!formData.contractorId || !formData.consultancyId) {
+            return setAlert({ show: true, type: 'error', message: 'Strict Selection Required: Please select a Contractor and Consultant from the system list.' });
         }
 
         setSaving(true);
-        setShowConfirm(false);
         try {
-            const payload = {
-                ...formData,
-                subCityId: formData.subCityId ? Number(formData.subCityId) : null,
-                
-                // CHANGED AREA: Map array back to singular woredaId for backend
-                woredaId: formData.woredaIds.length > 0 ? Number(formData.woredaIds[0]) : null,
-                locationIds: formData.locationIds.map(Number),
-                agreementDate: formData.phase === 'EXECUTION' ? formData.agreementDate : null,
-                startDate: formData.phase === 'EXECUTION' ? formData.startDate : null,
-                endDate: formData.phase === 'EXECUTION' ? formData.endDate : null
-            };
+            const data = new FormData();
+            data.append('demand', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+            files.forEach(file => data.append('files', file));
 
-            if (isEdit) await projectApi.UPDATE_PROJECT_INITIATION(id, payload);
-            else await projectApi.CREATE_PROJECT_INITIATION(payload);
-
-            setAlert({ show: true, type: 'success', message: 'Initiation Record Successfully Submitted.' });
-            setTimeout(() => navigate('/initiations'), 1500);
-        } catch (err) { setAlert({ show: true, type: 'error', message: 'Transaction rejected.' }); }
-        finally { setSaving(false); }
+            await demandApi.CREATE_DEMAND(data);
+            setAlert({ show: true, type: 'success', message: 'Demand successfully submitted.' });
+            setTimeout(() => navigate('/demands'), 2000);
+        } catch (err) {
+            setAlert({ show: true, type: 'error', message: 'Transaction failed.' });
+        } finally { setSaving(false); }
     };
 
-    if (loading) return <div className="p-20 text-center italic animate-pulse text-slate-400 text-xs tracking-widest uppercase font-black">Syncing Parameters...</div>;
+    if (loading) return <div className="p-20 text-center font-black text-slate-300 animate-pulse uppercase text-xs">Loading PMS Registries...</div>;
 
     return (
-        <div className="w-full space-y-8 pb-12 px-6 animate-fadeIn">
-            <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
+        <div className="w-full space-y-6 pb-12 px-6 bg-[#F8FAFC] animate-fadeIn">
+            <AlertMessage show={alert.show} type={alert.type} message={alert.message} />
 
-            {showConfirm && !isView && (
-                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
-                    <div className="bg-white rounded-[40px] shadow-2xl p-10 max-w-sm w-full text-center border animate-scaleIn">
-                        <HelpOutline className="text-[#0284C7] mb-6 mx-auto" style={{ fontSize: 64 }} />
-                        <h3 className="text-xl font-black uppercase tracking-tight">Registry Update</h3>
-                        <p className="text-sm text-slate-500 mt-3 leading-relaxed">Commit initiation record <b>{formData.title || 'New Entry'}</b>?</p>
-                        <div className="flex gap-4 mt-10">
-                            <button onClick={() => setShowConfirm(false)} className="flex-1 px-4 py-3 rounded-2xl border text-[11px] font-black uppercase hover:bg-slate-50 transition-all">Cancel</button>
-                            <button onClick={executeSave} className="flex-1 px-4 py-3 bg-[#0284C7] text-white font-black text-[11px] uppercase shadow-lg hover:bg-sky-700 transition-all">Confirm</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
+            {/* Header */}
             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-5">
-                    <button onClick={() => navigate('/demands')} className="p-3 bg-slate-50 border border-slate-200 rounded-[20px] hover:bg-slate-100 transition-colors"><ArrowBack fontSize="small" /></button>
+                    <button onClick={() => navigate(-1)} className="p-3 bg-slate-50 border rounded-[20px] hover:bg-slate-100"><ArrowBack fontSize="small" /></button>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none">
-                            {isView ? 'View Initiation' : isEdit ? 'Modify Initiation' : 'Demand Initiation'}
-                        </h1>
-                        <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-widest italic tracking-[0.2em]">
-                            {isView ? 'Read-Only Mode' : 'Registry Form'}
-                        </p>
+                        <h1 className="text-2xl font-black text-slate-900 leading-none">DEMAND INITIATION</h1>
+                        <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-[0.2em]">Registry Intake Form</p>
                     </div>
                 </div>
-                {!isView && (
-                    <button onClick={() => setShowConfirm(true)} disabled={saving} className="bg-[#0284C7] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-[#0369a1] transition-all">
-                        <Save /> {saving ? 'PROCESSING...' : 'SAVE INITIATION'}
-                    </button>
-                )}
-                {isView && (
-                    <button onClick={() => navigate(`/initiations/edit/${id}`)} className="bg-[#FBAF1E] text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl tracking-widest hover:bg-amber-600 transition-all">
-                        Edit Mode
-                    </button>
-                )}
+                <button onClick={executeSave} disabled={saving} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
+                    <Save /> {saving ? 'SUBMITTING...' : 'SUBMIT DEMAND'}
+                </button>
             </div>
 
-            <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${isView ? 'opacity-90' : ''}`}>
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                    <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><Info className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Identification</span></div>
-                    <div className="p-8 space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Demand Code</label>
-                                <input name="projectCode" value={formData.projectCode || ""} placeholder="AUTO-GEN" disabled className="w-full text-sm font-bold bg-slate-100 border border-slate-200 rounded-2xl px-4 py-3.5 text-slate-500 cursor-not-allowed" />
-                            </div>
-                            <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</label>
-                                <select name="category" value={formData.category} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
-                                    <option value="GOVERNMENT">Government</option>
-                                    <option value="NON_GOVERNMENT">Non-Government</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Type</label>
-                            <select name="projectType" value={formData.projectType} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
-                                <option value="BUILDING">Building</option>
-                                <option value="WATER_AND_ROAD">Water & Road</option>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* PART 1: IDENTITY */}
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
+                    <div className="flex items-center gap-3 border-b pb-4"><Info className="text-slate-400" size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Identification</span></div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Category</label>
+                            <select name="category" value={formData.category} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
+                                <option value="GOVERNMENT">Government</option><option value="NON_GOVERNMENT">Non-Government</option>
                             </select>
                         </div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Initiation Title *</label><input name="title" value={formData.title} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>
-                        <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Description</label><textarea name="description" value={formData.description} onChange={handleInputChange} disabled={isView} rows="4" className="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea></div>
-                    </div>
-                </div>
-
-                <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-                    <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3"><LocationOn className="text-slate-400" fontSize="small" /><span className="text-[12px] font-bold uppercase text-slate-500 tracking-widest">Hub Assignment</span></div>
-                    <div className="p-8 space-y-6 flex-1">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Level</label>
-                            <select name="projectLevel" value={formData.projectLevel} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
-                                <option value="CITY">City Hub (HQ)</option>
-                                <option value="SUB_CITY">Sub-City Hub (Region)</option>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Type</label>
+                            <select name="demandType" value={formData.demandType} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
+                                <option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option>
                             </select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Sub-City {formData.projectLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
-                            <select
-                                name="subCityId" value={formData.subCityId} onChange={handleInputChange} disabled={isView}
-                                className={`w-full text-sm font-semibold bg-slate-50 border rounded-2xl px-4 py-3.5 outline-none appearance-none cursor-pointer ${formData.projectLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300' : 'border-slate-200'}`}
-                            >
-                                <option value="">-- Select Sub-City --</option>
-                                {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
-                            </select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Woreda</label>
-                            <div className="relative">
-                                <PinDrop className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
-                                <select
-                                    disabled={!formData.subCityId || isView}
-                                    onChange={(e) => { 
-                                        const v = Number(e.target.value); 
-                                        // CHANGED AREA: Ensure only ONE woreda is selected (replace array instead of push)
-                                        if (v) setFormData(p => ({ ...p, woredaIds: [v] })); 
-                                    }}
-                                    className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
-                                >
-                                    <option value="">{formData.subCityId ? '-- Select Woreda --' : 'Select Sub-City First'}</option>
-                                    {filteredWoredas.map(w => (
-                                        <option key={w.id} value={w.id}>{w.woredaName || w.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex flex-wrap gap-2 pt-2">
-                                {formData.woredaIds.map(worId => {
-                                    const wor = lookups.woredas.find(w => w.id === worId);
-                                    return wor ? (
-                                        <div key={worId} className="flex items-center gap-2 bg-slate-800 text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest">
-                                            {wor.woredaName || wor.name}
-                                            {!isView && <Close onClick={() => setFormData(p => {
-                                                const newWoredaIds = p.woredaIds.filter(i => i !== worId);
-                                                // When removing a woreda, we should also remove its associated locations
-                                                const newLocationIds = p.locationIds.filter(locId => {
-                                                    const loc = lookups.locations.find(l => l.id === locId);
-                                                    return Number(loc?.woredaId) !== worId;
-                                                });
-                                                return { ...p, woredaIds: newWoredaIds, locationIds: newLocationIds };
-                                            })} className="cursor-pointer hover:text-rose-400" style={{ fontSize: 14 }} />}
-                                        </div>
-                                    ) : null;
-                                })}
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-bold uppercase ml-1 text-slate-400 tracking-widest">Sites / Locations (Multiple)</label>
-                            <div className="relative">
-                                <LocationOn className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 22 }} />
-                                <select
-                                    disabled={formData.woredaIds.length === 0 || isView}
-                                    onChange={(e) => { 
-                                        const v = Number(e.target.value); 
-                                        if (v && !formData.locationIds.includes(v)) {
-                                            setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); 
-                                        }
-                                    }}
-                                    className="w-full pl-12 pr-4 py-3.5 text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50"
-                                >
-                                    <option value="">{formData.woredaIds.length > 0 ? '-- Select Site --' : '-- Select Woreda First --'}</option>
-                                    {filteredLocations.filter(l => !formData.locationIds.includes(l.id)).map(l => (
-                                        <option key={l.id} value={l.id}>{l.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="flex flex-wrap gap-2 pt-2">
-                                {formData.locationIds.map(locId => {
-                                    const loc = lookups.locations.find(l => l.id === locId);
-                                    return loc ? (
-                                        <div key={locId} className="flex items-center gap-2 bg-sky-700 text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest">
-                                            {loc.name}
-                                            {!isView && <Close onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} className="cursor-pointer hover:text-rose-400" style={{ fontSize: 14 }} />}
-                                        </div>
-                                    ) : null;
-                                })}
-                            </div>
                         </div>
                     </div>
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Demand Title *</label>
+                        <input name="title" value={formData.title} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-sky-500" />
+                    </div>
+                    <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Description</label><textarea name="description" value={formData.description} onChange={handleInputChange}  rows="4" className="w-full text-sm bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7] resize-none"></textarea>
+                    </div>
+                
                 </div>
-            </div>
+
+                {/* PART 2: STRICT SELECTION (PARTNERS) */}
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-8">
+                    <div className="flex items-center gap-3 border-b pb-4"><User className="text-slate-400" size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Stakeholders Selection</span></div>
                     
-
-            <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-8 flex flex-col gap-8 transition-all">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-sky-50 rounded-2xl text-[#0284C7]"><AssignmentTurnedIn /></div>
-                        <div>
-                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Registry phase</h3>
-                            <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Current lifecycle phase</p>
-                        </div>
+                    {/* STRICT CONTRACTOR */}
+                    <div className="space-y-3" ref={contractorRef}>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contractor *</label>
+                        {!formData.contractorId ? (
+                            <div className="relative">
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input type="text" placeholder="Type to search contractor..." className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" value={contractorSearch} onFocus={() => setIsContractorDropdownOpen(true)} onChange={(e) => setContractorSearch(e.target.value)} />
+                                {isContractorDropdownOpen && (
+                                    <div className="absolute z-50 w-full mt-2 bg-white border rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
+                                        {contractorOptions.length > 0 ? contractorOptions.map(c => (
+                                            <div key={c.id} onClick={() => { setFormData(p => ({ ...p, contractorId: String(c.id) })); setContractorSearch(''); setIsContractorDropdownOpen(false); }} className="px-5 py-3 hover:bg-sky-50 cursor-pointer flex justify-between items-center border-b last:border-none">
+                                                <span className="text-xs font-bold text-slate-700">{c.contractorName}</span><Add size={16} className="text-sky-500" />
+                                            </div>
+                                        )) : <div className="p-5 text-center text-[10px] font-bold text-rose-500 uppercase">Contractor Not found in registry</div>}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between bg-sky-900 text-white p-4 rounded-2xl animate-scaleIn">
+                                <div className="flex items-center gap-3"><Building2 size={18} className="text-sky-400" /><div><p className="text-[10px] font-black uppercase leading-tight text-sky-300">Verified Partner</p><p className="text-xs font-bold uppercase">{lookups.contractors.find(x => String(x.id) === String(formData.contractorId))?.contractorName}</p></div></div>
+                                <button onClick={() => setFormData(p => ({ ...p, contractorId: '' }))} className="p-2 hover:bg-white/10 rounded-lg"><Close style={{ fontSize: 18 }} /></button>
+                            </div>
+                        )}
                     </div>
-                    <div className="w-64">
-                        <select name="phase" value={formData.phase} onChange={handleInputChange} disabled className="w-full text-[11px] font-black bg-sky-50 border border-sky-100 text-[#0284C7] rounded-2xl px-6 py-4 outline-none uppercase tracking-tighter cursor-pointer shadow-sm">
-                            <option value="INITIATION">Initiation</option>
-                            <option value="EXECUTION">Execution</option>
-                        </select>
+
+                    {/* STRICT CONSULTANT */}
+                    <div className="space-y-3" ref={consultantRef}>
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Consultant *</label>
+                        {!formData.consultancyId ? (
+                            <div className="relative">
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <input type="text" placeholder="Type to search consultancy..." className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" value={consultantSearch} onFocus={() => setIsConsultantDropdownOpen(true)} onChange={(e) => setConsultantSearch(e.target.value)} />
+                                {isConsultantDropdownOpen && (
+                                    <div className="absolute z-40 w-full mt-2 bg-white border rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
+                                        {consultantOptions.length > 0 ? consultantOptions.map(c => (
+                                            <div key={c.id} onClick={() => { setFormData(p => ({ ...p, consultancyId: String(c.id) })); setConsultantSearch(''); setIsConsultantDropdownOpen(false); }} className="px-5 py-3 hover:bg-emerald-50 cursor-pointer flex justify-between items-center border-b last:border-none">
+                                                <span className="text-xs font-bold text-slate-700">{c.consultantName}</span><Add size={16} className="text-emerald-500" />
+                                            </div>
+                                        )) : <div className="p-5 text-center text-[10px] font-bold text-rose-500 uppercase">Consultant not registered</div>}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between bg-emerald-900 text-white p-4 rounded-2xl animate-scaleIn">
+                                <div className="flex items-center gap-3"><Briefcase size={18} className="text-emerald-400" /><div><p className="text-[10px] font-black uppercase leading-tight text-emerald-300">Verified Firm</p><p className="text-xs font-bold uppercase">{lookups.consultancies.find(x => String(x.id) === String(formData.consultancyId))?.consultantName}</p></div></div>
+                                <button onClick={() => setFormData(p => ({ ...p, consultancyId: '' }))} className="p-2 hover:bg-white/10 rounded-lg"><Close style={{ fontSize: 18 }} /></button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {formData.phase === 'EXECUTION' && (
-                    <div className="space-y-8 pt-8 border-t border-slate-50 animate-fadeIn">
-                        {/* New Requirement: Agreement Date */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
-                                <AssignmentTurnedIn style={{ fontSize: 16 }} className="text-[#0284C7]" /> Agreement Signature Date *
-                            </label>
-                            <input name="agreementDate" type="date" value={formData.agreementDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
+                {/* PART 3: LOCATION */}
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
+                    <div className="flex items-center gap-3 border-b pb-4"><LocationOn className="text-slate-400" size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Site Assignment</span></div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sub-City</label>
+                            <select name="subCityId" value={formData.subCityId} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
+                                <option value="">-- Choose --</option>{lookups.subCities.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                            </select>
                         </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
-                                    <CalendarMonth style={{ fontSize: 16 }} className="text-sky-500" /> Launch Date *
-                                </label>
-                                <input name="startDate" type="date" value={formData.startDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest flex items-center gap-2">
-                                    <CalendarMonth style={{ fontSize: 16 }} className="text-rose-500" /> Handover Deadline *
-                                </label>
-                                <input name="endDate" type="date" value={formData.endDate} onChange={handleInputChange} disabled={isView} className="w-full font-bold bg-slate-50 border border-slate-200 rounded-[20px] px-6 py-4 outline-none focus:border-[#0284C7]" />
-                            </div>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Woreda</label>
+                            <select name="woredaId" value={formData.woredaId} onChange={handleInputChange} disabled={!formData.subCityId} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none disabled:opacity-50">
+                                <option value="">-- Choose --</option>{filteredWoredas.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                            </select>
                         </div>
                     </div>
-                )}
+                    <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Specific Location</label>
+                        <div className="flex items-center bg-slate-50 border border-slate-100 rounded-2xl mt-1"><Map className="ml-5 text-slate-300" size={20} /><input name="siteLocation" value={formData.siteLocation} onChange={handleInputChange} className="w-full p-5 bg-transparent text-sm font-bold outline-none" placeholder="e.g. Near Arat Kilo" /></div>
+                    </div>
+                </div>
+
+                {/* PART 4: FILES */}
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
+                    <div className="flex items-center justify-between border-b pb-4">
+                        <div className="flex items-center gap-3 text-slate-400"><CloudUpload size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Attachments</span></div>
+                        <label className="bg-sky-50 text-sky-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase cursor-pointer hover:bg-sky-100 transition-all shadow-sm">
+                            Add Files<input type="file" multiple onChange={(e) => setFiles(p => [...p, ...Array.from(e.target.files)])} className="hidden" />
+                        </label>
+                    </div>
+                    <div className="space-y-3">
+                        {files.length === 0 ? <div className="py-12 text-center text-[10px] font-bold text-slate-300 uppercase tracking-[0.3em] italic">No documents attached</div> :
+                            files.map((file, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 animate-slideUp">
+                                    <div className="flex items-center gap-4"><div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[10px] font-black text-sky-600 border shadow-sm uppercase">{file.name.split('.').pop()}</div><div className="overflow-hidden"><p className="text-xs font-black text-slate-700 truncate max-w-[150px]">{file.name}</p><p className="text-[9px] text-slate-400 font-bold">{(file.size / 1024).toFixed(1)} KB</p></div></div>
+                                    <button onClick={() => setFiles(p => p.filter((_, i) => i !== idx))} className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"><Delete size={18} /></button>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+
             </div>
         </div>
     );
