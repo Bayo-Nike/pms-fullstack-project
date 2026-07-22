@@ -6,7 +6,6 @@ import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
 import et.scco.pms_backend.modules.admin.repository.*;
-import et.scco.pms_backend.utility.PermissionFilter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
