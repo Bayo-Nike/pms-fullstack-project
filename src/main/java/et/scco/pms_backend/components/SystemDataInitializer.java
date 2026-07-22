@@ -6,7 +6,6 @@ import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.model.Module;
 import et.scco.pms_backend.modules.admin.repository.*;
-import et.scco.pms_backend.utility.PermissionFilter;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
@@ -397,12 +396,27 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_SEE_DASHBOARD",
                 "CAN_SEE_ORG_STRUCTURE",
                 "CAN_SEE_MY_REPORTEES",
-                "CAN_SEE_SYS_ADMIN",
+
+                // Reports
                 "CAN_SEE_ROLE_REPORT",
                 "CAN_SEE_EMPLOYEE_REPORT",
                 "CAN_SEE_USER_REPORT",
                 "CAN_SEE_DIVISION_REPORT",
-                "CAN_SEE_LOCATION_REPORT"
+                "CAN_SEE_LOCATION_REPORT",
+
+                // Admin
+                "CAN_SEE_SYS_ADMIN",
+                "CAN_SEE_SUBCITY",
+                "CAN_SEE_WOREDA",
+                "CAN_SEE_DIVISION",
+                "CAN_SEE_POSITION",
+                "CAN_SEE_SITE_LOCATION",
+                "CAN_SEE_INSPECTION_TYPE",
+                "CAN_SEE_TASK_TYPE",
+                "CAN_SEE_EMPLOYEE",
+                "CAN_SEE_USER_MGMT",
+                "CAN_SEE_MOBILE_APP",
+                "CAN_SEE_AUDIT_LOG"
         );
 
         List<Permission> permissions =
