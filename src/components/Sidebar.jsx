@@ -36,7 +36,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
       name: 'Demands',
       icon: <Assignment />,
       children: [
-        { path: '/demands', name: 'Demand Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' }
+        { path: '/demands', name: 'Demand Initiation', permission: 'CAN_SEE_DEMAND_INITIATION' }
       ]
     },
     

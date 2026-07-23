@@ -88,7 +88,7 @@ export default function DemandInitiations() {
                     </div>
                 </div>
                 {
-                    can('CAN_CREATE_PROJECT_INITIATION') && (
+                    can('CAN_CREATE_DEMAND_INITIATION') && (
                         <button onClick={() => navigate('/demands/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                             <Add /> New Demand
                         </button>

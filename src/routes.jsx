@@ -59,6 +59,7 @@ import CreateWoreda from './pages/admin/CreateWoreda';
 import Woredas from './pages/admin/Woredas';
 import DemandInitiations from './pages/demand/DemandInitiations';
 import CreateDemandInitiation from './pages/demand/CreateDemandInitiation';
+import DemandInitiationDetails from './pages/demand/DemandInitiationDetails';
 
 
 export default function AppRoutes() {
@@ -82,10 +83,10 @@ export default function AppRoutes() {
 
         {/* 2. demands */}
         {/* CAN_DELETE_PROJECT_INITIATION */}
-        <Route path='demands' element={protect(<DemandInitiations />, "CAN_SEE_PROJECT_INITIATION")} />
-        <Route path='demands/create' element={protect(<CreateDemandInitiation />, "CAN_CREATE_PROJECT_INITIATION")} />
-        <Route path='demands/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_EDIT_PROJECT_INITIATION")} />
-        <Route path='demands/view/:id' element={protect(<ProjectInitiationDetails />, "CAN_VIEW_PROJECT_INITIATION_DETAILS")} />
+        <Route path='demands' element={protect(<DemandInitiations />, "CAN_SEE_DEMAND_INITIATION")} />
+        <Route path='demands/create' element={protect(<CreateDemandInitiation />, "CAN_CREATE_DEMAND_INITIATION")} />
+        <Route path='demands/edit/:id' element={protect(<CreateProjectInitiation />, "CAN_EDIT_DEMAND_INITIATION")} />
+        <Route path='demands/view/:id' element={protect(<DemandInitiationDetails />, "CAN_VIEW_DEMAND_INITIATION_DETAILS")} />
         
 
         {/* 3. Projects */}

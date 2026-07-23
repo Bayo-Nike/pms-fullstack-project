@@ -22,10 +22,15 @@ export default function CreateDemandInitiation() {
         description: '',
         category: 'GOVERNMENT',
         demandType: 'BUILDING', // or 'WATER_AND_ROAD'
-        demandLevel: 'CITY',
+        // demandLevel: 'CITY',
+        // subCityId: '',
+        // woredaId: '',
+        // siteLocation: '',
+        demandLevel: 'CITY', // Mapped from your snippet's projectLevel
         subCityId: '',
-        woredaId: '',
-        siteLocation: '',
+        woredaId: '',        // Single ID for Demand Table
+        locationIds: [],     // Multi-select for dynamic site registry
+        siteLocation: '',    // Free text for specific address
         contractorId: '',
         consultancyId: '',
         clientId: 1,      
@@ -107,8 +112,8 @@ export default function CreateDemandInitiation() {
 
     const executeSave = async () => {
         // STRICT VALIDATION
-        if (!formData.title || !formData.subCityId) {
-            return setAlert({ show: true, type: 'error', message: 'Project Title and Sub-City are required.' });
+        if (!formData.title || !formData.demandLevel) {
+            return setAlert({ show: true, type: 'error', message: 'Project Title and Demand Level are required.' });
         }
         if (!formData.contractorId || !formData.consultancyId) {
             return setAlert({ show: true, type: 'error', message: 'Strict Selection Required: Please select a Contractor and Consultant from the system list.' });
@@ -229,7 +234,7 @@ export default function CreateDemandInitiation() {
                 </div>
 
                 {/* PART 3: LOCATION */}
-                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
+                {/* <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
                     <div className="flex items-center gap-3 border-b pb-4"><LocationOn className="text-slate-400" size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Site Assignment</span></div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sub-City</label>
@@ -245,6 +250,137 @@ export default function CreateDemandInitiation() {
                     </div>
                     <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Specific Location</label>
                         <div className="flex items-center bg-slate-50 border border-slate-100 rounded-2xl mt-1"><Map className="ml-5 text-slate-300" size={20} /><input name="siteLocation" value={formData.siteLocation} onChange={handleInputChange} className="w-full p-5 bg-transparent text-sm font-bold outline-none" placeholder="e.g. Near Arat Kilo" /></div>
+                    </div>
+                </div> */}
+
+                {/* PART 3: HUB / SITE ASSIGNMENT */}
+                <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="p-6 border-b bg-slate-50/40 flex items-center gap-3">
+                        <LocationOn className="text-slate-400" size={18} />
+                        <span className="text-[12px] font-black uppercase text-slate-500 tracking-widest">Hub Assignment</span>
+                    </div>
+
+                    <div className="p-8 space-y-6 flex-1">
+                        {/* Demand Level */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Demand Level</label>
+                            <select 
+                                name="demandLevel" 
+                                value={formData.demandLevel} 
+                                onChange={handleInputChange} 
+                                className="w-full text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-sky-500 transition-all"
+                            >
+                                <option value="CITY">City Hub (HQ)</option>
+                                <option value="SUB_CITY">Sub-City Hub (Region)</option>
+                            </select>
+                        </div>
+
+                        {/* Sub-City Selection */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">
+                                Sub-City {formData.demandLevel === 'SUB_CITY' ? '*' : '(Optional)'}
+                            </label>
+                            <select
+                                name="subCityId" 
+                                value={formData.subCityId} 
+                                onChange={handleInputChange}
+                                className={`w-full text-sm font-bold bg-slate-50 border rounded-2xl px-5 py-4 outline-none appearance-none cursor-pointer transition-all ${formData.demandLevel === 'SUB_CITY' && !formData.subCityId ? 'border-amber-300 ring-2 ring-amber-50' : 'border-slate-200'}`}
+                            >
+                                <option value="">-- Select Sub-City --</option>
+                                {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Woreda Selection (Single ID mapping to Badge UI) */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase ml-1 text-slate-400 tracking-widest">Woreda</label>
+                            <div className="relative">
+                                <Map className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    disabled={!formData.subCityId}
+                                    value={formData.woredaId}
+                                    onChange={(e) => setFormData(p => ({ ...p, woredaId: e.target.value, locationIds: [] }))}
+                                    className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50 transition-all"
+                                >
+                                    <option value="">{formData.subCityId ? '-- Select Woreda --' : 'Select Sub-City First'}</option>
+                                    {filteredWoredas.map(w => (
+                                        <option key={w.id} value={w.id}>{w.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            
+                            {/* Woreda Badge */}
+                            {formData.woredaId && (
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    {(() => {
+                                        const wor = lookups.woredas.find(w => String(w.id) === String(formData.woredaId));
+                                        return wor ? (
+                                            <div className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest animate-scaleIn">
+                                                {wor.name}
+                                                <Close 
+                                                    onClick={() => setFormData(p => ({ ...p, woredaId: '', locationIds: [] }))} 
+                                                    className="cursor-pointer hover:text-rose-400 transition-colors" 
+                                                    style={{ fontSize: 14 }} 
+                                                />
+                                            </div>
+                                        ) : null;
+                                    })()}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sites / Locations Multi-select */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase ml-1 text-slate-400 tracking-widest">Site Registry (Multiple)</label>
+                            <div className="relative">
+                                <LocationOn className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                <select
+                                    disabled={!formData.woredaId}
+                                    onChange={(e) => { 
+                                        const v = Number(e.target.value); 
+                                        if (v && !formData.locationIds.includes(v)) {
+                                            setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); 
+                                        }
+                                    }}
+                                    className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50 transition-all"
+                                >
+                                    <option value="">{formData.woredaId ? '-- Select Registered Site --' : '-- Select Woreda First --'}</option>
+                                    {lookups.locations?.filter(l => String(l.woredaId) === String(formData.woredaId) && !formData.locationIds.includes(l.id)).map(l => (
+                                        <option key={l.id} value={l.id}>{l.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Location Badges */}
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {formData.locationIds.map(locId => {
+                                    const loc = lookups.locations?.find(l => l.id === locId);
+                                    return loc ? (
+                                        <div key={locId} className="flex items-center gap-2 bg-sky-600 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest animate-scaleIn shadow-sm">
+                                            {loc.name}
+                                            <Close 
+                                                onClick={() => setFormData(p => ({ ...p, locationIds: p.locationIds.filter(i => i !== locId) }))} 
+                                                className="cursor-pointer hover:text-rose-200 transition-colors" 
+                                                style={{ fontSize: 14 }} 
+                                            />
+                                        </div>
+                                    ) : null;
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Specific Site Location (Free Text) */}
+                        <div className="space-y-2 pt-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-widest">Detailed Site Location</label>
+                            <input 
+                                name="siteLocation" 
+                                value={formData.siteLocation} 
+                                onChange={handleInputChange} 
+                                className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-sky-500 placeholder:text-slate-300" 
+                                placeholder="e.g. 50m behind the main station" 
+                            />
+                        </div>
                     </div>
                 </div>
 
