@@ -7,13 +7,14 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.DemandLevel;
 import et.scco.pms_backend.enums.DemandPhase;
 import et.scco.pms_backend.enums.DemandStatus;
 import et.scco.pms_backend.enums.DemandType;
-import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.modules.admin.model.City;
 import et.scco.pms_backend.modules.admin.model.Consultancy;
 import et.scco.pms_backend.modules.admin.model.Contractor;
+import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.Woreda;
 import jakarta.persistence.CascadeType;
@@ -26,6 +27,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -54,7 +57,7 @@ public class Demand {
     private DemandType demandType; // BUILDING, WATER_ROAD
 
     @Enumerated(EnumType.STRING)
-    private ProjectLevel demandLevel; // CITY, SUB_CITY
+    private DemandLevel demandLevel; // CITY, SUB_CITY
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
@@ -75,6 +78,10 @@ public class Demand {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "consultancy_id")
     private Consultancy  consultancy;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
 
     private String siteLocation;
 

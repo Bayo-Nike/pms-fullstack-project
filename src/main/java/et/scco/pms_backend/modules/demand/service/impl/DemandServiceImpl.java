@@ -3,12 +3,14 @@ package et.scco.pms_backend.modules.demand.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import et.scco.pms_backend.enums.DemandPhase;
 import et.scco.pms_backend.enums.DemandStatus;
+import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
@@ -23,6 +25,7 @@ import et.scco.pms_backend.modules.demand.repository.DemandRepository;
 import et.scco.pms_backend.modules.demand.service.DemandService;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
+import et.scco.pms_backend.utility.DemandSpecifications;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -97,7 +100,7 @@ public class DemandServiceImpl implements DemandService {
         
         // Enum mapping String -> Enum
         project.setProjectType(ProjectType.valueOf(demand.getDemandType().name()));
-        project.setProjectLevel(demand.getDemandLevel());
+        project.setProjectLevel(ProjectLevel.valueOf(demand.getDemandLevel().name()));
         
         project.setSubCity(demand.getSubCity());
         project.setWoreda(demand.getWoreda());
@@ -113,9 +116,13 @@ public class DemandServiceImpl implements DemandService {
     @Override
     @Transactional(readOnly = true)
     public Page<DemandResponseDTO> getAllDemands(String search, String category, String status, Long subCityId, Pageable pageable) {
-        // Using a basic repository call; for complex filters use Specifications
-        return demandRepository.findAll(pageable)
-                .map(demandMapper::mapToDemandResponseDTO);
+        // 1. Create the Specification based on provided params
+    Specification<Demand> spec = DemandSpecifications.withFilters(search, category, status, subCityId);
+
+    // 2. Pass the spec to the repository
+    return demandRepository.findAll(spec, pageable)
+            .map(demandMapper::mapToDemandResponseDTO);
+
     }
 
     @Override

@@ -222,6 +222,16 @@ public class SystemDataInitializer implements ApplicationRunner {
         );
 
         insertModuleWithPermissions(
+                "Demands",
+                List.of(
+                        new PermissionData("CAN_SEE_DEMAND_INITIATION", "See Demand Initiation"),
+                        new PermissionData("CAN_CREATE_DEMAND_INITIATION", "Create Demand Initiation"),
+                        new PermissionData("CAN_EDIT_DEMAND_INITIATION", "Edit Demand Initiation"),
+                        new PermissionData("CAN_VIEW_DEMAND_INITIATION_DETAILS", "View Demand Initiation Detail")
+                )
+        );
+
+        insertModuleWithPermissions(
                 "Projects",
                 List.of(
                         new PermissionData("CAN_SEE_PROJECT_INITIATION", "See Project Initiation"),
