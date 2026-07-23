@@ -227,7 +227,11 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_SEE_DEMAND_INITIATION", "See Demand Initiation"),
                         new PermissionData("CAN_CREATE_DEMAND_INITIATION", "Create Demand Initiation"),
                         new PermissionData("CAN_EDIT_DEMAND_INITIATION", "Edit Demand Initiation"),
-                        new PermissionData("CAN_VIEW_DEMAND_INITIATION_DETAILS", "View Demand Initiation Detail")
+                        new PermissionData("CAN_VIEW_DEMAND_INITIATION_DETAILS", "View Demand Initiation Detail"),
+                        new PermissionData("CAN_DELETE_DEMAND_INITIATION", "Delete Demand Initiation"),
+                        new PermissionData("CAN_REVIEW_DEMAND_FOR_DECISION", "Review Initiated Demand & Give Decision")
+                        
+                        
                 )
         );
 
