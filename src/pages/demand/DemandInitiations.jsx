@@ -156,21 +156,30 @@ export default function DemandInitiations() {
                                     </span>
                                 </td>
                                 <td className="px-8 py-5 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <button 
-                                            onClick={() => navigate(`/demands/view/${init.id}`)}
-                                            className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-all"
-                                        >
-                                            <Visibility fontSize="small" />
-                                        </button>
-                                        {init.status === 'PENDING' && (
-                                            <button 
-                                                onClick={() => { setSelectedDemand(init); setIsReviewOpen(true); }}
-                                                className="p-2 bg-sky-50 text-[#0284C7] rounded-lg hover:bg-sky-100 transition-all"
-                                            >
-                                                <RateReview fontSize="small" />
-                                            </button>
-                                        )}
+                                    
+
+                                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {
+                                            can('CAN_VIEW_DEMAND_INITIATION_DETAILS') && (
+                                                <button
+                                                    onClick={() => navigate(`/demands/view/${init.id}`)}
+                                                    className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
+                                                    title="View Details"
+                                                >
+                                                    <Visibility style={{ fontSize: 20 }} />
+                                                </button>
+                                            )
+                                        }
+                                        {
+                                            can('CAN_EDIT_DEMAND_INITIATION') && (
+                                                <button onClick={() => navigate(`/demands/edit/${init.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
+                                            )
+                                        }
+                                        {
+                                            can('CAN_DELETE_DEMAND_INITIATION') && (
+                                                <button onClick={() => setDeleteConfig({ show: true, id: init.id, title: init.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete fontSize="small" /></button>
+                                            )
+                                        }
                                     </div>
                                 </td>
                             </tr>
