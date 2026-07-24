@@ -10,7 +10,6 @@ import java.util.List;
 
 import et.scco.pms_backend.enums.Category;
 import et.scco.pms_backend.enums.DemandStatus;
-// Import your Enums and Entity
 import et.scco.pms_backend.modules.demand.model.Demand;
 
 public class DemandSpecifications {

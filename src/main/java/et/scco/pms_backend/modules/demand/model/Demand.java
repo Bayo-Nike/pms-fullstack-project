@@ -113,6 +113,6 @@ public class Demand {
     @PrePersist
     protected void onCreate() {
         requestedDate = LocalDateTime.now();
-        demandCode = "DEM-" + System.currentTimeMillis();
+        demandCode = "SCCO-DEM-" + System.currentTimeMillis();
     }
 }
