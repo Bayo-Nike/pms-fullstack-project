@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowBack, Save, Info, LocationOn, Close, Search, Add, CloudUpload, Delete, RateReview } from '@mui/icons-material';
-import { Building2, Briefcase, Map, ShieldCheck, Lock, FileText } from 'lucide-react';
+import { 
+    ArrowBack, Save, Info, LocationOn, Close, Search, Add, 
+    CloudUpload, Delete, RateReview, Business, Engineering, 
+    Map, Lock,
+    PinDrop
+} from '@mui/icons-material';
+import { Building2, Briefcase, ShieldCheck, AlertCircle, User } from 'lucide-react';
 import demandApi from '../../api/modules/demand';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -10,142 +15,311 @@ import { useAuth } from '../../context/AuthContext';
 export default function EditDemandInitiation() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user, can } = useAuth(); // Assume 'user.role' exists
+    const { can } = useAuth();
 
-    // ROLES
+    // ROLES & PERMISSIONS
     const isReviewer = can('CAN_REVIEW_DEMAND_FOR_DECISION'); 
-    const isClient = !isReviewer; // Or specific client role check
+    const isClient = !isReviewer;
 
+    // 1. Form State (Synchronized with your Create scenario)
     const [formData, setFormData] = useState({
-        title: '', description: '', category: '', demandType: '',
-        demandLevel: '', subCityId: '', woredaId: '', siteLocation: '',
-        contractorId: null, consultancyId: null, locationId: null,
-        status: '', reviewerRemark: ''
+        title: '',
+        description: '',
+        category: 'GOVERNMENT',
+        demandType: 'BUILDING',
+        demandLevel: 'CITY',
+        subCityId: '',
+        woredaId: '',
+        locationId: '',
+        siteLocation: '', 
+        contractorId: '',
+        consultancyId: '',
+        clientId: 1,      
+        phase: 'INITIATION',
+        status: '',
+        reviewerRemark: '',
+        demandCode: ''
     });
 
+    // 2. Lookups & Files State
     const [existingDocs, setExistingDocs] = useState([]);
     const [newFiles, setNewFiles] = useState([]);
     const [removedFileIds, setRemovedFileIds] = useState([]);
-    const [lookups, setLookups] = useState({ subCities: [], woredas: [], contractors: [], consultancies: [], locations: [] });
+    const [lookups, setLookups] = useState({ 
+        subCities: [], woredas: [], contractors: [], consultancies: [], locations: [] 
+    });
+    
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
 
-    // Lock Logic
-    const isApproved = formData.status === 'APPROVED';
-    const clientDisabled = !isClient || isApproved;
-    const reviewerDisabled = !isReviewer || isApproved;
+    // 3. Search & UI States
+    const [contractorSearch, setContractorSearch] = useState('');
+    const [isContractorDropdownOpen, setIsContractorDropdownOpen] = useState(false);
+    const [consultantSearch, setConsultantSearch] = useState('');
+    const [isConsultantDropdownOpen, setIsConsultantDropdownOpen] = useState(false);
+    const [isAlreadyApproved, setIsAlreadyApproved] = useState(false);
 
+    const contractorRef = useRef(null);
+    const consultantRef = useRef(null);
+
+    // LOCK LOGIC
+    const isApproved = formData.status === 'APPROVED';
+    const clientDisabled = !isClient || isAlreadyApproved;
+    const reviewerDisabled = !isReviewer || isAlreadyApproved;
+
+    // 4. Load Data (Lookups + Specific Demand)
     useEffect(() => {
         const init = async () => {
             try {
+                // Fetch all system registries in parallel
                 const [subRes, woredaRes, contRes, consRes, locRes, demandRes] = await Promise.all([
-                    adminApi.GET_SUB_CITIES(), adminApi.GET_WOREDAS(),
-                    adminApi.GET_CONTRACTORS(), adminApi.GET_CONSULTANTS(),
-                    adminApi.GET_LOCATIONS(), demandApi.GET_DEMAND(id)
+                    adminApi.GET_SUB_CITIES(), 
+                    adminApi.GET_WOREDAS(),
+                    adminApi.GET_CONTRACTORS(), 
+                    adminApi.GET_CONSULTANTS(),
+                    adminApi.GET_LOCATIONS(),
+                    demandApi.GET_DEMAND(id)
                 ]);
+
+                // Set Lookups first
                 setLookups({
-                    subCities: subRes.data?.data || [], woredas: woredaRes.data?.data || [],
-                    contractors: contRes.data?.data || [], consultancies: consRes.data?.data || [],
-                    locations: locRes.data?.data || []
+                    subCities: subRes.data?.data || subRes.data || [],
+                    woredas: woredaRes.data?.data || woredaRes.data || [],
+                    contractors: contRes.data?.data || contRes.data || [],
+                    consultancies: consRes.data?.data || consRes.data || [],
+                    locations: locRes.data?.data || locRes.data || []
                 });
-                const d = demandRes.data;
-                
-                setFormData({ ...d });
+
+                // Map Demand Data and sanitize nulls/types
+                const d = demandRes.data.data || demandRes.data;
+                setIsAlreadyApproved(d.status === 'APPROVED'); 
+                setFormData({
+                    ...d,
+                    title: d.title || '',
+                    description: d.description || '',
+                    demandLevel: d.demandLevel || 'CITY',
+                    subCityId: d.subCityId ? String(d.subCityId) : '',
+                    woredaId: d.woredaId ? String(d.woredaId) : '',
+                    locationId: d.locationId ? String(d.locationId) : '',
+                    contractorId: d.contractorId ? String(d.contractorId) : '',
+                    consultancyId: d.consultancyId ? String(d.consultancyId) : '',
+                    reviewerRemark: d.reviewerRemark || '',
+                    siteLocation: d.siteLocation || ''
+                });
                 setExistingDocs(d.documents || []);
-            } catch (err) { setAlert({ show: true, type: 'error', message: 'Sync failed.' }); }
-            finally { setLoading(false); }
+
+            } catch (err) {
+                setAlert({ show: true, type: 'error', message: 'Sync failed: Registries unreachable.' });
+            } finally { setLoading(false); }
         };
         init();
     }, [id]);
 
+    // 5. Click-outside listener
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (contractorRef.current && !contractorRef.current.contains(event.target)) setIsContractorDropdownOpen(false);
+            if (consultantRef.current && !consultantRef.current.contains(event.target)) setIsConsultantDropdownOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    // 6. Search Filtering
+    const contractorOptions = useMemo(() => {
+        if (!contractorSearch) return lookups.contractors;
+        return lookups.contractors.filter(c => c.contractorName?.toLowerCase().includes(contractorSearch.toLowerCase()));
+    }, [lookups.contractors, contractorSearch]);
+
+    const consultantOptions = useMemo(() => {
+        if (!consultantSearch) return lookups.consultancies;
+        return lookups.consultancies.filter(c => c.consultantName?.toLowerCase().includes(consultantSearch.toLowerCase()));
+    }, [lookups.consultancies, consultantSearch]);
+
+    const filteredWoredas = useMemo(() => 
+        lookups.woredas.filter(w => String(w.subCityId) === String(formData.subCityId)), 
+    [formData.subCityId, lookups.woredas]);
+
+    // 7. Actions
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(p => ({ ...p, [name]: value }));
+        setFormData(p => ({ 
+            ...p, [name]: value,
+            ...(name === 'subCityId' ? { woredaId: '', locationId: '' } : {}),
+            ...(name === 'woredaId' ? { locationId: '' } : {})
+        }));
     };
 
     const handleSave = async () => {
+        // 1. Validation for Reviewer
+        if (!isClient && (!formData.status || formData.status === 'PENDING')) {
+            return setAlert({ show: true, type: 'error', message: 'Please select Approved or Rejected.' });
+        }
+        
         setSaving(true);
         try {
-            const data = new FormData();
-            
             if (isClient) {
-                // Client Update (Full Data + Files)
-                data.append('demand', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
+                const data = new FormData();
+            
+                const { 
+                    id: _id, 
+                    demandCode, 
+                    status, 
+                    documents, 
+                    requestedDate, 
+                    respondedDate, 
+                    ...dtoPayload 
+                } = formData;
+    
+                data.append('demand', new Blob([JSON.stringify(dtoPayload)], { type: 'application/json' }));
+                
                 newFiles.forEach(file => data.append('files', file));
                 data.append('removedFileIds', new Blob([JSON.stringify(removedFileIds)], { type: 'application/json' }));
+                
                 await demandApi.UPDATE_DEMAND(id, data);
             } else {
-                // Reviewer Update (Only Status & Remark)
-                const reviewPayload = { status: formData.status, remark: formData.reviewerRemark };
+                const reviewPayload = { status: formData.status, reviewerRemark: formData.reviewerRemark };
                 await demandApi.REVIEW_DEMAND(id, reviewPayload);
             }
-
-            setAlert({ show: true, type: 'success', message: 'Record updated successfully.' });
+            setAlert({ show: true, type: 'success', message: 'Record Updated Successfully.' });
             setTimeout(() => navigate('/demands'), 1500);
         } catch (err) {
-            setAlert({ show: true, type: 'error', message: 'Update failed.' });
+            setAlert({ show: true, type: 'error', message: 'Operation Failed.' });
         } finally { setSaving(false); }
     };
 
-    if (loading) return <div className="p-20 text-center animate-pulse">Syncing...</div>;
+    if (loading) return <div className="p-20 text-center font-black text-slate-300 animate-pulse text-xs">SYNCHRONIZING PMS HUB...</div>;
 
     return (
-        <div className="w-full space-y-6 pb-20 px-6 bg-[#F8FAFC]">
-            <AlertMessage show={alert.show} type={alert.type} message={alert.message} />
+        <div className="w-full space-y-6 pb-20 px-6 bg-[#F8FAFC] animate-fadeIn">
+            <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert({ ...alert, show: false })} />
 
-            {/* HEADER */}
+            {/* Header */}
             <div className="flex items-center justify-between bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-5">
-                    <button onClick={() => navigate(-1)} className="p-3 bg-slate-50 border rounded-2xl"><ArrowBack /></button>
+                    <button onClick={() => navigate(-1)} className="p-3 bg-slate-50 border rounded-2xl hover:bg-slate-100 transition-all"><ArrowBack fontSize="small" /></button>
                     <div>
-                        <h1 className="text-2xl font-black text-slate-900 uppercase">Edit Demand</h1>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">{formData.demandCode}</p>
+                        <h1 className="text-2xl font-black text-slate-900 leading-none">EDIT DEMAND</h1>
+                        <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest">{formData.demandCode || 'Loading...'}</p>
                     </div>
                 </div>
-                <button onClick={handleSave} disabled={saving || isApproved} className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">
-                    {saving ? 'SAVING...' : 'UPDATE RECORD'}
+                <button onClick={handleSave} disabled={saving || isAlreadyApproved} className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl hover:bg-black transition-all">
+                    <Save /> {saving ? 'SAVING...' : 'UPDATE DEMAND'}
                 </button>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                {/* LEFT: CLIENT FIELDS */}
-                <div className={`lg:col-span-8 space-y-6 ${isReviewer ? 'opacity-70 pointer-events-none' : ''}`}>
-                    <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6">
+                {/* PART 1 & 2: CLIENT DATA (IDENTIFICATION & PARTNERS) */}
+                <div className={`lg:col-span-8 space-y-6 ${isReviewer ? 'opacity-80 pointer-events-none' : ''}`}>
+                    
+                    {/* Identity Box */}
+                    <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between border-b pb-4">
-                           <div className="flex items-center gap-3"><Info className="text-slate-400" size={18} /><span className="text-[11px] font-black uppercase text-slate-500">Project Details</span></div>
-                           {isReviewer && <Lock size={16} className="text-amber-500" />}
+                            <div className="flex items-center gap-3 text-slate-500 font-black uppercase text-[11px] tracking-widest"><Info size={18}/> Project Profile</div>
+                            {isReviewer && <div className="flex items-center gap-2 text-[10px] font-black text-amber-600 uppercase"><Lock size={14}/> Registry Locked</div>}
                         </div>
-                        <div className="space-y-4">
-                            <input name="title" value={formData.title} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold" placeholder="Demand Title" />
-                            <textarea name="description" value={formData.description|| ''} onChange={handleInputChange} disabled={clientDisabled} rows="4" className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm resize-none" placeholder="Description" />
-                        </div>
-                        
-                        {/* PARTNERS SELECTION (CONTRACTOR/CONSULTANT logic same as create, just use clientDisabled) */}
                         <div className="grid grid-cols-2 gap-4">
-                            {/* ... Include your Searchable Contractor/Consultant logic here with disabled={clientDisabled} ... */}
+                            <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Category</label>
+                                <select name="category" value={formData.category} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
+                                    <option value="GOVERNMENT">Government</option><option value="NON_GOVERNMENT">Non-Gov</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Type</label>
+                                <select name="demandType" value={formData.demandType} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
+                                    <option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Title *</label>
+                            <input name="title" value={formData.title} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-sky-500" />
+                        </div>
+                        <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Scope Narrative</label>
+                            <textarea name="description" value={formData.description} onChange={handleInputChange} disabled={clientDisabled} rows="4" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium resize-none outline-none focus:border-sky-500" />
                         </div>
                     </div>
 
-                    {/* DIGITAL DOSSIER (Client Side) */}
-                    <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6">
-                        <div className="flex items-center justify-between border-b pb-4">
-                            <span className="text-[11px] font-black uppercase text-slate-500">Attached Documents</span>
-                            {!clientDisabled && <label className="cursor-pointer text-[10px] font-bold text-sky-600 uppercase underline"><input type="file" multiple className="hidden" onChange={(e) => setNewFiles([...newFiles, ...Array.from(e.target.files)])} /> Upload New</label>}
+                    {/* Stakeholders (STRICT SELECTION LOGIC) */}
+                    <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-8 shadow-sm">
+                        <div className="flex items-center gap-3 border-b pb-4 text-slate-500 font-black uppercase text-[11px] tracking-widest"><User size={18}/> Proposed Partnerships</div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            
+                            {/* Contractor Section */}
+                            <div className="space-y-3" ref={contractorRef}>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contractor</label>
+                                {!formData.contractorId ? (
+                                    <div className="relative">
+                                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                        <input type="text" disabled={clientDisabled} className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" placeholder="Search contractor list..." value={contractorSearch} onFocus={() => setIsContractorDropdownOpen(true)} onChange={(e) => setContractorSearch(e.target.value)} />
+                                        {isContractorDropdownOpen && (
+                                            <div className="absolute z-50 w-full mt-2 bg-white border rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
+                                                {contractorOptions.length > 0 ? contractorOptions.map(c => (
+                                                    <div key={c.id} onClick={() => { setFormData(p => ({ ...p, contractorId: String(c.id) })); setContractorSearch(''); setIsContractorDropdownOpen(false); }} className="px-5 py-3 hover:bg-sky-50 cursor-pointer flex justify-between items-center border-b last:border-none">
+                                                        <span className="text-xs font-bold text-slate-700">{c.contractorName}</span><Add size={16} className="text-sky-500" />
+                                                    </div>
+                                                )) : <div className="p-5 text-center text-[10px] font-bold text-rose-500 uppercase">Not registered</div>}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between bg-sky-900 text-white p-4 rounded-2xl animate-scaleIn shadow-lg border-b-4 border-sky-700">
+                                        <div className="flex items-center gap-3"><Building2 size={18} className="text-sky-400" /><div><p className="text-[10px] font-black uppercase leading-tight text-sky-300">Verified Partner</p><p className="text-xs font-bold uppercase">{lookups.contractors.find(x => String(x.id) === String(formData.contractorId))?.contractorName || 'Unknown Contractor'}</p></div></div>
+                                        {!clientDisabled && <button onClick={() => setFormData(p => ({ ...p, contractorId: '' }))} className="p-1 hover:bg-white/10 rounded-lg transition-all"><Close style={{ fontSize: 18 }} /></button>}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Consultant Section */}
+                            <div className="space-y-3" ref={consultantRef}>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Consultant</label>
+                                {!formData.consultancyId ? (
+                                    <div className="relative">
+                                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                        <input type="text" disabled={clientDisabled} className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl outline-none" placeholder="Search consultancy list..." value={consultantSearch} onFocus={() => setIsConsultantDropdownOpen(true)} onChange={(e) => setConsultantSearch(e.target.value)} />
+                                        {isConsultantDropdownOpen && (
+                                            <div className="absolute z-40 w-full mt-2 bg-white border rounded-2xl shadow-2xl max-h-48 overflow-y-auto">
+                                                {consultantOptions.length > 0 ? consultantOptions.map(c => (
+                                                    <div key={c.id} onClick={() => { setFormData(p => ({ ...p, consultancyId: String(c.id) })); setConsultantSearch(''); setIsConsultantDropdownOpen(false); }} className="px-5 py-3 hover:bg-emerald-50 cursor-pointer flex justify-between items-center border-b last:border-none">
+                                                        <span className="text-xs font-bold text-slate-700">{c.consultantName}</span><Add size={16} className="text-emerald-500" />
+                                                    </div>
+                                                )) : <div className="p-5 text-center text-[10px] font-bold text-rose-500 uppercase">Not registered</div>}
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between bg-emerald-900 text-white p-4 rounded-2xl animate-scaleIn shadow-lg border-b-4 border-emerald-700">
+                                        <div className="flex items-center gap-3"><Briefcase size={18} className="text-emerald-400" /><div><p className="text-[10px] font-black uppercase leading-tight text-emerald-300">Verified Firm</p><p className="text-xs font-bold uppercase">{lookups.consultancies.find(x => String(x.id) === String(formData.consultancyId))?.consultantName || 'Unknown Consultant'}</p></div></div>
+                                        {!clientDisabled && <button onClick={() => setFormData(p => ({ ...p, consultancyId: '' }))} className="p-1 hover:bg-white/10 rounded-lg transition-all"><Close style={{ fontSize: 18 }} /></button>}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* DIGITAL DOSSIER (FILES) */}
+                    <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 shadow-sm">
+                        <div className="flex items-center justify-between border-b pb-4 text-slate-500 font-black uppercase text-[11px] tracking-widest">
+                            <span>Digital Dossier</span>
+                            {!clientDisabled && (
+                                <label className="cursor-pointer text-sky-600 flex items-center gap-2 hover:underline">
+                                    <CloudUpload size={16} /> Upload New
+                                    <input type="file" multiple className="hidden" onChange={(e) => setNewFiles([...newFiles, ...Array.from(e.target.files)])} />
+                                </label>
+                            )}
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Existing Files */}
+                            {/* Existing Documents */}
                             {existingDocs.filter(d => !removedFileIds.includes(d.id)).map(doc => (
-                                <div key={doc.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border">
-                                    <span className="text-xs font-bold truncate max-w-[150px]">{doc.fileName}</span>
-                                    {isClient && !isApproved && <Delete className="text-rose-400 cursor-pointer" size={16} onClick={() => setRemovedFileIds([...removedFileIds, doc.id])} />}
+                                <div key={doc.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
+                                    <div className="flex items-center gap-3 truncate"><Map size={14} className="text-slate-300"/> <span className="text-[11px] font-bold truncate text-slate-600">{doc.fileName}</span></div>
+                                    {!clientDisabled && <Delete className="text-rose-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-all" size={16} onClick={() => setRemovedFileIds([...removedFileIds, doc.id])} />}
                                 </div>
                             ))}
-                            {/* New Files */}
+                            {/* Newly Uploaded Files */}
                             {newFiles.map((file, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100">
-                                    <span className="text-xs font-bold truncate max-w-[150px] text-sky-700">{file.name}</span>
+                                <div key={i} className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100 animate-pulse">
+                                    <div className="flex items-center gap-3 truncate"><CloudUpload size={14} className="text-sky-500"/> <span className="text-[11px] font-bold text-sky-800 truncate">{file.name}</span></div>
                                     <Close className="text-sky-400 cursor-pointer" size={16} onClick={() => setNewFiles(newFiles.filter((_, idx) => idx !== i))} />
                                 </div>
                             ))}
@@ -153,32 +327,73 @@ export default function EditDemandInitiation() {
                     </div>
                 </div>
 
-                {/* RIGHT: REVIEWER FIELDS */}
-                <div className={`lg:col-span-4 space-y-6 ${isClient ? 'opacity-70 pointer-events-none' : ''}`}>
-                    <div className="bg-white rounded-[40px] border-2 border-amber-100 shadow-xl p-8 space-y-6">
-                        <div className="flex items-center gap-3 border-b border-amber-50 pb-4">
-                            <ShieldCheck className="text-amber-500" size={20} />
-                            <span className="text-[11px] font-black uppercase text-amber-600">Reviewer Actions</span>
-                        </div>
-                        <div className="space-y-6">
+                {/* RIGHT COLUMN: REVIEWER CONTENT & HUB ASSIGNMENT */}
+                <div className="lg:col-span-4 space-y-6">
+                    
+                    {/* Management Review (LOCKED FOR CLIENT) */}
+                    <div className={`bg-white rounded-[40px] border-2 shadow-xl p-8 space-y-6 transition-all ${isReviewer ? 'border-amber-200' : 'border-slate-100 opacity-60 pointer-events-none'}`}>
+                        <div className="flex items-center gap-3 border-b pb-4 text-amber-600 font-black uppercase text-[11px] tracking-widest"><ShieldCheck size={20} /> Management Review</div>
+                        <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Review Status</label>
-                                <select name="status" value={formData.status} onChange={handleInputChange} disabled={reviewerDisabled} className="w-full bg-slate-900 text-white rounded-2xl px-5 py-4 text-xs font-black uppercase outline-none">
+                                <label className="text-[10px] font-black text-slate-400 uppercase">Set Status</label>
+                                <select name="status" value={formData.status} onChange={handleInputChange} disabled={reviewerDisabled} className="w-full bg-slate-900 text-white rounded-2xl px-5 py-4 text-[11px] font-black uppercase outline-none">
                                     <option value="PENDING">Pending Review</option>
-                                    <option value="APPROVED">Approve Demand</option>
+                                    <option value="APPROVED">Approve & Promote</option>
                                     <option value="REJECTED">Reject Demand</option>
                                 </select>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase">Reviewer Remark</label>
-                                <textarea name="reviewerRemark" value={formData.reviewerRemark|| ''} onChange={handleInputChange} disabled={reviewerDisabled} rows="6" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-medium outline-none focus:border-amber-500" placeholder="Justification for the decision..." />
+                                <textarea name="reviewerRemark" value={formData.reviewerRemark} onChange={handleInputChange} disabled={reviewerDisabled} rows="6" className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-xs font-medium outline-none focus:border-amber-500 resize-none" placeholder="Provide decision justification..." />
                             </div>
                         </div>
                     </div>
 
-                    {/* LOCATION (Hub Assignment - Reviewer can see but Client can edit) */}
-                    <div className={`bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 ${isReviewer ? 'opacity-100' : ''}`}>
-                         {/* ... Include your Hub Assignment Logic here with disabled={clientDisabled} ... */}
+                    {/* Site / Hub Assignment (CLIENT EDITABLE UNLESS APPROVED) */}
+                    <div className={`bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 shadow-sm ${isReviewer ? 'opacity-80 pointer-events-none' : ''}`}>
+                        <div className="flex items-center gap-3 border-b pb-4 text-slate-500 font-black uppercase text-[11px] tracking-widest"><LocationOn size={18} /> Hub Assignment</div>
+                        <div className="p-1 space-y-6">
+                            {/* Hub Level */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Demand Level</label>
+                                <select name="demandLevel" value={formData.demandLevel} onChange={handleInputChange} disabled={clientDisabled} className="w-full text-sm font-bold bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 outline-none focus:border-sky-500">
+                                    <option value="CITY">City Hub (HQ)</option>
+                                    <option value="SUB_CITY">Sub-City Hub (Region)</option>
+                                </select>
+                            </div>
+                            {/* Sub-City */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Sub-City {formData.demandLevel === 'SUB_CITY' ? '*' : '(Optional)'}</label>
+                                <select name="subCityId" value={String(formData.subCityId || '')} onChange={handleInputChange} disabled={clientDisabled} className="w-full text-sm font-bold bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 outline-none appearance-none">
+                                    <option value="">-- Choose Sub-City --</option>
+                                    {lookups.subCities.map(s => <option key={s.id} value={String(s.id)}>{s.name}</option>)}
+                                </select>
+                            </div>
+                            {/* Woreda */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Woreda</label>
+                                <div className="relative">
+                                    <PinDrop className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                                    <select name="woredaId" value={String(formData.woredaId || '')} onChange={handleInputChange} disabled={!formData.subCityId || clientDisabled} className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-100 rounded-2xl appearance-none outline-none disabled:opacity-50">
+                                        <option value="">-- Choose Woreda --</option>
+                                        {filteredWoredas.map(w => <option key={w.id} value={String(w.id)}>{w.name}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                            {/* Plot Detail */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Site Registry (Plot)</label>
+                                <select name="locationId" value={String(formData.locationId || '')} onChange={handleInputChange} disabled={!formData.woredaId || clientDisabled} className="w-full px-5 py-4 text-sm font-bold bg-slate-50 border border-slate-100 rounded-2xl outline-none">
+                                    <option value="">-- Select Plot --</option>
+                                    {lookups.locations.filter(l => String(l.woredaId) === String(formData.woredaId)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
+                                </select>
+                            </div>
+                            {/* Free Text */}
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Specific Site Location</label>
+                                <input name="siteLocation" value={formData.siteLocation} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:border-sky-500" placeholder="e.g. Near the West Square" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 

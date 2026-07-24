@@ -130,29 +130,29 @@ export default function DemandInitiations() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {initiations.map((init) => (
-                            <tr key={init.id} className="hover:bg-slate-50/50 group transition-colors">
+                        {initiations.map((demand) => (
+                            <tr key={demand.id} className="hover:bg-slate-50/50 group transition-colors">
                                 <td className="px-8 py-5">
-                                    <p className="text-sm font-black text-slate-800">{init.title}</p>
-                                    <p className="text-[9px] text-slate-400 mt-1">{init.demandCode}</p>
+                                    <p className="text-sm font-black text-slate-800">{demand.title}</p>
+                                    <p className="text-[9px] text-slate-400 mt-1">{demand.demandCode}</p>
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
-                                            <Category sx={{ fontSize: 12 }} /> {init.demandType}
+                                            <Category sx={{ fontSize: 12 }} /> {demand.demandType}
                                         </span>
-                                        <span className="text-[9px] text-slate-400 uppercase">{init.category}</span>
+                                        <span className="text-[9px] text-slate-400 uppercase">{demand.category}</span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="text-[10px] font-bold text-slate-600">
-                                        {init.subCityName || 'City Level'}
+                                        {demand.subCityName || 'City Level'}
                                     </div>
-                                    <div className="text-[9px] text-slate-400 italic">{init.siteLocation}</div>
+                                    <div className="text-[9px] text-slate-400 italic">{demand.siteLocation}</div>
                                 </td>
                                 <td className="px-6 py-5">
-                                    <span className={`text-[9px] font-black px-3 py-1 rounded-full border ${getStatusStyle(init.status)}`}>
-                                        {init.status}
+                                    <span className={`text-[9px] font-black px-3 py-1 rounded-full border ${getStatusStyle(demand.status)}`}>
+                                        {demand.status}
                                     </span>
                                 </td>
                                 <td className="px-8 py-5 text-right">
@@ -162,7 +162,7 @@ export default function DemandInitiations() {
                                         {
                                             can('CAN_VIEW_DEMAND_INITIATION_DETAILS') && (
                                                 <button
-                                                    onClick={() => navigate(`/demands/view/${init.id}`)}
+                                                    onClick={() => navigate(`/demands/view/${demand.id}`)}
                                                     className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
                                                     title="View Details"
                                                 >
@@ -171,13 +171,13 @@ export default function DemandInitiations() {
                                             )
                                         }
                                         {
-                                            can('CAN_EDIT_DEMAND_INITIATION') && (
-                                                <button onClick={() => navigate(`/demands/edit/${init.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
+                                            can('CAN_EDIT_DEMAND_INITIATION') && demand.status !== 'APPROVED' &&(
+                                                <button onClick={() => navigate(`/demands/edit/${demand.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
                                             )
                                         }
                                         {
-                                            can('CAN_DELETE_DEMAND_INITIATION') && (
-                                                <button onClick={() => setDeleteConfig({ show: true, id: init.id, title: init.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete fontSize="small" /></button>
+                                            can('CAN_DELETE_DEMAND_INITIATION') && demand.status == 'PENDING' &&(
+                                                <button onClick={() => setDeleteConfig({ show: true, id: demand.id, title: demand.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete fontSize="small" /></button>
                                             )
                                         }
                                     </div>
