@@ -104,7 +104,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/locations', name: 'Site Locations', permission: 'CAN_SEE_SITE_LOCATION' },
         { path: '/admin/inspection-types', name: 'Inspection Types', permission: 'CAN_SEE_INSPECTION_TYPE' },
         { path: '/admin/task-types', name: 'Task Types', permission: 'CAN_SEE_TASK_TYPE' },
-        { path: '/admin/employees', name: 'Employees', permission: 'CAN_SEE_EMPLOYEE' },
+        { path: '/admin/employees', name: 'Staffs', permission: 'CAN_SEE_EMPLOYEE' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_USER_MGMT' },
         { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_MOBILE_APP' },
