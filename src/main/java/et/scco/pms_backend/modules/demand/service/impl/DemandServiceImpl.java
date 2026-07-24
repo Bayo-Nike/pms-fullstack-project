@@ -8,13 +8,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.DemandLevel;
 import et.scco.pms_backend.enums.DemandPhase;
 import et.scco.pms_backend.enums.DemandStatus;
+import et.scco.pms_backend.enums.DemandType;
 import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.enums.ProjectPhase;
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.enums.ProjectType;
+import et.scco.pms_backend.modules.admin.repository.ConsultancyRepository;
+import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
+import et.scco.pms_backend.modules.admin.repository.LocationRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
+import et.scco.pms_backend.modules.admin.repository.WoredaRepository;
 import et.scco.pms_backend.modules.demand.dto.request.DemandRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.ReviewDemandRequest;
 import et.scco.pms_backend.modules.demand.dto.response.DemandResponseDTO;
@@ -37,6 +44,11 @@ public class DemandServiceImpl implements DemandService {
     private final DemandRepository demandRepository;
     private final ProjectRepository projectRepository;
     private final DemandMapper demandMapper;
+    private final ContractorRepository contractorRepository;
+    private final ConsultancyRepository consultancyRepository;
+    private final SubCityRepository subCityRepository;
+    private final WoredaRepository woredaRepository;
+    private final LocationRepository locationRepository;
 
     @Override
     @Transactional
@@ -79,8 +91,8 @@ public class DemandServiceImpl implements DemandService {
         Demand demand = demandRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Demand not found"));
 
-        demand.setStatus(review.getStatus()); 
-        demand.setReviewerRemark(review.getRemark());
+        demand.setStatus(review.getStatus());
+        demand.setReviewerRemark(review.getReviewerRemark());
         demand.setRespondedDate(LocalDateTime.now());
 
         if (review.getStatus() == DemandStatus.APPROVED) {
@@ -108,7 +120,7 @@ public class DemandServiceImpl implements DemandService {
         project.setConsultancy(demand.getConsultancy()); // consultancy to consultancy
         
         project.setStatus(ProjectStatus.NOT_STARTED);
-        project.setPhase(ProjectPhase.INITIATION);
+        project.setPhase(ProjectPhase.EXECUTION);
         
         projectRepository.save(project);
     }
@@ -140,5 +152,60 @@ public class DemandServiceImpl implements DemandService {
             throw new RuntimeException("Demand not found");
         }
         demandRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files) {
+        Demand demand = demandRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Demand not found"));
+
+        // Security: Don't allow edits if already Approved
+        if (demand.getStatus() == DemandStatus.APPROVED) {
+            throw new RuntimeException("Locked: Approved demands cannot be modified.");
+        }
+
+        // Map Client fields from DTO to Entity (using the Logic we built in the Mapper)
+        // 2. Update ONLY the fields that should change (Manual update or use a MapStruct @MappingTarget)
+        demand.setTitle(dto.getTitle());
+        demand.setDescription(dto.getDescription());
+        demand.setCategory(Category.valueOf(dto.getCategory().name()));
+        demand.setDemandType(DemandType.valueOf(dto.getDemandType().name()));
+        demand.setDemandLevel(DemandLevel.valueOf(dto.getDemandLevel().name()));
+        demand.setSiteLocation(dto.getSiteLocation());
+        demand.setStatus(DemandStatus.PENDING);
+        
+        // 3. Update Relationships (IDs to Entities)
+        if (dto.getContractorId() != null) 
+            contractorRepository.findById(dto.getContractorId()).ifPresent(demand::setContractor);
+        if (dto.getConsultancyId() != null) 
+            consultancyRepository.findById(dto.getConsultancyId()).ifPresent(demand::setConsultancy);
+        if (dto.getSubCityId() != null) 
+            subCityRepository.findById(dto.getSubCityId()).ifPresent(demand::setSubCity);
+        if (dto.getWoredaId() != null) 
+            woredaRepository.findById(dto.getWoredaId()).ifPresent(demand::setWoreda);
+        if (dto.getLocationId() != null) 
+            locationRepository.findById(dto.getLocationId()).ifPresent(demand::setLocation);
+
+        // 3. MANDATORY: Set the ID so JPA knows this is an UPDATE
+        demand.setId(id);
+
+        // 4. PRESERVE system fields (otherwise they will become null in the DB)
+        // demand.setStatus(existing.getStatus());
+        demand.setDemandCode(dto.getDemandCode());
+        demand.setRequestedDate(dto.getRequestedDate());
+        // demand.setPhase(existing.getPhase());
+        // demand.setDocuments(existing.getDocuments()); 
+        // Handle additional file uploads
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                DemandDocument doc = new DemandDocument();
+                doc.setFileName(file.getOriginalFilename());
+                doc.setFileUrl("/uploads/" + file.getOriginalFilename());
+                demand.addDocument(doc);
+            }
+        }
+
+        return demandMapper.mapToDemandResponseDTO(demandRepository.save(demand));
     }
 }

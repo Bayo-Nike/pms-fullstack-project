@@ -27,8 +27,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -44,7 +42,7 @@ public class Demand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, updatable = false)
     private String demandCode;
 
     private String title;
@@ -107,7 +105,9 @@ public class Demand {
     private Long clientId;
     private Long submittedBy; // User ID
 
+    @Column(updatable = false)
     private LocalDateTime requestedDate;
+    
     private LocalDateTime respondedDate;
 
     @PrePersist

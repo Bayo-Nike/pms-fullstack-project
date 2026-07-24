@@ -23,4 +23,6 @@ public interface DemandService {
 
     void deleteDemand(Long id);
 
+    DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files);
+
 }
