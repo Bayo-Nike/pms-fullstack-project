@@ -130,6 +130,7 @@ export default function ProjectCosts() {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50/50 border-b border-slate-100 text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
                         <tr>
+                            <th className="px-8 py-5">Client Name</th>
                             <th className="px-8 py-5">Project Details</th>
                             <th className="px-6 py-5">Total Budget</th>
                             <th className="px-6 py-5">Spent to Date</th>
@@ -148,6 +149,13 @@ export default function ProjectCosts() {
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0284C7] flex items-center justify-center font-black text-[10px] uppercase border border-sky-100 shadow-sm">{proj.projectCode.slice(-2)}</div>
+                                                <div>
+                                                    <p className="text-sm font-black text-slate-800 leading-none">{proj.clientName}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-4">
                                                 <div>
                                                     <p className="text-sm font-black text-slate-800 leading-none">{proj.title}</p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 flex items-center gap-1">

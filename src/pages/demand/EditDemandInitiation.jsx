@@ -204,7 +204,7 @@ export default function EditDemandInitiation() {
                         <p className="text-[10px] text-sky-600 mt-2 font-bold uppercase tracking-widest">{formData.demandCode || 'Loading...'}</p>
                     </div>
                 </div>
-                <button onClick={handleSave} disabled={saving || isAlreadyApproved} className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black text-xs flex items-center gap-3 uppercase shadow-xl hover:bg-black transition-all">
+                <button onClick={handleSave} disabled={saving || isAlreadyApproved} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                     <Save /> {saving ? 'SAVING...' : 'UPDATE DEMAND'}
                 </button>
             </div>
@@ -332,11 +332,20 @@ export default function EditDemandInitiation() {
                     
                     {/* Management Review (LOCKED FOR CLIENT) */}
                     <div className={`bg-white rounded-[40px] border-2 shadow-xl p-8 space-y-6 transition-all ${isReviewer ? 'border-amber-200' : 'border-slate-100 opacity-60 pointer-events-none'}`}>
-                        <div className="flex items-center gap-3 border-b pb-4 text-amber-600 font-black uppercase text-[11px] tracking-widest"><ShieldCheck size={20} /> Management Review</div>
+                        <div className="flex items-center gap-3 border-b pb-4 text-amber-600 font-black uppercase text-[11px] tracking-widest"><ShieldCheck size={20} /> Management Review & Decision</div>
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase">Set Status</label>
-                                <select name="status" value={formData.status} onChange={handleInputChange} disabled={reviewerDisabled} className="w-full bg-slate-900 text-white rounded-2xl px-5 py-4 text-[11px] font-black uppercase outline-none">
+                                <label className="text-[10px] font-black text-slate-400 uppercase">Set Decision</label>
+                                <select name="status" value={formData.status} onChange={handleInputChange} disabled={reviewerDisabled} 
+                                className={`w-full rounded-2xl px-5 py-4 text-[11px] font-black uppercase outline-none border transition-all
+                                    ${
+                                        formData.status === "APPROVED"
+                                            ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                            : formData.status === "REJECTED"
+                                            ? "bg-red-50 text-red-800 border-red-300"
+                                            : "bg-amber-50 text-amber-800 border-amber-300"
+                                    }
+                                `}>
                                     <option value="PENDING">Pending Review</option>
                                     <option value="APPROVED">Approve & Promote</option>
                                     <option value="REJECTED">Reject Demand</option>

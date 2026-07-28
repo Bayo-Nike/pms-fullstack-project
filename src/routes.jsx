@@ -62,7 +62,6 @@ import CreateDemandInitiation from './pages/demand/CreateDemandInitiation';
 import DemandInitiationDetails from './pages/demand/DemandInitiationDetails';
 import EditDemandInitiation from './pages/demand/EditDemandInitiation';
 
-
 export default function AppRoutes() {
 
   const protect = (comp, perm) => (
@@ -108,7 +107,7 @@ export default function AppRoutes() {
 
         {/* 3. Finance */}
         <Route path="project-costs" element={protect(<ProjectCosts />, "CAN_SEE_PROJECT_FINANCE")} />
-        <Route path="project-costs/:id" element={protect(<ManageProjectCosts />, "CAN_RECORD_COST")} />
+        <Route path="project-costs/:id" element={protect(<ManageProjectCosts/>, "CAN_RECORD_COST")} />
 
         {/* 4. Contractors */}
         <Route path="contractors" element={protect(<Contractors />, "CAN_SEE_CONTRACTOR_LIST")} />
