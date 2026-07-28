@@ -1,5 +1,6 @@
 package et.scco.pms_backend.modules.demand.mapper;
 
+import et.scco.pms_backend.modules.admin.repository.ClientRepository;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DemandMapper {
 
+    private final ClientRepository clientRepository;
     private final ContractorRepository contractorRepository;
     private final ConsultancyRepository consultancyRepository;
     private final SubCityRepository subCityRepository;
@@ -56,8 +58,8 @@ public class DemandMapper {
                 .consultancyId(entity.getConsultancy() != null ? entity.getConsultancy().getId() : null)
                 .consultancyName(entity.getConsultancy() != null ? entity.getConsultancy().getConsultantName() : "Not Assigned")
                 
-                .clientId(entity.getClientId())
-                // clientName can be added here if you join with a Client Table
+                .clientId(entity.getClient() != null ? entity.getClient().getId() : null)
+                .clientName(entity.getClient() != null ? entity.getClient().getClientName() : "Not External Staff")
                 
                 // Workflow State
                 .phase(entity.getPhase() != null ? entity.getPhase().name() : null)
@@ -104,6 +106,11 @@ public class DemandMapper {
             consultancyRepository.findById(dto.getConsultancyId())
                 .ifPresent(entity::setConsultancy);
         }
+
+        if (dto.getCityId() != null) {
+            clientRepository.findById(dto.getClientId())
+                .ifPresent(entity::setClient);
+        }
     
         if (dto.getSubCityId() != null) {
             subCityRepository.findById(dto.getSubCityId())
@@ -121,7 +128,6 @@ public class DemandMapper {
                 .ifPresent(entity::setLocation);
         }
 
-        entity.setClientId(dto.getClientId());
         return entity;
     }
 }

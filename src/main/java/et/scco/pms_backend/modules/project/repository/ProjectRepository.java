@@ -84,6 +84,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             @Param("subCityId") Long subCityId,
             Pageable pageable);
 
+        // For Extenal Employee (Client)
+            @Query("SELECT p FROM Project p WHERE p.client.id = :clientId " +
+            "AND (:search IS NULL OR p.title LIKE %:search%) " +
+            "AND (:status IS NULL OR p.status = :status)")
+     Page<Project> findByClientIdAndFilters(
+         @Param("clientId") Long clientId, 
+         @Param("search") String search, 
+         @Param("status") ProjectStatus status, 
+         Pageable pageable
+     );
+
         // For Admin: Count projects by status globally, by subcity is optional
        @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as subCity, " + 
               "p.status as name, " + 

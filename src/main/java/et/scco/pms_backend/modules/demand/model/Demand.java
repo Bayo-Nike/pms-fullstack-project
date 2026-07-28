@@ -12,6 +12,7 @@ import et.scco.pms_backend.enums.DemandPhase;
 import et.scco.pms_backend.enums.DemandStatus;
 import et.scco.pms_backend.enums.DemandType;
 import et.scco.pms_backend.modules.admin.model.City;
+import et.scco.pms_backend.modules.admin.model.Client;
 import et.scco.pms_backend.modules.admin.model.Consultancy;
 import et.scco.pms_backend.modules.admin.model.Contractor;
 import et.scco.pms_backend.modules.admin.model.Location;
@@ -42,7 +43,7 @@ public class Demand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, updatable = false)
+    @Column(unique = true)
     private String demandCode;
 
     private String title;
@@ -78,6 +79,10 @@ public class Demand {
     private Consultancy  consultancy;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
     private Location location;
 
@@ -101,8 +106,7 @@ public class Demand {
         documents.add(document);
         document.setDemand(this);
     }
-
-    private Long clientId;
+ 
     private Long submittedBy; // User ID
 
     @Column(updatable = false)
@@ -113,6 +117,5 @@ public class Demand {
     @PrePersist
     protected void onCreate() {
         requestedDate = LocalDateTime.now();
-        demandCode = "SCCO-DEM-" + System.currentTimeMillis();
     }
 }

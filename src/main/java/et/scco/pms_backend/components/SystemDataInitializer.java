@@ -268,7 +268,11 @@ public class SystemDataInitializer implements ApplicationRunner {
                         new PermissionData("CAN_VIEW_RECORD_COST", "View Record Cost"),
                         new PermissionData("CAN_RECORD_COST", "Record Cost"),
                         new PermissionData("CAN_EDIT_RECORD", "Edit Record"),
-                        new PermissionData("CAN_DELETE_RECORD", "Delete Record")
+                        new PermissionData("CAN_DELETE_RECORD", "Delete Record"),
+                        new PermissionData("CAN_INITIATE_PAYMENT_REQUEST", "Initiate Payment Request as Client"),
+                        new PermissionData("CAN_ACKNOWLEDGE_PAYMENT", "Acknowledge Requested Payment"),
+                        new PermissionData("CAN_DECIDE_PAYMENT", "Decide Acknowledged Payment")
+                        
                 )
         );
 

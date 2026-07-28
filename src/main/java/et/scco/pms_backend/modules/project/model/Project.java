@@ -93,6 +93,9 @@ public class Project {
 
     private LocalDateTime createdAt;
 
+    @Column(name = "demand_code")
+    private String demandCode;
+
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
