@@ -267,7 +267,8 @@ import {
     ArrowBack, Add, History, AccountBalanceWallet, Close, 
     Person, Edit, Delete, HelpOutline, CheckCircle, 
     HowToReg, InfoOutlined, CloudUpload, Description,
-    Cancel
+    Cancel,
+    FileDownload
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -416,6 +417,35 @@ export default function ManageProjectCosts() {
         } catch (err) { setAlert({ show: true, type: 'error', message: 'Delete failed.' }); }
     };
 
+    // Helper function for file download
+    const handleDownload = async (fileName) => {
+        try {
+            const response = await projectApi.DOWNLOAD_COST_DOCUMENT(fileName);
+            
+            // 1. Convert the binary data to a temporary browser URL
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+            
+            // 2. Create a hidden link and click it programmatically
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // Remove the internal timestamp prefix for the user's view (e.g., 1721_invoice.pdf -> invoice.pdf)
+            const cleanName = fileName.includes('_') ? fileName.split('_').slice(1).join('_') : fileName;
+            link.setAttribute('download', cleanName);
+            
+            document.body.appendChild(link);
+            link.click();
+            
+            // 3. Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download failed:", err);
+            setAlert({ show: true, type: 'error', message: 'File download failed. The file may no longer exist.' });
+        }
+    };
+
     if (loading) return <div className="p-20 text-center animate-pulse italic text-slate-400 uppercase tracking-widest">Generating Ledger...</div>;
 
     return (
@@ -543,6 +573,17 @@ export default function ManageProjectCosts() {
                                         <td className="px-8 py-5">
                                             <div className="flex flex-col gap-1.5">
                                                 <span className="text-sm font-black text-slate-700 tracking-tight">{item.paymentName || item.phase}</span>
+                                                {/* Direct Download Button */}
+                                                {item.supportingDoc && (
+                                                    <button 
+                                                        type="button"
+                                                        onClick={() => handleDownload(item.supportingDoc)}
+                                                        className="p-1.5 bg-sky-50 text-[#0284C7] hover:bg-[#0284C7] hover:text-white rounded-lg transition-all shadow-sm flex items-center justify-center border border-sky-100 active:scale-90"
+                                                        title="Download Attachment"
+                                                    >
+                                                        <FileDownload style={{ fontSize: 16 }} />
+                                                    </button>
+                                                )}
                                                 <div className="flex items-center gap-2">
                                                     <StatusBadge status={item.status} />
                                                     {item.milestone && <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tight bg-slate-50 px-1.5 py-0.5 rounded">@{item.milestone}</span>}

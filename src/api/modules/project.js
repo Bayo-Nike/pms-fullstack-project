@@ -74,6 +74,9 @@ const projectApi = {
     APPROVE_PAYMENT: (id, data) => api.put(`/projects/costs/${id}/approve`, data), 
     // REJECT_PAYMENT: (id, remark) => api.put(`/projects/costs/${id}/reject`, { remark }),
     REJECT_PAYMENT: (id, data) => api.put(`/projects/costs/${id}/reject`, data),
+    DOWNLOAD_COST_DOCUMENT: (fileName) => api.get(`/projects/costs/files/${fileName}`, {
+        responseType: 'blob' // CRITICAL: Tells Axios to treat the response as a file
+    }),
 };
 
 export default projectApi;
