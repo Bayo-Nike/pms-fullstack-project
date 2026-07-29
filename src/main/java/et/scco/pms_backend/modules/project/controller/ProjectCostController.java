@@ -9,13 +9,19 @@ import et.scco.pms_backend.modules.project.service.ProjectCostService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -86,10 +92,32 @@ public class ProjectCostController {
 
     @PutMapping("/costs/{id}/reject")
     public ApiResponse<ProjectCostResponseDto> rejectCost(@PathVariable Long id, @RequestBody PaymentWorkflowRequestDTO request) {
-        System.out.println("---"+request+"----"+id);
         return ResponseUtil.success(
             "Payment rejected", 
             costService.reject(id, request.getRemark())
         );
+    }
+
+    @GetMapping("/costs/files/{fileName:.+}")
+    // @GetMapping("/download/{filename:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws Exception {
+        Path filePath = Paths.get("uploads/costs").resolve(fileName).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found " + fileName);
+        }
+
+        // Try to determine content type
+        String contentType = "application/octet-stream";
+        if (fileName.endsWith(".png")) contentType = "image/png";
+        else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) contentType = "image/jpeg";
+        else if (fileName.endsWith(".pdf")) contentType = "application/pdf";
+        else if (fileName.endsWith(".docx")) contentType = "application/docx";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
