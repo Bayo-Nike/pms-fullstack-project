@@ -2,6 +2,9 @@ package et.scco.pms_backend.modules.project.service.impl;
 
 
 import et.scco.pms_backend.enums.PaymentStatus;
+import et.scco.pms_backend.modules.admin.model.Client;
+import et.scco.pms_backend.modules.admin.model.Employee;
+import et.scco.pms_backend.modules.admin.repository.ClientRepository;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.modules.project.dto.request.ProjectCostRequestDto;
 import et.scco.pms_backend.modules.project.dto.response.ProjectCostResponseDto;
@@ -36,7 +39,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
     private final ProjectRepository projectRepository;
     private final TaskRepository taskRepository;
     private final AuthContext authContext;
-    private final NotificationService notificationService;
+    private final ClientRepository clientRepository;
 
     // @Override
     // @Transactional
@@ -216,48 +219,52 @@ public class ProjectCostServiceImpl implements ProjectCostService {
         Project project = projectRepository.findById(dto.getProjectId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
 
+        Employee currentEmployee = authContext.getEmployee();
+
         ProjectCost cost = new ProjectCost();
         cost.setProject(project);
         cost.setPhase(dto.getPhase());
         cost.setAmount(dto.getAmount());
         cost.setPaymentName(dto.getPaymentName());
         cost.setMilestone(dto.getMilestone());
-        cost.setStatus(PaymentStatus.REQUESTED); // Initial status
+        cost.setStatus(PaymentStatus.REQUESTED);
         cost.setRequestedDate(LocalDateTime.now());
 
-        if (!authContext.isSuperAdmin()) {
-            cost.setCreatedBy(authContext.getEmployee());
-            cost.setClient(authContext.getEmployee().getClient());
+        // 2. REATTACH THE CLIENT (The Fix)
+        if (!authContext.isSuperAdmin() && currentEmployee != null) {
+            cost.setCreatedBy(currentEmployee);
+            
+            if (currentEmployee.getClient() != null) {
+                // Get the ID from the proxy (this doesn't trigger lazy loading)
+                Long clientId = currentEmployee.getClient().getId();
+                
+                // Fetch a FRESH instance from the database in the CURRENT session
+                Client attachedClient = clientRepository.findById(clientId)
+                        .orElseThrow(() -> new RuntimeException("Client not found"));
+                
+                cost.setClient(attachedClient);
+            }
         }
 
         if (dto.getTaskId() != null) {
-            Task task = taskRepository.findById(dto.getTaskId()).orElse(null);
-            cost.setTask(task);
+            cost.setTask(taskRepository.findById(dto.getTaskId()).orElse(null));
         }
 
-        // Handle File Upload
+        // 3. Handle File Save
         if (file != null && !file.isEmpty()) {
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            // Set your storage path (e.g., "uploads/costs/")
-            // Logic to save file to disk goes here...
-            cost.setSupportingDoc(fileName); 
+            try {
+                String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+                saveFileToDisk(file, fileName); 
+                cost.setSupportingDoc(fileName);
+            } catch (IOException e) {
+                throw new RuntimeException("File upload failed");
+            }
         }
 
-        // cost.setSubmittedBy(authContext.getEmployee());
-        
-
+        // 4. Save and Map
         ProjectCost saved = costRepository.save(cost);
 
-        // Send notification to Office Head/PM
-        if (project.getProjectManager() != null) {
-            notificationService.sendNotification(
-                    authContext.getEmployee().getId(),
-                    project.getProjectManager().getId(),
-                    project.getTitle() + ": New Payment Request pending acknowledgement",
-                    "projects/" + project.getId()
-            );
-        }
-
+        // mapToDto is now safe because 'saved.getClient()' is an attached entity
         return mapToDto(saved);
     }
 
@@ -460,8 +467,8 @@ public class ProjectCostServiceImpl implements ProjectCostService {
                 .ackRemark(entity.getAckRemark())
                 .deciderRemark(entity.getDeciderRemark())
                 .clientName(entity.getClient() != null ? entity.getClient().getClientName() : 
-                        (entity.getProject().getClient() != null ? entity.getProject().getClient().getClientName() : "N/A"))
-                .contractorName(entity.getProject().getId() != null ? entity.getProject().getContractor().getContractorName() : "N/A")
+                        (entity.getProject().getClient() != null ? entity.getProject().getClient().getClientName() : "SYSTEM/INTERNAL"))
+                .contractorName(entity.getProject().getContractor() != null ? entity.getProject().getContractor().getContractorName() : "N/A")
                 .build();
     }
 

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import et.scco.pms_backend.modules.demand.dto.request.DemandDocumentRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.DemandRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.ReviewDemandRequest;
 import et.scco.pms_backend.modules.demand.dto.response.DemandResponseDTO;
@@ -33,9 +34,10 @@ public class DemandController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DemandResponseDTO> createDemand(
             @RequestPart("demand") @Valid DemandRequestDTO demandRequestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart("fileMetadata") List<DemandDocumentRequestDTO> documentInfo) {
         
-        return new ResponseEntity<>(demandService.createDemand(demandRequestDTO, files), HttpStatus.CREATED);
+        return new ResponseEntity<>(demandService.createDemand(demandRequestDTO, files, documentInfo), HttpStatus.CREATED);
         
     }
 
@@ -69,14 +71,15 @@ public class DemandController {
     public ResponseEntity<DemandResponseDTO> updateDemand(
             @PathVariable Long id,
             @RequestPart("demand") String demandJson, 
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws JsonProcessingException {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart("fileMetadata") List<DemandDocumentRequestDTO> documentInfo) throws JsonProcessingException {
         
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         
         DemandRequestDTO demandRequestDTO = objectMapper.readValue(demandJson, DemandRequestDTO.class);
         
-        return ResponseEntity.ok(demandService.updateDemand(id, demandRequestDTO, files));
+        return ResponseEntity.ok(demandService.updateDemand(id, demandRequestDTO, files, documentInfo));
     }
 
     /**

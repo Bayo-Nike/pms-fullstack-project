@@ -28,6 +28,7 @@ import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.repository.WoredaRepository;
 import et.scco.pms_backend.modules.auth.AuthUtility;
+import et.scco.pms_backend.modules.demand.dto.request.DemandDocumentRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.DemandRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.ReviewDemandRequest;
 import et.scco.pms_backend.modules.demand.dto.response.DemandResponseDTO;
@@ -39,7 +40,9 @@ import et.scco.pms_backend.modules.demand.service.DemandService;
 import et.scco.pms_backend.modules.project.model.Project;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.utility.DemandSpecifications;
+import et.scco.pms_backend.utility.FileStorageService;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,14 +60,14 @@ public class DemandServiceImpl implements DemandService {
     private final WoredaRepository woredaRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
+    private final FileStorageService fileStorageService;
 
     @Override
     @Transactional
-    public DemandResponseDTO createDemand(DemandRequestDTO demandRequestDTO, List<MultipartFile> files) {
+    public DemandResponseDTO createDemand(DemandRequestDTO demandRequestDTO, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo) {
         // 1. Map DTO to Entity
         Demand demand = demandMapper.mapToDemandEntity(demandRequestDTO);
-        
-        
+                
         demand.setStatus(DemandStatus.PENDING);
         demand.setPhase(DemandPhase.INITIATION);
 
@@ -79,21 +82,89 @@ public class DemandServiceImpl implements DemandService {
             }
             
         // 2. Handle Dynamic Files
-        if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                String fileName = file.getOriginalFilename();
+        // if (files != null && !files.isEmpty()) {
+        //     for (MultipartFile file : files) {
+        //         String fileName = file.getOriginalFilename();
                 
-                // Logic to save file to your storage (S3, Local Disk, etc.)
-                // String fileUrl = fileStorageService.save(file); 
-                String fileUrl = "/uploads/" + fileName; // Placeholder
+        //         // Logic to save file to your storage (S3, Local Disk, etc.)
+        //         // String fileUrl = fileStorageService.save(file); 
+        //         String fileUrl = "/uploads/demands/" + fileName; // Placeholder
 
-                DemandDocument doc = new DemandDocument();
-                doc.setFileName(fileName);
-                doc.setFileUrl(fileUrl);
-                doc.setFileType(file.getContentType());
+        //         DemandDocument doc = new DemandDocument();
+        //         doc.setFileName(fileName);
+        //         doc.setFileUrl(fileUrl);
+        //         doc.setFileType(file.getContentType());
                 
-                // USE THE HELPER METHOD to link both sides
-                demand.addDocument(doc);
+        //         // USE THE HELPER METHOD to link both sides
+        //         demand.addDocument(doc);
+        //     }
+        // }
+
+
+        // if (files != null && !files.isEmpty()) {
+        //     for (int i = 0; i < files.size(); i++) {
+        //         MultipartFile file = files.get(i);
+        //         DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i); // Get matching metadata by index
+    
+        //         DemandDocument doc = new DemandDocument();
+        //         // logic to determine folder
+        //         String clientSubFolder = (demand.getClient() != null) 
+        //         ? demand.getClient().getClientName().replaceAll("\\s+", "_") 
+        //         : "unassigned";
+
+        //         // System Filename (e.g., "scan123.pdf")
+        //         doc.setFileName(file.getOriginalFilename()); 
+                
+        //         // User meaningful name (e.g., "Design Document")
+        //         doc.setDocumentName(fileDataDTO.getDocumentName()); 
+                
+        //         // User description
+        //         doc.setDescription(fileDataDTO.getDescription());
+                
+        //         doc.setFileType(file.getContentType());
+                
+        //         doc.setFileUrl("/uploads/demands/" + clientSubFolder + "/" + file.getOriginalFilename());  
+                
+                
+    
+        //         demand.addDocument(doc);
+        //     }
+        // }
+
+        if (files != null && !files.isEmpty()) {
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
+        
+                // 1. Professional Sanitization: Remove characters that break file systems
+                String clientSubFolder = (demand.getClient() != null) 
+                    ? demand.getClient().getClientName().replaceAll("[^a-zA-Z0-9]", "_") 
+                    : "unassigned";
+        
+                // 2. Prevent Overwriting: Add timestamp to filename
+                String originalFileName = file.getOriginalFilename();
+                String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
+        
+                try {
+                    // 3. PHYSICAL SAVE: Actually write the bits to the drive
+                   fileStorageService.saveFileToDisk(file, clientSubFolder, uniqueFileName);
+        
+                    // 4. Create Entity Record
+                    DemandDocument doc = new DemandDocument();
+                    doc.setFileName(originalFileName); // Real name for display
+                    doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
+                    doc.setDescription(fileDataDTO.getDescription());
+                    doc.setFileType(file.getContentType());
+                    
+                    // 5. DB PATH: Store relative path only (Best practice)
+                    doc.setFileUrl(clientSubFolder + "/" + uniqueFileName);  
+                    
+                    demand.addDocument(doc);
+                    
+                } catch (IOException e) {
+                    // Professional error handling: Don't let one failed file crash the whole process without a clear message
+                    throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
+                }
             }
         }
  
@@ -219,7 +290,7 @@ public class DemandServiceImpl implements DemandService {
 
     @Override
     @Transactional
-    public DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files) {
+    public DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo) {
         Demand demand = demandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Demand not found"));
 
@@ -261,14 +332,79 @@ public class DemandServiceImpl implements DemandService {
         // demand.setDocuments(existing.getDocuments()); 
         // Handle additional file uploads
         if (files != null && !files.isEmpty()) {
-            for (MultipartFile file : files) {
-                DemandDocument doc = new DemandDocument();
-                doc.setFileName(file.getOriginalFilename());
-                doc.setFileUrl("/uploads/" + file.getOriginalFilename());
-                demand.addDocument(doc);
+            // for (MultipartFile file : files) {
+            //     DemandDocument doc = new DemandDocument();
+            //     doc.setFileName(file.getOriginalFilename());
+            //     doc.setFileUrl("/uploads/demands/" + file.getOriginalFilename());
+            //     demand.addDocument(doc);
+            // }
+
+
+            // for (int i = 0; i < files.size(); i++) {
+            //     MultipartFile file = files.get(i);
+            //     DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i); // Get matching metadata by index
+    
+            //     DemandDocument doc = new DemandDocument();
+
+            //     // logic to determine folder
+            //     String clientSubFolder = (demand.getClient() != null) 
+            //     ? demand.getClient().getClientName().replaceAll("\\s+", "_") 
+            //     : "unassigned";
+                
+            //     // System Filename (e.g., "scan123.pdf")
+            //     doc.setFileName(file.getOriginalFilename()); 
+                
+            //     // User meaningful name (e.g., "Design Document")
+            //     doc.setDocumentName(fileDataDTO.getDocumentName()); 
+                
+            //     // User description
+            //     doc.setDescription(fileDataDTO.getDescription());
+                
+            //     doc.setFileType(file.getContentType());
+            //     doc.setFileUrl("/uploads/demands/" + clientSubFolder + "/" + file.getOriginalFilename());
+    
+            //     demand.addDocument(doc);
+            // }
+            if (files != null && !files.isEmpty()) {
+                for (int i = 0; i < files.size(); i++) {
+                    MultipartFile file = files.get(i);
+                    DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
+            
+                    // 1. Professional Sanitization: Remove characters that break file systems
+                    String clientSubFolder = (demand.getClient() != null) 
+                        ? demand.getClient().getClientName().replaceAll("[^a-zA-Z0-9]", "_") 
+                        : "unassigned";
+            
+                    // 2. Prevent Overwriting: Add timestamp to filename
+                    String originalFileName = file.getOriginalFilename();
+                    String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
+            
+                    try {
+                        // 3. PHYSICAL SAVE: Actually write the bits to the drive
+                       fileStorageService.saveFileToDisk(file, clientSubFolder, uniqueFileName);
+            
+                        // 4. Create Entity Record
+                        DemandDocument doc = new DemandDocument();
+                        doc.setFileName(originalFileName); // Real name for display
+                        doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
+                        doc.setDescription(fileDataDTO.getDescription());
+                        doc.setFileType(file.getContentType());
+                        
+                        // 5. DB PATH: Store relative path only (Best practice)
+                        doc.setFileUrl(clientSubFolder + "/" + uniqueFileName);  
+                        
+                        demand.addDocument(doc);
+                        
+                    } catch (IOException e) {
+                        // Professional error handling: Don't let one failed file crash the whole process without a clear message
+                        throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
+                    }
+                }
             }
         }
 
         return demandMapper.mapToDemandResponseDTO(demandRepository.save(demand));
     }
+
+    
 }

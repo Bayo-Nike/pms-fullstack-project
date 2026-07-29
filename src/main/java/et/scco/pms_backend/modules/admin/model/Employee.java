@@ -54,6 +54,7 @@ public class Employee {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id") // Nullable: only filled if employeeType is EXTERNAL
+    @ToString.Exclude // Prevents Infinite Loop
     private Client client;
 
     @ManyToMany(mappedBy = "employees")
