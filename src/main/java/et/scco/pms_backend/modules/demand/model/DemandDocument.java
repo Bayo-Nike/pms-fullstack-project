@@ -29,7 +29,7 @@ public class DemandDocument {
     private Demand demand;
 
     private String fileName;
-    private String fileUrl;
+    private String uniqueFileName;
     private String fileType; // e.g., "Design Approval", "Contract Agreement"
     private String documentName; // User-defined name like 'Design Document'
     private String description;  // User-defined description

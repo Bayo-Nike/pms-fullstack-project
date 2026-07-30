@@ -75,6 +75,8 @@ public class DemandResponseDTO {
     public static class DocumentResponseDTO {
         private Long id;
         private String fileName;
+        private String documentName;
+        private String uniqueFileName;
         private String fileType; // e.g., "Design Approval"
         private String downloadUrl; // API endpoint to download
         private Long size;

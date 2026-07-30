@@ -56,9 +56,9 @@ public class FileStorageService {
         }
     }
 
-    public void saveFileToDisk(MultipartFile file, String subFolder, String fileName) throws IOException {
+    public void saveFileToDisk(MultipartFile file, String fileName) throws IOException {
         // Define root (e.g., "uploads/demands/Client_A")
-        Path uploadPath = Paths.get("uploads/demands", subFolder).normalize();
+        Path uploadPath = Paths.get("uploads/demands").normalize();
         
         // Create folders automatically (idempotent)
         Files.createDirectories(uploadPath);

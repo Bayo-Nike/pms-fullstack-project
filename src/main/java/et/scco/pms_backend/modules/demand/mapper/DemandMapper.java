@@ -76,8 +76,10 @@ public class DemandMapper {
                         .map(doc -> DemandResponseDTO.DocumentResponseDTO.builder()
                                 .id(doc.getId())
                                 .fileName(doc.getFileName())
+                                .documentName(doc.getDocumentName())
                                 .fileType(doc.getFileType())
-                                .downloadUrl("/api/v1/files/download/" + doc.getId())
+                                .uniqueFileName(doc.getUniqueFileName())
+                                .downloadUrl("/api/projects/demands/files/download/" + doc.getId())
                                 .build())
                         .collect(Collectors.toList()) : null)
                 .build();

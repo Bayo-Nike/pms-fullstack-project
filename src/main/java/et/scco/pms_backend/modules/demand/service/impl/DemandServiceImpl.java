@@ -136,10 +136,7 @@ public class DemandServiceImpl implements DemandService {
                 MultipartFile file = files.get(i);
                 DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
         
-                // 1. Professional Sanitization: Remove characters that break file systems
-                String clientSubFolder = (demand.getClient() != null) 
-                    ? demand.getClient().getClientName().replaceAll("[^a-zA-Z0-9]", "_") 
-                    : "unassigned";
+                
         
                 // 2. Prevent Overwriting: Add timestamp to filename
                 String originalFileName = file.getOriginalFilename();
@@ -147,7 +144,7 @@ public class DemandServiceImpl implements DemandService {
         
                 try {
                     // 3. PHYSICAL SAVE: Actually write the bits to the drive
-                   fileStorageService.saveFileToDisk(file, clientSubFolder, uniqueFileName);
+                   fileStorageService.saveFileToDisk(file, uniqueFileName);
         
                     // 4. Create Entity Record
                     DemandDocument doc = new DemandDocument();
@@ -157,7 +154,7 @@ public class DemandServiceImpl implements DemandService {
                     doc.setFileType(file.getContentType());
                     
                     // 5. DB PATH: Store relative path only (Best practice)
-                    doc.setFileUrl(clientSubFolder + "/" + uniqueFileName);  
+                    doc.setUniqueFileName(uniqueFileName);  
                     
                     demand.addDocument(doc);
                     
@@ -370,10 +367,6 @@ public class DemandServiceImpl implements DemandService {
                     MultipartFile file = files.get(i);
                     DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
             
-                    // 1. Professional Sanitization: Remove characters that break file systems
-                    String clientSubFolder = (demand.getClient() != null) 
-                        ? demand.getClient().getClientName().replaceAll("[^a-zA-Z0-9]", "_") 
-                        : "unassigned";
             
                     // 2. Prevent Overwriting: Add timestamp to filename
                     String originalFileName = file.getOriginalFilename();
@@ -381,7 +374,7 @@ public class DemandServiceImpl implements DemandService {
             
                     try {
                         // 3. PHYSICAL SAVE: Actually write the bits to the drive
-                       fileStorageService.saveFileToDisk(file, clientSubFolder, uniqueFileName);
+                       fileStorageService.saveFileToDisk(file, uniqueFileName);
             
                         // 4. Create Entity Record
                         DemandDocument doc = new DemandDocument();
@@ -391,7 +384,7 @@ public class DemandServiceImpl implements DemandService {
                         doc.setFileType(file.getContentType());
                         
                         // 5. DB PATH: Store relative path only (Best practice)
-                        doc.setFileUrl(clientSubFolder + "/" + uniqueFileName);  
+                        doc.setUniqueFileName(uniqueFileName);
                         
                         demand.addDocument(doc);
                         
