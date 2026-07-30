@@ -174,7 +174,18 @@ export default function EditDemandInitiation() {
     
                 data.append('demand', new Blob([JSON.stringify(dtoPayload)], { type: 'application/json' }));
                 
-                newFiles.forEach(file => data.append('files', file));
+                // Map New Files to the Metadata DTO structure expected by Backend
+                const metadata = newFiles.map(item => ({
+                    documentName: item.docName,
+                    description: item.description
+                }));
+            
+                // Append fileMetadata as a JSON blob
+                data.append('fileMetadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+
+                // Append actual binary files
+                newFiles.forEach(item => data.append('files', item.file));
+                // Append removed IDs (ensure your service handles this)
                 data.append('removedFileIds', new Blob([JSON.stringify(removedFileIds)], { type: 'application/json' }));
                 
                 await demandApi.UPDATE_DEMAND(id, data);
@@ -297,14 +308,21 @@ export default function EditDemandInitiation() {
                         </div>
                     </div>
 
-                    {/* DIGITAL DOSSIER (FILES) */}
+                    {/* DOCUMENTS (FILES) */}
                     <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between border-b pb-4 text-slate-500 font-black uppercase text-[11px] tracking-widest">
-                            <span>Digital Dossier</span>
+                            <span>Attached Documents</span>
                             {!clientDisabled && (
                                 <label className="cursor-pointer text-sky-600 flex items-center gap-2 hover:underline">
                                     <CloudUpload size={16} /> Upload New
-                                    <input type="file" multiple className="hidden" onChange={(e) => setNewFiles([...newFiles, ...Array.from(e.target.files)])} />
+                                    <input type="file" multiple className="hidden" onChange={(e) => setNewFiles([
+                                            ...newFiles, 
+                                            ...Array.from(e.target.files).map(f => ({
+                                                file: f,
+                                                docName: f.name.split('.').slice(0, -1).join('.'), // Default name
+                                                description: ''
+                                            }))
+                                        ])} />
                                 </label>
                             )}
                         </div>
@@ -312,15 +330,45 @@ export default function EditDemandInitiation() {
                             {/* Existing Documents */}
                             {existingDocs.filter(d => !removedFileIds.includes(d.id)).map(doc => (
                                 <div key={doc.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
-                                    <div className="flex items-center gap-3 truncate"><Map size={14} className="text-slate-300"/> <span className="text-[11px] font-bold truncate text-slate-600">{doc.fileName}</span></div>
+                                    <div className="flex items-center gap-3 truncate"><Map size={14} className="text-slate-300"/> 
+                                    <span className="text-[11px] font-bold truncate text-slate-600" title='Document Name'>{doc.documentName || doc.fileName}</span> 
+                                    </div>
                                     {!clientDisabled && <Delete className="text-rose-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-all" size={16} onClick={() => setRemovedFileIds([...removedFileIds, doc.id])} />}
                                 </div>
                             ))}
                             {/* Newly Uploaded Files */}
-                            {newFiles.map((file, i) => (
-                                <div key={i} className="flex items-center justify-between p-4 bg-sky-50 rounded-2xl border border-sky-100 animate-pulse">
-                                    <div className="flex items-center gap-3 truncate"><CloudUpload size={14} className="text-sky-500"/> <span className="text-[11px] font-bold text-sky-800 truncate">{file.name}</span></div>
-                                    <Close className="text-sky-400 cursor-pointer" size={16} onClick={() => setNewFiles(newFiles.filter((_, idx) => idx !== i))} />
+                            {newFiles.map((item, i) => (
+                                <div key={i} className="p-4 bg-sky-50 rounded-2xl border border-sky-100 animate-pulse space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3 truncate">
+                                            <CloudUpload size={14} className="text-sky-500"/> 
+                                            <span className="text-[11px] font-bold text-sky-800 truncate">{item.file.name}</span>
+                                        </div>
+                                        <Close className="text-sky-400 cursor-pointer" size={16} onClick={() => setNewFiles(newFiles.filter((_, idx) => idx !== i))} />
+                                    </div>
+                                    {/* INPUTS FOR NEW FILE METADATA */}
+                                    <div className="grid grid-cols-1 gap-2">
+                                        <input 
+                                            placeholder="Document Name" 
+                                            value={item.docName}
+                                            onChange={(e) => {
+                                                const updated = [...newFiles];
+                                                updated[i].docName = e.target.value;
+                                                setNewFiles(updated);
+                                            }}
+                                            className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none focus:border-sky-500"
+                                        />
+                                        <input 
+                                            placeholder="Description" 
+                                            value={item.description}
+                                            onChange={(e) => {
+                                                const updated = [...newFiles];
+                                                updated[i].description = e.target.value;
+                                                setNewFiles(updated);
+                                            }}
+                                            className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] outline-none focus:border-sky-500"
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -52,6 +52,35 @@ const DemandInitiationDetails = () => {
         });
     };
 
+    const handleDownload = async (docId, originalFileName) => {
+        try {
+            // 1. Call the API (includes your JWT Token automatically)
+            const response = await demandApi.DOWNLOAD_DEMAND_DOCUMENT(docId);
+            
+            // 2. Create a Blob from the response data
+            const fileBlob = new Blob([response.data], { 
+                type: response.headers['content-type'] 
+            });
+    
+            // 3. Create a temporary URL
+            const url = window.URL.createObjectURL(fileBlob);
+            
+            // 4. Create a hidden <a> tag and click it
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', originalFileName); // The clean name: "Screenshot.png"
+            document.body.appendChild(link);
+            link.click();
+            
+            // 5. Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download Error:", err);
+            setAlert({ show: true, type: 'error', message: 'Download failed. Access denied.' });
+        }
+    };
+
     if (loading) return (
         <div className="p-20 text-center animate-pulse">
             <PendingActions className="text-slate-300 mb-4" sx={{ fontSize: 64 }} />
@@ -71,10 +100,15 @@ const DemandInitiationDetails = () => {
                     </button>
                     <div>
                         <div className="flex items-center gap-3">
-                            <span className="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest">
+                            <span className="px-3 py-1 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest" title='Demand Code'>
                                 {demand.demandCode}
                             </span>
-                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">{demand.title}</h1>
+                            
+                            <h6 className="text-2xl font-black text-slate-900 tracking-tight" title='Client Name'>{demand.clientName}</h6>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight" title='Demand Title'>{demand.title}</h1>
+                            
                         </div>
                         <div className="flex items-center gap-4 mt-2">
                             <span className={`px-4 py-1 rounded-full border text-[9px] font-black uppercase tracking-tighter ${getStatusStyle(demand.status)}`}>
@@ -112,7 +146,7 @@ const DemandInitiationDetails = () => {
                     <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm">
                         <div className="flex items-center gap-3 text-slate-400 border-b pb-4 mb-6">
                             <Description fontSize="small" />
-                            <span className="text-[11px] font-black uppercase tracking-widest">Demand Narrative</span>
+                            <span className="text-[11px] font-black uppercase tracking-widest">Demand Description</span>
                         </div>
                         <p className="text-sm text-slate-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl italic border-l-4 border-slate-200">
                             "{demand.description || 'No detailed description provided by the client.'}"
@@ -231,30 +265,45 @@ const DemandInitiationDetails = () => {
                                 <Description />
                                 <span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Attached Documents</span>
                             </div>
-                            <span className="px-2 py-1 bg-slate-50 rounded-lg text-[9px] font-black text-slate-400 border">{demand.documents?.length || 0} Files</span>
+                            <span className="px-3 py-1 bg-slate-50 rounded-lg text-[9px] font-black text-slate-500 border border-slate-100">
+                                {demand.documents?.length || 0} Files
+                            </span>
                         </div>
+                        
                         <div className="space-y-3">
                             {demand.documents?.length === 0 ? (
-                                <div className="text-center py-6 text-[10px] font-bold text-slate-300 uppercase tracking-widest">No Attachments</div>
+                                <div className="text-center py-8 text-[10px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                                    No Attachments Found
+                                </div>
                             ) : (
                                 demand.documents.map((doc, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-sky-50 transition-all group">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-sky-600 shadow-sm border group-hover:border-sky-200">
-                                                <Visibility sx={{ fontSize: 16 }} />
+                                    <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-[24px] border border-slate-100 hover:bg-sky-50 transition-all group shadow-sm hover:shadow-md">
+                                        <div className="flex items-center gap-4">
+                                            {/* Dynamic File Extension Icon Box */}
+                                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-sky-600 shadow-sm border border-slate-100 group-hover:border-sky-200 text-[10px] font-black uppercase tracking-widest">
+                                                {doc.fileName?.split('.').pop() || 'DOC'}
                                             </div>
                                             <div className="overflow-hidden">
-                                                <p className="text-[11px] font-black text-slate-700 truncate max-w-[120px]">{doc.fileName}</p>
-                                                <p className="text-[8px] font-bold text-slate-400 uppercase">{doc.fileType || 'Document'}</p>
+                                                {/* Meaningful Document Name (Fallback to fileName) */}
+                                                <p className="text-[11px] font-black text-slate-800 truncate max-w-[160px]" title="Document Name">
+                                                    {doc.documentName || doc.fileName}
+                                                </p>
+                                                {/* Source File Name */}
+                                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter truncate max-w-[160px] mt-0.5" title='Unique File Name in folder'>
+                                                    Source: {doc.uniqueFileName || doc.fileName}
+                                                </p>
                                             </div>
                                         </div>
-                                        <a 
-                                            href={doc.downloadUrl} 
-                                            download 
-                                            className="p-2 text-slate-400 hover:text-sky-600 hover:bg-white rounded-lg transition-all"
+                                        
+                                        {/* Replaced <a href> with Secure Button */}
+                                        <button 
+                                            type="button"
+                                            onClick={() => handleDownload(doc.id, doc.fileName)} 
+                                            className="p-2.5 bg-white text-slate-400 hover:text-sky-600 hover:bg-sky-100 border border-slate-100 hover:border-sky-200 rounded-xl transition-all shadow-sm active:scale-95"
+                                            title="Download Document"
                                         >
                                             <Download fontSize="small" />
-                                        </a>
+                                        </button>
                                     </div>
                                 ))
                             )}

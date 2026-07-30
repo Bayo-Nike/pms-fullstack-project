@@ -17,6 +17,10 @@ const demandApi = {
 
     REVIEW_DEMAND: (id, data) => api.patch(`/projects/demands/${id}/review`, data),
     DELETE_DEMAND: (id) => api.delete(`/projects/demands/${id}`),
+    DOWNLOAD_DEMAND_DOCUMENT: (id) => api.get(`/projects/demands/files/download/${id}`, {
+        responseType: 'blob' // This allows the transfer of binary files
+    }),
+
 
 };
 export default demandApi;
