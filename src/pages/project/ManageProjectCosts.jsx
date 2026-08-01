@@ -516,7 +516,7 @@ export default function ManageProjectCosts() {
                     </div>
                 </div>
                 <div className="bg-slate-900 text-white px-8 py-4 rounded-[24px] shadow-xl text-center min-w-[180px]">
-                    <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Project Ceiling</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Total Project Cost</p>
                     <p className="text-xl font-black">{project.currencyType} {project.budget?.toLocaleString()}</p>
                 </div>
             </div>

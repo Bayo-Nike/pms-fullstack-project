@@ -61,9 +61,9 @@ export default function Projects() {
       setProjects(pageData.content || []);
       setPageInfo(prev => ({
         ...prev,
-        current: pageData.number,
-        total: pageData.totalPages,
-        totalElements: pageData.totalElements
+        current: pageData?.page.number,
+        total: pageData?.page.totalPages,
+        totalElements: pageData?.page.totalElements
       }));
     } catch (err) {
       setAlert({ show: true, type: 'error', message: 'Failed to load initiation registry.' });
@@ -278,7 +278,11 @@ export default function Projects() {
         {/* Pagination */}
         <div className="px-8 py-6 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            Registry Page {pageInfo.current + 1} of {pageInfo.total || 1}
+            Page {pageInfo.current + 1} of {pageInfo.total || 1}
+          </span>
+          <div className="h-1 w-[1px] bg-slate-200"></div>
+          <span className="text-[10px] font-bold text-slate-400 uppercase">
+              Total Records: {pageInfo.totalElements || 0}
           </span>
           <div className="flex gap-2">
             <button

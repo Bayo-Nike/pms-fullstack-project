@@ -29,6 +29,7 @@ export default function CreateDemandInitiation() {
         demandLevel: 'CITY', // Mapped from your snippet's projectLevel
         subCityId: '',
         woredaId: '',        // Single ID for Demand Table
+        locationId: '',
         locationIds: [],     // Multi-select for dynamic site registry
         siteLocation: '',    // Free text for specific address
         contractorId: '',
@@ -40,7 +41,7 @@ export default function CreateDemandInitiation() {
     // 2. Lookups & Files
     const [files, setFiles] = useState([]);
     const [lookups, setLookups] = useState({ 
-        subCities: [], woredas: [], contractors: [], consultancies: [] 
+        subCities: [], woredas: [], contractors: [], consultancies: [], locations: [] 
     });
     
     const [loading, setLoading] = useState(true);
@@ -60,17 +61,19 @@ export default function CreateDemandInitiation() {
     useEffect(() => {
         const init = async () => {
             try {
-                const [subRes, woredaRes, contRes, consRes] = await Promise.all([
+                const [subRes, woredaRes, contRes, consRes,locRes] = await Promise.all([
                     adminApi.GET_SUB_CITIES(),
                     adminApi.GET_WOREDAS(),
                     adminApi.GET_CONTRACTORS(),
-                    adminApi.GET_CONSULTANTS()
+                    adminApi.GET_CONSULTANTS(),
+                    adminApi.GET_LOCATIONS()
                 ]);
                 setLookups({
                     subCities: subRes.data?.data || subRes.data || [],
                     woredas: woredaRes.data?.data || woredaRes.data || [],
                     contractors: contRes.data?.data || contRes.data || [],
-                    consultancies: consRes.data?.data || consRes.data || []
+                    consultancies: consRes.data?.data || consRes.data || [],
+                    locations: locRes.data?.data || locRes.data || [] 
                 });
             } catch (err) {
                 setAlert({ show: true, type: 'error', message: 'Registry sync failed.' });
@@ -100,9 +103,21 @@ export default function CreateDemandInitiation() {
         return lookups.consultancies.filter(c => c.consultantName?.toLowerCase().includes(consultantSearch.toLowerCase()));
     }, [lookups.consultancies, consultantSearch]);
 
-    const filteredWoredas = useMemo(() => 
-        lookups.woredas.filter(w => String(w.subCityId) === String(formData.subCityId)), 
-    [formData.subCityId, lookups.woredas]);
+    // const filteredWoredas = useMemo(() => 
+    //     lookups.woredas.filter(w => String(w.subCityId) === String(formData.subCityId)), 
+    // [formData.subCityId, lookups.woredas]);
+
+    // 1. Filter Woredas by selected Sub-City
+    const filteredWoredas = useMemo(() => {
+        if (!formData.subCityId) return [];
+        return lookups.woredas.filter(w => String(w.subCityId) === String(formData.subCityId));
+    }, [formData.subCityId, lookups.woredas]);
+
+    // 2. Filter Registered Sites by selected Woreda
+    const filteredLocations = useMemo(() => {
+        if (!formData.woredaId) return [];
+        return lookups.locations.filter(loc => String(loc.woredaId) === String(formData.woredaId));
+    }, [formData.woredaId, lookups.locations]);
 
     // 7. Actions
     const handleInputChange = (e) => {
@@ -141,6 +156,7 @@ export default function CreateDemandInitiation() {
             }));
             data.append('fileMetadata', new Blob([JSON.stringify(documentInfo)], { type: 'application/json' }));
 
+            console.log(data);
             await demandApi.CREATE_DEMAND(data);
             setAlert({ show: true, type: 'success', message: 'Demand successfully submitted.' });
             setTimeout(() => navigate('/demands'), 2000);
@@ -352,14 +368,20 @@ export default function CreateDemandInitiation() {
                             <div className="relative">
                                 <LocationOn className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
                                 <select
+                                    name="locationId"
+                                    value={formData.locationId}
                                     disabled={!formData.woredaId}
                                     onChange={(e) => { 
-                                        const v = Number(e.target.value); 
-                                        if (v && !formData.locationIds.includes(v)) {
-                                            setFormData(p => ({ ...p, locationIds: [...p.locationIds, v] })); 
+                                        const v = e.target.value; 
+                                        if (v) {
+                                            setFormData(p => ({ 
+                                                ...p, 
+                                                locationId: v, // This saves the value to the singular field
+                                                locationIds: [v] // This updates your Badge UI (keeping it to 1 selection)
+                                            })); 
                                         }
                                     }}
-                                    className="w-full pl-12 pr-6 py-4 text-sm font-bold bg-slate-50 border border-slate-200 rounded-2xl appearance-none outline-none disabled:opacity-50 transition-all"
+                                    // ...
                                 >
                                     <option value="">{formData.woredaId ? '-- Select Registered Site --' : '-- Select Woreda First --'}</option>
                                     {lookups.locations?.filter(l => String(l.woredaId) === String(formData.woredaId) && !formData.locationIds.includes(l.id)).map(l => (
@@ -434,12 +456,12 @@ export default function CreateDemandInitiation() {
                                 <div key={idx} className="p-5 bg-slate-50 rounded-[24px] border border-slate-100 animate-slideUp space-y-4">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[10px] font-black text-sky-600 border shadow-sm uppercase">
+                                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[10px] font-black text-sky-600 border shadow-sm uppercase" title='File Type'>
                                                 {item.file.name.split('.').pop()}
                                             </div>
                                             <div className="overflow-hidden">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[180px]">
-                                                    Source: {item.file.name}
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate max-w-[180px]" title='File Name'>
+                                                    {item.file.name}
                                                 </p>
                                             </div>
                                         </div>
@@ -449,20 +471,23 @@ export default function CreateDemandInitiation() {
                                     </div>
                                     
                                     {/* New Input Fields for Metadata */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div className="space-y-1">
+                                    <div className="space-y-3">
+                                        <div className="space-y-3">
                                             <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Document Name</label>
                                             <input 
-                                                placeholder="e.g. Design Approval" 
+                                                placeholder="e.g. Design Approval Document"  title='Please Enter Correct File Name'
                                                 value={item.documentName}
                                                 onChange={(e) => updateFileMeta(idx, 'documentName', e.target.value)}
-                                                className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold outline-none focus:border-sky-500"
+                                                className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none focus:border-sky-500"
                                             />
                                         </div>
-                                        <div className="space-y-1">
+                                    </div>
+                                    <div className="space-y-3">
+                                        
+                                        <div className="space-y-3">
                                             <label className="text-[8px] font-black text-slate-400 uppercase ml-1">Brief Description</label>
-                                            <input 
-                                                placeholder="Provide details..." 
+                                            <textarea 
+                                                placeholder="Provide details..."  title='Enter Brief Description about a file'
                                                 value={item.description}
                                                 onChange={(e) => updateFileMeta(idx, 'description', e.target.value)}
                                                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs outline-none focus:border-sky-500"

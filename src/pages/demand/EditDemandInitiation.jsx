@@ -358,7 +358,7 @@ export default function EditDemandInitiation() {
                                             }}
                                             className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none focus:border-sky-500"
                                         />
-                                        <input 
+                                        <textarea 
                                             placeholder="Description" 
                                             value={item.description}
                                             onChange={(e) => {
@@ -441,7 +441,7 @@ export default function EditDemandInitiation() {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase ml-1">Site Registry (Plot)</label>
                                 <select name="locationId" value={String(formData.locationId || '')} onChange={handleInputChange} disabled={!formData.woredaId || clientDisabled} className="w-full px-5 py-4 text-sm font-bold bg-slate-50 border border-slate-100 rounded-2xl outline-none">
-                                    <option value="">-- Select Plot --</option>
+                                    <option value="">-- Select Site Location --</option>
                                     {lookups.locations.filter(l => String(l.woredaId) === String(formData.woredaId)).map(l => <option key={l.id} value={String(l.id)}>{l.name}</option>)}
                                 </select>
                             </div>

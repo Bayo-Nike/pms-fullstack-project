@@ -41,9 +41,10 @@ export default function ProjectCosts() {
             const pageData = res.data.data;
             setProjects(pageData.content || []);
             setPageInfo({
-                current: pageData.number,
-                total: pageData.totalPages,
-                size: pageData.size
+                current: pageData?.page.number,
+                total: pageData?.page.totalPages,
+                totalElements:pageData.page?.totalElements ?? 0,
+                size: pageData?.page.size
             });
         } catch (err) {
             console.error("Fetch error:", err);
@@ -146,7 +147,6 @@ export default function ProjectCosts() {
                         ) : filteredProjects.length > 0 ? (
                             filteredProjects.map((proj) => {
                                 const usage = (proj.budgetUsed / proj.budget) * 100;
-                                console.log(proj)
                                 return (
                                     <tr key={proj.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-8 py-5">
@@ -218,7 +218,13 @@ export default function ProjectCosts() {
 
                 {/* Pagination */}
                 <div className="px-8 py-5 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page {pageInfo.current + 1} of {pageInfo.total || 1}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Page {pageInfo.current + 1} of {pageInfo.total || 1}
+                    </span>
+                    <div className="h-1 w-[1px] bg-slate-200"></div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Total Records: {pageInfo.totalElements || 0}
+                    </span>
                     <div className="flex gap-2">
                         <button disabled={pageInfo.current === 0} onClick={() => fetchProjects(pageInfo.current - 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30 hover:text-[#0284C7] transition-all"><ChevronLeft fontSize="small" /></button>
                         <button disabled={pageInfo.current + 1 >= pageInfo.total} onClick={() => fetchProjects(pageInfo.current + 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30 hover:text-[#0284C7] transition-all"><ChevronRight fontSize="small" /></button>
