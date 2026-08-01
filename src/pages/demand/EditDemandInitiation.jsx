@@ -308,65 +308,67 @@ export default function EditDemandInitiation() {
                         </div>
                     </div>
 
-                    {/* DOCUMENTS (FILES) */}
+                    {/* PART 4: DOCUMENTS (FILES) */}
                     <div className="bg-white rounded-[40px] border border-slate-100 p-8 space-y-6 shadow-sm">
                         <div className="flex items-center justify-between border-b pb-4 text-slate-500 font-black uppercase text-[11px] tracking-widest">
                             <span>Attached Documents</span>
                             {!clientDisabled && (
                                 <label className="cursor-pointer text-sky-600 flex items-center gap-2 hover:underline">
                                     <CloudUpload size={16} /> Upload New
-                                    <input type="file" multiple className="hidden" onChange={(e) => setNewFiles([
-                                            ...newFiles, 
-                                            ...Array.from(e.target.files).map(f => ({
-                                                file: f,
-                                                docName: f.name.split('.').slice(0, -1).join('.'), // Default name
-                                                description: ''
-                                            }))
-                                        ])} />
+                                    <input type="file" multiple className="hidden" 
+                                        onChange={(e) => setNewFiles([...newFiles, ...Array.from(e.target.files).map(f => ({
+                                            file: f, docName: f.name.split('.').slice(0,-1).join('.'), description: ''
+                                        }))])} 
+                                    />
                                 </label>
                             )}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Existing Documents */}
-                            {existingDocs.filter(d => !removedFileIds.includes(d.id)).map(doc => (
+
+                        <div className="grid grid-cols-1 gap-4">
+                            {/* EXISTING FILES: Marked for removal logic */}
+                            {existingDocs.filter(doc => !removedFileIds.includes(doc.id)).map(doc => (
                                 <div key={doc.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 group">
-                                    <div className="flex items-center gap-3 truncate"><Map size={14} className="text-slate-300"/> 
-                                    <span className="text-[11px] font-bold truncate text-slate-600" title='Document Name'>{doc.documentName || doc.fileName}</span> 
+                                    <div className="flex items-center gap-3">
+                                        <Map size={14} className="text-slate-300"/> 
+                                        <div>
+                                            <p className="text-[11px] font-bold text-slate-600">{doc.documentName || doc.fileName}</p>
+                                            <p className="text-[8px] text-slate-400 uppercase">Existing File</p>
+                                        </div>
                                     </div>
-                                    {!clientDisabled && <Delete className="text-rose-400 cursor-pointer opacity-0 group-hover:opacity-100 transition-all" size={16} onClick={() => setRemovedFileIds([...removedFileIds, doc.id])} />}
+                                    {!clientDisabled && (
+                                        <button 
+                                            onClick={() => setRemovedFileIds([...removedFileIds, doc.id])}
+                                            className="p-2 text-rose-400 hover:bg-rose-50 rounded-xl transition-all"
+                                        >
+                                            <Delete size={16} />
+                                        </button>
+                                    )}
                                 </div>
                             ))}
-                            {/* Newly Uploaded Files */}
+
+                            {/* NEW FILES: Metadata inputs */}
                             {newFiles.map((item, i) => (
-                                <div key={i} className="p-4 bg-sky-50 rounded-2xl border border-sky-100 animate-pulse space-y-3">
+                                <div key={i} className="p-4 bg-sky-50/50 rounded-2xl border border-sky-100 space-y-3">
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3 truncate">
+                                        <div className="flex items-center gap-3">
                                             <CloudUpload size={14} className="text-sky-500"/> 
-                                            <span className="text-[11px] font-bold text-sky-800 truncate">{item.file.name}</span>
+                                            <span className="text-[11px] font-bold text-sky-800 truncate max-w-[200px]">{item.file.name}</span>
                                         </div>
                                         <Close className="text-sky-400 cursor-pointer" size={16} onClick={() => setNewFiles(newFiles.filter((_, idx) => idx !== i))} />
                                     </div>
-                                    {/* INPUTS FOR NEW FILE METADATA */}
-                                    <div className="grid grid-cols-1 gap-2">
+                                    <div className="grid grid-cols-2 gap-3">
                                         <input 
-                                            placeholder="Document Name" 
-                                            value={item.docName}
-                                            onChange={(e) => {
-                                                const updated = [...newFiles];
-                                                updated[i].docName = e.target.value;
-                                                setNewFiles(updated);
-                                            }}
-                                            className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] font-bold outline-none focus:border-sky-500"
+                                            className="bg-white border rounded-xl px-3 py-2 text-[10px] outline-none"
+                                            placeholder="Document Label" value={item.docName}
+                                            onChange={(e) => { const up = [...newFiles]; up[i].docName = e.target.value; setNewFiles(up); }}
                                         />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        
                                         <textarea 
-                                            placeholder="Description" 
-                                            value={item.description}
-                                            onChange={(e) => {
-                                                const updated = [...newFiles];
-                                                updated[i].description = e.target.value;
-                                                setNewFiles(updated);
-                                            }}
-                                            className="w-full bg-white border border-sky-200 rounded-xl px-3 py-1.5 text-[10px] outline-none focus:border-sky-500"
+                                            className="bg-white border rounded-xl px-3 py-2 text-[10px] outline-none"
+                                            placeholder="Description" value={item.description}
+                                            onChange={(e) => { const up = [...newFiles]; up[i].description = e.target.value; setNewFiles(up); }}
                                         />
                                     </div>
                                 </div>
