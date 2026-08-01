@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -287,7 +288,7 @@ public class DemandServiceImpl implements DemandService {
 
     @Override
     @Transactional
-    public DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo) {
+    public DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo, List<Long> removedFileIds) {
         Demand demand = demandRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Demand not found"));
 
@@ -329,41 +330,83 @@ public class DemandServiceImpl implements DemandService {
         // demand.setDocuments(existing.getDocuments()); 
         // Handle additional file uploads
         
-        if (files != null && !files.isEmpty()) {
-            for (int i = 0; i < files.size(); i++) {
-                MultipartFile file = files.get(i);
-                DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
+        // if (files != null && !files.isEmpty()) {
+        //     for (int i = 0; i < files.size(); i++) {
+        //         MultipartFile file = files.get(i);
+        //         DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
         
         
-                // 2. Prevent Overwriting: Add timestamp to filename
-                String originalFileName = file.getOriginalFilename();
-                String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
+        //         // 2. Prevent Overwriting: Add timestamp to filename
+        //         String originalFileName = file.getOriginalFilename();
+        //         String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
         
-                try {
-                    // 3. PHYSICAL SAVE: Actually write the bits to the drive
-                    fileStorageService.saveFileToDisk(file, uniqueFileName);
+        //         try {
+        //             // 3. PHYSICAL SAVE: Actually write the bits to the drive
+        //             fileStorageService.saveFileToDisk(file, uniqueFileName);
         
-                    // 4. Create Entity Record
-                    DemandDocument doc = new DemandDocument();
-                    doc.setFileName(originalFileName); // Real name for display
-                    doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
-                    doc.setDescription(fileDataDTO.getDescription());
-                    doc.setFileType(file.getContentType());
+        //             // 4. Create Entity Record
+        //             DemandDocument doc = new DemandDocument();
+        //             doc.setFileName(originalFileName); // Real name for display
+        //             doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
+        //             doc.setDescription(fileDataDTO.getDescription());
+        //             doc.setFileType(file.getContentType());
                     
-                    // 5. DB PATH: Store relative path only (Best practice)
-                    doc.setUniqueFileName(uniqueFileName);
+        //             // 5. DB PATH: Store relative path only (Best practice)
+        //             doc.setUniqueFileName(uniqueFileName);
                     
-                    demand.addDocument(doc);
+        //             demand.addDocument(doc);
                     
-                } catch (IOException e) {
-                    // Professional error handling: Don't let one failed file crash the whole process without a clear message
-                    throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
-                }
+        //         } catch (IOException e) {
+        //             // Professional error handling: Don't let one failed file crash the whole process without a clear message
+        //             throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
+        //         }
+        //     }
+        // }
+
+        // 2. Handle DELETION of existing files
+    if (removedFileIds != null && !removedFileIds.isEmpty()) {
+        List<DemandDocument> docsToRemove = demand.getDocuments().stream()
+                .filter(doc -> removedFileIds.contains(doc.getId()))
+                .collect(Collectors.toList());
+
+        for (DemandDocument doc : docsToRemove) {
+            // A. Physical deletion from disk
+            fileStorageService.deletePhysicalFiles(List.of("demands/" + doc.getUniqueFileName()));
+            
+            // B. Database removal (orphanRemoval = true in Demand.java handles the SQL DELETE)
+            demand.getDocuments().remove(doc);
+        }
+    }
+
+    // 3. Handle NEW File Uploads
+    if (files != null && !files.isEmpty() && documentInfo != null) {
+        for (int i = 0; i < files.size(); i++) {
+            MultipartFile file = files.get(i);
+            DemandDocumentRequestDTO meta = documentInfo.get(i);
+            
+            String uniqueName = System.currentTimeMillis() + "_" + file.getOriginalFilename().replaceAll("\\s+", "_");
+            
+            try {
+                // Physical Save
+                fileStorageService.saveFileToDisk(file, uniqueName);
+
+                DemandDocument doc = new DemandDocument();
+                doc.setFileName(file.getOriginalFilename());
+                doc.setUniqueFileName(uniqueName); // Used for physical path
+                doc.setDocumentName(meta.getDocumentName());
+                doc.setDescription(meta.getDescription());
+                doc.setFileType(file.getContentType());
+                
+                demand.addDocument(doc);
+            } catch (IOException e) {
+                throw new RuntimeException("File storage failed: " + e.getMessage());
             }
         }
+    }
 
         return demandMapper.mapToDemandResponseDTO(demandRepository.save(demand));
     }
+
 
     
 }

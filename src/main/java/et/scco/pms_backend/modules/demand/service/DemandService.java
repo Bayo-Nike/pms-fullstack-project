@@ -23,6 +23,6 @@ public interface DemandService {
 
     void deleteDemand(Long id);
 
-    DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo);
+    DemandResponseDTO updateDemand(Long id, DemandRequestDTO dto, List<MultipartFile> files, List<DemandDocumentRequestDTO> documentInfo, List<Long> removedFileIds);
 
 }

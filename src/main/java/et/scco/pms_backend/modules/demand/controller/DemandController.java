@@ -80,14 +80,15 @@ public class DemandController {
             @PathVariable Long id,
             @RequestPart("demand") String demandJson, 
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
-            @RequestPart(value = "fileMetadata", required = false) List<DemandDocumentRequestDTO> documentInfo) throws JsonProcessingException {
+            @RequestPart(value = "fileMetadata", required = false) List<DemandDocumentRequestDTO> documentInfo, 
+            @RequestPart(value = "removedFileIds", required = false) List<Long> removedFileIds) throws JsonProcessingException {
         
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
         
         DemandRequestDTO demandRequestDTO = objectMapper.readValue(demandJson, DemandRequestDTO.class);
         
-        return ResponseEntity.ok(demandService.updateDemand(id, demandRequestDTO, files, documentInfo));
+        return ResponseEntity.ok(demandService.updateDemand(id, demandRequestDTO, files, documentInfo, removedFileIds));
     }
 
     /**
@@ -110,35 +111,6 @@ public class DemandController {
         return ResponseEntity.noContent().build();
     }
 
-    // @GetMapping("/files/download/{fileName:.+}")
-    // public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws Exception {
-    //     System.out.println("-----"+fileName);
-    //     fileName="1785416479819_Screenshot_2025-07-21_145724.png";
-    //     System.out.println("===="+fileName);
-    //     Path filePath = Paths.get("uploads/demands/").resolve(fileName).normalize();
-    //     System.out.println("000000 --- "+filePath);
-    //     Resource resource = new UrlResource(filePath.toUri());
-
-    //     System.out.println("---"+resource);
-    //     if (!resource.exists()) {
-    //         System.out.println("-----1-");
-    //         throw new RuntimeException("File not found " + fileName);
-    //     }
-    //     System.out.println("---22-");
-
-    //     // Try to determine content type
-    //     String contentType = "application/octet-stream";
-    //     if (fileName.endsWith(".png")) contentType = "image/png";
-    //     else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) contentType = "image/jpeg";
-    //     else if (fileName.endsWith(".pdf")) contentType = "application/pdf";
-    //     else if (fileName.endsWith(".docx")) contentType = "application/docx";
-
-    //     System.out.println("HERERE");
-    //     return ResponseEntity.ok()
-    //             .contentType(MediaType.parseMediaType(contentType))
-    //             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-    //             .body(resource);
-    // }
 
     @GetMapping("/files/download/{id}") // Use ID, not filename
     public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws Exception {
