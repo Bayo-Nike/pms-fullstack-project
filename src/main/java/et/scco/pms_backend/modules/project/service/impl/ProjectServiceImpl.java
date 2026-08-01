@@ -84,7 +84,7 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
         return Page.empty(pageable);
     }
 
-    // 2. Handle INTERNAL Employees (Existing Logic). Only internal employees have divisions
+    // 2. Handle INTERNAL Employees. Only internal employees have divisions
     Division division = employee.getDivision();
     if (division == null) return Page.empty(pageable); 
 

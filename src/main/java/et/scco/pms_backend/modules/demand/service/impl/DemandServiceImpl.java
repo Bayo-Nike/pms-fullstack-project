@@ -328,70 +328,36 @@ public class DemandServiceImpl implements DemandService {
         // demand.setPhase(existing.getPhase());
         // demand.setDocuments(existing.getDocuments()); 
         // Handle additional file uploads
+        
         if (files != null && !files.isEmpty()) {
-            // for (MultipartFile file : files) {
-            //     DemandDocument doc = new DemandDocument();
-            //     doc.setFileName(file.getOriginalFilename());
-            //     doc.setFileUrl("/uploads/demands/" + file.getOriginalFilename());
-            //     demand.addDocument(doc);
-            // }
-
-
-            // for (int i = 0; i < files.size(); i++) {
-            //     MultipartFile file = files.get(i);
-            //     DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i); // Get matching metadata by index
-    
-            //     DemandDocument doc = new DemandDocument();
-
-            //     // logic to determine folder
-            //     String clientSubFolder = (demand.getClient() != null) 
-            //     ? demand.getClient().getClientName().replaceAll("\\s+", "_") 
-            //     : "unassigned";
-                
-            //     // System Filename (e.g., "scan123.pdf")
-            //     doc.setFileName(file.getOriginalFilename()); 
-                
-            //     // User meaningful name (e.g., "Design Document")
-            //     doc.setDocumentName(fileDataDTO.getDocumentName()); 
-                
-            //     // User description
-            //     doc.setDescription(fileDataDTO.getDescription());
-                
-            //     doc.setFileType(file.getContentType());
-            //     doc.setFileUrl("/uploads/demands/" + clientSubFolder + "/" + file.getOriginalFilename());
-    
-            //     demand.addDocument(doc);
-            // }
-            if (files != null && !files.isEmpty()) {
-                for (int i = 0; i < files.size(); i++) {
-                    MultipartFile file = files.get(i);
-                    DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
-            
-            
-                    // 2. Prevent Overwriting: Add timestamp to filename
-                    String originalFileName = file.getOriginalFilename();
-                    String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
-            
-                    try {
-                        // 3. PHYSICAL SAVE: Actually write the bits to the drive
-                       fileStorageService.saveFileToDisk(file, uniqueFileName);
-            
-                        // 4. Create Entity Record
-                        DemandDocument doc = new DemandDocument();
-                        doc.setFileName(originalFileName); // Real name for display
-                        doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
-                        doc.setDescription(fileDataDTO.getDescription());
-                        doc.setFileType(file.getContentType());
-                        
-                        // 5. DB PATH: Store relative path only (Best practice)
-                        doc.setUniqueFileName(uniqueFileName);
-                        
-                        demand.addDocument(doc);
-                        
-                    } catch (IOException e) {
-                        // Professional error handling: Don't let one failed file crash the whole process without a clear message
-                        throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
-                    }
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                DemandDocumentRequestDTO fileDataDTO = documentInfo.get(i);
+        
+        
+                // 2. Prevent Overwriting: Add timestamp to filename
+                String originalFileName = file.getOriginalFilename();
+                String uniqueFileName = System.currentTimeMillis() + "_" + (originalFileName != null ? originalFileName.replaceAll("\\s+", "_") : "attachment");
+        
+                try {
+                    // 3. PHYSICAL SAVE: Actually write the bits to the drive
+                    fileStorageService.saveFileToDisk(file, uniqueFileName);
+        
+                    // 4. Create Entity Record
+                    DemandDocument doc = new DemandDocument();
+                    doc.setFileName(originalFileName); // Real name for display
+                    doc.setDocumentName(fileDataDTO.getDocumentName()); // Meaningful name (e.g., 'Design Doc')
+                    doc.setDescription(fileDataDTO.getDescription());
+                    doc.setFileType(file.getContentType());
+                    
+                    // 5. DB PATH: Store relative path only (Best practice)
+                    doc.setUniqueFileName(uniqueFileName);
+                    
+                    demand.addDocument(doc);
+                    
+                } catch (IOException e) {
+                    // Professional error handling: Don't let one failed file crash the whole process without a clear message
+                    throw new RuntimeException("Failed to store file " + originalFileName + ": " + e.getMessage());
                 }
             }
         }
