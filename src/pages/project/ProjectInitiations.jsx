@@ -228,7 +228,13 @@ export default function ProjectInitiations() {
                     </tbody>
                 </table>
                 <div className="px-8 py-6 bg-slate-50/50 flex items-center justify-between border-t">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase">Page {pageInfo.current + 1} of {pageInfo.total}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Page {pageInfo.current + 1} of {pageInfo.total}
+                    </span>
+                    <div className="h-4 w-[1px] bg-slate-200"></div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Total Records: {pageInfo.totalElements || 0}
+                    </span>
                     <div className="flex gap-2">
                         <button disabled={pageInfo.current === 0} onClick={() => fetchInitiations(pageInfo.current - 1)} className="p-2 rounded-xl border bg-white disabled:opacity-30 active:scale-90 transition-all"><ChevronLeft fontSize="small" /></button>
                         <button disabled={(pageInfo.current + 1) >= pageInfo.total} onClick={() => fetchInitiations(pageInfo.current + 1)} className="p-2 rounded-xl border bg-white disabled:opacity-30 active:scale-90 transition-all"><ChevronRight fontSize="small" /></button>

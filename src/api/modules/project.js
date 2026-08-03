@@ -54,9 +54,29 @@ const projectApi = {
     // Project Cost Transactional APIs
     // Project Cost History
     GET_PROJECT_COST_HISTORY: (projectId) => api.get(`/projects/${projectId}/costs`),
-    ADD_PROJECT_COST: (data) => api.post("/projects/costs", data),
-    UPDATE_PROJECT_COST: (id, data) => api.put(`/projects/costs/${id}`, data), // Added for editing
+    // ADD_PROJECT_COST: (data) => api.post("/projects/costs", data),
+    ADD_PROJECT_COST: (formData) => api.post("/projects/costs", formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    // UPDATE_PROJECT_COST: (id, data) => api.put(`/projects/costs/${id}`, data), // Added for editing
+    // UPDATE_PROJECT_COST: (id, formData) => api.put(`/projects/costs/${id}`, formData),
+    UPDATE_PROJECT_COST: (id, formData) => api.put(`/projects/costs/${id}`, formData, {
+        headers: {
+            // By leaving this blank or setting to undefined, 
+            // the browser will automatically set the correct boundary.
+            'Content-Type': 'multipart/form-data' 
+        }
+    }),
     DELETE_PROJECT_COST: (id) => api.delete(`/projects/costs/${id}`),
+
+   
+    ACKNOWLEDGE_PAYMENT: (id, data) => api.put(`/projects/costs/${id}/acknowledge`, data), 
+    APPROVE_PAYMENT: (id, data) => api.put(`/projects/costs/${id}/approve`, data), 
+    // REJECT_PAYMENT: (id, remark) => api.put(`/projects/costs/${id}/reject`, { remark }),
+    REJECT_PAYMENT: (id, data) => api.put(`/projects/costs/${id}/reject`, data),
+    DOWNLOAD_COST_DOCUMENT: (fileName) => api.get(`/projects/costs/files/${fileName}`, {
+        responseType: 'blob' // CRITICAL: Tells Axios to treat the response as a file
+    }),
 };
 
 export default projectApi;

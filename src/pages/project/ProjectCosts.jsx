@@ -6,6 +6,7 @@ import {
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import { useAuth } from '../../context/AuthContext';
+import { Calendar } from 'lucide-react';
 
 export default function ProjectCosts() {
     const navigate = useNavigate();
@@ -40,9 +41,10 @@ export default function ProjectCosts() {
             const pageData = res.data.data;
             setProjects(pageData.content || []);
             setPageInfo({
-                current: pageData.number,
-                total: pageData.totalPages,
-                size: pageData.size
+                current: pageData?.page.number,
+                total: pageData?.page.totalPages,
+                totalElements:pageData.page?.totalElements ?? 0,
+                size: pageData?.page.size
             });
         } catch (err) {
             console.error("Fetch error:", err);
@@ -130,7 +132,9 @@ export default function ProjectCosts() {
                 <table className="w-full text-left">
                     <thead className="bg-slate-50/50 border-b border-slate-100 text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
                         <tr>
+                            <th className="px-8 py-5">Client Name</th>
                             <th className="px-8 py-5">Project Details</th>
+                            <th className="px-8 py-5">Contractor Name</th>
                             <th className="px-6 py-5">Total Budget</th>
                             <th className="px-6 py-5">Spent to Date</th>
                             <th className="px-6 py-5">Financial Utilized Progress</th>
@@ -149,20 +153,42 @@ export default function ProjectCosts() {
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-xl bg-sky-50 text-[#0284C7] flex items-center justify-center font-black text-[10px] uppercase border border-sky-100 shadow-sm">{proj.projectCode.slice(-2)}</div>
                                                 <div>
-                                                    <p className="text-sm font-black text-slate-800 leading-none">{proj.title}</p>
+                                                    <p className="text-sm font-black text-slate-800 leading-none">{proj.clientName ?? "N/A"}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 flex items-center gap-1" title="Consultant Name">
+                                                        <Calendar style={{ fontSize: 2 }}  /> {proj.consultantName ?? "N/A"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-4">
+                                                <div>
+                                                    <p className="text-sm font-black text-slate-800 leading-none" title={`Start: ${proj.startDate ?? "N/A"}  End: ${proj.endDate ?? "N/A"}`}>{proj.title}</p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 flex items-center gap-1">
                                                         <LocationOn style={{ fontSize: 12 }} /> {proj.subCityName}
                                                     </p>
                                                 </div>
                                             </div>
                                         </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex items-center gap-4">
+                                                
+                                                <div>
+                                                    <p className="text-sm font-black text-slate-800 leading-none">{proj.contractorName ?? "N/A"}</p>
+                                                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-1.5 flex items-center gap-1" title="Agreement Date">
+                                                        <Calendar style={{ fontSize: 2 }}  /> {proj.agreementDate ?? "N/A"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        
                                         <td className="px-6 py-5 font-mono text-xs font-bold text-slate-600">
                                             {proj.currencyType} {proj.budget?.toLocaleString()}
                                         </td>
                                         <td className="px-6 py-5 font-mono text-xs font-black text-[#FBAF1E]">
                                             {proj.budgetUsed?.toLocaleString()}
                                         </td>
-                                        <td className="px-6 py-5 min-w-[150px]">
+                                        <td className="px-6 py-5 min-w-[100px]">
                                             <div className="space-y-1.5">
                                                 <div className="flex justify-between text-[8px] font-black uppercase">
                                                     <span className={usage > 90 ? 'text-red-500' : 'text-slate-400'}>{usage.toFixed(1)}%</span>
@@ -192,7 +218,13 @@ export default function ProjectCosts() {
 
                 {/* Pagination */}
                 <div className="px-8 py-5 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Page {pageInfo.current + 1} of {pageInfo.total || 1}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        Page {pageInfo.current + 1} of {pageInfo.total || 1}
+                    </span>
+                    <div className="h-1 w-[1px] bg-slate-200"></div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Total Records: {pageInfo.totalElements || 0}
+                    </span>
                     <div className="flex gap-2">
                         <button disabled={pageInfo.current === 0} onClick={() => fetchProjects(pageInfo.current - 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30 hover:text-[#0284C7] transition-all"><ChevronLeft fontSize="small" /></button>
                         <button disabled={pageInfo.current + 1 >= pageInfo.total} onClick={() => fetchProjects(pageInfo.current + 1)} className="p-1.5 rounded-lg border bg-white disabled:opacity-30 hover:text-[#0284C7] transition-all"><ChevronRight fontSize="small" /></button>

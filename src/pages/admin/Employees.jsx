@@ -88,12 +88,12 @@ export default function Employees() {
 
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                 <div>
-                    <h1 className="text-base font-bold text-slate-900">Employee Directory</h1>
+                    <h1 className="text-base font-bold text-slate-900">Staff Directory</h1>
                     <p className="text-[10px] text-slate-400 uppercase tracking-widest">HR & Resource Management</p>
                 </div>
                 {can('CAN_CREATE_EMPLOYEE') && (
                     <button onClick={() => navigate('/admin/employees/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm uppercase tracking-widest">
-                        <Add style={{ fontSize: 18 }} /> Add New Employee
+                        <Add style={{ fontSize: 18 }} /> Add New Staff
                     </button>
                 )}
             </div>

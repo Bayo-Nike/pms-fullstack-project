@@ -2,12 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Search, Add, Visibility, Edit, Delete, RateReview, 
-    Category, Apartment, CheckCircle, Cancel, History
+    Category, Apartment, CheckCircle, Cancel, History,
+    ChevronRight,
+    ChevronLeft
 } from '@mui/icons-material';
 import demandApi from '../../api/modules/demand';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
+import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
 // import ReviewModal from './components/ReviewModal'; // Extracting modal logic
 
 export default function DemandInitiations() {
@@ -19,9 +22,10 @@ export default function DemandInitiations() {
     const [selectedDemand, setSelectedDemand] = useState(null);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     
-    const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8 });
+    // const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8 });
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const { can } = useAuth();
+    const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8, totalElements: 0 });
 
     const fetchInitiations = useCallback(async (page = 0) => {
         setLoading(true);
@@ -33,13 +37,20 @@ export default function DemandInitiations() {
                 status: statusFilter || null
             };
             const res = await demandApi.GET_DEMANDS(params);
-            setInitiations(res.data.content);
-            setPageInfo(prev => ({
-                ...prev,
-                current: res.data.number,
-                total: res.data.totalPages
-            }));
+            const pageData = res.data?.data || res.data;
+            // Ensure initiations is ALWAYS an array (even if content is missing)
+            const content = pageData?.content || (Array.isArray(pageData) ? pageData : []);
+            setInitiations(content);
+
+        // 3. Update page info safely
+        setPageInfo({
+            current: pageData?.page.number || 0,
+            total: pageData?.page.totalPages || 0,
+            totalElements: pageData?.page.totalElements || 0,
+            size: pageData?.size || 8
+        });
         } catch (err) {
+            setInitiations([]); // Reset to empty array on error to prevent .map crash
             setAlert({ show: true, type: 'error', message: 'Failed to load demands.' });
         } finally { setLoading(false); }
     }, [pageInfo.size, searchTerm, statusFilter]);
@@ -88,7 +99,7 @@ export default function DemandInitiations() {
                     </div>
                 </div>
                 {
-                    can('CAN_CREATE_PROJECT_INITIATION') && (
+                    can('CAN_CREATE_DEMAND_INITIATION') && (
                         <button onClick={() => navigate('/demands/create')} className="bg-[#0284C7] text-white px-6 py-3 rounded-2xl font-bold text-xs flex items-center gap-2 uppercase tracking-widest shadow-lg active:scale-95 transition-all">
                             <Add /> New Demand
                         </button>
@@ -130,53 +141,96 @@ export default function DemandInitiations() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                        {initiations.map((init) => (
-                            <tr key={init.id} className="hover:bg-slate-50/50 group transition-colors">
+                    {loading ? (
+                            <tr><td colSpan="5" className="px-8 py-20 text-center italic animate-pulse text-slate-400">Syncing...</td></tr>
+                        ) : (initiations || []).length === 0 ? ( // Added (initiations || []) fallback
+                            <tr><td colSpan="5" className="px-8 py-20 text-center italic text-slate-400">No demands found.</td></tr>
+                        ) : (
+                            initiations?.map((demand) => ( // Added optional chaining ?.
+                            <tr key={demand.id} className="hover:bg-slate-50/50 group transition-colors">
                                 <td className="px-8 py-5">
-                                    <p className="text-sm font-black text-slate-800">{init.title}</p>
-                                    <p className="text-[9px] text-slate-400 mt-1">{init.demandCode}</p>
+                                    <p className="text-sm font-black text-slate-800">{demand.title}</p>
+                                    <p className="text-[9px] text-slate-400 mt-1">{demand.demandCode}</p>
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
-                                            <Category sx={{ fontSize: 12 }} /> {init.demandType}
+                                            <Category sx={{ fontSize: 12 }} /> {demand.demandType}
                                         </span>
-                                        <span className="text-[9px] text-slate-400 uppercase">{init.category}</span>
+                                        <span className="text-[9px] text-slate-400 uppercase">{demand.category}</span>
                                     </div>
                                 </td>
                                 <td className="px-6 py-5">
                                     <div className="text-[10px] font-bold text-slate-600">
-                                        {init.subCityName || 'City Level'}
+                                        {demand.subCityName || 'City Level'}
                                     </div>
-                                    <div className="text-[9px] text-slate-400 italic">{init.siteLocation}</div>
+                                    <div className="text-[9px] text-slate-400 italic">{demand.siteLocation}</div>
                                 </td>
                                 <td className="px-6 py-5">
-                                    <span className={`text-[9px] font-black px-3 py-1 rounded-full border ${getStatusStyle(init.status)}`}>
-                                        {init.status}
+                                    <span className={`text-[9px] font-black px-3 py-1 rounded-full border ${getStatusStyle(demand.status)}`}>
+                                        {demand.status}
                                     </span>
                                 </td>
                                 <td className="px-8 py-5 text-right">
-                                    <div className="flex justify-end gap-2">
-                                        <button 
-                                            onClick={() => navigate(`/demands/view/${init.id}`)}
-                                            className="p-2 text-slate-400 hover:bg-slate-100 rounded-lg transition-all"
-                                        >
-                                            <Visibility fontSize="small" />
-                                        </button>
-                                        {init.status === 'PENDING' && (
-                                            <button 
-                                                onClick={() => { setSelectedDemand(init); setIsReviewOpen(true); }}
-                                                className="p-2 bg-sky-50 text-[#0284C7] rounded-lg hover:bg-sky-100 transition-all"
-                                            >
-                                                <RateReview fontSize="small" />
-                                            </button>
-                                        )}
+                                    
+
+                                    <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {
+                                            can('CAN_VIEW_DEMAND_INITIATION_DETAILS') && (
+                                                <button
+                                                    onClick={() => navigate(`/demands/view/${demand.id}`)}
+                                                    className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
+                                                    title="View Details"
+                                                >
+                                                    <Visibility style={{ fontSize: 20 }} />
+                                                </button>
+                                            )
+                                        }
+                                        {
+                                            can('CAN_EDIT_DEMAND_INITIATION') && demand.status !== 'APPROVED' &&(
+                                                <button onClick={() => navigate(`/demands/edit/${demand.id}`)} className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all" title="Edit Registry"><Edit fontSize="small" /></button>
+                                            )
+                                        }
+                                        {
+                                            can('CAN_DELETE_DEMAND_INITIATION') && demand.status == 'PENDING' &&(
+                                                <button onClick={() => setDeleteConfig({ show: true, id: demand.id, title: demand.title })} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete"><Delete fontSize="small" /></button>
+                                            )
+                                        }
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        )))}
                     </tbody>
                 </table>
+                {/* Replace your Pagination Bar with this corrected version */}
+                <div className="px-8 py-5 bg-slate-50/50 flex items-center justify-between border-t border-slate-100">
+                    <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            Page {(pageInfo.current || 0) + 1} of {Math.max(pageInfo.total, 1)}
+                        </span>
+                        <div className="h-4 w-[1px] bg-slate-200"></div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            Total Records: {pageInfo.totalElements || 0}
+                        </span>
+                    </div>
+
+                    <div className="flex gap-2">
+                        <button
+                            disabled={pageInfo.current === 0 || loading}
+                            onClick={() => fetchInitiations(pageInfo.current - 1)}
+                            className="p-2 rounded-xl border bg-white disabled:opacity-30 active:scale-90 transition-all"
+                        >
+                            <ChevronLeftCircle fontSize="small" />
+                        </button>
+                        <button
+                            disabled={pageInfo.current + 1 >= pageInfo.total || loading}
+                            onClick={() => fetchInitiations(pageInfo.current + 1)}
+                            className="p-2 rounded-xl border bg-white disabled:opacity-30 active:scale-90 transition-all"
+                        >
+                            <ChevronRightCircle fontSize="small" />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
