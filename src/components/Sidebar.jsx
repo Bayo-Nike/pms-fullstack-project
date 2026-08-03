@@ -39,7 +39,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/demands', name: 'Demand Initiation', permission: 'CAN_SEE_PROJECT_INITIATION' }
       ]
     },
-    
+
     {
       id: 'projects',
       name: 'Projects',
@@ -50,7 +50,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/inspections', name: 'Inspections', permission: 'CAN_SEE_INSPECTIONS' },
       ]
     },
-    
+
     {
       id: 'planning',
       name: 'Planning',
