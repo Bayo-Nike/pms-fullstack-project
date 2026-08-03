@@ -416,7 +416,11 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_SEE_EMPLOYEE",
                 "CAN_SEE_USER_MGMT",
                 "CAN_SEE_MOBILE_APP",
-                "CAN_SEE_AUDIT_LOG"
+                "CAN_SEE_AUDIT_LOG",
+
+                "CAN_CREATE_EMPLOYEE",
+                "CAN_CREATE_USER_MGMT",
+                "CAN_EDIT_ROLE_PERMISSION"
         );
 
         List<Permission> permissions =
