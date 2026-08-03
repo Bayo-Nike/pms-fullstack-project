@@ -7,13 +7,15 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import et.scco.pms_backend.enums.Category;
+import et.scco.pms_backend.enums.DemandLevel;
 import et.scco.pms_backend.enums.DemandPhase;
 import et.scco.pms_backend.enums.DemandStatus;
 import et.scco.pms_backend.enums.DemandType;
-import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.modules.admin.model.City;
+import et.scco.pms_backend.modules.admin.model.Client;
 import et.scco.pms_backend.modules.admin.model.Consultancy;
 import et.scco.pms_backend.modules.admin.model.Contractor;
+import et.scco.pms_backend.modules.admin.model.Location;
 import et.scco.pms_backend.modules.admin.model.SubCity;
 import et.scco.pms_backend.modules.admin.model.Woreda;
 import jakarta.persistence.CascadeType;
@@ -54,7 +56,7 @@ public class Demand {
     private DemandType demandType; // BUILDING, WATER_ROAD
 
     @Enumerated(EnumType.STRING)
-    private ProjectLevel demandLevel; // CITY, SUB_CITY
+    private DemandLevel demandLevel; // CITY, SUB_CITY
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id")
@@ -76,6 +78,14 @@ public class Demand {
     @JoinColumn(name = "consultancy_id")
     private Consultancy  consultancy;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
+    private Location location;
+
     private String siteLocation;
 
     @Enumerated(EnumType.STRING)
@@ -96,16 +106,16 @@ public class Demand {
         documents.add(document);
         document.setDemand(this);
     }
-
-    private Long clientId;
+ 
     private Long submittedBy; // User ID
 
+    @Column(updatable = false)
     private LocalDateTime requestedDate;
+    
     private LocalDateTime respondedDate;
 
     @PrePersist
     protected void onCreate() {
         requestedDate = LocalDateTime.now();
-        demandCode = "DEM-" + System.currentTimeMillis();
     }
 }

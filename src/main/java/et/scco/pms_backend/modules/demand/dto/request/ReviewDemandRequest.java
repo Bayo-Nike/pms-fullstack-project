@@ -6,6 +6,6 @@ import lombok.Data;
 @Data
 public class ReviewDemandRequest {
     private DemandStatus status; // APPROVED or REJECTED
-    private String remark;
+    private String reviewerRemark;
 
 }

@@ -2,8 +2,10 @@ package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.*;
 import et.scco.pms_backend.modules.admin.model.*;
+import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
 import et.scco.pms_backend.modules.admin.service.impl.*;
+import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.request.ExtendProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectExtensionDTO;
@@ -32,8 +34,6 @@ import java.util.stream.Collectors;
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final SubCityServiceImpl subCityServiceImpl;
-    private final LocationServiceImpl locationServiceImpl;
     private final ContractorServiceImpl contractorServiceImpl;
     private final ConsultancyServiceImpl consultancyServiceImpl;
     private final ClientServiceImpl clientServiceImpl;
@@ -41,26 +41,67 @@ public class ProjectServiceImpl implements ProjectService {
     private final NotificationService notificationService;
     private final AuthContext authContext;
     private final ProjectExtensionRepository projectExtensionRepository;
+    private final UserRepository userRepository;
+
+    // @Transactional(readOnly = true)
+    // @Override
+    // public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
+    //     Employee employee = employeeServiceImpl.findEmployeeWithDivision();
+    //     if (employee == null) return projectRepository.findAll(pageable).map(this::mapToDTO);
+
+    //     SubCity restrictedSubCity = employee.getSubCity();
+    //     Division division = employee.getDivision();
+    //     if (division == null) return Page.empty(pageable);
+
+    //     DivisionGroup divisionGroup = division.getDivisionGroup();
+    //     Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+    //     ProjectType projectType = null;
+    //     if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
+    //     else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
+
+    //     return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable).map(this::mapToDTO);
+    // }
 
     @Transactional(readOnly = true)
-    @Override
-    public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
-        Employee employee = employeeServiceImpl.findEmployeeWithDivision();
-        if (employee == null) return projectRepository.findAll(pageable).map(this::mapToDTO);
+@Override
+public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus status, Long subCityId, Pageable pageable) {
 
-        SubCity restrictedSubCity = employee.getSubCity();
-        Division division = employee.getDivision();
-        if (division == null) return Page.empty(pageable);
+    String currentUsername = AuthUtility.getUserName();
+    User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("The current user context was not found"));
 
-        DivisionGroup divisionGroup = division.getDivisionGroup();
-        Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+    Employee employee = user.getEmployee();
+    if (employee == null) return projectRepository.findAll(pageable).map(this::mapToDTO);
 
-        ProjectType projectType = null;
-        if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
-        else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
-
-        return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable).map(this::mapToDTO);
+    // 1. Handle EXTERNAL Employees IMMEDIATELY
+    if (EmployeeType.EXTERNAL.equals(employee.getEmployeeType())) {
+        if (employee.getClient() != null) {
+            Long clientId = employee.getClient().getId();
+            return projectRepository.findByClientIdAndFilters(clientId, search, status, pageable)
+                    .map(this::mapToDTO);
+        }
+        return Page.empty(pageable);
     }
+
+    // 2. Handle INTERNAL Employees. Only internal employees have divisions
+    Division division = employee.getDivision();
+    if (division == null) return Page.empty(pageable); 
+
+    SubCity restrictedSubCity = employee.getSubCity();
+    DivisionGroup divisionGroup = division.getDivisionGroup();
+    Long finalSubCityId = (restrictedSubCity != null) ? restrictedSubCity.getId() : subCityId;
+
+    ProjectType projectType = null;
+    if (DivisionGroup.BLD.equals(divisionGroup)) {
+        projectType = ProjectType.BUILDING;
+    } else if (!DivisionGroup.BTH.equals(divisionGroup)) {
+        projectType = ProjectType.WATER_AND_ROAD;
+    }
+
+    return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable)
+            .map(this::mapToDTO);
+}
 
     @Override
     public ProjectResponseDTO getProject(Long id) {
@@ -263,4 +304,6 @@ public class ProjectServiceImpl implements ProjectService {
         Employee employee = employeeServiceImpl.findEmployeeWithDivision();
         return (employee == null) ? Page.empty(pageable) : projectRepository.findAllByEmployeesContaining(employee, pageable).map(this::mapToDTO);
     }
+
+    
 }

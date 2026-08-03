@@ -9,26 +9,40 @@ public class EmployeeMapper {
     
 
         return new EmployeeResponseDto(
-          employee.getId(),
-          employee.getFullName(),
-          employee.getDivision().getId(),
-          employee.getDivision().getDivisionGroup(),
-          employee.getDivision().getName(),
-          employee.getPosition().getId(),
-          employee.getPosition().getName(),
-          employee.getPosition().getParent() != null ? employee.getPosition().getParent().getId() : null,
-          employee.getCity().getName(),
-          employee.getSubCity() != null ? employee.getSubCity().getId() : null,
-          employee.getSubCity() != null ? employee.getSubCity().getSubCityName() : null,
-          employee.getStatus().toString(),
-          employee.getEmail(),
-          employee.getAssignedProjects() != null ? employee.getAssignedProjects().size(): 0,
-          employee.getTasks() != null ? employee.getTasks().size(): 0,
-           // FIX: Add null checks for Client fields
-           employee.getClient() != null ? employee.getClient().getClientName() : null,
-           employee.getClient() != null ? employee.getClient().getId() : null,
-           // FIX: Add null check for EmployeeType
-           employee.getEmployeeType() != null ? employee.getEmployeeType().toString() : null
-        );
+            employee.getId(),
+            employee.getFullName(),
+            // Added null checks for Division
+            employee.getDivision() != null ? employee.getDivision().getId() : null,
+            employee.getDivision() != null ? employee.getDivision().getDivisionGroup() : null,
+            employee.getDivision() != null ? employee.getDivision().getName() : null,
+            
+            // Added null checks for Position
+            employee.getPosition() != null ? employee.getPosition().getId() : null,
+            employee.getPosition() != null ? employee.getPosition().getName() : null,
+            
+            // Added safety check for Position Parent to prevent crash if Position is null
+            (employee.getPosition() != null && employee.getPosition().getParent() != null) 
+                ? employee.getPosition().getParent().getId() : null,
+            
+            // Safety check for City
+            employee.getCity() != null ? employee.getCity().getName() : null,
+            
+            employee.getSubCity() != null ? employee.getSubCity().getId() : null,
+            employee.getSubCity() != null ? employee.getSubCity().getSubCityName() : null,
+            
+            // Added null check for Status
+            employee.getStatus() != null ? employee.getStatus().toString() : null,
+            
+            employee.getEmail(),
+            employee.getAssignedProjects() != null ? employee.getAssignedProjects().size(): 0,
+            employee.getTasks() != null ? employee.getTasks().size(): 0,
+            
+            // Safe check for Client fields
+            employee.getClient() != null ? employee.getClient().getClientName() : null,
+            employee.getClient() != null ? employee.getClient().getId() : null,
+            
+            // Safe check for EmployeeType
+            employee.getEmployeeType() != null ? employee.getEmployeeType().toString() : null
+          );
     }
 }

@@ -242,7 +242,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
             
             for (MultipartFile file : colorCodingRequestDTO.getPerformanceDocuments()) {
                 
-                String fileName = fileStorageService.storeFile(file); 
+                String fileName = fileStorageService.storeFile(file);
                 
                 ColorCodingDocument doc = new ColorCodingDocument();
                 doc.setFileName(fileName);

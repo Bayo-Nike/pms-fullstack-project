@@ -14,6 +14,7 @@ import java.util.List;
 public class CreateProjectInitiationRequestDTO {
     private String title;
     private String description;
+    private String demandCode;
 
     private ProjectType projectType;
     private Category category;

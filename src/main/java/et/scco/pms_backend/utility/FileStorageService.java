@@ -1,9 +1,11 @@
 package et.scco.pms_backend.utility;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,6 +53,20 @@ public class FileStorageService {
             } catch (IOException ex) {
                 System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
             }
+        }
+    }
+
+    public void saveFileToDisk(MultipartFile file, String fileName) throws IOException {
+        // Define root (e.g., "uploads/demands/Client_A")
+        Path uploadPath = Paths.get("uploads/demands").normalize();
+        
+        // Create folders automatically (idempotent)
+        Files.createDirectories(uploadPath);
+
+        // Write file
+        try (InputStream inputStream = file.getInputStream()) {
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 }

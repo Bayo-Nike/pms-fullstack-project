@@ -1,21 +1,32 @@
 package et.scco.pms_backend.modules.demand.controller;
 
 import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import et.scco.pms_backend.modules.demand.dto.request.DemandDocumentRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.DemandRequestDTO;
 import et.scco.pms_backend.modules.demand.dto.request.ReviewDemandRequest;
 import et.scco.pms_backend.modules.demand.dto.response.DemandResponseDTO;
+import et.scco.pms_backend.modules.demand.model.DemandDocument;
+import et.scco.pms_backend.modules.demand.repository.DemandDocumentRepository;
 import et.scco.pms_backend.modules.demand.service.DemandService;
 import jakarta.validation.Valid;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -24,16 +35,17 @@ import java.util.List;
 public class DemandController {
 
     private final DemandService demandService;
-
+    private final DemandDocumentRepository demandDocumentRepository;
     /**
      * CREATE: Submit a new demand with dynamic file uploads.
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DemandResponseDTO> createDemand(
             @RequestPart("demand") @Valid DemandRequestDTO demandRequestDTO,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "fileMetadata", required = false) List<DemandDocumentRequestDTO> documentInfo) {
         
-        return new ResponseEntity<>(demandService.createDemand(demandRequestDTO, files), HttpStatus.CREATED);
+        return new ResponseEntity<>(demandService.createDemand(demandRequestDTO, files, documentInfo), HttpStatus.CREATED);
         
     }
 
@@ -60,7 +72,27 @@ public class DemandController {
     }
 
     /**
-     * UPDATE: Review Process (Approve/Reject).
+     * UPDATE: General Update (Client Edit)
+     * Handles Title, Description, Site, and File changes.
+     */
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<DemandResponseDTO> updateDemand(
+            @PathVariable Long id,
+            @RequestPart("demand") String demandJson, 
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "fileMetadata", required = false) List<DemandDocumentRequestDTO> documentInfo, 
+            @RequestPart(value = "removedFileIds", required = false) List<Long> removedFileIds) throws JsonProcessingException {
+        
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        
+        DemandRequestDTO demandRequestDTO = objectMapper.readValue(demandJson, DemandRequestDTO.class);
+        
+        return ResponseEntity.ok(demandService.updateDemand(id, demandRequestDTO, files, documentInfo, removedFileIds));
+    }
+
+    /**
+     * REVIEW: Reviewer Update (Status & Remark Only)
      */
     @PatchMapping("/{id}/review")
     public ResponseEntity<DemandResponseDTO> reviewDemand(
@@ -77,5 +109,36 @@ public class DemandController {
     public ResponseEntity<Void> deleteDemand(@PathVariable Long id) {
         demandService.deleteDemand(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/files/download/{id}") // Use ID, not filename
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long id) throws Exception {
+        
+        // 1. Fetch metadata from DB
+        DemandDocument doc = demandDocumentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("File record not found"));
+
+        // 2. Resolve Path (Handles the subfolders we created earlier)
+        // doc.getFileUrl() looks like "Client_A/17212345_Screenshot.png"
+        Path filePath = Paths.get("uploads/demands").resolve(doc.getUniqueFileName()).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("Physical file not found at: " + filePath);
+        }
+
+        // 3. Determine Content Type
+        String contentType = doc.getFileType();
+        if (contentType == null) contentType = "application/octet-stream";
+
+        // 4. Return the response with the ORIGINAL filename
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                // attachment tells browser to download, filename is what the user sees
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + doc.getFileName() + "\"")
+                // Crucial for React to see the header
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, HttpHeaders.CONTENT_DISPOSITION)
+                .body(resource);
     }
 }
