@@ -107,7 +107,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, closeMobile, toggle
         { path: '/admin/employees', name: 'Staffs', permission: 'CAN_SEE_EMPLOYEE' },
         { path: '/admin/roles', name: 'Roles & Permissions', permission: 'CAN_SEE_SYS_ADMIN' },
         { path: '/admin/users', name: 'User Management', permission: 'CAN_SEE_USER_MGMT' },
-        { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_MOBILE_APP' },
+        // { path: '/admin/mobile', name: 'Mobile App', permission: 'CAN_SEE_MOBILE_APP' },
         { path: '/admin/audit-log', name: 'Audit Logs', permission: 'CAN_SEE_AUDIT_LOG' },
       ]
     }

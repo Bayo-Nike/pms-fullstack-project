@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Edit, Delete, Search, Add, Shield, Lock,
-    HelpOutline, ChevronLeft, ChevronRight, InfoOutlined,
-    CheckCircle, Cancel
+    HelpOutline, ChevronLeft, ChevronRight, InfoOutlined
 } from '@mui/icons-material';
 import adminApi from '../../api/modules/admin';
 import AlertMessage from '../../components/Reusable/AlertMessage';
@@ -21,6 +20,14 @@ export default function Users() {
 
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const [deleteConfig, setDeleteConfig] = useState({ show: false, userId: null, userName: '' });
+
+    // Toggle confirmation state – using mobileAllowed
+    const [toggleConfig, setToggleConfig] = useState({
+        show: false,
+        userId: null,
+        userName: '',
+        currentMobileAllowed: false,
+    });
 
     useEffect(() => { fetchUsers(); }, []);
     useEffect(() => { setCurrentPage(1); }, [searchTerm]);
@@ -57,6 +64,30 @@ export default function Users() {
         }
     };
 
+    // Toggle handlers
+    const handleToggleClick = (user) => {
+        setToggleConfig({
+            show: true,
+            userId: user.id,
+            userName: user.fullName,
+            currentMobileAllowed: !!user.mobileAllowed,
+        });
+    };
+
+    const executeToggle = async () => {
+        const { userId, userName, currentMobileAllowed } = toggleConfig;
+        const newMobileAllowed = !currentMobileAllowed;
+        setToggleConfig({ show: false, userId: null, userName: '', currentMobileAllowed: false });
+
+        try {
+            await adminApi.TOGGLE_USER_STATUS(userId, newMobileAllowed);
+            showAlert('success', `Mobile access for ${userName} turned ${newMobileAllowed ? 'ON' : 'OFF'}.`);
+            fetchUsers();
+        } catch (err) {
+            showAlert('error', 'Failed to update mobile access.');
+        }
+    };
+
     const filteredUsers = useMemo(() => {
         return users.filter(user =>
             (user.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,6 +100,7 @@ export default function Users() {
 
     return (
         <div className="w-full space-y-4 animate-fadeIn px-2 pb-10 relative">
+            {/* Delete confirmation dialog */}
             {deleteConfig.show && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center border border-slate-100">
@@ -83,6 +115,33 @@ export default function Users() {
                 </div>
             )}
 
+            {/* Toggle confirmation dialog */}
+            {toggleConfig.show && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-fadeIn">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full mx-4 text-center border border-slate-100">
+                        <InfoOutlined className="text-blue-500 mb-4 mx-auto" style={{ fontSize: 40 }} />
+                        <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Confirm Mobile Access Change</h3>
+                        <p className="text-sm text-slate-500 mt-2">
+                            Turn <b>{toggleConfig.currentMobileAllowed ? 'OFF' : 'ON'}</b> mobile access for <b>{toggleConfig.userName}</b>?
+                        </p>
+                        <div className="flex gap-3 mt-8">
+                            <button
+                                onClick={() => setToggleConfig({ show: false, userId: null, userName: '', currentMobileAllowed: false })}
+                                className="flex-1 px-4 py-2 text-xs font-bold border rounded-xl uppercase hover:bg-slate-50 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={executeToggle}
+                                className="flex-1 px-4 py-2 text-xs font-bold bg-[#0284C7] text-white rounded-xl uppercase shadow-lg transition-all"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <AlertMessage show={alert.show} type={alert.type} message={alert.message} onClose={() => setAlert(prev => ({ ...prev, show: false }))} />
 
             <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
@@ -91,9 +150,9 @@ export default function Users() {
                     <p className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider">Authentication Registry</p>
                 </div>
                 {can('CAN_CREATE_USER_MGMT') && (
-                <button onClick={() => navigate('/admin/users/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
-                    <Add style={{ fontSize: 18 }} /> Create User
-                </button>
+                    <button onClick={() => navigate('/admin/users/create')} className="bg-[#FBAF1E] text-white px-5 py-2 rounded-lg font-bold text-xs flex items-center gap-2 shadow-sm transition-transform active:scale-95 uppercase tracking-widest">
+                        <Add style={{ fontSize: 18 }} /> Create User
+                    </button>
                 )}
             </div>
 
@@ -116,6 +175,7 @@ export default function Users() {
                         <tr>
                             <th className="px-6 py-3">Full Name</th>
                             <th className="px-6 py-3">Email</th>
+                            <th className="px-6 py-3">Mobile</th>
                             <th className="px-6 py-3">Assigned Roles</th>
                             <th className="px-6 py-3 text-right">Operations</th>
                         </tr>
@@ -126,6 +186,7 @@ export default function Users() {
                         ) : paginatedUsers.length > 0 ? (
                             paginatedUsers.map((user) => {
                                 const isSuperAdmin = user.roles?.some(r => r.roleName === 'SUPER_ADMIN');
+                                const mobileAllowed = !!user.mobileAllowed;
                                 return (
                                     <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
                                         <td className="px-6 py-3.5">
@@ -140,6 +201,29 @@ export default function Users() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-3.5 text-sm text-slate-600">{user.email}</td>
+
+                                        {/* Mobile column with phone number and toggle */}
+                                        <td className="px-6 py-3.5">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm text-slate-600">
+                                                    {user.mobile}
+                                                </span>
+                                                {!isSuperAdmin && (
+                                                    <button
+                                                        onClick={() => handleToggleClick(user)}
+                                                        className={`relative inline-flex items-center h-5 w-9 rounded-full transition-colors ${mobileAllowed ? 'bg-green-500' : 'bg-gray-300'
+                                                            }`}
+                                                        title={`Turn ${mobileAllowed ? 'OFF' : 'ON'} mobile access`}
+                                                    >
+                                                        <span
+                                                            className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${mobileAllowed ? 'translate-x-4' : 'translate-x-0.5'
+                                                                }`}
+                                                        />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+
                                         <td className="px-6 py-3.5">
                                             <div className="flex flex-wrap gap-1">
                                                 {user.roles?.map((r, i) => (
@@ -147,6 +231,8 @@ export default function Users() {
                                                 ))}
                                             </div>
                                         </td>
+
+                                        {/* Operations unchanged */}
                                         <td className="px-6 py-3.5 text-right">
                                             <div className="flex justify-end gap-1 items-center">
                                                 {isSuperAdmin ? (
@@ -156,12 +242,12 @@ export default function Users() {
                                                     </div>
                                                 ) : (
                                                     <>
-                                                    {can('CAN_EDIT_USER_MGMT') && (
-                                                        <button onClick={() => navigate(`/admin/users/edit/${user.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
-                                                    )}
-                                                    {can('CAN_DELETE_USER_MGMT') && (
-                                                        <button onClick={() => handleDeleteClick(user)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
-                                                    )}
+                                                        {can('CAN_EDIT_USER_MGMT') && (
+                                                            <button onClick={() => navigate(`/admin/users/edit/${user.id}`)} className="p-1.5 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-md transition-all"><Edit style={{ fontSize: 18 }} /></button>
+                                                        )}
+                                                        {can('CAN_DELETE_USER_MGMT') && (
+                                                            <button onClick={() => handleDeleteClick(user)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"><Delete style={{ fontSize: 18 }} /></button>
+                                                        )}
                                                     </>
                                                 )}
                                             </div>

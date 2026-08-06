@@ -6,6 +6,10 @@ const adminApi = {
     CREATE_USER: (data) => api.post("/admin/users", data),
     UPDATE_USER: (id, data) => api.put(`/admin/users/${id}`, data),
     DELETE_USER: (id) => api.delete(`/admin/users/${id}`),
+
+    TOGGLE_USER_STATUS: (id, status) => api.put(`/admin/users/status/${id}/${status}`),
+
+
     GET_ROLES: () => api.get("/admin/roles"),
     GET_ROLE: (id) => api.get(`/admin/roles/${id}`),
     CREATE_ROLE: (data) => api.post("/admin/roles", data),
