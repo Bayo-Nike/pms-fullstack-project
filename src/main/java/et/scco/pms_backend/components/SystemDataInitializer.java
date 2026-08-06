@@ -414,11 +414,72 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_SEE_ORG_STRUCTURE",
                 "CAN_SEE_MY_REPORTEES",
                 "CAN_SEE_SYS_ADMIN",
+                "CAN_SEE_PROJECT_REPORT",
+                "CAN_SEE_TASK_REPORT",
+                "CAN_SEE_CONTRACTORS_REPORT",
                 "CAN_SEE_ROLE_REPORT",
                 "CAN_SEE_EMPLOYEE_REPORT",
                 "CAN_SEE_USER_REPORT",
                 "CAN_SEE_DIVISION_REPORT",
-                "CAN_SEE_LOCATION_REPORT"
+                "CAN_SEE_LOCATION_REPORT",
+                // Sys Admin
+                "CAN_SEE_SUBCITY",
+                "CAN_CREATE_SUBCITY",
+                "CAN_EDIT_SUBCITY",
+                "CAN_DELETE_SUBCITY",
+
+                "CAN_SEE_WOREDA",
+                "CAN_CREATE_WOREDA",
+                "CAN_EDIT_WOREDA",
+                "CAN_DELETE_WOREDA",
+
+                "CAN_SEE_DIVISION",
+                "CAN_CREATE_DIVISION",
+                "CAN_EDIT_DIVISION",
+                "CAN_DELETE_DIVISION",
+
+                "CAN_SEE_POSITION",
+                "CAN_CREATE_POSITION",
+                "CAN_EDIT_POSITION",
+                "CAN_DELETE_POSITION",
+                
+                "CAN_SEE_SITE_LOCATION",
+                "CAN_CREATE_SITE_LOCATION",
+                "CAN_EDIT_SITE_LOCATION",
+                "CAN_DELETE_SITE_LOCATION",
+
+                "CAN_SEE_INSPECTION_TYPE",
+                "CAN_CREATE_INSPECTION_TYPE",
+                "CAN_EDIT_INSPECTION_TYPE",
+                "CAN_DELETE_INSPECTION_TYPE",
+
+                "CAN_SEE_TASK_TYPE",
+                "CAN_CREATE_TASK_TYPE",
+                "CAN_EDIT_TASK_TYPE",
+                "CAN_DELETE_TASK_TYPE",
+                "CAN_VIEW_TASK_TYPE",
+
+                "CAN_SEE_EMPLOYEE",
+                "CAN_CREATE_EMPLOYEE",
+                "CAN_EDIT_EMPLOYEE",
+                "CAN_DELETE_EMPLOYEE",
+
+                "CAN_SEE_ROLE_PERMISSION",
+                "CAN_CREATE_ROLE_PERMISSION",
+                "CAN_EDIT_ROLE_PERMISSION",
+                "CAN_DELETE_ROLE_PERMISSION",
+
+                "CAN_SEE_USER_MGMT",
+                "CAN_CREATE_USER_MGMT",
+                "CAN_EDIT_USER_MGMT",
+                "CAN_DELETE_USER_MGMT",
+
+                "CAN_SEE_MOBILE_APP",
+                "CAN_CREATE_MOBILE_APP",
+                "CAN_EDIT_MOBILE_APP",
+                "CAN_DELETE_MOBILE_APP",
+
+                "CAN_SEE_AUDIT_LOG"
         );
 
         List<Permission> permissions =
