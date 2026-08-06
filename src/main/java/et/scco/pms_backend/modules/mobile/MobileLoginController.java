@@ -15,6 +15,7 @@ public class MobileLoginController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@RequestBody LoginRequestDto request) {
+        System.out.println("Mobile Login Request: " + request);
         return ResponseEntity.ok(authService.login(request, true));
     }
 

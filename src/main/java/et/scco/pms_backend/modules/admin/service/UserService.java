@@ -18,4 +18,6 @@ public interface UserService {
     void deleteUser(Long userId);
 
     String getCityOfficeHeadUserName();
+
+    List<UserResponseDTO> updateUserStatus(Long id, boolean status);
 }

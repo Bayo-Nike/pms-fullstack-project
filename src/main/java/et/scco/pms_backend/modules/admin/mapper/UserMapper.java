@@ -31,6 +31,7 @@ public class UserMapper {
                 .map(RoleMapper::mapToRoleDTO)
                 .collect(Collectors.toList()));
         }
+        dto.setMobileAllowed(user.getMobileAllowed());
 
         return dto;
     }
