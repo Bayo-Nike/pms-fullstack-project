@@ -143,7 +143,7 @@ public class SystemDataInitializer implements ApplicationRunner {
 
         createPosition("City Building Director", "City Office Head", "City Building Director Office");
         createPosition("City Road, Water Supply and Irrigation Director", "City Office Head", "City Road, Water Supply and Irrigation Director Office");
-        createPosition("City Construction Industry Competence Director", "City Office Head", "City Construction Industry Competence Office");
+        createPosition("City Construction Industry Competence Director", "City Office Head", "City Construction Industry Competence Director Office");
         createPosition("Sub-City Office Head", "City Office Head", "Sub-City Office");
         createPosition("Finance Officer", "City Office Head", "City Finance Office");
         createPosition("City Record Office Head", "City Office Head", "City Record Office");
@@ -422,6 +422,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_SEE_USER_REPORT",
                 "CAN_SEE_DIVISION_REPORT",
                 "CAN_SEE_LOCATION_REPORT",
+                
                 // Sys Admin
                 "CAN_SEE_SUBCITY",
                 "CAN_CREATE_SUBCITY",
