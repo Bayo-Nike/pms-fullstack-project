@@ -26,7 +26,6 @@ public class PermissionFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
 
         String path = request.getRequestURI();
-        String method = request.getMethod();
 
         return
 
@@ -42,6 +41,7 @@ public class PermissionFilter extends OncePerRequestFilter {
                         // AUTH (NO PERMISSION CHECK)
                         // =========================
                         path.startsWith("/api/auth/login") ||
+                        path.startsWith("/api/mobile/auth/login") ||
                         path.startsWith("/api/auth/logout") ||
                         path.startsWith("/api/auth/change-password") ||
 

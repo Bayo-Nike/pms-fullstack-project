@@ -113,4 +113,15 @@ public class UserServiceImpl  implements UserService{
         }
         return users.getFirst().getUsername();
     }
+
+    @Override
+    public List<UserResponseDTO> updateUserStatus(Long id, boolean status) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setMobileAllowed(status);
+        userRepository.save(user);
+
+        return getAllUsers();
+    }
 }

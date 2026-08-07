@@ -40,7 +40,7 @@ public class SecurityConfig {
                     config.setAllowedOrigins(List.of(origins.split(",")));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-                    config.setAllowCredentials(true);
+//                    config.setAllowCredentials(true);
                     return config;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -61,6 +61,7 @@ public class SecurityConfig {
 
                         // API authentication
                         .requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/mobile/auth/login").permitAll()
                         .requestMatchers("/api/**").authenticated()
 
                         // any other paths

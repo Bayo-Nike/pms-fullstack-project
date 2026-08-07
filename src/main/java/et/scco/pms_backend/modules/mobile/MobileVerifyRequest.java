@@ -1,4 +1,4 @@
-package et.scco.pms_backend.modules.admin.dto.request;
+package et.scco.pms_backend.modules.mobile;
 
 import lombok.Data;
 

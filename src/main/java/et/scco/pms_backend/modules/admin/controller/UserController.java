@@ -58,4 +58,9 @@ public class UserController {
         userService.deleteUser(userId);
         return ResponseEntity.ok("User deleted successfully.");
     }
+
+    @PutMapping("/status/{id}/{status}")
+    public ApiResponse<List<UserResponseDTO>> updateUserStatus( @PathVariable Long id, @PathVariable boolean status){
+        return ResponseUtil.success("User status updated", userService.updateUserStatus(id, status));
+    }
 }
