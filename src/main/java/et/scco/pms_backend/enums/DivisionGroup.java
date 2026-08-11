@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum DivisionGroup {
     BLD ("Building"),
-    WAR ("Water and Road"),
+    WAI ("Water and Irrigation"),
     BTH ("Both");
 
     private final String name;

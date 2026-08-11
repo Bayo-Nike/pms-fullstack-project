@@ -58,7 +58,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     //     ProjectType projectType = null;
     //     if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
-    //     else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
+    //     else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_IRRIGATION;
 
     //     return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable).map(this::mapToDTO);
     // }
@@ -96,7 +96,7 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
     if (DivisionGroup.BLD.equals(divisionGroup)) {
         projectType = ProjectType.BUILDING;
     } else if (!DivisionGroup.BTH.equals(divisionGroup)) {
-        projectType = ProjectType.WATER_AND_ROAD;
+        projectType = ProjectType.WATER_AND_IRRIGATION;
     }
 
     return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable)

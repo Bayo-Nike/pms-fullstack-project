@@ -59,12 +59,12 @@ public class DashboardServiceImpl implements DashboardService {
 
         DivisionGroup divisionGroup = division.getDivisionGroup();
         // If DivisionGroup is BTH BTH, projectTypeFilter remains null (meaning no filtering)
-        // else if BLD = BUILDING or WAR = WATER_AND_ROAD
+        // else if BLD = BUILDING or WAI = WATER_AND_IRRIGATION
         ProjectType projectType = null;
         if (divisionGroup == DivisionGroup.BLD) {
             projectType = ProjectType.BUILDING;
-        } else if (divisionGroup == DivisionGroup.WAR) {
-            projectType = ProjectType.WATER_AND_ROAD;
+        } else if (divisionGroup == DivisionGroup.WAI) {
+            projectType = ProjectType.WATER_AND_IRRIGATION;
         }
 
         List<Map<String, Object>> colorCodePerformanceMetrics = (subId == null) 

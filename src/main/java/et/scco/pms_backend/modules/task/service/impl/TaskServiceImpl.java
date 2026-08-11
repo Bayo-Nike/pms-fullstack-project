@@ -87,7 +87,7 @@ public class TaskServiceImpl implements TaskService {
                             saved.getTaskType().getName(),
                             saved.getProject().getTitle()
                     ),
-                    "projects/"+saved.getProject().getId()
+                    "inspections/create"
             );
         });
 
@@ -134,7 +134,7 @@ public class TaskServiceImpl implements TaskService {
                             updated.getTaskType().getName(),
                             updated.getProject().getTitle()
                     ),
-                    "projects/"+updated.getProject().getId()
+                    "inspections/create"
             );
         });
 
@@ -279,8 +279,8 @@ public class TaskServiceImpl implements TaskService {
         ProjectType projectType = null;
         if (divisionGroup == DivisionGroup.BLD) {
             projectType = ProjectType.BUILDING;
-        } else if (divisionGroup == DivisionGroup.WAR) {
-            projectType = ProjectType.WATER_AND_ROAD;
+        } else if (divisionGroup == DivisionGroup.WAI) {
+            projectType = ProjectType.WATER_AND_IRRIGATION;
         }
         // If DivisionGroup.BTH, projectType remains null (no filter applied)
 

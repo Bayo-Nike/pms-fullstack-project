@@ -74,7 +74,7 @@ public class InspectionServiceImpl implements InspectionService {
     //     if (divisionGroup.equals(DivisionGroup.BLD)) {
     //         projectType = ProjectType.BUILDING;
     //     } else if (!divisionGroup.equals(DivisionGroup.BTH)) {
-    //         projectType = ProjectType.WATER_AND_ROAD;
+    //         projectType = ProjectType.WATER_AND_IRRIGATION;
     //     }
 
     //     Page<Inspection> inspectionPage = inspectionRepository.findWithFilters(
@@ -109,7 +109,7 @@ public class InspectionServiceImpl implements InspectionService {
         if (divisionGroup.equals(DivisionGroup.BLD)) {
             projectType = ProjectType.BUILDING;
         } else if (!divisionGroup.equals(DivisionGroup.BTH)) {
-            projectType = ProjectType.WATER_AND_ROAD;
+            projectType = ProjectType.WATER_AND_IRRIGATION;
         }
 
         // ADD THIS LOGIC:

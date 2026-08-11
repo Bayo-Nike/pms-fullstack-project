@@ -85,7 +85,7 @@ public class ProjectInitiationServiceImpl implements ProjectInitiationService {
 
         ProjectType projectType = null;
         if (divisionGroup.equals(DivisionGroup.BLD)) projectType = ProjectType.BUILDING;
-        else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_ROAD;
+        else if (!divisionGroup.equals(DivisionGroup.BTH)) projectType = ProjectType.WATER_AND_IRRIGATION;
         
         Page<Project> projects = projectRepository.findInitiations(projectType, phase, category, search, finalSubCityId, pageable);
 

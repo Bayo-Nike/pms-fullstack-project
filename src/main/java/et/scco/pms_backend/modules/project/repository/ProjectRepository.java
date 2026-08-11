@@ -37,7 +37,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        @Query("SELECT p.currencyType as currency, SUM(p.budget) as amount " +
                      "FROM Project p " +
                      "WHERE (:subId IS NULL OR p.subCity.id = :subId) " +
-                     "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAR
+                     "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAI
                      "GROUP BY p.currencyType")
        List<Map<String, Object>> sumBudgetByCurrencyAndProjectType(@Param("subId") Long subId, @Param("type") ProjectType type);
 
@@ -48,7 +48,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        "FROM Project p LEFT JOIN p.subCity sc " +
        "WHERE (:subId IS NULL OR sc.id = :subId) " +
        "AND p.phase = :phase " +
-       "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAR
+       "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAI
        "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
         List<Map<String, Object>> countProjectsBySubCityAndPhaseAndProjectType(@Param("subId") Long subId, @Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
@@ -58,7 +58,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                      "SUM(budget) as amount " +
                      "FROM projects " +
                      "WHERE (:subId IS NULL OR sub_city_id = :subId) " +
-                     "AND (:type IS NULL OR project_type = :type) " + // Logic for BTH/BLD/WAR
+                     "AND (:type IS NULL OR project_type = :type) " + // Logic for BTH/BLD/WAI
                      "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at), currency_type " + // Group by currency too
                      "ORDER BY MONTH(created_at)", nativeQuery = true)
        List<Map<String, Object>> getMonthlyBudgetTrendByProjectType(@Param("subId") Long subId, @Param("type") String type);
@@ -102,7 +102,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
               "FROM Project p " +
               "LEFT JOIN p.subCity sc " +
               "WHERE p.phase = :phase " +
-              "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAR
+              "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAI
               "GROUP BY sc.subCityName, p.status") 
        List<Map<String, Object>> getProjectStatusDetailed(@Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
