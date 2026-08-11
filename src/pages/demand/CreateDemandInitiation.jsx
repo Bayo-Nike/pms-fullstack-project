@@ -21,7 +21,7 @@ export default function CreateDemandInitiation() {
         title: '',
         description: '',
         category: 'GOVERNMENT',
-        demandType: 'BUILDING', // or 'WATER_AND_ROAD'
+        demandType: 'BUILDING', // or 'WATER_AND_IRRIGATION'
         // demandLevel: 'CITY',
         // subCityId: '',
         // woredaId: '',
@@ -198,7 +198,7 @@ export default function CreateDemandInitiation() {
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Type</label>
                             <select name="demandType" value={formData.demandType} onChange={handleInputChange} className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
-                                <option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option>
+                                <option value="BUILDING">Building</option><option value="WATER_AND_IRRIGATION">Water & Irrigation</option>
                             </select>
                         </div>
                     </div>
@@ -425,7 +425,7 @@ export default function CreateDemandInitiation() {
                 {/* PART 4: FILES */}
                 <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm p-8 space-y-6">
                     <div className="flex items-center justify-between border-b pb-4">
-                        <div className="flex items-center gap-3 text-slate-400"><CloudUpload size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Attachments</span></div>
+                        <div className="flex items-center gap-3 text-slate-400"><CloudUpload size={18} /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Attachments. like BIM file</span></div>
                         <label className="bg-sky-50 text-sky-600 px-6 py-2 rounded-xl text-[10px] font-black uppercase cursor-pointer hover:bg-sky-100 transition-all shadow-sm">
                         Add Files
                            {/* <input type="file" multiple onChange={(e) => setFiles(p => [...p, ...Array.from(e.target.files)])} className="hidden" /> */}

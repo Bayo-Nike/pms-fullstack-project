@@ -462,6 +462,11 @@ export default function ManageProjectCosts() {
                                 <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Decision Audit Remark</p>
                             </div>
                         </div>
+
+                        {/* <div className="flex items-center gap-3 mb-6">
+                            <input type="text" placeholder='Direct to' readOnly className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold outline-none appearance-none cursor-pointer"/>
+                        </div> */}
+                        
                         <textarea 
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm outline-none focus:border-sky-500 min-h-[100px] font-bold"
                             placeholder="Provide a reason or remark (optional)..."
@@ -758,7 +763,7 @@ export default function ManageProjectCosts() {
 
                             {/* File Upload Section */}
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Supporting Document</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Supporting Document *</label>
                                 <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-200 border-dashed rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-all">
                                     <div className="flex flex-col items-center justify-center pt-2 pb-2">
                                         {form.file ? (
@@ -773,7 +778,7 @@ export default function ManageProjectCosts() {
                                             </>
                                         )}
                                     </div>
-                                    <input type="file" className="hidden" onChange={handleFileChange} />
+                                    <input type="file" className="hidden" onChange={handleFileChange} required/>
                                 </label>
                             </div>
 

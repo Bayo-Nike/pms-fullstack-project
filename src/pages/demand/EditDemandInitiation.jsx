@@ -239,7 +239,7 @@ export default function EditDemandInitiation() {
                             </div>
                             <div className="space-y-2"><label className="text-[10px] font-black text-slate-400 uppercase">Type</label>
                                 <select name="demandType" value={formData.demandType} onChange={handleInputChange} disabled={clientDisabled} className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none">
-                                    <option value="BUILDING">Building</option><option value="WATER_AND_ROAD">Water & Road</option>
+                                    <option value="BUILDING">Building</option><option value="WATER_AND_IRRIGATION">Water & Irrigation</option>
                                 </select>
                             </div>
                         </div>

@@ -138,7 +138,7 @@ export default function TaskTypes() {
                                     <select disabled={isReadOnly} value={dialog.formData.projectType} onChange={(e) => setDialog({ ...dialog, formData: { ...dialog.formData, projectType: e.target.value } })}
                                         className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl text-[11px] font-black uppercase outline-none">
                                         <option value="BUILDING">Building</option>
-                                        <option value="WATER_AND_ROAD">Water & Road</option>
+                                        <option value="WATER_AND_IRRIGATION">Water & Irrigation</option>
                                     </select>
                                 </div>
                                 <div>

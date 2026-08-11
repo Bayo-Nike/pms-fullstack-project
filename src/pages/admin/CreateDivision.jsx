@@ -59,7 +59,7 @@ export default function CreateDivision() {
         if (lower.includes('building')) {
             setDivisionGroup('BLD');
         } else if (lower.includes('water') || lower.includes('road')) {
-            setDivisionGroup('WAR');
+            setDivisionGroup('WAI');
         } else {
             setDivisionGroup('BTH');
         }
@@ -168,7 +168,7 @@ export default function CreateDivision() {
                             >
                                 {/* KEPT CURRENT ORDER */}
                                 <option value="BLD">Building (BLD)</option>
-                                <option value="WAR">Water, Road and Irrigation (WAR)</option>
+                                <option value="WAI">Water and Irrigation (WAI)</option>
                                 <option value="BTH">Both (BTH)</option>
                             </select>
                         </div>

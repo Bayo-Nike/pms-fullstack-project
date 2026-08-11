@@ -157,7 +157,7 @@ export default function CreateInspectionType() {
                                 className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-[#0284C7] appearance-none cursor-pointer"
                             >
                                 <option value="BUILDING">Building</option>
-                                <option value="WATER_AND_ROAD">Water and Road</option>
+                                <option value="WATER_AND_IRRIGATION">Water and Irrigation</option>
                             </select>
                         </div>
                     </div>

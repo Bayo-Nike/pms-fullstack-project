@@ -118,6 +118,7 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
         try {
             const res = await projectApi.COMMENT_INSPECTION(currentLog.id, commentInput.trim());
             const updatedLog = res.data?.data || res.data;
+            console.log(updatedLog)
             setCurrentLog(updatedLog);
             onSync(updatedLog);
             setCommentInput('');

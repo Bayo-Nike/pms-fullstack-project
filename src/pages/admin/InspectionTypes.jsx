@@ -143,7 +143,7 @@ export default function InspectionTypes() {
                                     </td>
                                     <td className="px-6 py-3.5">
                                         <div className="flex items-center gap-2">
-                                            {item.projectType === 'WATER_AND_ROAD' ? <Engineering className="text-slate-300" style={{ fontSize: 14 }} /> : <Business className="text-slate-300" style={{ fontSize: 14 }} />}
+                                            {item.projectType === 'WATER_AND_IRRIGATION' ? <Engineering className="text-slate-300" style={{ fontSize: 14 }} /> : <Business className="text-slate-300" style={{ fontSize: 14 }} />}
                                             <span className="text-xs text-slate-500 font-medium uppercase tracking-tight">
                                                 {item.projectType?.replace(/_/g, ' ')}
                                             </span>

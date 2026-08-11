@@ -205,7 +205,7 @@ export default function CreateProjectInitiation() {
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Project Type</label>
                             <select name="projectType" value={formData.projectType} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none">
                                 <option value="BUILDING">Building</option>
-                                <option value="WATER_AND_ROAD">Water & Road</option>
+                                <option value="WATER_AND_IRRIGATION">Water & Irrigation</option>
                             </select>
                         </div>
                         <div className="space-y-2"><label className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Initiation Title *</label><input name="title" value={formData.title} onChange={handleInputChange} disabled={isView} className="w-full text-sm font-semibold bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 outline-none focus:border-[#0284C7]" /></div>

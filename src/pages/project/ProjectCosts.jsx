@@ -103,7 +103,7 @@ export default function ProjectCosts() {
                         >
                             <option value="ALL">All Types</option>
                             <option value="BUILDING">Building</option>
-                            <option value="WATER_AND_ROAD">Water & Road</option>
+                            <option value="WATER_AND_IRRIGATION">Water & Irrigation</option>
                         </select>
                     </div>
 

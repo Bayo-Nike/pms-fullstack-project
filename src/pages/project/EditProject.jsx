@@ -79,7 +79,7 @@ export default function EditProject() {
         const type = formData.projectType;
         const group = emp.divisionGroup;
         if (type === 'BUILDING') return group === 'BLD' || group === 'BTH';
-        if (type === 'WATER_AND_ROAD') return group === 'WAR' || group === 'BTH';
+        if (type === 'WATER_AND_IRRIGATION') return group === 'WAI' || group === 'BTH';
         return true;
     };
 
