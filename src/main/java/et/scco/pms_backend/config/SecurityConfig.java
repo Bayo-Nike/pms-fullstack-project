@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/consultancy/download/**").permitAll()
                         .requestMatchers("/api/admin/client/download/**").permitAll()
                         .requestMatchers("/api/tasks/download/**").permitAll()
+                        .requestMatchers("/api/admin/inspections/download/**").permitAll()
 
                         // API authentication
                         .requestMatchers("/api/auth/login").permitAll()
@@ -69,6 +70,15 @@ public class SecurityConfig {
                 );
         http.addFilterBefore(permissionFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Allow for Iframe view
+        http
+        .headers(headers -> headers
+            .frameOptions(frame -> frame.disable()) // Disable the old 'DENY' header
+            .contentSecurityPolicy(csp -> csp
+                .policyDirectives("frame-ancestors 'self' " + origins) // Allow your React origin
+            )
+        );
 
         return http.build();
     }
