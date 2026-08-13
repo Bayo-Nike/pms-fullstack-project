@@ -6,13 +6,20 @@ import et.scco.pms_backend.modules.project.dto.response.InspectionResponseDto;
 import et.scco.pms_backend.modules.project.service.InspectionService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -89,5 +96,27 @@ public class InspectionController {
     @PutMapping("/{id}/approve")
     public ApiResponse<InspectionResponseDto> approve(@PathVariable Long id) {
         return ResponseUtil.success("Inspection promoted to next level", inspectionService.approveInspection(id));
+    }
+
+    @GetMapping("/download/{filename:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws Exception {
+        Path filePath = Paths.get("uploads").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new RuntimeException("File not found " + filename);
+        }
+
+        // Try to determine content type
+        String contentType = "application/octet-stream";
+        if (filename.endsWith(".png")) contentType = "image/png";
+        else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) contentType = "image/jpeg";
+        else if (filename.endsWith(".pdf")) contentType = "application/pdf";
+        else if (filename.endsWith(".docx")) contentType = "application/docx";
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

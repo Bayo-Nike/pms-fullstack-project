@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -180,7 +181,14 @@ public class InspectionServiceImpl implements InspectionService {
         if (files != null)
         {
             try {
-                String fileName = fileStorageService.storeFile(files.getFirst());
+                // String fileName = fileStorageService.storeFile(files.getFirst());
+                String fileName = files.stream().filter(file -> file != null && !file.isEmpty()).map(file -> {
+                    try {
+                        return fileStorageService.storeFile(file);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }).collect(Collectors.joining(","));
                 inspection.setInspectionDocumentUrl(fileName);
             }catch (Exception e) {
                 System.out.println(e.getMessage());
