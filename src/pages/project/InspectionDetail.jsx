@@ -36,7 +36,7 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
     const [currentLog, setCurrentLog] = useState(null);
     const [commentInput, setCommentInput] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showIframe, setShowIframe] = useState(false);
+    const [showIframe, setShowIframe] = useState(null);
     const { can } = useAuth();
 
     // --- Distance Auditing Local States ---
@@ -44,6 +44,11 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
     const [proximityKm, setProximityKm] = useState(null);
 
     const [localAlert, setLocalAlert] = useState({ show: false, type: 'info', message: '' });
+
+    // const filePreviewUrl = currentLog?.inspectionDocumentUrl 
+    // ? projectApi.GET_INSPECTION_FILE_URL(currentLog.inspectionDocumentUrl) 
+    // : null;
+    const filePreviewUrl = showIframe ? projectApi.GET_INSPECTION_FILE_URL(showIframe) : null;
 
     useEffect(() => {
         if (log) {
@@ -232,19 +237,25 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Support Documentation</label>
                                 {currentLog.inspectionDocumentUrl ? (
                                     <div className="space-y-2">
-                                        <button
-                                            onClick={() => setShowIframe(true)}
-                                            className="w-full flex items-center justify-between p-4 bg-white rounded-[24px] border border-slate-200 hover:border-[#0284C7] transition-all group shadow-sm"
-                                        >
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:text-sky-500 transition-all"><Description /></div>
-                                                <div className="text-left">
-                                                    <p className="text-[10px] font-black text-slate-700 uppercase leading-none">Primary Artifact</p>
-                                                    <p className="text-[9px] font-bold text-slate-400 mt-1 truncate max-w-[150px]">{currentLog.inspectionDocumentUrl}</p>
-                                                </div>
-                                            </div>
-                                            <OpenInNew className="text-slate-300 group-hover:text-sky-600" />
-                                        </button>
+                                        {currentLog.inspectionDocumentUrl.split(',').map((fileName, idx) => {
+                                            const file = fileName.trim();
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => setShowIframe(file)}
+                                                    className="w-full flex items-center justify-between p-4 bg-white rounded-[24px] border border-slate-200 hover:border-[#0284C7] transition-all group shadow-sm"
+                                                >
+                                                    <div className="flex items-center gap-3 min-w-0">
+                                                        <div className="p-2 bg-slate-50 rounded-xl text-slate-400 group-hover:text-sky-500 transition-all"><Description /></div>
+                                                        <div className="text-left min-w-0">
+                                                            <p className="text-[10px] font-black text-slate-700 uppercase leading-none">Evidence {idx + 1}</p>
+                                                            <p className="text-[9px] font-bold text-slate-400 mt-1 truncate max-w-[150px]">{file}</p>
+                                                        </div>
+                                                    </div>
+                                                    <OpenInNew className="text-slate-300 group-hover:text-sky-600 shrink-0" />
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="p-6 border-2 border-dashed border-slate-100 rounded-[32px] text-center">
@@ -309,11 +320,55 @@ export default function InspectionDetail({ show, log, onClose, onSync }) {
                 {/* FULL PREVIEW LAYER */}
                 {showIframe && (
                     <div className="absolute inset-0 z-[1400] bg-white flex flex-col animate-fadeIn">
-                        <div className="p-6 border-b bg-slate-50 flex justify-between items-center">
-                            <div className="flex items-center gap-3"><Description className="text-sky-600" /><span className="text-xs font-black uppercase tracking-widest text-slate-700 px-4">Registry Artifact Preview</span></div>
-                            <button onClick={() => setShowIframe(false)} className="p-3 bg-slate-200 text-slate-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><Close /></button>
+                        {/* Header */}
+                        <div className="p-6 border-b bg-slate-50 flex justify-between items-center px-10">
+                            <div className="flex items-center gap-3">
+                                <Description className="text-sky-600" />
+                                <span className="text-xs font-black uppercase tracking-widest text-slate-700">Registry Artifact Preview</span>
+                            </div>
+                            <button onClick={() => setShowIframe(null)} className="p-3 bg-slate-200 text-slate-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all"><Close /></button>
                         </div>
-                        <iframe src={currentLog.inspectionDocumentUrl} title="Doc" className="flex-1 w-full border-none" />
+                        
+                        {/* DYNAMIC CONTENT HANDLER */}
+                        <div className="flex-1 overflow-hidden flex flex-col">
+                            {(() => {
+                                const fileName = showIframe?.toLowerCase() || '';
+                                
+                                // 1. HANDLE PDF
+                                if (fileName.endsWith('.pdf')) {
+                                    return <embed src={filePreviewUrl} type="application/pdf" className="w-full h-full border-none" />;
+                                }
+
+                                // 2. HANDLE IMAGES
+                                if (/\.(jpg|jpeg|png|webp|gif)$/i.test(fileName)) {
+                                    return (
+                                        <div className="flex-1 flex items-center justify-center bg-slate-100 p-10">
+                                            <img src={filePreviewUrl} className="max-w-full max-h-full object-contain shadow-2xl rounded-xl border-4 border-white" alt="Preview" />
+                                        </div>
+                                    );
+                                }
+
+                                // 3. HANDLE DOCS/OTHER (Fallback)
+                                return (
+                                    <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 space-y-6">
+                                        <div className="w-24 h-24 bg-white rounded-3xl shadow-sm border flex items-center justify-center">
+                                            <Description style={{ fontSize: 48 }} className="text-slate-200" />
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-sm font-black text-slate-800 uppercase">Preview Not Supported</p>
+                                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Office documents must be downloaded to view</p>
+                                        </div>
+                                        <a 
+                                            href={filePreviewUrl} 
+                                            download 
+                                            className="px-10 py-4 bg-[#0284C7] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-sky-700 transition-all"
+                                        >
+                                            Download {fileName.split('.').pop().toUpperCase()} File
+                                        </a>
+                                    </div>
+                                );
+                            })()}
+                        </div>
                     </div>
                 )}
             </div>

@@ -4,7 +4,8 @@ import {
     ArrowBack, Save, HelpOutline, Layers,
     Description, LocationCity, EventNote,
     MyLocation, CloudUpload, AttachFile, DeleteOutline, Visibility, Close,
-    Straighten, CheckCircle
+    Straighten, CheckCircle,
+    OpenInNew
 } from '@mui/icons-material';
 import {
     AlertCircle, CheckCircle2, MapPin, ExternalLink
@@ -85,6 +86,39 @@ export default function CreateInspection() {
         setAlert({ show: true, type, message });
         if (type === 'success') setTimeout(() => setAlert(prev => ({ ...prev, show: false })), 4000);
     };
+
+    const EvidenceViewer = ({ url, fileName }) => {
+        if (!url) return null;
+        const ext = fileName?.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+        const isPDF = ext === 'pdf';
+    
+        if (isImage) return (
+            <div className="flex-1 flex items-center justify-center bg-slate-50 p-6 overflow-auto">
+                <img src={url} className="max-w-full max-h-full object-contain shadow-2xl rounded-3xl border-4 border-white animate-scaleUp" alt="Evidence" />
+            </div>
+        );
+        if (isPDF) return <embed src={`${url}#toolbar=0`} type="application/pdf" className="flex-1 w-full h-full border-none" />;
+        
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 space-y-6">
+                <div className="w-32 h-32 bg-white rounded-[40px] shadow-sm border flex items-center justify-center"><Description style={{ fontSize: 64 }} className="text-slate-200" /></div>
+                <div className="text-center">
+                    <h3 className="text-lg font-black text-slate-800 uppercase">Preview Unavailable</h3>
+                    <p className="text-xs text-slate-400 font-bold mt-1 uppercase">Format: {ext} File</p>
+                </div>
+                <a href={url} download className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:bg-black transition-all">Download to View</a>
+            </div>
+        );
+    };
+    
+
+   
+    const filePreviewUrl = useMemo(() => {
+        if (!showPreview || typeof showPreview !== 'string') return null;
+        if (showPreview.startsWith('http')) return showPreview;
+        return projectApi.GET_INSPECTION_FILE_URL(showPreview);
+    }, [showPreview]);
 
     /**
      * FEATURE: Proximity Calculation (Recorded claim vs Admin ground truth)
@@ -173,11 +207,6 @@ export default function CreateInspection() {
         if (!formData.projectId) return [];
         return allMyTasks.filter(t => Number(t.projectId) === Number(formData.projectId));
     }, [formData.projectId, allMyTasks]);
-
-    // const filteredTemplates = useMemo(() => {
-    //     if (!selectedProject) return [];
-    //     return inspectionTemplates.filter(t => t.projectType === selectedProject.projectType);
-    // }, [selectedProject, inspectionTemplates]);
     
     const filteredTemplates = useMemo(() => {
         if (!selectedProject) return [];
@@ -299,13 +328,23 @@ export default function CreateInspection() {
             )}
 
             {showPreview && (
-                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/80 backdrop-blur-md animate-fadeIn p-6">
-                    <div className="bg-white rounded-[40px] shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden animate-scaleUp border relative">
-                        <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-700">Document Registry Preview</h3>
-                            <button onClick={() => setShowPreview(false)} className="p-2 bg-slate-200 text-slate-600 rounded-xl hover:bg-red-500 hover:text-white transition-all"><Close /></button>
+                <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-slate-900/90 backdrop-blur-md animate-fadeIn p-4 md:p-10">
+                    <div className="bg-white rounded-[48px] shadow-2xl w-full max-w-6xl h-full flex flex-col overflow-hidden animate-scaleUp border relative">
+                        <div className="p-8 border-b flex justify-between items-center bg-white px-10">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-sky-50 text-sky-600 rounded-2xl"><Visibility /></div>
+                                <div>
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-800">Registry Artifact Preview</h3>
+                                    <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase italic truncate max-w-[200px]">{showPreview}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button onClick={() => window.open(filePreviewUrl, '_blank')} className="p-4 bg-slate-50 text-slate-500 rounded-2xl hover:bg-sky-50 hover:text-sky-600 transition-all"><OpenInNew /></button>
+                                <button onClick={() => setShowPreview(false)} className="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-90"><Close /></button>
+                            </div>
                         </div>
-                        <iframe src={formData.inspectionDocumentUrl} title="Registry Preview" className="flex-1 w-full border-none" />
+                        {/* Using the refined viewer component */}
+                        <EvidenceViewer url={filePreviewUrl} fileName={showPreview} />
                     </div>
                 </div>
             )}
@@ -372,12 +411,7 @@ export default function CreateInspection() {
                     <div className="bg-white rounded-[40px] border border-slate-100 shadow-sm overflow-hidden">
                         <div className="p-6 border-b border-slate-50 bg-slate-50/40 flex items-center gap-3"><Description className="text-slate-400" fontSize="small" /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Findings & Evidence</span></div>
                         <div className="p-10 space-y-8">
-                            {/* <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Inspection Type *</label>
-                                <select value={formData.inspectionTypeId} onChange={e => setFormData({ ...formData, inspectionTypeId: e.target.value })} disabled={!selectedProject} className="w-full bg-slate-50 border border-slate-200 rounded-[24px] px-6 py-5 text-sm font-bold outline-none disabled:opacity-50">
-                                    <option value="">-- Choose Inspection Type --</option>{filteredTemplates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                </select>
-                            </div> */}
+                            
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Inspection Type *</label>
                                 <select 
@@ -440,12 +474,25 @@ export default function CreateInspection() {
                         <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden">
                             <div className="p-6 border-b border-slate-50 bg-slate-50/40 flex items-center gap-3"><CloudUpload className="text-slate-400" fontSize="small" /><span className="text-[11px] font-black uppercase text-slate-500 tracking-widest">Evidence Registry</span></div>
                             <div className="p-8 space-y-4">
-                                {formData.inspectionDocumentUrl && (
-                                    <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between group animate-fadeIn">
-                                        <div className="flex items-center gap-3 overflow-hidden"><AttachFile className="text-blue-400 shrink-0" style={{ fontSize: 20 }} /><div className="flex flex-col"><span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Stored File</span><span className="text-[11px] text-blue-600 truncate font-medium max-w-[120px]">Reference Docs</span></div></div>
-                                        <button onClick={() => setShowPreview(true)} className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-md active:scale-90 flex items-center gap-2 px-4"><Visibility style={{ fontSize: 16 }} /><span className="text-[9px] font-bold uppercase">View</span></button>
-                                    </div>
-                                )}
+                                 
+                                {formData.inspectionDocumentUrl && formData.inspectionDocumentUrl.split(',').map((fileName, idx) => {
+                                    const file = fileName.trim();
+                                    return (
+                                        <div key={idx} className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-between group animate-fadeIn">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <AttachFile className="text-blue-400 shrink-0" style={{ fontSize: 20 }} />
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Stored File</span>
+                                                    <span className="text-[11px] text-blue-600 truncate font-medium max-w-[180px]">{file}</span>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setShowPreview(file)} className="p-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all shadow-md active:scale-90 flex items-center gap-2 px-4">
+                                                <Visibility style={{ fontSize: 16 }} />
+                                                <span className="text-[9px] font-bold uppercase">View</span>
+                                            </button>
+                                        </div>
+                                    );
+                                })}
                                 <div className="relative border-2 border-dashed border-slate-200 rounded-[28px] p-6 text-center hover:bg-slate-50 transition-all cursor-pointer group"><input type="file" multiple onChange={handleFileSelect} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" /><AttachFile className="text-slate-300 group-hover:text-[#0284C7] mb-2" /><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Select Files</p></div>
                                 <div className="mt-3 space-y-2 max-h-32 overflow-y-auto pr-2">{selectedFiles.map((file, idx) => (<div key={idx} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100 hover:border-slate-300 group"><span className="text-[10px] font-bold text-slate-600 truncate max-w-[180px]">{file.name}</span><button onClick={() => setSelectedFiles(prev => prev.filter((_, i) => i !== idx))} className="text-slate-300 hover:text-red-500 transition-colors"><DeleteOutline style={{ fontSize: 18 }} /></button></div>))}</div>
                             </div>

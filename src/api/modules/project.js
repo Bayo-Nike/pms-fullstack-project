@@ -46,6 +46,14 @@ const projectApi = {
         headers: { 'Content-Type': 'text/plain' }
     }),
 
+    // GET_INSPECTION_FILE_URL: (fileName) => api.get(`/admin/inspections/download/${fileName}`),
+    GET_INSPECTION_FILE_URL: (fileName) => `http://localhost:8080/api/admin/inspections/download/${fileName}`,
+    
+    // If you need to download it as a blob (like your cost document logic)
+    DOWNLOAD_INSPECTION_DOCUMENT: (fileName) => api.get(`/admin/inspections/download/${fileName}`, {
+        responseType: 'blob'
+    }),
+
     DELETE_INSPECTION_LOG: (id) => api.delete(`/admin/inspections/${id}`),
     APPROVE_INSPECTION_EXCALATION: (id) => api.put(`/admin/inspections/${id}/approve`),
     GET_TASKS_BY_PROJECT: (projectId) => api.get(`/tasks/project/${projectId}`),
