@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.project.service.impl;
 
 import et.scco.pms_backend.enums.*;
+import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.model.*;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.NotificationService;
@@ -72,14 +73,14 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
             .orElseThrow(() -> new RuntimeException("The current user context was not found"));
 
     Employee employee = user.getEmployee();
-    if (employee == null) return projectRepository.findAll(pageable).map(this::mapToDTO);
+    if (employee == null) return projectRepository.findAll(pageable).map(this::mapToResponseDTO);
 
     // 1. Handle EXTERNAL Employees IMMEDIATELY
     if (EmployeeType.EXTERNAL.equals(employee.getEmployeeType())) {
         if (employee.getClient() != null) {
             Long clientId = employee.getClient().getId();
             return projectRepository.findByClientIdAndFilters(clientId, search, status, pageable)
-                    .map(this::mapToDTO);
+                    .map(this::mapToResponseDTO);
         }
         return Page.empty(pageable);
     }
@@ -100,14 +101,14 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
     }
 
     return projectRepository.findWithFilters(projectType, search, status, finalSubCityId, pageable)
-            .map(this::mapToDTO);
+            .map(this::mapToResponseDTO);
 }
 
     @Override
     public ProjectResponseDTO getProject(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
-        return mapToDTO(project);
+        return mapToResponseDTO(project);
     }
 
     @Transactional
@@ -142,7 +143,7 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
             }
         }
 
-        return mapToDTO(updated);
+        return mapToResponseDTO(updated);
     }
 
     private void populateImplementationDetails(Project project, CreateProjectRequestDTO dto) {
@@ -173,7 +174,7 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
     }
 
 
-    public ProjectResponseDTO mapToDTO(Project project) {
+    public ProjectResponseDTO mapToResponseDTO(Project project) {
         if (project == null) return null;
 
         ProjectResponseDTO dto = new ProjectResponseDTO();
@@ -275,7 +276,7 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
 
         projectExtensionRepository.save(extension);
         project.getExtensions().add(extension);
-        return mapToDTO(project);
+        return mapToResponseDTO(project);
     }
 
     @Transactional
@@ -302,7 +303,15 @@ public Page<ProjectResponseDTO> getAllProjects(String search, ProjectStatus stat
     @Override public Project getProjectById(Long projectId) { return projectRepository.findById(projectId).orElseThrow(); }
     @Override public Page<ProjectResponseDTO> getMyProjects(Pageable pageable) {
         Employee employee = employeeServiceImpl.findEmployeeWithDivision();
-        return (employee == null) ? Page.empty(pageable) : projectRepository.findAllByEmployeesContaining(employee, pageable).map(this::mapToDTO);
+        return (employee == null) ? Page.empty(pageable) : projectRepository.findAllByEmployeesContaining(employee, pageable).map(this::mapToResponseDTO);
+    }
+
+    @Override
+    public Long getProjectIdByDemandCode(String demandCode) {
+        return projectRepository.findByDemandCode(demandCode)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Project not found for demand code: " + demandCode))
+                .getId();
     }
 
     

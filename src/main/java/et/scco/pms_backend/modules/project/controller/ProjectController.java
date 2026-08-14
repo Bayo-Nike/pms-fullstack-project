@@ -5,7 +5,7 @@ import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.request.ExtendProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
-import et.scco.pms_backend.modules.project.service.impl.ProjectServiceImpl;
+import et.scco.pms_backend.modules.project.service.ProjectService;
 import et.scco.pms_backend.utility.ResponseUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProjectController {
 
-    private final ProjectServiceImpl projectService;
+    private final ProjectService projectService;
 
     @GetMapping
     public ApiResponse<Page<ProjectResponseDTO>> getProjects(
@@ -79,5 +79,11 @@ public class ProjectController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal server error during reversion");
         }
+    }
+
+    @GetMapping("/by-demand/{demandCode}")
+    public ApiResponse<Long> getProjectByDemandCode(@PathVariable String demandCode) {
+        Long projectId = projectService.getProjectIdByDemandCode(demandCode);
+        return ResponseUtil.success("Project fetched successfully", projectId);
     }
 }

@@ -10,6 +10,7 @@ import et.scco.pms_backend.modules.project.model.Project;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -114,5 +115,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         long countByPhaseAndProjectType(@Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
         long countBySubCityIdAndPhaseAndProjectLevel(Long subId, ProjectPhase phase, ProjectLevel projectLevel);
+
+        Optional<Project> findByDemandCode(String demandCode);
 
 }
