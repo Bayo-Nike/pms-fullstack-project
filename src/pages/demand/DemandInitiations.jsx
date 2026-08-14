@@ -188,7 +188,7 @@ export default function DemandInitiations() {
                                             )
                                         }
                                         {
-                                            can('CAN_VIEW_PROJECT_DETAIL') && (
+                                            can('CAN_VIEW_PROJECT_DETAIL') && demand.status == 'APPROVED' &&(
                                                 <button
                                                     onClick={async () => {
                                                         try {
