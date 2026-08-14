@@ -2,6 +2,7 @@ package et.scco.pms_backend.modules.project.service;
 
 import et.scco.pms_backend.enums.ProjectStatus;
 import et.scco.pms_backend.modules.project.dto.request.CreateProjectRequestDTO;
+import et.scco.pms_backend.modules.project.dto.request.ExtendProjectRequestDTO;
 import et.scco.pms_backend.modules.project.dto.response.ProjectResponseDTO;
 import et.scco.pms_backend.modules.project.model.Project;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,10 @@ public interface ProjectService {
     Project getProjectById(Long projectId);
 
     Page<ProjectResponseDTO> getMyProjects(Pageable pageable);
+
+    Long getProjectIdByDemandCode(String demandCode);
+
+    ProjectResponseDTO extendProject(Long id, ExtendProjectRequestDTO request);
+
+    void deleteLastExtension(Long projectId, Long extensionId);
 }
