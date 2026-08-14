@@ -23,6 +23,7 @@ const projectApi = {
     UPDATE_TIMELINE: (id, startDate, endDate) => api.patch(`/projects/${id}/timeline`, null, { params: { startDate, endDate } }),
     EXTEND_PROJECT: (id, data) => api.post(`/projects/${id}/extend`, data),
     DELETE_EXTENSION: (projectId, extensionId) => api.delete(`/projects/${projectId}/extensions/${extensionId}`),
+    GET_PROJECT_ID_BY_DEMAND_CODE: (demandCode) => api.get(`/projects/by-demand/${demandCode}`),
 
 
 

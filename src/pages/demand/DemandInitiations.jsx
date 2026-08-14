@@ -4,10 +4,11 @@ import {
     Search, Add, Visibility, Edit, Delete, RateReview, 
     Category, Apartment, CheckCircle, Cancel, History,
     ChevronRight,
-    ChevronLeft
+    ChevronLeft,
+    Dashboard
 } from '@mui/icons-material';
 import demandApi from '../../api/modules/demand';
-import adminApi from '../../api/modules/admin';
+import projectApi from '../../api/modules/project';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
@@ -180,9 +181,32 @@ export default function DemandInitiations() {
                                                 <button
                                                     onClick={() => navigate(`/demands/view/${demand.id}`)}
                                                     className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
-                                                    title="View Details"
+                                                    title="View Demand Details"
                                                 >
                                                     <Visibility style={{ fontSize: 20 }} />
+                                                </button>
+                                            )
+                                        }
+                                        {
+                                            can('CAN_VIEW_PROJECT_DETAIL') && (
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            const res = await projectApi.GET_PROJECT_ID_BY_DEMAND_CODE(demand.demandCode);
+                                                            const projectId = res.data?.data || res.data;
+                                                            navigate(`/projects/${projectId}`);
+                                                        } catch (err) {
+                                                            setAlert({
+                                                                show: true,
+                                                                type: 'error',
+                                                                message: 'No project found for this demand.'
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
+                                                    title="View Project Details"
+                                                >
+                                                    <Dashboard style={{ fontSize: 20 }} />
                                                 </button>
                                             )
                                         }
