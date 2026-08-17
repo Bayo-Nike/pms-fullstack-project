@@ -12,6 +12,7 @@ import projectApi from '../../api/modules/project';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
 import { ChevronLeftCircle, ChevronRightCircle } from 'lucide-react';
+import ProjectDetails from '../project/ProjectDetails';
 // import ReviewModal from './components/ReviewModal'; // Extracting modal logic
 
 export default function DemandInitiations() {
@@ -27,6 +28,10 @@ export default function DemandInitiations() {
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
     const { can } = useAuth();
     const [pageInfo, setPageInfo] = useState({ current: 0, total: 0, size: 8, totalElements: 0 });
+
+    // for dialog show of project detail
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const [showProjectDialog, setShowProjectDialog] = useState(false);
 
     const fetchInitiations = useCallback(async (page = 0) => {
         setLoading(true);
@@ -189,25 +194,50 @@ export default function DemandInitiations() {
                                         }
                                         {
                                             can('CAN_VIEW_PROJECT_DETAIL') && demand.status == 'APPROVED' &&(
+                                                // <button
+                                                //     onClick={async () => {
+                                                //         try {
+                                                //             const res = await projectApi.GET_PROJECT_ID_BY_DEMAND_CODE(demand.demandCode);
+                                                //             const projectId = res.data?.data || res.data;
+                                                //             navigate(`/projects/${projectId}`);
+                                                //         } catch (err) {
+                                                //             setAlert({
+                                                //                 show: true,
+                                                //                 type: 'error',
+                                                //                 message: 'No project found for this demand.'
+                                                //             });
+                                                //         }
+                                                //     }}
+                                                //     className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
+                                                //     title="View Project Progress"
+                                                // >
+                                                //     <Dashboard style={{ fontSize: 20 }} />
+                                                // </button>
                                                 <button
-                                                    onClick={async () => {
-                                                        try {
-                                                            const res = await projectApi.GET_PROJECT_ID_BY_DEMAND_CODE(demand.demandCode);
-                                                            const projectId = res.data?.data || res.data;
-                                                            navigate(`/projects/${projectId}`);
-                                                        } catch (err) {
-                                                            setAlert({
-                                                                show: true,
-                                                                type: 'error',
-                                                                message: 'No project found for this demand.'
-                                                            });
-                                                        }
-                                                    }}
-                                                    className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl transition-all"
-                                                    title="View Project Details"
-                                                >
-                                                    <Dashboard style={{ fontSize: 20 }} />
-                                                </button>
+                                                // onClick={() => {
+                                                //     setSelectedProjectId(item.projectId);
+                                                //     setShowProjectDialog(true);
+                                                // }}
+                                                onClick={async () => {
+                                                    try {
+                                                        const res = await projectApi.GET_PROJECT_ID_BY_DEMAND_CODE(demand.demandCode);
+                                                        const projectId = res.data?.data || res.data;
+                                                        setSelectedProjectId(projectId);
+                                                        setShowProjectDialog(true);
+                                                        // navigate(`/projects/${projectId}`);
+                                                    } catch (err) {
+                                                        setAlert({
+                                                            show: true,
+                                                            type: 'error',
+                                                            message: 'No project found for this demand.'
+                                                        });
+                                                    }
+                                                }}
+                                                className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl"
+                                                title="View Project Progress"
+                                            >
+                                                <Dashboard style={{ fontSize: 20 }} />
+                                            </button>
                                             )
                                         }
                                         {
@@ -256,6 +286,37 @@ export default function DemandInitiations() {
                     </div>
                 </div>
             </div>
+
+            {showProjectDialog && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setShowProjectDialog(false)}
+                >
+                    <div
+                        className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Dialog Header */}
+                        <div className="flex items-center justify-between border-b px-6 py-4">
+                            <h2 className="text-lg font-semibold text-slate-800">
+                                Project Details
+                            </h2>
+
+                            <button
+                                onClick={() => setShowProjectDialog(false)}
+                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Project Details */}
+                        <div className="max-h-[calc(90vh-70px)] overflow-y-auto">
+                            <ProjectDetails projectId={selectedProjectId} />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

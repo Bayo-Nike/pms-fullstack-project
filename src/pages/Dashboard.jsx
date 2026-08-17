@@ -10,7 +10,7 @@ import {
 } from 'recharts';
 import dashboardApi from '../api/modules/dashboard';
 import { useAuth } from '../context/AuthContext';
-import { Start } from '@mui/icons-material';
+import { Approval, Cancel, Pending, Start } from '@mui/icons-material';
 
 const COLORS = ['#0284C7', '#FBAF1E', '#10B981', '#8B5CF6', '#F43F5E'];
 
@@ -64,18 +64,41 @@ export default function ProfessionalDashboard() {
       <StatsGrid data={data} loading={loading} can={can}/>
 
       {/* 3. SUBCITY COLORCODING PERFORMANCE (Target vs Achieved) */}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <PerformanceAnalysisSection data={data?.colorCodePerformanceMetrics} loading={loading} />
+      )}
 
       {/* 4. BUDGET & PROJECT DISTRIBUTION */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <BudgetUtilizationSection trendData={data?.budgetTrend} loading={loading} />
-        <ProjectDistributionSection pieData={data?.projectsBySubCity} loading={loading} />
+        {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <BudgetUtilizationSection trendData={data?.budgetTrend} loading={loading} />
+        )}
+        {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <BudgetUtilizationSection trendData={data?.clientBudgetTrend} loading={loading} />
+        )}
+        {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <ProjectDistributionSection pieData={data?.projectsBySubCity} loading={loading} />
+        )}
+        {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <ProjectDistributionSection pieData={data?.clientProjectsBySubCity} loading={loading} />
+        )}
+
       </div>
 
       {/* PROJECT STATUS & TASK PROGRESS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
-        <TaskOverviewSection data={data?.tasksByStatus} loading={loading} />
+        {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <ProjectStatusSection data={data?.projectsByStatus} loading={loading} />
+        )}
+        {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <TaskOverviewSection data={data?.tasksByStatus} loading={loading} />
+        )}
+        {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <ProjectStatusSection data={data?.clientProjectsByStatus} loading={loading} />
+        )}
+        {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+          <TaskOverviewSection data={data?.clientTasksByStatus} loading={loading} />
+        )}
       </div>
     </div>
   );
@@ -244,8 +267,16 @@ function StatsGrid({ data, loading, can }) {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-4">
+      <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount ?? 0} color="rose" />
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <StatCard icon={<Users size={18} />} label="Employees" value={data?.employeeCount ?? 0} color="blue" />
+      )}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <StatCard icon={<UserCheck size={18} />} label="Users" value={data?.userCount ?? 0} color="indigo" />
+      )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+      <StatCard icon={<UserCheck size={18} />} label="Clients' Users" value={data?.userCountAsPerClient ?? 0} color="indigo" />
+      )}
       {can?.('CAN_SEE_CONTRACTOR_LIST') && (
       <StatCard icon={<HardHat size={18} />} label="Contractors" value={data?.contractorCount ?? 0} color="amber" />
       )}
@@ -255,12 +286,37 @@ function StatsGrid({ data, loading, can }) {
       {can?.('CAN_SEE_CLIENT_LIST') && (
       <StatCard icon={<HardHat size={18} />} label="Clients" value={data?.clientCount} color="amber" />
       )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+      <StatCard icon={<Pending size={18} />} label="Total Pending Demand" value={data?.countPendingDemand ?? 0} color="sky" />
+      )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+      <StatCard icon={<Approval size={18} />} label="Total Approved Demand" value={data?.countApprovedDemandCount ?? 0} color="sky" />
+      )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+      <StatCard icon={<Cancel size={18} />} label="Total Rejected Demand" value={data?.countRejectedDemandCount ?? 0} color="sky" />
+      )}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <StatCard icon={<Start size={18} />} label="Total Initiations" value={data?.initiationCount ?? 0} color="sky" />
+      )}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <StatCard icon={<Construction size={18} />} label="Total Projects" value={data?.projectCount ?? 0} color="sky" />
-      <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount ?? 0} color="purple" />
+      )}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
+        <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.taskCount ?? 0} color="purple" />
+      )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+        <StatCard icon={<CheckSquare size={18} />} label="Total Tasks" value={data?.clientTaskCount ?? 0} color="purple" />
+      )}
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.budgetByCurrency ?? 0} />
-      <StatCard icon={<MapPin size={18} />} label="Sub Cities" value={data?.subCityCount ?? 0} color="rose" />
+      )}
+      {can?.('CAN_CREATE_DEMAND_INITIATION') && (
+      <BudgetStatCard icon={<Wallet size={18} />} label="Total Budget" budgets={data?.clientBudgetByCurrency ?? 0} />
+      )}
+      
+      {!can?.('CAN_CREATE_DEMAND_INITIATION') && (
       <StatCard icon={<BarChart3 size={18} />} label="ColorCodings" value={data?.colorCodingCount ?? 0} color="rose" />
+      )}
     </div>
   );
 }
@@ -489,7 +545,7 @@ function TaskOverviewSection({ data = [], loading }) {
         <div>
           <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tight">Project Task Progress</h3>
           <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-            {selectedProject === 'All Projects' ? 'Operational Velocity' : 'Project Drill-down'}
+            {selectedProject === 'All Projects' ? 'Operational Velocity' : selectedProject}
           </p>
         </div>
 

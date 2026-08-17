@@ -50,8 +50,14 @@ import ProgressPie from '../../utility/ProgressPie';
 //     return null;
 // }
 
-const ProjectDetails = () => {
-    const { id } = useParams();
+// const ProjectDetails = () => {
+//     const { id } = useParams();
+//     const navigate = useNavigate();
+//     const { can } = useAuth();
+const ProjectDetails = ({ projectId }) => {
+    const { id: routeId } = useParams();
+    const id = projectId || routeId;
+
     const navigate = useNavigate();
     const { can } = useAuth();
 

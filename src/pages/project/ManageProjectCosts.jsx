@@ -268,11 +268,13 @@ import {
     Person, Edit, Delete, HelpOutline, CheckCircle, 
     HowToReg, InfoOutlined, CloudUpload, Description,
     Cancel,
-    FileDownload
+    FileDownload,
+    Visibility
 } from '@mui/icons-material';
 import projectApi from '../../api/modules/project';
 import AlertMessage from '../../components/Reusable/AlertMessage';
 import { useAuth } from '../../context/AuthContext';
+import ProjectDetails from './ProjectDetails';
 
 // Helper Component for Status Styling
 const StatusBadge = ({ status }) => {
@@ -307,6 +309,10 @@ export default function ManageProjectCosts() {
     const [workflowAction, setWorkflowAction] = useState({ show: false, id: null, type: '', remark: '' });
 
     const [alert, setAlert] = useState({ show: false, type: 'info', message: '' });
+
+    // for dialog show of project detail
+    const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const [showProjectDialog, setShowProjectDialog] = useState(false);
     
     // Enhanced Form State
     const [form, setForm] = useState({ 
@@ -463,9 +469,9 @@ export default function ManageProjectCosts() {
                             </div>
                         </div>
 
-                        {/* <div className="flex items-center gap-3 mb-6">
-                            <input type="text" placeholder='Direct to' readOnly className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold outline-none appearance-none cursor-pointer"/>
-                        </div> */}
+                        <div className="flex items-center gap-3 mb-6">
+                            <input type="text" value={`To: ${project.projectType} Director`}  placeholder='Direct to' readOnly className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 text-sm font-bold outline-none appearance-none cursor-pointer"/>
+                        </div>
                         
                         <textarea 
                             className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm outline-none focus:border-sky-500 min-h-[100px] font-bold"
@@ -568,6 +574,7 @@ export default function ManageProjectCosts() {
                                     <th className="px-6 py-5 text-right">Amount</th>
                                     <th className="px-6 py-5">Verification Stage</th>
                                     <th className="px-8 py-5 text-right">Actions</th>
+                                    <th className="px-1 py-1 text-right">Reference</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
@@ -707,6 +714,22 @@ export default function ManageProjectCosts() {
                                                 )}
                                             </div>
                                         </td>
+                                        <td className="px-1 py-1 text-right">
+                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {can("CAN_VIEW_PROJECT_DETAIL") && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedProjectId(item.projectId);
+                                                            setShowProjectDialog(true);
+                                                        }}
+                                                        className="p-2 text-slate-400 hover:text-[#0284C7] hover:bg-sky-50 rounded-xl"
+                                                        title="View Project Progress"
+                                                    >
+                                                        <Visibility style={{ fontSize: 20 }} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -786,6 +809,37 @@ export default function ManageProjectCosts() {
                                 {editingRecord ? 'Update Payment Request' : 'Submit for Confirmation'}
                             </button>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {showProjectDialog && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => setShowProjectDialog(false)}
+                >
+                    <div
+                        className="relative w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Dialog Header */}
+                        <div className="flex items-center justify-between border-b px-6 py-4">
+                            <h2 className="text-lg font-semibold text-slate-800">
+                                Project Details
+                            </h2>
+
+                            <button
+                                onClick={() => setShowProjectDialog(false)}
+                                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Project Details */}
+                        <div className="max-h-[calc(90vh-70px)] overflow-y-auto">
+                            <ProjectDetails projectId={selectedProjectId} />
+                        </div>
                     </div>
                 </div>
             )}
