@@ -41,6 +41,11 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                      "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAI
                      "GROUP BY p.currencyType")
        List<Map<String, Object>> sumBudgetByCurrencyAndProjectType(@Param("subId") Long subId, @Param("type") ProjectType type);
+       @Query("SELECT p.currencyType as currency, SUM(p.budget) as amount " +
+                     "FROM Project p " +
+                     "WHERE (:clientId IS NULL OR p.client.id = :clientId) " +
+                     "GROUP BY p.currencyType")
+       List<Map<String, Object>> sumBudgetByCurrencyAndClientId(@Param("clientId") Long clientId);
 
        // "Smart" Pie Chart Query:
        // If subId is null (Admin), it groups ALL projects by sub-city including Unassigned if null.
@@ -53,6 +58,15 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
        "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
         List<Map<String, Object>> countProjectsBySubCityAndPhaseAndProjectType(@Param("subId") Long subId, @Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
+        @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as name, COUNT(p) as value " +
+       "FROM Project p LEFT JOIN p.subCity sc " +
+       "WHERE (:subId IS NULL OR sc.id = :subId) " +
+       "AND (:clientId IS NULL OR p.client.id = :clientId)" +
+       "AND p.phase = :phase " +
+       "AND (:type IS NULL OR p.projectType = :type) " + // Logic for BTH/BLD/WAI
+       "GROUP BY COALESCE(sc.subCityName, 'Unassigned')")
+        List<Map<String, Object>> countProjectsByClientIdAndBySubCityAndPhaseAndProjectType(@Param("clientId") Long clientId,@Param("subId") Long subId, @Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
+
        // Area Chart: SQL Server Format (MMM), filter if subId is provided
        @Query(value = "SELECT FORMAT(created_at, 'MMM') as month, " +
                      "currency_type as currency, " +
@@ -63,6 +77,17 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
                      "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at), currency_type " + // Group by currency too
                      "ORDER BY MONTH(created_at)", nativeQuery = true)
        List<Map<String, Object>> getMonthlyBudgetTrendByProjectType(@Param("subId") Long subId, @Param("type") String type);
+
+       @Query(value = "SELECT FORMAT(created_at, 'MMM') as month, " +
+                     "currency_type as currency, " +
+                     "SUM(budget) as amount " +
+                     "FROM projects " +
+                     "WHERE (:clientId IS NULL OR client_id = :clientId) " +
+                     "AND (:subId IS NULL OR sub_city_id = :subId) " +
+                     "AND (:type IS NULL OR project_type = :type) " + // Logic for BTH/BLD/WAI
+                     "GROUP BY FORMAT(created_at, 'MMM'), MONTH(created_at), currency_type " + // Group by currency too
+                     "ORDER BY MONTH(created_at)", nativeQuery = true)
+       List<Map<String, Object>> getMonthlyBudgetTrendByClientIdAndProjectType(@Param("clientId") Long clientId, @Param("subId") Long subId, @Param("type") String type);
 
        // Count methods with sub-city filter
 //        @Query("SELECT p FROM Project p WHERE " +
@@ -110,6 +135,16 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
         // For Sub-City User: Count projects by status within their sub-city
         @Query("SELECT p.status as name, COUNT(p) as value FROM Project p WHERE p.subCity.id = :subId AND p.phase = :phase GROUP BY p.status")
         List<Map<String, Object>> countProjectsByStatusBySubCityAndPhase(@Param("subId") Long subId, ProjectPhase phase);
+
+        @Query("SELECT COALESCE(sc.subCityName, 'Unassigned') as subCity, " + 
+              "p.status as name, " + 
+              "COUNT(p) as value " +
+              "FROM Project p " +
+              "LEFT JOIN p.subCity sc " +
+              "WHERE p.phase = :phase " +
+              "AND (:clientId IS NULL OR p.client.id = :clientId) " +
+              "GROUP BY sc.subCityName, p.status") 
+       List<Map<String, Object>> countProjectsByClientIdAndPhase(@Param("clientId") Long clientId, @Param("phase") ProjectPhase phase);
 
         @Query("SELECT COUNT(p) FROM Project p WHERE p.phase = :phase AND (:type IS NULL OR p.projectType = :type)")
         long countByPhaseAndProjectType(@Param("phase") ProjectPhase phase, @Param("type") ProjectType type);

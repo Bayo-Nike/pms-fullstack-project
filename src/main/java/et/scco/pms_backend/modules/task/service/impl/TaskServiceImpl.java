@@ -67,7 +67,8 @@ public class TaskServiceImpl implements TaskService {
         if (file != null && !file.isEmpty()) {
             String fileName = null;
             try {
-                fileName = fileStorageService.storeFile(file);
+                String filePhath="tasks";
+                fileName = fileStorageService.storeFile(file, filePhath);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -112,7 +113,8 @@ public class TaskServiceImpl implements TaskService {
             if (file != null && !file.isEmpty()) {
             String fileName = null;
             try {
-                fileName = fileStorageService.storeFile(file);
+                String filePhath="tasks";
+                fileName = fileStorageService.storeFile(file, filePhath);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -233,7 +233,7 @@ public class ColorCodingServiceImpl implements ColorCodingService{
             );
             
             if (!fileNamesToDelete.isEmpty()) {
-                fileStorageService.deletePhysicalFiles(fileNamesToDelete); 
+                fileStorageService.deletePhysicalFiles(fileNamesToDelete, "colorCodes"); 
             }
         }
 
@@ -241,8 +241,8 @@ public class ColorCodingServiceImpl implements ColorCodingService{
         if (colorCodingRequestDTO.getPerformanceDocuments() != null && !colorCodingRequestDTO.getPerformanceDocuments().isEmpty()) {
             
             for (MultipartFile file : colorCodingRequestDTO.getPerformanceDocuments()) {
-                
-                String fileName = fileStorageService.storeFile(file);
+                String filePhath="colorCodes";
+                String fileName = fileStorageService.storeFile(file, filePhath);
                 
                 ColorCodingDocument doc = new ColorCodingDocument();
                 doc.setFileName(fileName);
