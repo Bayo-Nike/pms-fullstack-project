@@ -38,4 +38,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     @Query("SELECT e FROM Employee e JOIN FETCH e.position")
 List<Employee> findAllWithPosition();
+
+Long countUsersByClientId(Long clientId);
 }

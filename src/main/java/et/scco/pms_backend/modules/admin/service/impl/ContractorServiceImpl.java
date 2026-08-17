@@ -30,7 +30,8 @@ public class ContractorServiceImpl implements ContractorService{
         Contractor contractor = ContractorMapper.mapToContractor(contractorRequestDTO);
 
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
+            String filePhath="contractors";
+            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument(), filePhath);
             contractor.setDocument(fileName);
         }
         
@@ -69,7 +70,8 @@ public class ContractorServiceImpl implements ContractorService{
 
         // Only update file if a new one is uploaded
         if (contractorRequestDTO.getDocument() != null && !contractorRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument());
+            String filePhath="contractors";
+            String fileName = fileStorageService.storeFile(contractorRequestDTO.getDocument(), filePhath);
             contractor.setDocument(fileName);
         }
         // else: keep the existing file

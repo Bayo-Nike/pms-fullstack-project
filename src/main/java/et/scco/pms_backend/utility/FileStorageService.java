@@ -17,7 +17,7 @@ public class FileStorageService {
 
     private final String uploadDir = "uploads/";
 
-    public String storeFile(MultipartFile file) throws Exception {
+    public String storeFile(MultipartFile file, String subDirectory) throws Exception {
 
         if (file == null || file.isEmpty()) {
             return null;
@@ -25,11 +25,20 @@ public class FileStorageService {
 
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-        Path path = Paths.get(uploadDir + fileName);
+        // Path path = Paths.get(uploadDir + fileName);
+        Path directory = Paths.get(uploadDir, subDirectory);
+        Files.createDirectories(directory);
 
-        Files.createDirectories(path.getParent());
+        Path path = directory.resolve(fileName);
 
-        Files.write(path, file.getBytes());
+        // Files.createDirectories(path.getParent());
+
+        // Files.write(path, file.getBytes());
+        Files.copy(
+            file.getInputStream(),
+            path,
+            StandardCopyOption.REPLACE_EXISTING
+        );
 
         return fileName;
     }
@@ -43,15 +52,24 @@ public class FileStorageService {
     private final Path fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
     
     // Deletes physical files from the directory
-    public void deletePhysicalFiles(List<String> fileNames) {
+    public void deletePhysicalFiles(List<String> fileNames, String subDirectory) {
+        Path directory = fileStorageLocation.resolve(subDirectory).normalize();
+
         for (String fileName : fileNames) {
-            try { 
-                
-                Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
-                boolean deleted = Files.deleteIfExists(filePath);
-                
+            try {
+                Path filePath = directory.resolve(fileName).normalize();
+
+                if (!filePath.startsWith(directory)) {
+                    throw new IOException("Invalid file path: " + fileName);
+                }
+
+                Files.deleteIfExists(filePath);
+
             } catch (IOException ex) {
-                System.err.println("Could not delete file: " + fileName + ". Error: " + ex.getMessage());
+                System.err.println(
+                    "Could not delete file: " + fileName +
+                    ". Error: " + ex.getMessage()
+                );
             }
         }
     }

@@ -42,7 +42,8 @@ public class ConsultancyServiceImpl implements ConsultancyService{
             .orElseThrow(() -> new RuntimeException("The Updating User not found"));
 
         if (consultancyRequestDTO.getDocument() != null && !consultancyRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(consultancyRequestDTO.getDocument());
+            String filePhath="consultants";
+            String fileName = fileStorageService.storeFile(consultancyRequestDTO.getDocument(), filePhath);
             consultancy.setDocument(fileName);
         }
         
@@ -89,7 +90,8 @@ public class ConsultancyServiceImpl implements ConsultancyService{
 
         // Only update file if a new one is uploaded
         if (consultancyRequestDTO.getDocument() != null && !consultancyRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(consultancyRequestDTO.getDocument());
+            String filePhath="consultants";
+            String fileName = fileStorageService.storeFile(consultancyRequestDTO.getDocument(), filePhath);
             consultancy.setDocument(fileName);
         }
 

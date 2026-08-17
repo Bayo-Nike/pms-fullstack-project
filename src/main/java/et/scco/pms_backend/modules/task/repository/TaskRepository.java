@@ -65,12 +65,18 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         "FROM Task t WHERE t.project.subCity.id = :subId AND t.project.phase = :phase GROUP BY t.project.title, t.status")
         List<Map<String, Object>> getTaskStatusDetailedBySubCityAndPhase(@Param("subId") Long subId, @Param("phase") ProjectPhase phase);
 
+        @Query("SELECT t.project.title as projectName, t.status as status, COUNT(t) as count " +
+        "FROM Task t WHERE t.project.client.id = :clientId AND t.project.phase = :phase GROUP BY t.project.title, t.status")
+        List<Map<String, Object>> getTaskStatusDetailedByClientIdAndPhase(@Param("clientId") Long clientId, @Param("phase") ProjectPhase phase);
+
         
         @Query("SELECT COUNT(t) FROM Task t WHERE t.project.phase = :phase " +
                 "AND (:type IS NULL OR t.project.projectType = :type)")
         long countByProjectPhaseAndProjectType(@Param("phase") ProjectPhase phase, @Param("type") ProjectType type);
 
         long countByProjectSubCityIdAndProjectPhase(Long subId, ProjectPhase execution);
+
+        long countByProjectClientIdAndProjectPhase(Long clientId, ProjectPhase execution);
 
         @Query("SELECT t FROM Task t WHERE " +
                 "(:subId IS NULL OR t.project.subCity.id = :subId) AND " +

@@ -184,7 +184,8 @@ public class InspectionServiceImpl implements InspectionService {
                 // String fileName = fileStorageService.storeFile(files.getFirst());
                 String fileName = files.stream().filter(file -> file != null && !file.isEmpty()).map(file -> {
                     try {
-                        return fileStorageService.storeFile(file);
+                        String filePhath="inspections";
+                        return fileStorageService.storeFile(file, filePhath);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

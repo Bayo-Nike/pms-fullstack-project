@@ -4,10 +4,9 @@ import et.scco.pms_backend.modules.admin.repository.ClientRepository;
 import et.scco.pms_backend.modules.admin.repository.ConsultancyRepository;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import et.scco.pms_backend.enums.DemandStatus;
 import et.scco.pms_backend.enums.DivisionGroup;
 import et.scco.pms_backend.enums.ProjectLevel;
 import et.scco.pms_backend.enums.ProjectPhase;
@@ -16,14 +15,17 @@ import et.scco.pms_backend.exception.ResourceNotFoundException;
 import et.scco.pms_backend.modules.admin.model.Division;
 import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.admin.model.SubCity;
+import et.scco.pms_backend.modules.admin.model.User;
 import et.scco.pms_backend.modules.admin.repository.ContractorRepository;
 import et.scco.pms_backend.modules.admin.repository.EmployeeRepository;
 import et.scco.pms_backend.modules.admin.repository.SubCityRepository;
 import et.scco.pms_backend.modules.admin.repository.UserRepository;
 import et.scco.pms_backend.modules.admin.service.impl.EmployeeServiceImpl;
 import et.scco.pms_backend.modules.admin.service.impl.SubCityServiceImpl;
+import et.scco.pms_backend.modules.auth.AuthUtility;
 import et.scco.pms_backend.modules.dashboard.dto.DashboardSummaryDTO;
 import et.scco.pms_backend.modules.dashboard.service.DashboardService;
+import et.scco.pms_backend.modules.demand.repository.DemandRepository;
 import et.scco.pms_backend.modules.planning.repository.ColorCodingRepository;
 import et.scco.pms_backend.modules.project.repository.ProjectRepository;
 import et.scco.pms_backend.modules.task.repository.TaskRepository;
@@ -44,6 +46,7 @@ public class DashboardServiceImpl implements DashboardService {
     private final TaskRepository taskRepository;
     private final ColorCodingRepository codingRepository;
     private final EmployeeServiceImpl employeeServiceImpl;
+    private final DemandRepository demandRepository;
 
     @Override
     public DashboardSummaryDTO getSummary() {
@@ -52,12 +55,40 @@ public class DashboardServiceImpl implements DashboardService {
         Long subId = (userSubCity != null) ? userSubCity.getId() : null;
 
         Employee employee = employeeServiceImpl.findEmployeeWithDivision();
-        Division division = employee.getDivision();
-        if (division == null) {
-            throw new ResourceNotFoundException("Employee is not assigned to a division. Dashboard cannot be generated.");
+        
+        if (employee==null) { // If Client
+            // 1. Get the logged-in username from Security Context
+        String currentUsername = AuthUtility.getUserName();
+
+        // 2. Find the User entity
+        User user = userRepository.findByUsername(currentUsername)
+            .orElseThrow(() -> new RuntimeException("The Creating User not found"));
+        employee=user.getEmployee();
+        }
+ 
+        // check logger is client or not
+        Long clientId = employee.getClient() != null
+            ? employee.getClient().getId()
+            : null;
+
+        Division division =null;
+
+        if (employee.getDivision()!=null) {
+            division = employee.getDivision();    
+        }
+        
+        DivisionGroup divisionGroup=null;
+        // if (division == null) {
+        //     throw new ResourceNotFoundException("Employee is not assigned to a division. Dashboard cannot be generated.");
+        // }else{
+        //     divisionGroup = division.getDivisionGroup();
+
+        // }
+        if (division!=null) {
+            divisionGroup = division.getDivisionGroup();
         }
 
-        DivisionGroup divisionGroup = division.getDivisionGroup();
+        
         // If DivisionGroup is BTH BTH, projectTypeFilter remains null (meaning no filtering)
         // else if BLD = BUILDING or WAI = WATER_AND_IRRIGATION
         ProjectType projectType = null;
@@ -70,7 +101,7 @@ public class DashboardServiceImpl implements DashboardService {
         List<Map<String, Object>> colorCodePerformanceMetrics = (subId == null) 
         ? codingRepository.getPerformanceBySubCityDetailed() 
         : codingRepository.getPerformanceByBuildingType(subId);
- 
+
         return DashboardSummaryDTO.builder()
             // Counts: Ternary logic used for simple counts
             .employeeCount(subId == null ? employeeRepository.count() : employeeRepository.countBySubCityId(subId))
@@ -103,6 +134,48 @@ public class DashboardServiceImpl implements DashboardService {
             .tasksByStatus(subId == null 
                     ? taskRepository.getTaskStatusDetailed(ProjectPhase.EXECUTION, projectType) 
                     : taskRepository.getTaskStatusDetailedBySubCityAndPhase(subId, ProjectPhase.EXECUTION))
+
+            // For Clients
+            .countPendingDemand(
+                clientId == null
+                    ? demandRepository.countDemandByStatus(DemandStatus.PENDING)
+                    : demandRepository.countDemandByClientIdAndStatus(
+                        DemandStatus.PENDING,
+                        clientId
+                    )
+            )
+            .countApprovedDemandCount(
+                clientId == null
+                    ? demandRepository.countDemandByStatus(DemandStatus.APPROVED)
+                    : demandRepository.countDemandByClientIdAndStatus(
+                        DemandStatus.APPROVED,
+                        clientId)
+                    )
+            
+            .countRejectedDemandCount(
+                clientId == null
+                    ? demandRepository.countDemandByStatus(DemandStatus.REJECTED)
+                    : demandRepository.countDemandByClientIdAndStatus(
+                        DemandStatus.REJECTED,
+                        clientId
+                    )
+            )
+            .clientProjectsBySubCity(clientId != null
+                ? projectRepository.countProjectsByClientIdAndBySubCityAndPhaseAndProjectType(clientId,subId, ProjectPhase.EXECUTION, projectType)
+                :projectRepository.countProjectsBySubCityAndPhaseAndProjectType(subId, ProjectPhase.EXECUTION, projectType))
+            .clientBudgetTrend(clientId !=null 
+                ? projectRepository.getMonthlyBudgetTrendByClientIdAndProjectType(clientId,subId, projectType != null ? projectType.name() : null)
+                :projectRepository.getMonthlyBudgetTrendByProjectType(subId, projectType != null ? projectType.name() : null))
+            .clientProjectsByStatus(clientId == null
+                ? projectRepository.getProjectStatusDetailed(ProjectPhase.EXECUTION, projectType) 
+                : projectRepository.countProjectsByClientIdAndPhase(clientId, ProjectPhase.EXECUTION))
+            .clientTasksByStatus(clientId == null 
+                ? taskRepository.getTaskStatusDetailed(ProjectPhase.EXECUTION, projectType) 
+                : taskRepository.getTaskStatusDetailedByClientIdAndPhase(clientId, ProjectPhase.EXECUTION))
+            .userCountAsPerClient(clientId == null ? userRepository.count() : employeeRepository.countUsersByClientId(clientId))
+            .clientBudgetByCurrency(projectRepository.sumBudgetByCurrencyAndClientId(clientId))
+            .clientTaskCount(clientId == null ? taskRepository.countByProjectPhaseAndProjectType(ProjectPhase.EXECUTION, projectType)
+            : taskRepository.countByProjectClientIdAndProjectPhase(clientId,ProjectPhase.EXECUTION))
 
             .build();
     }

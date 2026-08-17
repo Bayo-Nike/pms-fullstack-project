@@ -370,8 +370,12 @@ public class DemandServiceImpl implements DemandService {
                 .collect(Collectors.toList());
 
         for (DemandDocument doc : docsToRemove) {
-            // A. Physical deletion from disk
-            fileStorageService.deletePhysicalFiles(List.of("demands/" + doc.getUniqueFileName()));
+            // A. Delete physical file from uploads/demands/
+            fileStorageService.deletePhysicalFiles(
+                List.of(doc.getUniqueFileName()),
+                "demands"
+            );
+            // fileStorageService.deletePhysicalFiles(List.of("demands/" + doc.getUniqueFileName()));
             
             // B. Database removal (orphanRemoval = true in Demand.java handles the SQL DELETE)
             demand.getDocuments().remove(doc);

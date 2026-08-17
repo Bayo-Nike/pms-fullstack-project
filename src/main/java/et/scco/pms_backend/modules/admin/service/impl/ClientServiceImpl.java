@@ -29,7 +29,8 @@ public class ClientServiceImpl implements ClientService{
         Client client = ClientMapper.mapToClient(clientRequestDTO);
 
         if (clientRequestDTO.getDocument() != null && !clientRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(clientRequestDTO.getDocument());
+            String filePhath="clients";
+            String fileName = fileStorageService.storeFile(clientRequestDTO.getDocument(), filePhath);
             client.setDocument(fileName);
         }
         
@@ -67,7 +68,8 @@ public class ClientServiceImpl implements ClientService{
 
         // Only update file if a new one is uploaded
         if (clientRequestDTO.getDocument() != null && !clientRequestDTO.getDocument().isEmpty()) {
-            String fileName = fileStorageService.storeFile(clientRequestDTO.getDocument());
+            String filePhath="clients";
+            String fileName = fileStorageService.storeFile(clientRequestDTO.getDocument(), filePhath);
             client.setDocument(fileName);
         }
         // else: keep the existing file
