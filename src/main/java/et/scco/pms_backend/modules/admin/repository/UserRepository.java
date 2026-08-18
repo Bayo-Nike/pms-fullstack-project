@@ -28,6 +28,6 @@ public interface UserRepository extends JpaRepository <User, Long> {
 
     long countByEmployeeClientId(Long subCityId);
 
-    
-    
+
+    boolean existsByUsername(String username);
 }
