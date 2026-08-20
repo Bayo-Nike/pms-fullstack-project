@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "super.admin")
 public class SuperAdminProperties {
+    private boolean bootstrapEnabled;
+
     private String firstName;
     private String middleName;
     private String lastName;

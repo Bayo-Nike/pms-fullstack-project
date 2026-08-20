@@ -405,7 +405,28 @@ public class SystemDataInitializer implements ApplicationRunner {
 
     private void initSuperAdmin() {
 
-        Roles admin = getOrCreateRole("SUPER_ADMIN", "System Super Administrator");
+        // Bootstrap disabled
+        if (!superAdminProperties.isBootstrapEnabled()) {
+            return;
+        }
+
+        // Super admin already exists
+        if (userRepository.existsByUsername(superAdminProperties.getUsername())) {
+            return;
+        }
+
+        // Password must be provided
+        if (superAdminProperties.getPassword() == null
+                || superAdminProperties.getPassword().isBlank()) {
+
+            throw new RuntimeException(
+                    "Super admin password not provided");
+        }
+
+        Roles admin = getOrCreateRole(
+                "SUPER_ADMIN",
+                "System Super Administrator");
+
         getOrCreateRole("ROLE_MAYOR", "City Mayor Role");
         getOrCreateRole("ROLE_CITY_OFFICE_HEAD", "City Office Head Role");
 
@@ -422,8 +443,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_SEE_USER_REPORT",
                 "CAN_SEE_DIVISION_REPORT",
                 "CAN_SEE_LOCATION_REPORT",
-                
-                // Sys Admin
+
                 "CAN_SEE_SUBCITY",
                 "CAN_CREATE_SUBCITY",
                 "CAN_EDIT_SUBCITY",
@@ -443,7 +463,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "CAN_CREATE_POSITION",
                 "CAN_EDIT_POSITION",
                 "CAN_DELETE_POSITION",
-                
+
                 "CAN_SEE_SITE_LOCATION",
                 "CAN_CREATE_SITE_LOCATION",
                 "CAN_EDIT_SITE_LOCATION",
@@ -484,30 +504,40 @@ public class SystemDataInitializer implements ApplicationRunner {
         );
 
         List<Permission> permissions =
-                permissionRepository.findAllBySlugIn(requiredPermissions);
+                permissionRepository.findAllBySlugIn(
+                        requiredPermissions);
 
         if (permissions.size() != requiredPermissions.size()) {
-            throw new RuntimeException("Missing required permissions for SUPER_ADMIN");
+            throw new RuntimeException(
+                    "Missing required permissions for SUPER_ADMIN");
         }
 
         admin.setPermissions(new HashSet<>(permissions));
         roleRepository.save(admin);
 
-        User user = userRepository.findByUsername(superAdminProperties.getUsername())
-                .orElseGet(User::new);
+        User user = new User();
 
-        user.setUsername(superAdminProperties.getUsername());
-        user.setEmail(superAdminProperties.getUserEmail());
-        user.setRoles(new HashSet<>(List.of(admin)));
+        user.setUsername(
+                superAdminProperties.getUsername());
+
+        user.setEmail(
+                superAdminProperties.getUserEmail());
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        superAdminProperties.getPassword()));
+
+        user.setRoles(
+                new HashSet<>(List.of(admin)));
+
         user.setUserType(UserType.SYSTEM);
-        user.setEmployee(null);
 
-        if (user.getId() == null) {
-            user.setPassword(passwordEncoder.encode(superAdminProperties.getPassword()));
-        }
+        user.setEmployee(null);
 
         userRepository.save(user);
     }
+
+
 
     private Roles getOrCreateRole(String name, String description) {
         return roleRepository.findByRoleName(name)
