@@ -1,6 +1,7 @@
 package et.scco.pms_backend.modules.admin.model;
 
 import et.scco.pms_backend.enums.EmployeeStatus;
+import et.scco.pms_backend.enums.PrincipalType;
 import et.scco.pms_backend.enums.UserType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,10 +35,20 @@ public class User {
     @Column(name = "user_type", nullable = false)
     private UserType userType;
 
-    // Optional Employee Link
+    @Enumerated(EnumType.STRING)
+    @Column(name = "principal_type", nullable = false)
+    private PrincipalType principalType = PrincipalType.USER;
+    
+    // USER -> Employee
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id", unique = true)
     private Employee employee;
+
+    // API_CLIENT -> ApiClient
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "api_client_id", unique = true)
+    private ApiClient apiClient;
+    
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

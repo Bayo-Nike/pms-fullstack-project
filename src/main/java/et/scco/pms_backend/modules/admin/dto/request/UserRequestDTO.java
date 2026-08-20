@@ -16,5 +16,6 @@ public class UserRequestDTO {
     private String remark;
 
     private List<Long> roleIds;   // important
+    private String principalType;
 
 }

@@ -2,6 +2,8 @@ package et.scco.pms_backend.modules.admin.dto.response;
  
 import java.util.List;
 
+import et.scco.pms_backend.enums.PrincipalType;
+import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.dto.RoleDto;
 import lombok.Data;
 
@@ -13,4 +15,7 @@ public class UserResponseDTO {
     private String email;
     private List<RoleDto> roles;
     private boolean mobileAllowed;
+    private PrincipalType principalType;
+    private UserType userType;
+    private Long apiClientId;
 }

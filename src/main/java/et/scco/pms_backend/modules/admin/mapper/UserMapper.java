@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import et.scco.pms_backend.enums.DivisionGroup;
+import et.scco.pms_backend.enums.PrincipalType;
 import et.scco.pms_backend.enums.UserType;
 import et.scco.pms_backend.modules.admin.dto.request.UserCreateRequest;
 import et.scco.pms_backend.modules.admin.dto.response.UserResponseDTO;
@@ -32,6 +33,17 @@ public class UserMapper {
                 .collect(Collectors.toList()));
         }
         dto.setMobileAllowed(user.getMobileAllowed());
+        dto.setPrincipalType(user.getPrincipalType());
+        
+        if (user.getPrincipalType().equals(PrincipalType.API_CLIENT)){
+            dto.setApiClientId(
+                user.getApiClient() != null
+                    ? user.getApiClient().getId()
+                    : null
+            );            
+        }
+        dto.setUserType(user.getUserType());
+        
 
         return dto;
     }
