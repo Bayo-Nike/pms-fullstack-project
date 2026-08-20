@@ -17,6 +17,43 @@ const adminApi = {
     DELETE_ROLE: (id) => api.delete(`/admin/roles/${id}`),
     GET_PERMISSIONS: () => api.get("/admin/permissions"),
 
+    // =========================
+    // API CLIENT
+    // =========================
+
+    GET_API_CLIENTS: () =>
+        api.get("/admin/api-clients"),
+
+    GET_API_CLIENT: (id) =>
+        api.get(`/admin/api-clients/${id}`),
+
+    CREATE_API_CLIENT: (data) =>
+        api.post("/admin/api-clients", data),
+
+    UPDATE_API_CLIENT: (id, data) =>
+        api.put(`/admin/api-clients/${id}`, data),
+
+    SUSPEND_API_CLIENT: (id) =>
+        api.put(`/admin/api-clients/${id}/suspend`),
+
+    ACTIVATE_API_CLIENT: (id) =>
+        api.put(`/admin/api-clients/${id}/activate`),
+
+    REVOKE_API_CLIENT: (id) =>
+        api.put(`/admin/api-clients/${id}/revoke`),
+
+    GET_API_SCOPES: () =>
+        api.get("/admin/api-scopes"),
+
+    GET_API_CLIENT_SCOPES: (id) =>
+        api.get(`/admin/api-clients/${id}/scopes`),
+
+    UPDATE_API_CLIENT_SCOPES: (id, scopeIds) =>
+        api.put(
+            `/admin/api-clients/${id}/scopes`,
+            { scopeIds }
+        ),
+
     //city
     GET_CITY: () => api.get("/admin/cities/city"),
     GET_SUB_CITIES: () => api.get('/admin/cities/sub'),

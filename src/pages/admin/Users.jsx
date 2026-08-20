@@ -14,6 +14,8 @@ export default function Users() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [userType, setUserType] = useState('ALL');
+
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -30,7 +32,7 @@ export default function Users() {
     });
 
     useEffect(() => { fetchUsers(); }, []);
-    useEffect(() => { setCurrentPage(1); }, [searchTerm]);
+    useEffect(() => { setCurrentPage(1); }, [searchTerm, userType]);
 
     const fetchUsers = async () => {
         try {
@@ -88,12 +90,28 @@ export default function Users() {
         }
     };
 
+    // const filteredUsers = useMemo(() => {
+    //     return users.filter(user =>
+    //         (user.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+    //         (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
+            
+    //     );
+    // }, [users, searchTerm]);
     const filteredUsers = useMemo(() => {
-        return users.filter(user =>
-            (user.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (user.email || "").toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [users, searchTerm]);
+        return users.filter(user => {
+            const search = searchTerm.toLowerCase();
+    
+            const matchesSearch =
+                (user.fullName || "").toLowerCase().includes(search) ||
+                (user.email || "").toLowerCase().includes(search);
+    
+            const matchesUserType =
+                userType === 'ALL' || user.userType === userType;
+    
+            return matchesSearch && matchesUserType;
+        });
+    }, [users, searchTerm, userType]);
+    
 
     const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -156,7 +174,7 @@ export default function Users() {
                 )}
             </div>
 
-            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+            {/* <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
                 <div className="relative max-w-sm w-full">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: 18 }} />
                     <input type="text" placeholder="Search by name or email..." className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -167,7 +185,59 @@ export default function Users() {
                         {[5, 10, 20].map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                 </div>
+            </div> */}
+
+            <div className="bg-white p-3 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between">
+
+            <div className="flex items-center gap-2 w-full">
+
+                {/* User Type */}
+                <select
+                    value={userType}
+                    onChange={(e) => setUserType(e.target.value)}
+                    className="bg-slate-50 border border-slate-200 text-xs rounded-lg px-3 py-2 outline-none focus:border-[#0284C7] focus:bg-white transition-all"
+                >
+                    <option value="ALL">All User Types</option>
+                    <option value="SYSTEM">System</option>
+                    <option value="EMPLOYEE">Employee</option>
+                </select>
+
+
+                {/* Search */}
+                <div className="relative max-w-sm w-full">
+                    <Search
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                        style={{ fontSize: 18 }}
+                    />
+
+                    <input
+                        type="text"
+                        placeholder="Search by name or email..."
+                        className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none focus:border-[#0284C7] focus:bg-white transition-all"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
             </div>
+
+            <div className="flex items-center gap-2 px-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase">
+                    Show:
+                </span>
+
+                <select
+                    value={itemsPerPage}
+                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                    className="bg-slate-50 border border-slate-200 text-[10px] font-bold rounded px-2 py-1 outline-none"
+                >
+                    {[5, 10, 20].map(s => (
+                        <option key={s} value={s}>{s}</option>
+                    ))}
+                </select>
+            </div>
+            </div>
+
 
             <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse">
