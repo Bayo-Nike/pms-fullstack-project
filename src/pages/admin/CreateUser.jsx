@@ -111,11 +111,7 @@ export default function CreateUser() {
      */
     const [availableEmployees, setAvailableEmployees] = useState([]);
 
-    /*
-     * ============================================================
-     * UI
-     * ============================================================
-     */
+    // UI
     const [empSearch, setEmpSearch] = useState('');
     const [isEmpListOpen, setIsEmpListOpen] = useState(false);
 
@@ -134,11 +130,7 @@ export default function CreateUser() {
         message: ''
     });
 
-    /*
-     * ============================================================
-     * EMPTY API CLIENT
-     * ============================================================
-     */
+    // EMPTY API CLIENT
     const emptyApiClientData = {
         organizationName: '',
         applicationName: '',
@@ -152,11 +144,7 @@ export default function CreateUser() {
         expiresAt: ''
     };
 
-    /*
-     * ============================================================
-     * PASSWORD VALIDATION
-     * ============================================================
-     */
+    // PASSWORD VALIDATION
     const passwordValidation = useMemo(() => {
 
         const p = formData.password;
@@ -174,11 +162,7 @@ export default function CreateUser() {
     const isPasswordValid =
         Object.values(passwordValidation).every(Boolean);
 
-    /*
-     * ============================================================
-     * ALERT
-     * ============================================================
-     */
+    // ALERT
     const showAlert = (type, message) => {
 
         setAlert({
@@ -200,11 +184,7 @@ export default function CreateUser() {
         }
     };
 
-    /*
-     * ============================================================
-     * CLICK OUTSIDE
-     * ============================================================
-     */
+    // CLICK OUTSIDE
     useEffect(() => {
 
         const handleClickOutside = (event) => {
@@ -235,21 +215,13 @@ export default function CreateUser() {
 
     }, []);
 
-    /*
-     * ============================================================
-     * NORMALIZE RESPONSE
-     * ============================================================
-     */
+    // NORMALIZE RESPONSE
     const getResponseData = (response) => {
 
         return response?.data ?? response;
     };
 
-    /*
-     * ============================================================
-     * FORMAT DATETIME LOCAL
-     * ============================================================
-     */
+    // FORMAT DATETIME LOCAL
     const formatDateTimeLocal = (value) => {
 
         if (!value) {
@@ -274,22 +246,14 @@ export default function CreateUser() {
         );
     };
 
-    /*
-     * ============================================================
-     * INITIALIZATION
-     * ============================================================
-     */
+    // INITIALIZATION
     useEffect(() => {
 
         const init = async () => {
 
             try {
 
-                /*
-                 * ------------------------------------------------
-                 * LOAD ROLES
-                 * ------------------------------------------------
-                 */
+                // LOAD ROLES
                 const rolesRes =
                     await adminApi.GET_ROLES();
 
@@ -304,11 +268,7 @@ export default function CreateUser() {
                     )
                 );
 
-                /*
-                 * ------------------------------------------------
-                 * CREATE MODE
-                 * ------------------------------------------------
-                 */
+                // CREATE MODE
                 if (!isEdit) {
 
                     const employeesRes =
@@ -326,11 +286,7 @@ export default function CreateUser() {
                     return;
                 }
 
-                /*
-                 * ------------------------------------------------
-                 * EDIT MODE
-                 * ------------------------------------------------
-                 */
+                // EDIT MODE
                 const userRes =
                     await adminApi.GET_USER(id);
 
@@ -345,11 +301,7 @@ export default function CreateUser() {
                 );
 
 
-                /*
-                 * ------------------------------------------------
-                 * API CLIENT EDIT
-                 * ------------------------------------------------
-                 */
+                // API CLIENT EDIT
                 if (
                     currentPrincipalType ===
                     'API_CLIENT'
@@ -531,11 +483,7 @@ export default function CreateUser() {
                     return;
                 }
 
-                /*
-                 * ------------------------------------------------
-                 * USER EDIT
-                 * ------------------------------------------------
-                 */
+                // USER EDIT
                 setFormData({
                     employeeId:
                         user.employeeId || '',
@@ -582,11 +530,7 @@ export default function CreateUser() {
 
     }, [id, isEdit]);
 
-    /*
-     * ============================================================
-     * API CLIENT ROLE
-     * ============================================================
-     */
+    // API CLIENT ROLE
     const selectedRoles = useMemo(() => {
 
         return availableRoles.filter(
@@ -611,11 +555,7 @@ export default function CreateUser() {
 
     }, [selectedRoles]);
 
-    /*
-     * ============================================================
-     * API CLIENT ROLE PERMISSIONS
-     * ============================================================
-     */
+    // API CLIENT ROLE PERMISSIONS
     const apiClientRolePermissions = useMemo(() => {
 
         if (
@@ -735,13 +675,20 @@ export default function CreateUser() {
                 );
             }
 
+            // /*
+            //  * Otherwise select all permissions by default.
+            //  */
+            // return apiClientRolePermissions.map(
+            //     permission =>
+            //         permission.id
+            // );
+
+            
             /*
-             * Otherwise select all permissions by default.
-             */
-            return apiClientRolePermissions.map(
-                permission =>
-                    permission.id
-            );
+            * Otherwise leave permissions deselected by default.
+            */
+            return [];
+
 
         });
 
@@ -937,37 +884,57 @@ export default function CreateUser() {
                             roleId
                     );
 
-                if (
-                    role?.roleName ===
-                    'ROLE_API_CLIENT'
-                ) {
+                // if (
+                //     role?.roleName ===
+                //     'ROLE_API_CLIENT'
+                // ) {
 
-                    if (
-                        isCurrentlySelected
-                    ) {
+                //     if (
+                //         isCurrentlySelected
+                //     ) {
 
-                        setSelectedPermissionIds([]);
+                //         setSelectedPermissionIds([]);
 
-                    } else {
+                //     } else {
 
-                        const permissionIds =
-                            Array.isArray(
-                                role.permissions
-                            )
-                                ? role.permissions
-                                    .map(
-                                        permission =>
-                                            permission.id
-                                    )
-                                    .filter(Boolean)
-                                : [];
+                //         const permissionIds =
+                //             Array.isArray(
+                //                 role.permissions
+                //             )
+                //                 ? role.permissions
+                //                     .map(
+                //                         permission =>
+                //                             permission.id
+                //                     )
+                //                     .filter(Boolean)
+                //                 : [];
 
                         
-                        setSelectedPermissionIds(
-                            permissionIds
-                        );
+                //         setSelectedPermissionIds(
+                //             permissionIds
+                //         );
+                //     }
+                // }
+                if (
+                    role?.roleName === 'ROLE_API_CLIENT'
+                ) {
+                
+                    if (isCurrentlySelected) {
+                
+                        setSelectedPermissionIds([]);
+                
+                    } else {
+                
+                        /*
+                         * ROLE_API_CLIENT is required for API clients,
+                         * but its permissions must be explicitly selected
+                         * by the administrator.
+                         */
+                        setSelectedPermissionIds([]);
+                
                     }
-                }
+                }                
+                
             }
 
             return nextRoleIds;
