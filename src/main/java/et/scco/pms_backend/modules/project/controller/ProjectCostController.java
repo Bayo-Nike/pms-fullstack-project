@@ -101,7 +101,7 @@ public class ProjectCostController {
     @GetMapping("/costs/files/{fileName:.+}")
     // @GetMapping("/download/{filename:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws Exception {
-        Path filePath = Paths.get("uploads/costs").resolve(fileName).normalize();
+        Path filePath = Paths.get("uploads/payments").resolve(fileName).normalize();
         Resource resource = new UrlResource(filePath.toUri());
 
         if (!resource.exists()) {

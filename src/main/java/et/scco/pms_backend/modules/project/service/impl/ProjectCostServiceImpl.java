@@ -423,7 +423,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
      * Professional helper to save file to disk
      */
     private void saveFileToDisk(MultipartFile file, String fileName) throws IOException {
-        Path uploadPath = Paths.get("uploads/costs");
+        Path uploadPath = Paths.get("uploads/payments");
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
@@ -438,7 +438,7 @@ public class ProjectCostServiceImpl implements ProjectCostService {
      */
     private void deleteOldFile(String fileName) {
         try {
-            Path filePath = Paths.get("uploads/costs").resolve(fileName);
+            Path filePath = Paths.get("uploads/payments").resolve(fileName);
             Files.deleteIfExists(filePath);
         } catch (IOException e) {
             // Log the error but don't stop the transaction

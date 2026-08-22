@@ -40,9 +40,10 @@ public class SecurityConfig {
                     config.setAllowedOrigins(List.of(origins.split(",")));
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-//                    config.setAllowCredentials(true);
+                    config.setAllowCredentials(true);
                     return config;
                 }))
+                    
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

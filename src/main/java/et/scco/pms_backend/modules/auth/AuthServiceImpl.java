@@ -30,10 +30,55 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final TokenBlacklistRepository tokenBlacklistRepository;
+    private final AuthContext authContext;
+    private final PasswordEncoder passwordEncoder;
 
+    // @Override
+    // public AuthResponseDto login(LoginRequestDto request, Boolean isMobile) {
+    //     Authentication authentication;
+    //     try {
+    //         authentication = authenticationManager.authenticate(
+    //                 new UsernamePasswordAuthenticationToken(
+    //                         request.getUsernameOrEmail(),
+    //                         request.getPassword()
+    //                 )
+    //         );
+    //     } catch (Exception ex) {
+    //         throw new BadCredentialsException("Invalid username/email or password");
+    //     }
+
+    //     SecurityContextHolder.getContext().setAuthentication(authentication);
+    //     String token = jwtService.generateToken(authentication);
+
+    //     User user = userRepository
+    //             .findByUsernameOrEmail(
+    //                     request.getUsernameOrEmail(),
+    //                     request.getUsernameOrEmail()
+    //             )
+    //             .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+    //     if (isMobile) {
+    //         //is mobile end login
+    //         if (!user.getMobileAllowed()){
+    //             throw new UsernameNotFoundException("Mobile login is not allowed");
+    //         }
+    //     }
+
+    //     //check if the user is active
+    //     if (user.getUserType().equals(UserType.EMPLOYEE) && user.getStatus() != EmployeeStatus.ACTIVE) {
+    //         throw new UsernameNotFoundException("User is not active");
+    //     }
+
+    //     return new AuthResponseDto(token, UserMapper.toResponseDto(user));
+    // }
     @Override
-    public AuthResponseDto login(LoginRequestDto request, Boolean isMobile) {
+    public AuthResponseDto login(
+            LoginRequestDto request,
+            Boolean isMobile
+    ) {
+
         Authentication authentication;
+
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -42,50 +87,91 @@ public class AuthServiceImpl implements AuthService {
                     )
             );
         } catch (Exception ex) {
-            throw new BadCredentialsException("Invalid username/email or password");
+            throw new BadCredentialsException(
+                    "Invalid username/email or password"
+            );
         }
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtService.generateToken(authentication);
 
         User user = userRepository
                 .findByUsernameOrEmail(
                         request.getUsernameOrEmail(),
                         request.getUsernameOrEmail()
                 )
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found")
+                );
 
-        if (isMobile) {
-            //is mobile end login
-            if (!user.getMobileAllowed()){
-                throw new UsernameNotFoundException("Mobile login is not allowed");
+        if (Boolean.TRUE.equals(isMobile)
+                && !user.getMobileAllowed()) {
+
+            throw new BadCredentialsException(
+                    "Mobile login is not allowed"
+            );
+        }
+
+        if (user.getUserType().equals(UserType.EMPLOYEE)
+                && user.getStatus() != EmployeeStatus.ACTIVE) {
+
+            throw new BadCredentialsException(
+                    "User is not active"
+            );
+        }
+
+        SecurityContextHolder
+                .getContext()
+                .setAuthentication(authentication);
+
+        String token =
+                jwtService.generateToken(authentication);
+
+        return new AuthResponseDto(
+                token,
+                UserMapper.toResponseDto(user)
+        );
+    }
+
+    // @Override
+    // public void logout(String token) {
+    //     if (token != null && token.startsWith("Bearer ")) {
+    //         String jwt = token.substring(7);
+
+    //         Date expiry = jwtService.extractExpiration(jwt);
+    //         LocalDateTime expiryTime = expiry.toInstant()
+    //                 .atZone(ZoneId.systemDefault())
+    //                 .toLocalDateTime();
+
+    //         TokenBlacklist blacklist = new TokenBlacklist();
+    //         blacklist.setToken(jwt);
+    //         blacklist.setExpiryTime(expiryTime);
+
+    //         tokenBlacklistRepository.save(blacklist);
+    //     }
+    //     SecurityContextHolder.clearContext();
+    // }
+    @Override
+    public void logout(String jwt) {
+
+        if (jwt != null && !jwt.isBlank()) {
+
+            try {
+                Date expiry = jwtService.extractExpiration(jwt);
+
+                LocalDateTime expiryTime = expiry.toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();
+
+                TokenBlacklist blacklist = new TokenBlacklist();
+                blacklist.setToken(jwt);
+                blacklist.setExpiryTime(expiryTime);
+
+                tokenBlacklistRepository.save(blacklist);
+
+            } catch (Exception e) {
+                // Invalid or already expired JWT.
+                // The cookie will still be cleared by the controller.
             }
         }
 
-        //check if the user is active
-        if (user.getUserType().equals(UserType.EMPLOYEE) && user.getStatus() != EmployeeStatus.ACTIVE) {
-            throw new UsernameNotFoundException("User is not active");
-        }
-
-        return new AuthResponseDto(token, UserMapper.toResponseDto(user));
-    }
-
-    @Override
-    public void logout(String token) {
-        if (token != null && token.startsWith("Bearer ")) {
-            String jwt = token.substring(7);
-
-            Date expiry = jwtService.extractExpiration(jwt);
-            LocalDateTime expiryTime = expiry.toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-
-            TokenBlacklist blacklist = new TokenBlacklist();
-            blacklist.setToken(jwt);
-            blacklist.setExpiryTime(expiryTime);
-
-            tokenBlacklistRepository.save(blacklist);
-        }
         SecurityContextHolder.clearContext();
     }
 
@@ -104,10 +190,6 @@ public class AuthServiceImpl implements AuthService {
 
         return UserMapper.toResponseDto(user);
     }
-
-
-    private final AuthContext authContext;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public Boolean changePassword(ChangePasswordRequestDto dto) {

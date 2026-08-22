@@ -427,6 +427,7 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "SUPER_ADMIN",
                 "System Super Administrator");
 
+        getOrCreateRole("ROLE_API_CLIENT", "For Other Systems API Integration");
         getOrCreateRole("ROLE_MAYOR", "City Mayor Role");
         getOrCreateRole("ROLE_CITY_OFFICE_HEAD", "City Office Head Role");
 
