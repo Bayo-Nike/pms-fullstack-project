@@ -186,14 +186,14 @@ export default function CreateRole() {
                         <label className="text-[9px] font-bold uppercase text-slate-400 tracking-widest block mb-2 ml-1">Internal Role Name (roleName)</label>
                         <input className="w-full text-sm font-semibold bg-white border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-[#0284C7] transition-all" placeholder="e.g. FINANCE_DIRECTOR"
                             value={roleName} onChange={(e) => setRoleName(e.target.value)}
-                            disabled={roleName === "ROLE_CITY_OFFICE_HEAD" || roleName === "ROLE_MAYOR"}
+                            disabled={roleName === "ROLE_CITY_OFFICE_HEAD" || roleName === "ROLE_MAYOR"  || roleName === "ROLE_API_CLIENT"}
                         />
                     </div>
                     <div>
                         <label className="text-[9px] font-bold uppercase text-slate-400 tracking-widest block mb-2 ml-1">System Description</label>
                         <input className="w-full text-sm font-semibold bg-white border border-slate-200 rounded-lg px-4 py-3 outline-none focus:border-[#0284C7] transition-all" placeholder="e.g. Executive role for budgeting"
                             value={description} onChange={(e) => setDescription(e.target.value)}
-                            disabled={roleName === "ROLE_CITY_OFFICE_HEAD" || roleName === "ROLE_MAYOR"}
+                            disabled={roleName === "ROLE_CITY_OFFICE_HEAD" || roleName === "ROLE_MAYOR"  || roleName === "ROLE_API_CLIENT"}
                         />
                     </div>
                 </div>

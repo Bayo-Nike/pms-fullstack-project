@@ -175,7 +175,7 @@ export default function Roles() {
                                                 )}
                                                 {can('CAN_DELETE_ROLE_PERMISSION') && (
                                                     
-                                                        (!(role.roleName === 'ROLE_CITY_OFFICE_HEAD' || role.roleName === 'ROLE_MAYOR')) &&
+                                                        (!(role.roleName === 'ROLE_CITY_OFFICE_HEAD' || role.roleName === 'ROLE_MAYOR' || role.roleName==='ROLE_API_CLIENT')) &&
                                                         (<button
                                                             onClick={() => handleDeleteClick(role)}
                                                             className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all"
