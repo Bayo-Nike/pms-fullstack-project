@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface RoleRepository extends JpaRepository <Roles, Long> {
 
-    Optional<Roles> findByRoleName(String superAdmin);
+    Optional<Roles> findByRoleName(String roleName);
     @Query("""
        SELECT CASE WHEN COUNT(u) > 0 THEN TRUE ELSE FALSE END
        FROM User u JOIN u.roles r

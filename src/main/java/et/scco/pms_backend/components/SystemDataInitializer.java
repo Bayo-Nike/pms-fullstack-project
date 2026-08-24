@@ -427,9 +427,15 @@ public class SystemDataInitializer implements ApplicationRunner {
                 "SUPER_ADMIN",
                 "System Super Administrator");
 
-        getOrCreateRole("ROLE_API_CLIENT", "For Other Systems API Integration");
-        getOrCreateRole("ROLE_MAYOR", "City Mayor Role");
-        getOrCreateRole("ROLE_CITY_OFFICE_HEAD", "City Office Head Role");
+        getOrCreateRole(
+                "ROLE_API_CLIENT", 
+                "For Other Systems API Integration");
+        getOrCreateRole(
+                "ROLE_MAYOR", 
+                "City Mayor Role");
+        getOrCreateRole(
+                "ROLE_CITY_OFFICE_HEAD", 
+                "City Office Head Role");
 
         List<String> requiredPermissions = List.of(
                 "CAN_SEE_DASHBOARD",
@@ -540,11 +546,11 @@ public class SystemDataInitializer implements ApplicationRunner {
 
 
 
-    private Roles getOrCreateRole(String name, String description) {
-        return roleRepository.findByRoleName(name)
+    private Roles getOrCreateRole(String roleName, String description) {
+        return roleRepository.findByRoleName(roleName)
                 .orElseGet(() -> {
                     Roles r = new Roles();
-                    r.setRoleName(name);
+                    r.setRoleName(roleName);
                     r.setDescription(description);
                     return roleRepository.save(r);
                 });

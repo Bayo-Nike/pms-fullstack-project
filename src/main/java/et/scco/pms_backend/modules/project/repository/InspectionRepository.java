@@ -2,7 +2,6 @@ package et.scco.pms_backend.modules.project.repository;
 
 import et.scco.pms_backend.enums.InspectionStatus;
 import et.scco.pms_backend.enums.ProjectType;
-import et.scco.pms_backend.modules.admin.model.Employee;
 import et.scco.pms_backend.modules.project.model.Inspection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
